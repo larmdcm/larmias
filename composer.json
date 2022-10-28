@@ -1,0 +1,47 @@
+{
+  "name": "larmias/larmias",
+  "description": "A memory resident php development framework.",
+  "type": "library",
+  "keywords": [
+    "php",
+    "WorkerS",
+    "larmias",
+    "psr",
+    "framework"
+  ],
+  "homepage": "https://larmias.com/",
+  "license": "Apache-2.0",
+  "authors": [
+    {
+      "name": "larmdcm",
+      "email": "mdcm98@163.com"
+    }
+  ],
+  "require": {
+    "php": ">=8.0",
+    "ext-mbstring": "*",
+    "ext-ctype": "*",
+    "ext-json": "*",
+    "psr/container": "^2.0",
+    "psr/log": "^3.0",
+    "opis/closure": "^3.6"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^9.5.10"
+  },
+  "autoload": {
+    "files": [
+      "src/utils/src/functions.php"
+    ],
+    "psr-4": {
+      "Larmias\\Utils\\": "src/utils/src/",
+      "Larmias\\Contracts\\": "src/contracts/src/",
+      "Larmias\\Config\\": "src/config/src/",
+      "Larmias\\Container\\": "src/container/src/",
+      "Larmias\\WorkerS\\": "src/worker-s/src/",
+      "Larmias\\HttpMessage\\": "src/http-message/src/",
+      "Larmias\\Server\\": "src/server/src/",
+      "Larmias\\HttpServer\\": "src/http-server/src/"
+    }
+  }
+}

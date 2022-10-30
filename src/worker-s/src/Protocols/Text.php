@@ -10,7 +10,7 @@ class Text implements ProtocolInterface
 {
     /**
      * @param string     $data
-     * @param Connection $connection
+     * @param Connection|null $connection
      * @return int
      */
     public static function input(string $data,?Connection $connection): int
@@ -24,20 +24,20 @@ class Text implements ProtocolInterface
 
     /**
      * @param string     $data
-     * @param Connection $connection
-     * @return mixed
+     * @param Connection|null $connection
+     * @return string
      */
-    public static function encode(string $data,?Connection $connection)
+    public static function encode(string $data,?Connection $connection): string
     {
         return $data . "\n";
     }
 
     /**
      * @param string     $data
-     * @param Connection $connection
-     * @return mixed
+     * @param Connection|null $connection
+     * @return string
      */
-    public static function decode(string $data,?Connection $connection)
+    public static function decode(string $data,?Connection $connection): string
     {
         return \rtrim($data,PHP_EOL);
     }

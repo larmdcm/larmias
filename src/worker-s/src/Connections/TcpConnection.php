@@ -98,7 +98,7 @@ class TcpConnection extends Connection
     /**
      * ProtocolInterface class
      * 
-     * @var string|null
+     * @var string
      */
     protected string $protocol;
 
@@ -177,7 +177,7 @@ class TcpConnection extends Connection
         while ($this->recvBuffer !== '') {
             $recvBuffeLen = \strlen($this->recvBuffer);
             if ($this->currentPackageLen) {
-                if ($this->currentPackageLen  > $recvBuffeLen) {
+                if ($this->currentPackageLen > $recvBuffeLen) {
                     break;
                 }
             } else {

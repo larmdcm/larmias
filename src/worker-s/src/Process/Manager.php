@@ -93,7 +93,7 @@ class Manager
      */
     public function __construct(array $config = [])
     {
-        $this->config = array_merge($this->config,static::getDefaultConfig(),$config);
+        $this->config = \array_merge($this->config,static::getDefaultConfig(),$config);
         $this->signal = new Signal();
     }
 
@@ -107,7 +107,7 @@ class Manager
         if ($this->isInit) {
             return $this;
         }
-        $this->workerNum     = max(1,$this->config['worker_num'] ?? 1);
+        $this->workerNum     = \max(1,$this->config['worker_num'] ?? 1);
         $this->loopMicrotime = $this->config['loop_microtime'];
         $this->name          = $this->config['name'] ?? 'worker-s';
 

@@ -357,7 +357,7 @@ class Server
                     'backlog' => 102400,
                 ]
             ],
-            'reuse_port'  => true,
+            'reuse_port'  => false,
             'task'        => [],
         ];
     }

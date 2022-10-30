@@ -25,12 +25,7 @@ class ParameterBind
     public function __construct(protected ?ReflectionFunctionAbstract $reflect = null,protected ?Closure $makeClassHandler = null)
     {
     }
-
-    public function __get(string $name): mixed
-    {
-        return null;
-    }
-
+    
     /**
      * @param ...$args
      * @return array

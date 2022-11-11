@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Larmias\WorkerS\Support;
 
 use Throwable;
+use Closure;
 
 class Helper
 {
@@ -180,5 +181,14 @@ class Helper
                 \posix_isatty($stream); // whether is interactive terminal
         }
         return static::$outputStream = $stream;
+    }
+
+    /**
+     * @param  mixed  $value 
+     * @return mixed
+     */
+    public static function value(mixed $value): mixed
+    {
+        return $value instanceof Closure ? $value() : $value;
     }
 }

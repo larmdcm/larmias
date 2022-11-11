@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Larmias\WorkerS\Support;
 
-use Larmias\Utils\Arr;
-
 class Env
 {
     /**

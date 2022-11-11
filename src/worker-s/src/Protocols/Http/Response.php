@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Larmias\WorkerS\Protocols\Http;
 
 use Larmias\WorkerS\Connections\TcpConnection;
-use Larmias\WorkerS\Server;
+use Larmias\WorkerS\Manager;
 use RuntimeException;
 
 class Response
@@ -325,7 +325,7 @@ class Response
         $header  = sprintf("HTTP/%s %d %s\r\n",$this->version,$this->statusCode,$this->reason ?: static::$phrases[$this->statusCode]);
         
         if (!isset($headers['Server'])) {
-            $headers['Server'] = 'worker-s/' . Server::VERSION;
+            $headers['Server'] = 'worker-s/' . Manager::VERSION;
         }
         if (!isset($headers['Connection'])) {
             $headers['Connection'] = $this->connection->request->header('connection','close');

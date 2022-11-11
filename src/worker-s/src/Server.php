@@ -5,31 +5,18 @@ declare(strict_types=1);
 namespace Larmias\WorkerS;
 
 use Larmias\WorkerS\Events\EventInterface;
-use Larmias\WorkerS\Connections\{Connection,TcpConnection};
-use Larmias\WorkerS\Concerts\HasEvents;
-use Larmias\WorkerS\Task\TaskWorker;
-use Larmias\WorkerS\Process\Worker\Worker;
+use Larmias\WorkerS\Connections\{Connection, TcpConnection};
+use Larmias\WorkerS\Process\Worker\Worker as ProcessWorker;
 use Larmias\WorkerS\Support\Helper;
-use Larmias\Utils\Arr;
+use Larmias\WorkerS\Worker as BaseWorker;
+use Larmias\WorkerS\Constants\Event as EventConstant;
 use RuntimeException;
 
-class Server
+class Server extends BaseWorker
 {
-    use HasEvents;
-
-    /**
-     * @var string
-     */
-    const VERSION = '1.0.0';
-
-    /**
-     * @var string
-     */
-    protected string $serverId;
-
     /**
      * stream resource
-     * 
+     *
      * @var resource
      */
     protected $mainSocket;
@@ -67,28 +54,16 @@ class Server
     protected int $bindPort;
 
     /**
-     * @var array
-     */
-    protected array $config = [];
-
-    /**
      * @var EventInterface
      */
     protected EventInterface $event;
 
     /**
      * ProtocolInterface class
-     * 
-     * @var string|null
-     */
-    protected ?string $protocol;
-
-    /**
-     * server name.
      *
      * @var string
      */
-    protected string $name;
+    protected string $protocol;
 
     /**
      * @var array
@@ -102,39 +77,33 @@ class Server
     ];
 
     /**
-     * @var TaskWorker
-     */
-    protected TaskWorker $taskWorker;
-
-    /**
      * Server __construct.
      *
      * @param ?string $address
      */
     public function __construct(?string $address = null)
     {
+        parent::__construct();
+
         $parseResult = $address ? \parse_url($address) : [];
 
         if ($parseResult === false || \is_null($parseResult)) {
             throw new RuntimeException(
-                \sprintf('%s Is not a valid address.',$address)
+                \sprintf('%s Is not a valid address.', $address)
             );
         }
-        $this->scheme      = $parseResult['scheme'] ?? 'tcp';
-        $this->bindIp      = $parseResult['host'] ?? '0.0.0.0';
-        $this->bindPort    = $parseResult['port'] ?? 9863;
-        $this->transport   = 'tcp';
-        $this->name        = $this->scheme;
+        $this->scheme    = $parseResult['scheme'] ?? 'tcp';
+        $this->bindIp    = $parseResult['host'] ?? '0.0.0.0';
+        $this->bindPort  = $parseResult['port'] ?? 9863;
+        $this->transport = 'tcp';
+        $this->name = $this->scheme;
         if (!isset(static::$supportProtocols[$this->scheme])) {
             throw new RuntimeException(
-                \sprintf('Unsupported protocol: %s',$this->scheme)
+                \sprintf('Unsupported protocol: %s', $this->scheme)
             );
         }
 
-        $this->protocol = static::$supportProtocols[$this->scheme] ?: null;
-        $this->serverId = \spl_object_hash($this);
-        
-        WorkerS::addServer($this);
+        $this->protocol = static::$supportProtocols[$this->scheme];
     }
 
     /**
@@ -148,43 +117,36 @@ class Server
     }
 
     /**
+     * @param ProcessWorker $worker
      * @return void
      */
-    public function start(): void
-    {
-        WorkerS::runAll($this->serverId);
-    }
-
-    /**
-     * @param Worker $worker
-     * @return void
-     */
-    public function workerStart(Worker $worker,EventInterface $event)
+    public function workerStart(ProcessWorker $worker, EventInterface $event): void
     {
         $this->event = $event;
-        Helper::setProcessTitle(WorkerS::getProcessTitle($this->name . ' server process'));
-        $this->fireEvent('workerStart',$worker);
+        Helper::setProcessTitle(Manager::getProcessTitle($this->name . ' server process'));
+        $this->fireEvent(EventConstant::ON_WORKER_START, $worker);
     }
 
     /**
      * @return void
      */
-    public function listen()
+    public function listen(): void
     {
         // bind
         $this->config['reuse_port'] && $this->bind();
         // event listen
-        $this->event->onReadable($this->mainSocket,[$this,'resumeAccept']);
+        $this->event->onReadable($this->mainSocket, [$this, 'resumeAccept']);
         // event loop
         $this->event->run();
     }
 
     /**
+     * @param ProcessWorker $worker
      * @return void
      */
-    public function workerStop(Worker $worker)
+    public function workerStop(ProcessWorker $worker): void
     {
-        $this->fireEvent('workerStop',$worker);
+        $this->fireEvent(EventConstant::ON_WORKER_STOP, $worker);
         $this->event->offReadable($this->mainSocket);
         foreach ($this->connections as $connection) {
             $connection->close();
@@ -202,15 +164,15 @@ class Server
         if ($this->getConfig('reuse_port')) {
             \stream_context_set_option($this->context, 'socket', 'so_reuseport', 1);
         }
-        
-        $this->mainSocket = \stream_socket_server($this->getServerAddress(),$errNo,$errMsg,$flags,$this->context);
+
+        $this->mainSocket = \stream_socket_server($this->getServerAddress(), $errNo, $errMsg, $flags, $this->context);
         if (!\is_resource($this->mainSocket)) {
             throw new RuntimeException(
-                \sprintf('stream socket server create fail %s<%d>',$errMsg,$errNo)
+                \sprintf('stream socket server create fail %s<%d>', $errMsg, $errNo)
             );
         }
         // 设置非堵塞
-        \stream_set_blocking($this->mainSocket,false);
+        \stream_set_blocking($this->mainSocket, false);
     }
 
     /**
@@ -218,7 +180,7 @@ class Server
      */
     public function resumeAccept(): void
     {
-       $this->acceptTcpConnection($this->mainSocket);
+        $this->acceptTcpConnection($this->mainSocket);
     }
 
     /**
@@ -227,30 +189,17 @@ class Server
      */
     protected function acceptTcpConnection($socket): void
     {
-        \set_error_handler(function(){});
-        $newSocket = \stream_socket_accept($socket,0,$remoteAddr);
-        \restore_error_handler();
+        try {
+            $newSocket = \stream_socket_accept($socket, 0, $remoteAddr);
+        } catch (\Throwable $e) {
+            return;
+        }
         if (!\is_resource($newSocket)) {
             return;
         }
-        $connection = new TcpConnection($this,$newSocket,$remoteAddr);
+        $connection = new TcpConnection($this, $newSocket, $remoteAddr);
         $this->connections[$connection->getId()] = $connection;
-        $this->fireEvent('connect',$connection);
-    }
-
-    /**
-     * 投递task
-     *
-     * @param  callable $callback
-     * @param  array    $args
-     * @return bool
-     */
-    public function task(callable $callback,array $args = []): bool
-    {
-        if ($this->config['task_worker_num'] <= 0) {
-            return false;
-        }
-        return $this->taskWorker->task($callback,$args);
+        $this->fireEvent(EventConstant::ON_CONNECT, $connection);
     }
 
     /**
@@ -260,38 +209,7 @@ class Server
      */
     public function initConfig(): void
     {
-        $this->config = \array_merge(static::getDefaultConfig(),$this->config);
-        $this->config['task_worker_num'] = $this->config['task_worker_num'] ?? 0;
-        $this->config['worker_num']      = max(1,$this->config['worker_num'] ?? 1);
-    }
-
-    /**
-     * 设置配置.
-     *
-     * @param string|array $name
-     * @param mixed $value
-     * @return self
-     */
-    public function setConfig(string|array $name,$value = null): self
-    {
-        if (is_array($name)) {
-            $this->config = \array_merge($this->config,$name);
-        } else {
-            Arr::set($this->config,$name,$value);
-        }
-        return $this;
-    }
-
-    /**
-     * 获取配置
-     *
-     * @param string $name
-     * @param mixed $default
-     * @return mixed
-     */
-    public function getConfig(string $name,mixed $default = null): mixed
-    {
-        return Arr::get($this->config,$name,$default);
+        parent::initConfig();
     }
 
     /**
@@ -299,7 +217,7 @@ class Server
      */
     protected function getServerAddress(): string
     {
-        return \sprintf('%s://%s:%d',$this->transport,$this->bindIp,$this->bindPort);
+        return \sprintf('%s://%s:%d', $this->transport, $this->bindIp, $this->bindPort);
     }
 
     /**
@@ -311,9 +229,9 @@ class Server
     }
 
     /**
-     * @return string|null
+     * @return string
      */
-    public function getProtocol(): ?string
+    public function getProtocol(): string
     {
         return $this->protocol;
     }
@@ -327,59 +245,18 @@ class Server
     }
 
     /**
-     * @param TaskWorker $taskWorker
-     * @return self
-     */
-    public function setTaskWorker(TaskWorker $taskWorker): self
-    {
-        $this->taskWorker = $taskWorker;
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getServerId(): string
-    {
-        return $this->serverId;
-    }
-
-    /**
      * @return array
      */
     public static function getDefaultConfig(): array
     {
-        return [
-            'worker_num'      => 1,
-            'task_worker_num' => 0,
-            'context_option'  => [
+        return \array_merge(BaseWorker::getDefaultConfig(),[
+            'context_option' => [
                 'socket' => [
                     'backlog' => 102400,
                 ]
             ],
-            'reuse_port'  => false,
-            'task'        => [],
-        ];
-    }
-
-    /**
-     * Get server name.
-     *
-     * @return string
-     */
-    public function getName(): string
-    {
-        return $this->name;
-    }
-    /**
-     * Set server name.
-     *
-     * @param  string  $name  server name.
-     * @return self
-     */
-    public function setName(string $name): self
-    {
-        $this->name = $name;
-        return $this;
+            'reuse_port' => false,
+            'task' => [],
+        ]);
     }
 }

@@ -12,7 +12,7 @@ use Larmias\WorkerS\Protocols\Frame;
 class File extends Channel
 {
     /**
-     * @var stirng
+     * @var string
      */
     const SUFFIX = '.ch';
 
@@ -38,7 +38,7 @@ class File extends Channel
      */
     public function __construct(array $config = [])
     {
-        $this->config = array_merge($this->config,$config);
+        $this->config = \array_merge($this->config,$config);
     }
 
     /**
@@ -94,6 +94,7 @@ class File extends Channel
 
     /**
      * @return boolean
+     * @throws \Throwable
      */
     public function clear(): bool
     {

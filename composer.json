@@ -24,6 +24,9 @@
     "ext-json": "*",
     "psr/container": "^2.0",
     "psr/log": "^3.0",
+    "psr/event-dispatcher": "^1.0",
+    "psr/http-message": "^1.0",
+    "psr/http-factory": "^1.0",
     "opis/closure": "^3.6"
   },
   "require-dev": {
@@ -37,10 +40,11 @@
       "Larmias\\Utils\\": "src/utils/src/",
       "Larmias\\Contracts\\": "src/contracts/src/",
       "Larmias\\Config\\": "src/config/src/",
-      "Larmias\\Container\\": "src/container/src/",
+      "Larmias\\Di\\": "src/di/src/",
+      "Larmias\\Event\\": "src/event/src/",
       "Larmias\\WorkerS\\": "src/worker-s/src/",
+      "Larmias\\Engine\\": "src/engine/src/",
       "Larmias\\HttpMessage\\": "src/http-message/src/",
-      "Larmias\\Server\\": "src/server/src/",
       "Larmias\\HttpServer\\": "src/http-server/src/"
     }
   }

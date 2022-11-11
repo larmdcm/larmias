@@ -35,7 +35,7 @@ abstract class Process
      * Process Constructor.
      *
      * @param Manager $manager
-     * @param integer|null $pid
+     * @param int|null $pid
      */
     public function __construct(Manager $manager,?int $pid = null)
     {
@@ -43,13 +43,13 @@ abstract class Process
         if (is_null($pid)) {
             $pid = \getmypid();
         }
-        $this->pid = $pid;
+        $this->pid = intval($pid);
     }
 
     /**
      * 设置进程id
      *
-     * @param integer $pid
+     * @param int $pid
      * @return self
      */
     public function setPid(int $pid): self
@@ -61,7 +61,7 @@ abstract class Process
     /**
      * 获取执行进程id
      *
-     * @return integer
+     * @return int
      */
     public function getPid(): int
     {

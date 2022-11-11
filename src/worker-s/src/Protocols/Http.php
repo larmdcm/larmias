@@ -8,7 +8,7 @@ use Larmias\WorkerS\Connections\Connection;
 use Larmias\WorkerS\Connections\TcpConnection;
 use Larmias\WorkerS\Protocols\Http\Request;
 use Larmias\WorkerS\Protocols\Http\Response;
-use Larmias\WorkerS\WorkerS;
+use Larmias\WorkerS\Manager;
 
 class Http implements ProtocolInterface
 {
@@ -107,7 +107,8 @@ class Http implements ProtocolInterface
                 return new static::$requestClass($connection,$data);
             }
         } catch (\Throwable $e) {
-            WorkerS::stopAll($e->getMessage());
+            Manager::stopAll($e->getMessage());
+            throw $e;
         }
         return new Request($connection,$data);
     }

@@ -6,7 +6,7 @@ namespace Larmias\WorkerS\Protocols\Http;
 
 use Larmias\WorkerS\Connections\TcpConnection;
 use Larmias\WorkerS\Protocols\Http;
-use Larmias\Utils\Arr;
+use Larmias\WorkerS\Support\Arr;
 
 class Request
 {

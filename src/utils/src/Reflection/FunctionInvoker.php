@@ -11,11 +11,8 @@ class FunctionInvoker
     /** @var callable */
     protected $function;
 
-    /** @var ReflectionFunction  */
+    /** @var ReflectionFunction */
     protected ReflectionFunction $reflect;
-
-    /** @var ParameterBind  */
-    protected ParameterBind $parameterBind;
 
     /**
      * FunctionInvoker constructor.
@@ -27,16 +24,33 @@ class FunctionInvoker
     {
         $this->function = $function;
         $this->reflect = new ReflectionFunction($function);
-        $this->parameterBind = (new ParameterBind())->setReflect($this->reflect);
     }
 
     /**
-     * @param ...$args
+     * @param callable $function
+     * @return FunctionInvoker
+     * @throws \ReflectionException
+     */
+    public static function new(callable $function): FunctionInvoker
+    {
+        return new static($function);
+    }
+
+    /**
+     * @param array $args
      * @return mixed
      * @throws \ReflectionException
      */
-    public function invoke(...$args): mixed
+    public function invoke(array $args = []): mixed
     {
-        return call_user_func_array($this->function,$this->parameterBind->invoke(...$args));
+        return \call_user_func_array($this->function, $args);
+    }
+
+    /**
+     * @return ReflectionFunction
+     */
+    public function getReflect(): ReflectionFunction
+    {
+        return $this->reflect;
     }
 }

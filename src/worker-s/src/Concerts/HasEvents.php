@@ -39,7 +39,7 @@ trait HasEvents
      * @param mixed ...$args
      * @return mixed
      */
-    public function fireEvent(string $name,...$args)
+    public function fireEvent(string $name,...$args): mixed
     {
         if (!$this->hasListen($name)) {
             return false;

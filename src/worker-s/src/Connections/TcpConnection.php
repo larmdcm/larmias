@@ -6,26 +6,27 @@ namespace Larmias\WorkerS\Connections;
 
 use Larmias\WorkerS\Protocols\Http\Request;
 use Larmias\WorkerS\Server;
-use Larmias\WorkerS\WorkerS;
+use Larmias\WorkerS\Manager;
 use RuntimeException;
 use Stringable;
+use Larmias\WorkerS\Constants\Event as EventConstant;
 
 class TcpConnection extends Connection
 {
     /**
      * @var int
      */
-    const STATUS_CONNECTING = 1;
+    public const STATUS_CONNECTING = 1;
 
     /**
      * @var int
      */
-    const STATUS_CLOSED = 2;
+    public const STATUS_CLOSED = 2;
 
     /**
      * @var int
      */
-    const READ_BUFFER_SIZE = 87380;
+    public const READ_BUFFER_SIZE = 87380;
 
     /**
      * @var Server
@@ -144,7 +145,7 @@ class TcpConnection extends Connection
     {
         $buffer = '';
         try {
-            $buffer = @\fread($this->socket, self::READ_BUFFER_SIZE);
+            $buffer = \fread($this->socket, self::READ_BUFFER_SIZE);
         } catch (\Throwable $e) {
         }
 
@@ -189,13 +190,13 @@ class TcpConnection extends Connection
                         break;
                     }
                 } else {
-                    WorkerS::trace('Error package length = ' . $this->currentPackageLen);
+                    Manager::trace('Error package length = ' . $this->currentPackageLen);
                     $this->close();
                     return;
                 }
             }            
-            $message = substr($this->recvBuffer,0,$this->currentPackageLen);
-            $this->recvBuffer = substr($this->recvBuffer,$this->currentPackageLen);
+            $message = \substr($this->recvBuffer,0,$this->currentPackageLen);
+            $this->recvBuffer = \substr($this->recvBuffer,$this->currentPackageLen);
             $this->currentPackageLen = 0;
             $data = $this->protocol::decode($message,$this);
             $this->runEvent($data);
@@ -211,23 +212,23 @@ class TcpConnection extends Connection
         static::$statistics['total_request']++;
         switch ($this->server->getScheme()) {
             case 'http':
-                $this->server->fireEvent('request',$message,$this->protocol::createResponse($this));
+                $this->server->fireEvent(EventConstant::ON_REQUEST,$message,$this->protocol::createResponse($this));
                 break;
             case 'websocket':
                 if (!isset($this->webSocketHandShake)) {
                     $this->request = $message;
                     if ($this->send()) {
                         $this->webSocketHandShake = true;
-                        $this->server->fireEvent('open',$this);
+                        $this->server->fireEvent(EventConstant::ON_OPEN,$this);
                     } else {
                         $this->close();
                     }
                 } else {
-                    $this->server->fireEvent('message',$this,$message);
+                    $this->server->fireEvent(EventConstant::ON_MESSAGE,$this,$message);
                 }
                 break;
             default:
-                $this->server->fireEvent('receive',$this,$message);
+                $this->server->fireEvent(EventConstant::ON_RECEIVE,$this,$message);
         }
     }
 
@@ -243,7 +244,7 @@ class TcpConnection extends Connection
 
         $len = 0;
         try {
-            $len = @\fwrite($this->socket, $this->sendBuffer);
+            $len = \fwrite($this->socket, $this->sendBuffer);
         } catch (\Throwable $e) {
         }
         $dataLen = strlen($this->sendBuffer);
@@ -289,7 +290,7 @@ class TcpConnection extends Connection
             $len = 0;
             $dataLen = \strlen($data);
             try {
-                $len = @\fwrite($this->socket, $data);
+                $len = \fwrite($this->socket, $data);
             } catch (\Throwable $e) {
             }
             if ($len === $dataLen) {
@@ -304,10 +305,10 @@ class TcpConnection extends Connection
             } else {
                 if (!$this->isConnected()) {
                    try {
-                        $this->server->fireEvent('error',$this,self::SEND_FAIL,'client closed');
+                        $this->server->fireEvent(EventConstant::ON_ERROR,$this,self::SEND_FAIL,'client closed');
                         static::$statistics['send_fail']++;
                     } catch (\Throwable $e) {
-                        WorkerS::trace($e->getMessage());
+                        Manager::trace($e->getMessage());
                     }
                     $this->close();
                     return 0;
@@ -343,7 +344,7 @@ class TcpConnection extends Connection
             $this->server->getEvent()->offReadable($this->socket);
             $this->server->getEvent()->offWritable($this->socket);
             try {
-                @\fclose($this->socket);
+                \fclose($this->socket);
             } catch (\Throwable $e) {
             }
         }
@@ -351,7 +352,7 @@ class TcpConnection extends Connection
         static::$statistics['connection_count']--;
         
         $this->status = self::STATUS_CLOSED;
-        $this->server->fireEvent('close',$this);
+        $this->server->fireEvent(EventConstant::ON_CLOSE,$this);
 
         $id = $this->getId();
         if ($this->server) {

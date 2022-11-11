@@ -5,10 +5,11 @@ declare(strict_types=1);
 namespace Larmias\WorkerS\Process;
 
 use Larmias\WorkerS\Concerts\HasEvents;
+use Larmias\WorkerS\Process\Constants\Event as EventConstant;
 use Larmias\WorkerS\Support\Helper;
 use Larmias\WorkerS\Process\Worker\{Process, Worker,WorkerKeeper};
 use Larmias\WorkerS\Process\Exceptions\ProcessException;
-use Larmias\Utils\Arr;
+use Larmias\WorkerS\Support\Arr;
 
 use Throwable;
 
@@ -42,17 +43,17 @@ class Manager
     protected string $name;
 
     /**
-     * @var integer
+     * @var int
      */
     protected int $masterPid = 0;
 
     /**
-     * @var integer
+     * @var int
      */
     protected int $workerNum;
 
     /**
-     * @var integer
+     * @var int
      */
     protected int $loopMicrotime;
 
@@ -160,7 +161,7 @@ class Manager
     }
 
     /**
-     * @param integer $workerId
+     * @param int $workerId
      * @return void
      * @throws Throwable
      */
@@ -179,7 +180,7 @@ class Manager
             case 0:
                 try {
                     $worker = new Worker($this,$workerId);
-                    $this->fireEvent('workerStart',$worker);
+                    $this->fireEvent(EventConstant::ON_WORKER_START,$worker);
                     $worker->process();
                     exit(0);
                 } catch (Throwable $e) {
@@ -205,7 +206,7 @@ class Manager
         $this->signal->setIsMaster(true);
 
         $command = function (int $signal,...$args) {
-            $this->fireEvent('masterSignal',$this,$signal);
+            $this->fireEvent(EventConstant::ON_MASTER_SIGNAL,$this,$signal);
             $this->exitSignal = $signal;
             $this->command(...$args);
         };
@@ -215,7 +216,7 @@ class Manager
         });
 
         $this->signal->on('usr2',function () {
-            $this->fireEvent('masterCustom',$this);
+            $this->fireEvent(EventConstant::ON_MASTER_CUSTOM,$this);
             $this->command(self::COMMAND_WORKER_CUSTOM);
         });
         
@@ -242,7 +243,7 @@ class Manager
             return;
         }
         
-        $this->fireEvent('masterStart',$this);
+        $this->fireEvent(EventConstant::ON_MASTER_START,$this);
         $this->signal->openAsyncSignal($this->config['open_async_signal'] ?? true);
 
         while (true) {
@@ -264,7 +265,7 @@ class Manager
                 return;
             }
             
-            $this->fireEvent('master',$this);
+            $this->fireEvent(EventConstant::ON_MASTER,$this);
 
             usleep($this->loopMicrotime);
         }
@@ -272,7 +273,7 @@ class Manager
 
     /**
      * @param WorkerKeeper $workerKeeper
-     * @param integer $exitCode
+     * @param int $exitCode
      * @return void
      * @throws Throwable
      */
@@ -300,7 +301,7 @@ class Manager
     {
         if (!$this->masterWorker) {
             $this->masterWorker = new Worker($this,1);
-            $this->fireEvent('workerStart',$this->masterWorker);
+            $this->fireEvent(EventConstant::ON_WORKER_START,$this->masterWorker);
         }
         return $this->masterWorker;
     }
@@ -337,12 +338,12 @@ class Manager
     /**
      * reload
      * 
-     * @param  bool $killSingal
+     * @param  bool $killSignal
      * @return bool
      */
-    public function reload(bool $killSingal = true): bool
+    public function reload(bool $killSignal = true): bool
     {
-        if ($killSingal) {
+        if ($killSignal) {
             return \posix_kill($this->getMasterPid(),\SIGUSR1);
         }
         return $this->command();
@@ -351,12 +352,12 @@ class Manager
     /**
      * stop 
      *
-     * @param  bool $killSingal
+     * @param  bool $killSignal
      * @return bool
      */
-    public function stop(bool $killSingal = true): bool
+    public function stop(bool $killSignal = true): bool
     {
-        if ($killSingal) {
+        if ($killSignal) {
             $masterPid = $this->getMasterPid();
             $isStop = \posix_kill($masterPid,\SIGTERM);
             if (!$isStop) {
@@ -384,7 +385,7 @@ class Manager
     public function exit(): void
     {
         \file_exists($this->getMasterPidPath()) && \unlink($this->getMasterPidPath());
-        $this->fireEvent('masterStop',$this);
+        $this->fireEvent(EventConstant::ON_MASTER_STOP,$this);
         exit(0);
     }
 
@@ -395,7 +396,7 @@ class Manager
      * @param mixed $value
      * @return self
      */
-    public function setConfig($name,$value = null): self
+    public function setConfig(string|array $name,$value = null): self
     {
         if (is_array($name)) {
             $this->config = \array_merge($this->config,$name);
@@ -441,7 +442,7 @@ class Manager
     /**
      * get master pid.
      *
-     * @return integer
+     * @return int
      */
     public function getMasterPid(): int
     {
@@ -464,7 +465,7 @@ class Manager
     }
 
     /**
-     * @return integer
+     * @return int
      */
     public function getFileMasterPid(): int
     {
@@ -481,7 +482,7 @@ class Manager
     }
 
     /**
-     * @return integer
+     * @return int
      */
     public function getLoopMicrotime(): int
     {

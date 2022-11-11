@@ -6,6 +6,7 @@ namespace Larmias\WorkerS\Process\Worker;
 
 use Larmias\WorkerS\Process\Manager;
 use Larmias\WorkerS\Process\Signal;
+use Larmias\WorkerS\Process\Constants\Event as EventConstant;
 
 class Worker extends Process
 {
@@ -24,12 +25,12 @@ class Worker extends Process
     /**
      * worker id.
      *
-     * @var integer
+     * @var int
      */
     protected int $workerId;
 
     /**
-     * @var integer
+     * @var int
      */
     protected int $workerNo = -1;
 
@@ -39,7 +40,7 @@ class Worker extends Process
     protected Signal $signal;
 
     /**
-     * @var integer
+     * @var int
      */
     protected int $exitCode = 0;
 
@@ -47,7 +48,7 @@ class Worker extends Process
      * Worker Constructor.
      *
      * @param Manager $manager
-     * @param integer $workerId
+     * @param int $workerId
      */
     public function __construct(Manager $manager,int $workerId)
     {
@@ -82,7 +83,7 @@ class Worker extends Process
      */
     public function execute(): void
     {
-        $this->manager->fireEvent('worker',$this);
+        $this->manager->fireEvent(EventConstant::ON_WORKER,$this);
     }
 
     /**
@@ -91,7 +92,7 @@ class Worker extends Process
     public function registerSignalHandler(): void
     {
         $command = function (bool $isStop = false,int $signal =-1) {
-            $this->manager->fireEvent('workerSignal',$this,$signal);
+            $this->manager->fireEvent(EventConstant::ON_WORKER_SIGNAL,$this,$signal);
             $isStop ? $this->terminate() : $this->restart();
         };
 
@@ -100,7 +101,7 @@ class Worker extends Process
         });
 
         $this->signal->on('usr2',function () {
-            $this->manager->fireEvent('workerCustom',$this);
+            $this->manager->fireEvent(EventConstant::ON_WORKER_CUSTOM,$this);
         });
         
         $this->signal->on('quit,int,term,hup,tstp',function ($signal) use ($command) {
@@ -138,7 +139,7 @@ class Worker extends Process
     public function exit(): void
     {
         $this->isExit = true;
-        $this->manager->fireEvent('workerStop',$this);
+        $this->manager->fireEvent(EventConstant::ON_WORKER_STOP,$this);
         if ($this->forceExit) {
             exit($this->exitCode);
         }
@@ -184,7 +185,7 @@ class Worker extends Process
     /**
      * get worker id.
      *
-     * @return integer
+     * @return int
      */
     public function getWorkerId(): int
     {
@@ -194,7 +195,7 @@ class Worker extends Process
     /**
      * Get the value of workerNo
      *
-     * @return  integer
+     * @return int
      */
     public function getWorkerNo(): int
     {
@@ -204,10 +205,10 @@ class Worker extends Process
     /**
      * Set the value of workerNo
      *
-     * @param  integer  $workerNo  
+     * @param  int  $workerNo
      * @return self
      */
-    public function setWorkerNo($workerNo): self
+    public function setWorkerNo(int $workerNo): self
     {
         $this->workerNo = $workerNo;
         return $this;

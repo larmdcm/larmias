@@ -44,7 +44,7 @@ class Lock
      * @param boolean  $block
      * @return mixed
      */
-    public function try(callable $resolve,bool $block = true)
+    public function try(callable $resolve,bool $block = true): mixed
     {
         $result = null;
         $fd = \fopen($this->filename,'r');
@@ -58,7 +58,7 @@ class Lock
                 $result = \call_user_func($resolve);
             }
         } catch (Throwable $e) {
-            throw $e; 
+            throw $e;
         } finally {
             \flock($fd,\LOCK_UN);
             \fclose($fd);

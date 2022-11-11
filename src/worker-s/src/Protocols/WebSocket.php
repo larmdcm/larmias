@@ -6,7 +6,7 @@ namespace Larmias\WorkerS\Protocols;
 
 use Larmias\WorkerS\Connections\Connection;
 use Larmias\WorkerS\Connections\TcpConnection;
-use Larmias\WorkerS\Server;
+use Larmias\WorkerS\Manager;
 
 class WebSocket implements ProtocolInterface
 {
@@ -182,7 +182,7 @@ class WebSocket implements ProtocolInterface
                 $message  .= "Sec-WebSocket-Version: 13\r\n";
                 $message  .= "Connection: Upgrade\r\n";
                 $message  .= \sprintf("Sec-WebSocket-Accept: %s\r\n",$acceptKey);
-                $message  .= "Server: worker-s/" . Server::VERSION . "\r\n";
+                $message  .= "Server: worker-s/" . Manager::VERSION . "\r\n";
                 $message  .= "\r\n";
                 return $message;
             }

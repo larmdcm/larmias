@@ -18,4 +18,8 @@ class Server
     public function __construct(protected ContainerInterface $container,protected ServerItemConfig $config)
     {
     }
+
+    public function onRequest()
+    {
+    }
 }

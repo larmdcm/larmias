@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Reflection;
 
+use Larmias\Utils\Reflection\Parameter;
 use Larmias\Utils\Reflection\ParameterBind;
 use ReflectionClass;
 use PHPUnit\Framework\TestCase;
@@ -39,7 +40,7 @@ final class ParameterBindTest extends TestCase
             println($name);
         };
         $classRef  = new ReflectionClass(TestClass::class);
-        $paramBind = new ParameterBind($classRef->getConstructor());
+        $paramBind = new Parameter($classRef->getConstructor());
         $args      = $paramBind('test');
         var_dump($args);
         $this->assertTrue(true);

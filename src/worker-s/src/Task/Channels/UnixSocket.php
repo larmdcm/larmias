@@ -7,11 +7,12 @@ namespace Larmias\WorkerS\Task\Channels;
 use Larmias\WorkerS\Task\Channel;
 use Larmias\WorkerS\Task\Contracts\RWEventInterface;
 use RuntimeException;
+use Socket;
 
 class UnixSocket extends Channel implements RWEventInterface
 {
     /**
-     * @var stirng
+     * @var string
      */
     const SUFFIX = '.sock';
 
@@ -26,9 +27,9 @@ class UnixSocket extends Channel implements RWEventInterface
     protected string $socketFile;
 
     /**
-     * @var \Socket
+     * @var Socket
      */
-    protected $unixSocket;
+    protected Socket $unixSocket;
 
     /**
      * @var array
@@ -63,9 +64,9 @@ class UnixSocket extends Channel implements RWEventInterface
     public function init(): void
     {
         if (is_null($this->config['path'])) {
-            $this->config['path'] = sys_get_temp_dir();
+            $this->config['path'] = \sys_get_temp_dir();
         }
-        $this->socketFile = rtrim($this->config['path'],DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $this->taskWorker->getKey() . self::SUFFIX;
+        $this->socketFile = \rtrim($this->config['path'],\DIRECTORY_SEPARATOR) . \DIRECTORY_SEPARATOR . $this->taskWorker->getKey() . self::SUFFIX;
         if (isset(static::$unixSocketMap[$this->socketFile])) {
             $this->unixSocket = static::$unixSocketMap[$this->socketFile];
             return;

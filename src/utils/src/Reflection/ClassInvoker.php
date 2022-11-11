@@ -9,31 +9,27 @@ use ReflectionMethod;
 
 class ClassInvoker
 {
-    /** @var object|null */
-    protected ?object $instance = null;
+    /** @var object */
+    protected object $instance;
 
     /** @var ReflectionClass */
     protected ReflectionClass $reflect;
 
-    /** @var string  */
+    /** @var string */
     protected string $className;
-
-    /** @var ParameterBind  */
-    protected ParameterBind $parameterBind;
 
     /**
      * ClassInvoker constructor.
      *
      * @param string|object $object
-     * @param array $args
+     * @param callable|null $resolve
      * @throws \ReflectionException
      */
-    public function __construct(string|object $object, array $args = [])
+    public function __construct(string|object $object, ?callable $resolve = null)
     {
-        $this->reflect = new ReflectionClass($object);
-        $this->instance = \is_object($object) ? $object : $this->newInstanceArgs($args);
+        $this->reflect = ReflectionManager::reflectClass($object);
+        $this->instance = \is_object($object) ? $object : $this->newInstanceArgs($resolve);
         $this->className = \get_class($this->instance);
-        $this->parameterBind = new ParameterBind();
     }
 
     /**
@@ -43,7 +39,7 @@ class ClassInvoker
      */
     public function __get(string $name): mixed
     {
-        $property = $this->reflect->getProperty($name);
+        $property = ReflectionManager::reflectProperty($this->instance, $name);
 
         if (!$property->isPublic()) {
             $property->setAccessible(true);
@@ -59,7 +55,7 @@ class ClassInvoker
      */
     public function __set(string $name, mixed $value)
     {
-        $property = $this->reflect->getProperty($name);
+        $property = ReflectionManager::reflectProperty($this->instance, $name);
 
         if (!$property->isPublic()) {
             $property->setAccessible(true);
@@ -77,25 +73,35 @@ class ClassInvoker
      */
     public function invoke(string $method, array $args = [], bool $accessible = false): mixed
     {
-        $reflect = new ReflectionMethod($this->instance, $method);
-        $args = $this->parameterBind->setReflect($reflect)->invoke($args);
-        if ($accessible) {
-            $reflect->setAccessible($accessible);
-        }
-        return $reflect->invokeArgs($this->instance, $args);
+        $reflect = ReflectionManager::reflectMethod($this->instance, $method);
+
+        return static::invokeMethod([$this->instance, $reflect], $args, $accessible);
     }
 
     /**
+     * @param array $object
      * @param array $args
+     * @param bool $accessible
+     * @return mixed
+     */
+    public static function invokeMethod(array $object, array $args = [], bool $accessible = false): mixed
+    {
+        [$instance, $reflect] = $object;
+        if ($accessible) {
+            $reflect->setAccessible($accessible);
+        }
+        return $reflect->invokeArgs($instance, $args);
+    }
+
+    /**
+     * @param callable|null $resolve
      * @return object
      * @throws \ReflectionException
      */
-    protected function newInstanceArgs(array $args = []): object
+    protected function newInstanceArgs(?callable $resolve = null): object
     {
         $constructor = $this->reflect->getConstructor();
-
-        $args = $constructor ? $this->parameterBind->setReflect($constructor)->invoke($args) : [];
-
+        $args = $constructor && \is_callable($resolve) ? $resolve($constructor) : [];
         return $this->reflect->newInstanceArgs($args);
     }
 
@@ -116,13 +122,21 @@ class ClassInvoker
     }
 
     /**
+     * @return ReflectionClass
+     */
+    public function getReflect(): ReflectionClass
+    {
+        return $this->reflect;
+    }
+
+    /**
      * @param string $name
      * @param array $args
      * @return mixed
      * @throws \ReflectionException
      */
-    public function __call(string $name,array $args)
+    public function __call(string $name, array $args)
     {
-        return $this->invoke($name,$args);
+        return $this->invoke($name, $args);
     }
 }

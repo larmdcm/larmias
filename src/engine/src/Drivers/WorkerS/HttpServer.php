@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace Larmias\Engine\Drivers\WorkerS;
 
+use Larmias\Engine\Drivers\WorkerS\Http\Request;
+use Larmias\Engine\Drivers\WorkerS\Http\Response;
 use Larmias\Engine\Event;
 use Larmias\WorkerS\Constants\Event as WorkerEvent;
 use Larmias\WorkerS\Manager;
-use Larmias\WorkerS\Protocols\Http\Request;
-use Larmias\WorkerS\Protocols\Http\Response;
+use Larmias\WorkerS\Protocols\Http\Request as WorkerRequest;
+use Larmias\WorkerS\Protocols\Http\Response as WorkerResponse;
 use Throwable;
 
 class HttpServer extends Server
@@ -28,13 +30,15 @@ class HttpServer extends Server
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
+     * @param WorkerRequest $workerRequest
+     * @param WorkerResponse $workerResponse
      * @return void
      */
-    public function onRequest(Request $request, Response $response): void
+    public function onRequest(WorkerRequest $workerRequest, WorkerResponse $workerResponse): void
     {
         try {
+            $request = new Request($workerRequest);
+            $response = new Response($workerResponse);
             $this->trigger(Event::ON_REQUEST, [$request, $response]);
         } catch (Throwable $e) {
             Manager::stopAll($e->getMessage());

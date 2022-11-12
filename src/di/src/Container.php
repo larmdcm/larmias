@@ -50,7 +50,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
      */
     public function __construct()
     {
-        $this->invoker = new Invoker(new Parameter(null, function (string $className) {
+        $this->invoker = new Invoker(new Parameter(makeClassHandler: function (string $className) {
             return $this->make($className);
         }));
 

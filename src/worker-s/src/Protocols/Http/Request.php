@@ -27,31 +27,31 @@ class Request
 
     /**
      * Request __construct.
-     * 
+     *
      * @param TcpConnection $connection
-     * @param string        $buffer
+     * @param string $buffer
      */
-    public function __construct(TcpConnection $connection,string $buffer)
+    public function __construct(TcpConnection $connection, string $buffer)
     {
         $this->connection = $connection;
-        $this->buffer     = $buffer;
+        $this->buffer = $buffer;
     }
 
     /**
      * get 'Header' request data.
-     * 
+     *
      * @param string|null $key
-     * @param mixed       $default
+     * @param mixed $default
      * @return mixed
      */
-    public function header(?string $key = null,$default = null)
+    public function header(?string $key = null, $default = null): mixed
     {
         if (!isset($this->data['headers'])) {
             $this->parseHeaders();
         }
-        return Arr::get($this->data['headers'],$key,$default);
+        return Arr::get($this->data['headers'], $key, $default);
     }
-    
+
     /**
      * get 'Get' request data.
      *
@@ -59,14 +59,14 @@ class Request
      * @param mixed $default
      * @return mixed
      */
-    public function get(?string $key = null,$default = null)
+    public function query(?string $key = null, $default = null): mixed
     {
-        if (!isset($this->data['get'])) {
-            $this->parseGet();
+        if (!isset($this->data['query'])) {
+            $this->parseQuery();
         }
-        return Arr::get($this->data['get'],$key,$default);
+        return Arr::get($this->data['query'], $key, $default);
     }
-    
+
     /**
      * get 'Post' request data.
      *
@@ -74,12 +74,12 @@ class Request
      * @param mixed $default
      * @return mixed
      */
-    public function post(?string $key = null,$default = null)
+    public function post(?string $key = null, $default = null): mixed
     {
         if (!isset($this->data['post'])) {
             $this->parsePost();
         }
-        return Arr::get($this->data['post'],$key,$default);
+        return Arr::get($this->data['post'], $key, $default);
     }
 
     /**
@@ -109,7 +109,7 @@ class Request
         }
         return $this->data['raw_header'];
     }
-    
+
     /**
      * Get http raw body.
      *
@@ -123,45 +123,6 @@ class Request
         return $this->data['raw_body'];
     }
 
-
-    /**
-     * @return void
-     */
-    protected function parseHeaders(): void
-    {
-        $this->data['headers'] = [];
-        $rawHeader = $this->rawHeader();
-        $pos = \strpos($rawHeader,"\r\n");
-        if ($pos === false) {
-            return;
-        }
-
-        $headerBuffer = \substr($rawHeader,$pos + 2);
-        $list = \explode("\r\n",$headerBuffer);
-
-        foreach ($list as $item) {
-            if (empty($item) || strpos($item,': ') === false) {
-                continue;
-            }
-            [$key,$value] = explode(": ",$item,2);
-            $key = strtolower($key);
-            $this->data['headers'][$key] = rtrim($value);
-        }
-    }
-    
-
-    /**
-     * @return void
-     */
-    protected function parseFirstHeader(): void
-    {
-        $firstLine = \strstr($this->buffer, "\r\n", true);
-        $result    = \explode(' ', $firstLine, 3);
-        $this->data['method'] = $result[0];
-        $this->data['uri']    = $result[1] ?? '/';
-        $this->data['schema'] = $result[2] ?? '';
-    }
-
     /**
      * @return string
      */
@@ -172,7 +133,7 @@ class Request
         }
         return $this->data['method'];
     }
-    
+
     /**
      * @return string
      */
@@ -201,24 +162,74 @@ class Request
     public function queryString(): string
     {
         if (!isset($this->data['query_string'])) {
-            $this->data['query_string'] = parse_url($this->uri(),PHP_URL_QUERY);
+            $this->data['query_string'] = parse_url($this->uri(), PHP_URL_QUERY);
         }
         return $this->data['query_string'] ?: '';
     }
 
     /**
+     * Get 'path info'.
+     *
+     * @return string
+     */
+    public function getPathInfo(): string
+    {
+        if (!isset($this->data['pathInfo'])) {
+            $uri = $this->uri();
+            $this->data['pathInfo'] = !\str_contains($uri, '?') ? $uri : \strstr($uri, '?', true);
+        }
+        return $this->data['pathInfo'];
+    }
+
+    /**
      * @return void
      */
-    protected function parseGet(): void
+    protected function parseHeaders(): void
     {
-        $this->data['get'] = [];
+        $this->data['headers'] = [];
+        $rawHeader = $this->rawHeader();
+        $pos = \strpos($rawHeader, "\r\n");
+        if ($pos === false) {
+            return;
+        }
+
+        $headerBuffer = \substr($rawHeader, $pos + 2);
+        $list = \explode("\r\n", $headerBuffer);
+
+        foreach ($list as $item) {
+            if (empty($item) || !str_contains($item, ': ')) {
+                continue;
+            }
+            [$key, $value] = explode(": ", $item, 2);
+            $key = strtolower($key);
+            $this->data['headers'][$key] = rtrim($value);
+        }
+    }
+
+    /**
+     * @return void
+     */
+    protected function parseFirstHeader(): void
+    {
+        $firstLine = \strstr($this->buffer, "\r\n", true);
+        $result = \explode(' ', $firstLine, 3);
+        $this->data['method'] = $result[0];
+        $this->data['uri'] = $result[1] ?? '/';
+        $this->data['schema'] = $result[2] ?? '';
+    }
+
+    /**
+     * @return void
+     */
+    protected function parseQuery(): void
+    {
+        $this->data['query'] = [];
         $queryString = $this->queryString();
         if ($queryString === '') {
             return;
         }
-        parse_str($queryString,$this->data['get']);
+        parse_str($queryString, $this->data['query']);
     }
-
 
     /**
      * @return void
@@ -230,19 +241,19 @@ class Request
         if ($rawBody === '') {
             return;
         }
-        $contentType = $this->header('content-type','');
-        if (preg_match('/boundary="?(\S+)"?/',$contentType,$matches)) {
+        $contentType = $this->header('content-type', '');
+        if (preg_match('/boundary="?(\S+)"?/', $contentType, $matches)) {
             $boundary = "--" . $matches[1];
-            $this->parseFormData($boundary,$rawBody);
+            $this->parseFormData($boundary, $rawBody);
             return;
         }
 
         if (\preg_match('/\bjson\b/i', $contentType)) {
-            $this->data['post'] = \json_decode($rawBody,true);
+            $this->data['post'] = \json_decode($rawBody, true);
         } else {
-            \parse_str($rawBody,$this->data['post']);
+            \parse_str($rawBody, $this->data['post']);
         }
-    }   
+    }
 
     /**
      * parse form data.
@@ -251,24 +262,24 @@ class Request
      * @param string $rawBody
      * @return void
      */
-    protected function parseFormData(string $boundary,string $rawBody): void
+    protected function parseFormData(string $boundary, string $rawBody): void
     {
-        $boundary = \trim($boundary,'"');
-        $rawBody  = \substr($rawBody,0,\strlen($rawBody) - (\strlen($boundary) + 4));
-        $formData = \explode($boundary . "\r\n",$rawBody);
+        $boundary = \trim($boundary, '"');
+        $rawBody = \substr($rawBody, 0, \strlen($rawBody) - (\strlen($boundary) + 4));
+        $formData = \explode($boundary . "\r\n", $rawBody);
         if ($formData[0] === '' || $formData[0] === "\r\n") {
             unset($formData[0]);
         }
-        $index    = -1;
-        $files    = [];
-        $postStr  = '';
+        $index = -1;
+        $files = [];
+        $postStr = '';
 
         foreach ($formData as $dataBuffer) {
-            [$bufferHeader,$bufferValue] = explode("\r\n\r\n",$dataBuffer,2);
-            $bufferValue = \substr($bufferValue,0,-2);
+            [$bufferHeader, $bufferValue] = explode("\r\n\r\n", $dataBuffer, 2);
+            $bufferValue = \substr($bufferValue, 0, -2);
             $index++;
-            foreach (\explode("\r\n",$bufferHeader) as $item) {
-                [$headerKey,$headerValue] = explode(": ",$item);
+            foreach (\explode("\r\n", $bufferHeader) as $item) {
+                [$headerKey, $headerValue] = explode(": ", $item);
                 $headerKey = \strtolower($headerKey);
                 switch ($headerKey) {
                     case 'content-disposition':
@@ -291,12 +302,12 @@ class Request
                                 $files[$index] = [];
                             }
                             $files[$index] += [
-                                'key'      => $match[1],
-                                'name'     => $match[2],
+                                'key' => $match[1],
+                                'name' => $match[2],
                                 'tmp_name' => $tmpFile,
-                                'size'     => $size,
-                                'error'    => $error,
-                                'type'     => null,
+                                'size' => $size,
+                                'error' => $error,
+                                'type' => null,
                             ];
                         } else {
                             if (\preg_match('/name="(.*?)"$/', $headerValue, $match)) {

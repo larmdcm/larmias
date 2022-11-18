@@ -89,5 +89,5 @@ interface ResponseInterface
      * @param string $data
      * @return void
      */
-    public function end(string $data): void;
+    public function end(string $data = ''): void;
 }

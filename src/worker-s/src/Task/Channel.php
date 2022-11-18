@@ -19,7 +19,7 @@ abstract class Channel
     public static function create(TaskWorker $taskWorker,array $config): Channel
     {
         $channel  = $config['default'] ?? 'file';
-        $class    = strpos($channel,"\\") === false ? "\Larmias\WorkerS\Task\Channels\\" . ucfirst($channel) : $channel;
+        $class    = !str_contains($channel, "\\") ? "\Larmias\WorkerS\Task\Channels\\" . ucfirst($channel) : $channel;
         $channelConfig = $config['channels'][$channel] ?? [];
         /** @var static */
         $instance = new $class($channelConfig);

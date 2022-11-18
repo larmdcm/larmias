@@ -33,7 +33,7 @@ class Group
         $groupNumber = $this->groupNumber;
         $this->groupNumbers[] = $groupNumber;
         $this->options[$groupNumber] = \array_merge(Rule::getDefaultOption(), $option);
-        $callback !== null && call_user_func($callback, $this->groupNumbers);
+        \is_callable($callback) && \call_user_func($callback, $this->groupNumbers);
 
         if (\in_array($groupNumber, $this->groupNumbers, true)) {
             $index = \array_search($groupNumber, $this->groupNumbers);
@@ -86,10 +86,10 @@ class Group
     public static function mergeOption(array $first, array $second): array
     {
         if (empty($first)) {
-            $first = array_filter($second, fn($value) => !empty($value));
+            $first = \array_filter($second, fn($value) => !is_empty($value));
         } else {
             foreach ($second as $key => $value) {
-                if (empty($value) && $value != '0') {
+                if (is_empty($value)) {
                     continue;
                 }
                 if (!isset($first[$key])) {

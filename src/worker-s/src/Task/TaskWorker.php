@@ -15,12 +15,12 @@ class TaskWorker
     /**
      * @var int
      */
-    const DISPATCH_FIXED = 1;
+    public const DISPATCH_FIXED = 1;
 
     /**
      * @var int
      */
-    const DISPATCH_BALANCE = 2;
+    public const DISPATCH_BALANCE = 2;
 
     /**
      * @var Channel

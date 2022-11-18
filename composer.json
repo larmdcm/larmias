@@ -45,8 +45,14 @@
       "Larmias\\Event\\": "src/event/src/",
       "Larmias\\WorkerS\\": "src/worker-s/src/",
       "Larmias\\Engine\\": "src/engine/src/",
-      "Larmias\\HttpMessage\\": "src/http-message/src/",
-      "Larmias\\HttpServer\\": "src/http-server/src/"
+      "Larmias\\Http\\Message\\": "src/http-message/src/",
+      "Larmias\\HttpServer\\": "src/http-server/src/",
+      "Larmias\\Routing\\": "src/routing/src/",
+      "Larmias\\Middleware\\": "src/middleware/src/",
+      "Larmias\\Pipeline\\": "src/pipeline/src/",
+      "Larmias\\ExceptionHandler\\": "src/exception-handler/src/",
+      "Larmias\\Support\\": "src/support/src/",
+      "Larmias\\Log\\": "src/log/src/"
     }
   }
 }

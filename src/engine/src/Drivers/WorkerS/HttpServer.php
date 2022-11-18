@@ -41,7 +41,7 @@ class HttpServer extends Server
             $response = new Response($workerResponse);
             $this->trigger(Event::ON_REQUEST, [$request, $response]);
         } catch (Throwable $e) {
-            Manager::stopAll($e->getMessage());
+            Manager::stopAll($e->getFile() . '('. $e->getLine() .')' . ':' . $e->getMessage() . PHP_EOL . $e->getTraceAsString());
         }
     }
 }

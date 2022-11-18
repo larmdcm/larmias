@@ -15,7 +15,7 @@ class Request extends Message implements RequestInterface
     protected string $method;
 
     /** @var null|string */
-    protected ?string $requestTarget;
+    protected ?string $requestTarget = null;
 
     /** @var UriInterface */
     protected UriInterface $uri;
@@ -132,7 +132,7 @@ class Request extends Message implements RequestInterface
      * @return static
      * @throws \InvalidArgumentException for invalid HTTP methods.
      */
-    public function withMethod($method)
+    public function withMethod($method): self
     {
         $this->method = strtoupper($method);
         return $this;

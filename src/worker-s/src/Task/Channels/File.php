@@ -55,8 +55,9 @@ class File extends Channel
     }
 
     /**
-     * @param  string  $raw
+     * @param string $raw
      * @return int|null
+     * @throws \Throwable
      */
     public function push(string $raw): ?int
     {
@@ -72,6 +73,7 @@ class File extends Channel
 
     /**
      * @return string|null
+     * @throws \Throwable
      */
     public function shift(): ?string
     {

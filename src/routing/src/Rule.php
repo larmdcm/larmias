@@ -14,7 +14,7 @@ class Rule
     /**
      * @var string
      */
-    protected string $path;
+    protected string $route;
 
     /**
      * @var mixed
@@ -37,14 +37,14 @@ class Rule
      * Rule __construct
      *
      * @param string $method
-     * @param string $path
+     * @param string $route
      * @param mixed $handler
      * @param array $option
      */
-    public function __construct(string $method, string $path, $handler, array $groupNumbers = [], array $option = [])
+    public function __construct(string $method, string $route, $handler, array $groupNumbers = [], array $option = [])
     {
         $this->method = $method;
-        $this->path = $path;
+        $this->route = $route;
         $this->handler = $handler;
         $this->groupNumbers = $groupNumbers;
         $this->option = \array_merge($option, self::getDefaultOption());
@@ -73,24 +73,24 @@ class Rule
     }
 
     /**
-     * Get the value of path
+     * Get the value of route
      *
      * @return string
      */
-    public function getPath(): string
+    public function getRoute(): string
     {
-        return $this->path;
+        return $this->route;
     }
 
     /**
-     * Set the value of path
+     * Set the value of route
      *
-     * @param string $path
+     * @param string $route
      * @return self
      */
-    public function setPath(string $path): self
+    public function setRoute(string $route): self
     {
-        $this->path = $path;
+        $this->route = $route;
         return $this;
     }
 
@@ -180,7 +180,7 @@ class Rule
     {
         return [
             'method' => $this->method,
-            'path' => $this->path,
+            'route' => $this->route,
             'handler' => $this->handler,
             'groupNumbers' => $this->groupNumbers,
             'option' => $this->option,

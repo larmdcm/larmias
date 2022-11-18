@@ -2,12 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Utils;
+namespace Larmias\Pipeline;
 
 use Closure;
+use Larmias\Contracts\PipelineInterface;
 use Throwable;
 
-class Pipeline
+class Pipeline implements PipelineInterface
 {
     /**
      * @var mixed
@@ -27,7 +28,7 @@ class Pipeline
     /**
      * 初始数据
      *
-     * @param $passable
+     * @param mixed $passable
      * @return self
      */
     public function send(mixed $passable): self

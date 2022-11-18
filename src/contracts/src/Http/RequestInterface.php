@@ -34,6 +34,24 @@ interface RequestInterface
     public function post(?string $key = null, $default = null): mixed;
 
     /**
+     * get 'Cookie' request data.
+     *
+     * @param string|null $key
+     * @param null $default
+     * @return mixed
+     */
+    public function cookie(?string $key = null, $default = null): mixed;
+
+    /**
+     * get 'session' request data.
+     *
+     * @param string|null $key
+     * @param null $default
+     * @return mixed
+     */
+    public function session(?string $key = null, $default = null): mixed;
+
+    /**
      * get Upload files.
      *
      * @param string|null $name
@@ -75,6 +93,13 @@ interface RequestInterface
      * @return string
      */
     public function schema(): string;
+
+    /**
+     * Get http protocol version.
+     *
+     * @return string
+     */
+    public function protocolVersion(): string;
 
     /**
      * Get request query string.

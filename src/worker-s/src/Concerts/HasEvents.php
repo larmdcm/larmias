@@ -18,7 +18,7 @@ trait HasEvents
      */
     public function on(string $name,callable $callback): self
     {
-        $binds = str_contains($name, ',') ? explode(',',$name) : [$name];
+        $binds = \str_contains($name, ',') ? \explode(',',$name) : [$name];
         foreach ($binds as $item) {
             $this->events[$item] = $callback;
         }

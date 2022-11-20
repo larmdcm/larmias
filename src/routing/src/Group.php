@@ -33,7 +33,7 @@ class Group
         $groupNumber = $this->groupNumber;
         $this->groupNumbers[] = $groupNumber;
         $this->options[$groupNumber] = \array_merge(Rule::getDefaultOption(), $option);
-        $callback !== null && call_user_func($callback, $this->groupNumbers);
+        $callback !== null && \call_user_func($callback, $this->groupNumbers);
 
         if (\in_array($groupNumber, $this->groupNumbers, true)) {
             $index = \array_search($groupNumber, $this->groupNumbers);

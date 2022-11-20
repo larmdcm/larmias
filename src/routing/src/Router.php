@@ -179,8 +179,6 @@ class Router
                 break;
             case Dispatcher::METHOD_NOT_ALLOWED:
                 break;
-            default:
-                break;
         }
         return null;
     }
@@ -197,10 +195,10 @@ class Router
             $option = $this->group->getOption($rule->getGroupNumbers());
             $ruleOption = $rule->getOption();
             $rule->setPath(
-                implode('', [...Arr::wrap($option['prefix'] ?? []), $ruleOption['prefix'] ?? '', $rule->getPath()])
+                \implode('', [...Arr::wrap($option['prefix'] ?? []), $ruleOption['prefix'] ?? '', $rule->getPath()])
             );
             $ruleOption['middleware'] = [...Arr::wrap($option['middleware'] ?? []), ...Arr::wrap($ruleOption['middleware'] ?? [])];
-            $ruleOption['namespace'] = implode('', [...Arr::wrap($option['namespace'] ?? []), $ruleOption['namespace'] ?? '']);
+            $ruleOption['namespace'] = \implode('', [...Arr::wrap($option['namespace'] ?? []), $ruleOption['namespace'] ?? '']);
             $rule->setOption($ruleOption);
         }
         $this->isCollectGroup = true;

@@ -21,7 +21,7 @@ class DriverConfigManager
     protected static array $driverConfigs = [];
 
     /** @var bool */
-    protected static bool $isInit= false;
+    protected static bool $isInit = false;
 
     /**
      * @param string $name

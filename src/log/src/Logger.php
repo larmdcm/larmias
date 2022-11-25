@@ -4,16 +4,27 @@ declare(strict_types=1);
 
 namespace Larmias\Log;
 
+use Larmias\Contracts\ConfigInterface;
+use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\LoggerInterface;
-use Larmias\Support\Manager;
-use Closure;
+use Larmias\Utils\Arr;
 
-class Logger extends Manager implements LoggerInterface
+class Logger implements LoggerInterface
 {
     /**
-     * @var string|null
+     * @var \Larmias\Log\Channel[]
      */
-    protected ?string $namespace = '\\Larmias\\Logger\\Channels\\';
+    protected array $channels = [];
+
+    /**
+     * Logger constructor.
+     *
+     * @param \Larmias\Contracts\ContainerInterface $container
+     * @param \Larmias\Contracts\ConfigInterface $config
+     */
+    public function __construct(protected ContainerInterface $container, protected ConfigInterface $config)
+    {
+    }
 
     /**
      * System is unusable.
@@ -154,89 +165,93 @@ class Logger extends Manager implements LoggerInterface
      */
     public function log($level, string|\Stringable $message, array $context = []): void
     {
-        /** @var Channel $channel */
-        $channel = $this->driver();
-        $content = $this->format($channel, $message, $level, $context);
-        $isLazy  = $this->getConfig('lazy', true);
-        $channel->record($content, $level, $context, $isLazy instanceof Closure ? (bool)$isLazy($channel) : $isLazy);
+        $this->record($message, (string)$level, $context);
+    }
+
+    /**
+     * 写日志
+     *
+     * @param string|\Stringable $message
+     * @param string $level
+     * @param array $context
+     * @return bool
+     */
+    public function write(string|\Stringable $message, string $level, array $context = []): bool
+    {
+        return $this->record($message, $level, $context, true);
+    }
+
+
+    /**
+     * 记录日志
+     *
+     * @param string|\Stringable $message
+     * @param string $level
+     * @param array $context
+     * @param bool $realtimeWrite
+     * @return bool
+     */
+    public function record(string|\Stringable $message, string $level, array $context = [], bool $realtimeWrite = false): bool
+    {
+        $name = $this->getConfig('level_channels.' . $level);
+        return $this->channel($name)->record($message, $level, $context, $realtimeWrite);
     }
 
     /**
      * save current channel.
      *
-     * @param string|null $driver
+     * @param string|null $name
      * @return boolean
      */
-    public function save(?string $driver = null): bool
+    public function save(?string $name = null): bool
     {
-        if ($driver) {
-            return $this->driver($driver)->save();
+        if ($name) {
+            return $this->channel($name)->save();
         }
 
-        foreach ($this->drivers as $logger) {
-            $logger->save();
+        foreach ($this->channels as $channel) {
+            $channel->save();
         }
         return true;
     }
 
-
     /**
-     * 格式化内容
-     *
-     * @param Channel $channel
-     * @param string $message
-     * @param int $level
-     * @param array $context
-     * @return string
+     * @param string|null $name
+     * @return \Larmias\Log\Channel
      */
-    protected function format(Channel $channel, string $message, int $level, array $context = []): string
+    public function channel(?string $name = null): Channel
     {
-        $contextFormat = $this->getConfig('context_format', null) ?: function ($channel, $context) {
-            return empty($context) ? '' : var_export($context, true);
-        };
-        $timeFormat = $this->getConfig('time_format', 'Y-m-d H:i:s');
-        $contentFormat = $this->getConfig('content_format', '[:time][:level] :message[:contex]');
-        $vars = [
-            'time' => \date($timeFormat, time()),
-            'level' => $level,
-            'message' => $message,
-            'context' => $contextFormat instanceof Closure ? (string)$contextFormat($channel, $context) : (string)$context,
-        ];
-        return $contentFormat instanceof Closure ? (string)$contentFormat($channel, $vars) : Str::parse($contentFormat, $vars);
-    }
+        $name = $name ?: $this->getConfig('default');
+        $handlers = [];
+        $channelConfig = $this->getConfig('channels.' . $name);
+        foreach (Arr::wrap($channelConfig['handler']) as $item) {
+            $handlerConfig = $this->getConfig('handlers.' . $item);
+            $handlers[] = $this->container->make($handlerConfig['class'], $handlerConfig['constructor'] ?? [], true);
+        }
 
-    /**
-     * 获取默认驱动
-     *
-     * @return string
-     */
-    public function getDefaultDriver(): string
-    {
-        return $this->getConfig('default');
-    }
-
-    /**
-     * 获取实例配置
-     *
-     * @param string $driver
-     * @return array
-     */
-    protected function resolveConfig(string $driver): array
-    {
-        return $this->getConfig('channels.' . $driver, []);
+        $formatterConfig = $this->getConfig('formatters.' . $channelConfig['formatter']);
+        /** @var \Larmias\Log\Contracts\FormatterInterface $formatter */
+        $formatter = $this->container->make($formatterConfig['class'], $formatterConfig['constructor'] ?? [], true);
+        $allowLevel = $channelConfig['level'] ?? $this->getConfig('level', []);
+        $realtimeWrite = $channelConfig['realtime_write'] ?? $this->getConfig('realtime_write', true);
+        return new Channel($name, $handlers, $formatter, $allowLevel, $realtimeWrite);
     }
 
     /**
      * 获取配置.
      *
-     * @param string $key
+     * @param string|null $name
      * @param mixed $default
      * @return mixed
      */
-    public function getConfig(string $key, mixed $default = null): mixed
+    public function getConfig(?string $name = null, mixed $default = null): mixed
     {
-        return $this->config->get('logger.' . $key, $default);
+        if (\is_null($name)) {
+            return $this->config->get('logger');
+        }
+        return $this->config->get('logger.' . $name, $default);
     }
+
 
     /**
      * Logger __call.
@@ -245,7 +260,7 @@ class Logger extends Manager implements LoggerInterface
      * @param array $parameters
      * @return void
      */
-    public function __call($method, $parameters)
+    public function __call(string $method, array $parameters)
     {
         $this->log($method, ...$parameters);
     }

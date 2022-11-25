@@ -67,6 +67,7 @@ abstract class Manager
      */
     protected function createDriver(string $driver): object
     {
+        $driver = $this->resolveType($driver);
         $method = 'create' . Str::studly($driver) . 'Driver';
         $params = $this->resolveParams($driver);
         if (method_exists($this, $method)) {
@@ -76,6 +77,16 @@ abstract class Manager
         $class = $this->resolveClass($driver);
 
         return $this->container->make($class, $params, true);
+    }
+
+    /**
+     * 获取驱动类型
+     * @param string $name
+     * @return string
+     */
+    protected function resolveType(string $name): string
+    {
+        return $name;
     }
 
     /**

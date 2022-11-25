@@ -17,8 +17,9 @@
   ],
   "require": {
     "php": ">=8.0",
+    "psr/log": "^3.0",
     "larmias/contracts": "^1.0",
-    "larmias/support": "^1.0"
+    "larmias/utils": "^1.0"
   },
   "autoload": {
     "psr-4": {

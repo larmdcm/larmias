@@ -133,4 +133,27 @@ class Request implements RequestInterface
     {
         return $this->request->getPathInfo();
     }
+
+    /**
+     * @param string|null $key
+     * @param null $default
+     * @return mixed
+     */
+    public function cookie(?string $key = null, $default = null): mixed
+    {
+        return $this->request->cookie($key, $default);
+    }
+
+    public function session(?string $key = null, $default = null): mixed
+    {
+        throw new \RuntimeException('session not implement.');
+    }
+
+    /**
+     * @return string
+     */
+    public function protocolVersion(): string
+    {
+        return $this->request->protocolVersion();
+    }
 }

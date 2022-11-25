@@ -74,12 +74,26 @@ class Request
      * @param mixed $default
      * @return mixed
      */
-    public function post(?string $key = null, $default = null): mixed
+    public function post(?string $key = null, mixed $default = null): mixed
     {
         if (!isset($this->data['post'])) {
             $this->parsePost();
         }
         return Arr::get($this->data['post'], $key, $default);
+    }
+
+    /**
+     * @param string|null $key
+     * @param mixed|null $default
+     * @return mixed
+     */
+    public function cookie(?string $key, mixed $default = null): mixed
+    {
+        if (!isset($this->data['cookie'])) {
+            $this->data['cookie'] = [];
+            \parse_str(\preg_replace('/; ?/', '&', $this->header('cookie', '')), $this->data['cookie']);
+        }
+        return Arr::get($this->data['cookie'], $key, $default);
     }
 
     /**
@@ -174,11 +188,24 @@ class Request
      */
     public function getPathInfo(): string
     {
-        if (!isset($this->data['pathInfo'])) {
+        if (!isset($this->data['path_info'])) {
             $uri = $this->uri();
-            $this->data['pathInfo'] = !\str_contains($uri, '?') ? $uri : \strstr($uri, '?', true);
+            $this->data['path_info'] = !\str_contains($uri, '?') ? $uri : \strstr($uri, '?', true);
         }
-        return $this->data['pathInfo'];
+        return $this->data['path_info'];
+    }
+
+    /**
+     * Get http protocol version.
+     *
+     * @return string
+     */
+    public function protocolVersion(): string
+    {
+        if (!isset($this->data['protocol_version'])) {
+            $this->parseProtocolVersion();
+        }
+        return $this->data['protocol_version'];
     }
 
     /**
@@ -216,6 +243,18 @@ class Request
         $this->data['method'] = $result[0];
         $this->data['uri'] = $result[1] ?? '/';
         $this->data['schema'] = $result[2] ?? '';
+    }
+
+    /**
+     * Parse protocol version.
+     *
+     * @return void
+     */
+    protected function parseProtocolVersion()
+    {
+        $first_line = \strstr($this->buffer, "\r\n", true);
+        $protocolVersion = \substr(\strstr($first_line, 'HTTP/'), 5);
+        $this->data['protocol_version'] = $protocolVersion ?: '1.0';
     }
 
     /**

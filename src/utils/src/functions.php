@@ -3,6 +3,19 @@
 use Larmias\Utils\Arr;
 use Larmias\Utils\Collection;
 
+if (!function_exists('is_empty')) {
+    /**
+     * 判断值是否为空
+     * 
+     * @param  mixed   $value 
+     * @return boolean        
+     */
+    function is_empty(mixed $value): bool
+    {
+        return empty($value) && !is_numeric($value);
+    }
+}
+
 if (!function_exists('throw_if')) {
     /**
      * 按条件抛异常

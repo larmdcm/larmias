@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace Larmias\Routing;
 
 use Larmias\Contracts\ContainerInterface;
+use Larmias\Routing\Exceptions\RouteException;
+use Larmias\Routing\Exceptions\RouteNotFoundException;
+use Larmias\Routing\Exceptions\RouteMethodNotAllowedException;
 use Larmias\Utils\Arr;
-use RuntimeException;
-use FastRoute\Dispatcher;
+use FastRoute\Dispatcher as FastRouteDispatcher;
 use FastRoute\RouteCollector;
 use function FastRoute\simpleDispatcher;
 
@@ -34,11 +36,6 @@ class Router
     protected Group $group;
 
     /**
-     * @var array
-     */
-    protected array $groupNumbers = [];
-
-    /**
      * @var boolean
      */
     protected bool $isCollectRoute = false;
@@ -51,8 +48,7 @@ class Router
     /**
      * @var Dispatcher
      */
-    protected Dispatcher $dispatcher;
-
+    protected FastRouteDispatcher $dispatcher;
 
     /**
      * @var array
@@ -73,19 +69,19 @@ class Router
      * add route rule.
      *
      * @param string|array $method
-     * @param string $path
+     * @param string $route
      * @param mixed $handler
      * @return self
      */
-    public function rule(string|array $method, string $path, mixed $handler): self
+    public function rule(string|array $method, string $route, mixed $handler): self
     {
         $methods = Arr::wrap($method);
         $count = \count($this->rules);
         $queue = [];
         foreach ($methods as $method) {
-            $paths = $path === '/' || $path === '' ? [$path, $path === '/' ? '' : '/'] : [$path];
-            foreach ($paths as $item) {
-                $rule = new Rule(\strtoupper($method), $item, $handler, $this->group->getGroupNumbers());
+            $routes = $route === '/' || $route === '' ? [$route, $route === '/' ? '' : '/'] : [$route];
+            foreach ($routes as $routeItem) {
+                $rule = new Rule(\strtoupper($method), $routeItem, $handler, $this->group->getGroupNumbers());
                 $this->rules[] = $rule;
                 $queue[] = ['type' => self::TYPE_RULE, 'index' => $count++];
             }
@@ -161,26 +157,21 @@ class Router
      * 路由调度.
      *
      * @param string $method
-     * @param string $path
-     * @param array $params
-     * @return mixed
+     * @param string $route
+     * @return Dispatched
      */
-    public function dispatch(string $method, string $path, array $params = []): mixed
+    public function dispatch(string $method, string $route): Dispatched
     {
         $this->collectGroup();
         $this->collectRoute();
-        $routeInfo = $this->dispatcher->dispatch($method(), $path);
-        switch ($routeInfo[0]) {
-            case Dispatcher::FOUND:
-                /** @var \Larmias\Routing\Rule $rule */
-                $rule = $routeInfo[1];
-                break;
-            case Dispatcher::NOT_FOUND:
-                break;
-            case Dispatcher::METHOD_NOT_ALLOWED:
-                break;
+
+        $routeInfo = $this->dispatcher->dispatch($method, $route);
+        if ($routeInfo[0] === FastRouteDispatcher::FOUND) {
+            /** @var \Larmias\Routing\Rule $rule */
+            $rule = $routeInfo[1];
+            return new Dispatched(Dispatcher::create($this->container, $rule), $rule, $routeInfo[2]);
         }
-        return null;
+        throw new ($routeInfo[0] === FastRouteDispatcher::NOT_FOUND ? RouteNotFoundException::class : RouteMethodNotAllowedException::class);
     }
 
     /**
@@ -194,13 +185,14 @@ class Router
         foreach ($this->rules as $rule) {
             $option = $this->group->getOption($rule->getGroupNumbers());
             $ruleOption = $rule->getOption();
-            $rule->setPath(
-                \implode('', [...Arr::wrap($option['prefix'] ?? []), $ruleOption['prefix'] ?? '', $rule->getPath()])
+            $rule->setRoute(
+                \implode('', [...Arr::wrap($option['prefix'] ?? []), $ruleOption['prefix'] ?? '', $rule->getRoute()])
             );
             $ruleOption['middleware'] = [...Arr::wrap($option['middleware'] ?? []), ...Arr::wrap($ruleOption['middleware'] ?? [])];
             $ruleOption['namespace'] = \implode('', [...Arr::wrap($option['namespace'] ?? []), $ruleOption['namespace'] ?? '']);
             $rule->setOption($ruleOption);
         }
+
         $this->isCollectGroup = true;
     }
 
@@ -216,7 +208,7 @@ class Router
         }
         $this->dispatcher = simpleDispatcher(function (RouteCollector $routeCollector) {
             foreach ($this->rules as $rule) {
-                $routeCollector->addRoute($rule->getMethod(), $rule->getPath(), $rule);
+                $routeCollector->addRoute($rule->getMethod(), $rule->getRoute(), $rule);
             }
         });
         $this->isCollectRoute = true;
@@ -233,7 +225,7 @@ class Router
     protected function addOption(string $key, mixed $value): self
     {
         if (empty($this->queue)) {
-            throw new RuntimeException('Routing rule or group has not been added.');
+            throw new RouteException('Routing rule or group has not been added.');
         }
         foreach ($this->queue as $item) {
             if ($item['type'] === self::TYPE_RULE) {

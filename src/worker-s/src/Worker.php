@@ -61,7 +61,7 @@ class Worker
     public function initConfig(): void
     {
         $this->config = \array_merge(static::getDefaultConfig(), $this->config);
-        $this->config['worker_num'] = max(1, $this->config['worker_num'] ?? 1);
+        $this->config['worker_num'] = \max(1, $this->config['worker_num'] ?? 1);
         $this->config['task_worker_num'] = $this->config['task_worker_num'] ?? 0;
     }
 

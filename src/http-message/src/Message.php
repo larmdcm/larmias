@@ -322,6 +322,6 @@ class Message implements MessageInterface
      */
     protected function trimHeaderValues(array $values): array
     {
-        return array_map(fn($value) => trim($value, " \t"), $values);
+        return \array_map(fn($value) => \trim($value, " \t"), $values);
     }
 }

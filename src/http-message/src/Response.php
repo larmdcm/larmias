@@ -80,13 +80,13 @@ class Response extends Message implements ResponseInterface
     /**
      * Response constructor.
      *
-     * @param int $status
+     * @param int $statusCode
      * @param array $headers
      * @param \Psr\Http\Message\StreamInterface|string|null $body
      * @param string $version
      * @param string|null $reason
      */
-    public function __construct(int $statusCode, array $headers = [], StreamInterface|string $body = null, string $version = '1.1', ?string $reason = null)
+    public function __construct(int $statusCode = 200, array $headers = [], StreamInterface|string $body = null, string $version = '1.1', ?string $reason = null)
     {
         $this->statusCode = $statusCode;
         $this->withHeaders($headers);

@@ -4,6 +4,11 @@ use Larmias\Engine\DriverConfigManager;
 use Larmias\Engine\WorkerType;
 use Larmias\Engine\Event;
 use Larmias\HttpServer\Server as HttpServer;
+use Larmias\Contracts\ConfigInterface;
+use Larmias\Config\Config;
+use Larmias\HttpServer\Routing\Router;
+use Larmias\Contracts\PipelineInterface;
+use Larmias\Pipeline\Pipeline;
 
 return [
     'driver' => DriverConfigManager::WORKER_S,
@@ -23,5 +28,16 @@ return [
         ]
     ],
     'settings'  => [],
-    'callbacks' => [],
+    'callbacks' => [
+        Event::ON_WORKER_START => function () {
+            $container = require '../di/container.php';
+            $container->bind(ConfigInterface::class,Config::class);
+            $container->bind(PipelineInterface::class,Pipeline::class);
+            foreach (glob(__DIR__ . '/config/*.php') as $file) {
+                $container->make(ConfigInterface::class)->load($file);
+            }
+            Router::init($container);
+            require __DIR__ . '/router.php';
+        }
+    ],
 ];

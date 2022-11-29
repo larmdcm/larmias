@@ -52,7 +52,8 @@
       "Larmias\\Pipeline\\": "src/pipeline/src/",
       "Larmias\\ExceptionHandler\\": "src/exception-handler/src/",
       "Larmias\\Support\\": "src/support/src/",
-      "Larmias\\Log\\": "src/log/src/"
+      "Larmias\\Log\\": "src/log/src/",
+      "Larmias\\Framework\\": "src/framework/src/"
     }
   }
 }

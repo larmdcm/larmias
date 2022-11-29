@@ -1,12 +1,11 @@
 {
   "name": "larmias/engine",
-  "description": "A base server library for Larmias.",
+  "description": "A base engine library for Larmias.",
   "type": "library",
   "keywords": [
     "larmias",
-    "http",
-    "websocket",
-    "psr"
+    "server",
+    "process"
   ],
   "homepage": "https://larmias.com/",
   "license": "Apache-2.0",
@@ -19,11 +18,13 @@
   "require": {
     "php": ">=8.0",
     "psr/container": "^1.0",
+    "psr/log": "^3.0",
+    "psr/event-dispatcher": "^1.0",
     "larmias/contracts": "^1.0"
   },
   "autoload": {
     "psr-4": {
-      "Larmias\\Server\\": "src/"
+      "Larmias\\Engine\\": "src/"
     }
   }
 }

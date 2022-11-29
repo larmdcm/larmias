@@ -56,5 +56,4 @@ class Event
 
     /** @var string */
     public const ON_CLOSE = 'close';
-
 }

@@ -10,4 +10,9 @@ interface DriverInterface
      * @return void
      */
     public function run(): void;
+
+    /**
+     * @return string
+     */
+    public function getHttpServerClass(): string;
 }

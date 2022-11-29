@@ -13,6 +13,7 @@ use Larmias\Contracts\ContainerInterface;
 use Larmias\HttpServer\Routing\Router;
 use Larmias\Routing\Dispatched;
 use Larmias\HttpServer\Routing\Middleware as RouteMiddleware;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Throwable;
 
 class Server
@@ -23,9 +24,10 @@ class Server
     /**
      * Server constructor.
      *
-     * @param ContainerInterface $container
+     * @param \Larmias\Contracts\ContainerInterface $container
+     * @param \Psr\EventDispatcher\EventDispatcherInterface $eventDispatcher
      */
-    public function __construct(protected ContainerInterface $container)
+    public function __construct(protected ContainerInterface $container,protected  EventDispatcherInterface $eventDispatcher)
     {
     }
 

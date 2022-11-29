@@ -10,7 +10,7 @@ use Psr\Http\Message\StreamInterface;
 class Response extends Message implements ResponseInterface
 {
     /** @var array Map of standard HTTP status code/reason phrases */
-    private static array $phrases = [
+    protected static array $phrases = [
         100 => 'Continue',
         101 => 'Switching Protocols',
         102 => 'Processing',

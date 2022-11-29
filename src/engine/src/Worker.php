@@ -4,15 +4,26 @@ declare(strict_types=1);
 
 namespace Larmias\Engine;
 
-use Larmias\Engine\Contracts\ServerInterface;
+use Larmias\Engine\Bootstrap\WorkerStartCallback;
+use Larmias\Engine\Contracts\WorkerInterface;
 use Psr\Container\ContainerInterface;
 
-class Worker implements ServerInterface
+class Worker implements WorkerInterface
 {
     /**
      * @var array
      */
     protected array $callbacks = [];
+
+    /**
+     * @var int
+     */
+    protected int $workerId;
+
+    /**
+     * @var string
+     */
+    public const ON_WORKER_START = 'onWorkerStart';
 
     /**
      * Server constructor.
@@ -21,7 +32,7 @@ class Worker implements ServerInterface
      * @param EngineConfig $engineConfig
      * @param WorkerConfig $workerConfig
      */
-    public function __construct(protected ContainerInterface $container,protected EngineConfig $engineConfig,protected WorkerConfig $workerConfig)
+    public function __construct(protected ContainerInterface $container, protected EngineConfig $engineConfig, protected WorkerConfig $workerConfig)
     {
         $this->initialize();
     }
@@ -42,7 +53,7 @@ class Worker implements ServerInterface
      * @throws \Psr\Container\ContainerExceptionInterface
      * @throws \Psr\Container\NotFoundExceptionInterface
      */
-    public function trigger(string $event,array $args = []): void
+    public function trigger(string $event, array $args = []): void
     {
         $callable = $this->callbacks[$event] ?? null;
         if (!$callable) {
@@ -52,18 +63,36 @@ class Worker implements ServerInterface
             $callable(...$args);
             return;
         }
-        if (!\is_array($callable) && !isset($callable[0]) || !isset($callable[1])) {
+        if (!\is_array($callable) || (!isset($callable[0]) && !isset($callable[1]))) {
             return;
         }
         $object = $this->container->get($callable[0]);
-        \call_user_func_array([$object,$callable[1]],$args);
+        \call_user_func_array([$object, $callable[1]], $args);
+    }
+
+    /**
+     * @return int
+     */
+    public function getWorkerId(): int
+    {
+        return $this->workerId;
+    }
+
+    /**
+     * @param int $workerId
+     * @return void
+     */
+    public function setWorkerId(int $workerId): void
+    {
+        $this->workerId = $workerId;
     }
 
     /**
      * @return void
      */
-    private function registerEventCallback(): void
+    protected function registerEventCallback(): void
     {
-        $this->callbacks = \array_merge($this->engineConfig->getCallbacks(),$this->workerConfig->getCallbacks());
+        $this->callbacks = \array_merge($this->engineConfig->getCallbacks(), $this->workerConfig->getCallbacks());
+        $this->callbacks[static::ON_WORKER_START] = [WorkerStartCallback::class, 'onWorkerStart'];
     }
 }

@@ -6,9 +6,20 @@ namespace Larmias\HttpServer\Contracts;
 
 interface ResponseInterface
 {
-    public function json(mixed $data): ResponseInterface;
+    /**
+     * @param array|object $data
+     * @return \Larmias\HttpServer\Contracts\ResponseInterface
+     */
+    public function json(array|object $data): ResponseInterface;
 
-    public function raw(mixed $data): ResponseInterface;
+    /**
+     * @param string|\Stringable $data
+     * @return \Larmias\HttpServer\Contracts\ResponseInterface
+     */
+    public function raw(string|\Stringable $data): ResponseInterface;
 
+    /**
+     * @return void
+     */
     public function send(): void;
 }

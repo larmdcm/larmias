@@ -8,6 +8,9 @@ use Larmias\Contracts\ApplicationInterface;
 use Larmias\Di\Container;
 use Larmias\Contracts\ContainerInterface;
 use Psr\Container\ContainerInterface as PsrContainerInterface;
+use Larmias\Engine\Kernel;
+use Larmias\Engine\EngineConfig;
+use RuntimeException;
 
 class Application extends Container implements ApplicationInterface
 {
@@ -25,6 +28,11 @@ class Application extends Container implements ApplicationInterface
      * @var string
      */
     protected string $runtimePath;
+
+    /**
+     * @var Kernel
+     */
+    protected Kernel $engine;
 
     /**
      * Application constructor.
@@ -45,6 +53,8 @@ class Application extends Container implements ApplicationInterface
             PsrContainerInterface::class => $this,
             ApplicationInterface::class => $this,
         ]);
+
+        $this->engine = $this->make(Kernel::class);
     }
 
     /**
@@ -52,6 +62,15 @@ class Application extends Container implements ApplicationInterface
      */
     public function run(): void
     {
+        $configFile = $this->getConfigPath() . 'worker.php';
+
+        if (!is_file($configFile)) {
+            throw new RuntimeException(sprintf('%s The worker configuration file does not exist.',$configFile));
+        }
+
+        $this->engine->setConfig(EngineConfig::build(require $configFile));
+        
+        $this->engine->run();
     }
 
     /**

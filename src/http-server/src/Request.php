@@ -59,7 +59,7 @@ class Request extends ServerRequest implements RequestInterface
      * @param mixed $default
      * @return mixed
      */
-    public function input(string $key, mixed $default = null)
+    public function input(string $key, mixed $default = null): mixed
     {
         $data = $this->getInputData();
 
@@ -84,9 +84,12 @@ class Request extends ServerRequest implements RequestInterface
 
     /**
      * Retrieve a cookie from the request.
-     * @param null|mixed $default
+     *
+     * @param string $key
+     * @param mixed $default
+     * @return mixed
      */
-    public function cookie(string $key, $default = null)
+    public function cookie(string $key, mixed $default = null): mixed
     {
         return data_get($this->getCookieParams(), $key, $default);
     }

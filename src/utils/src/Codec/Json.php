@@ -14,7 +14,7 @@ class Json
      * @param mixed $data
      * @throws InvalidArgumentException
      */
-    public static function encode($data, int $flags = JSON_UNESCAPED_UNICODE, int $depth = 512): string
+    public static function encode(mixed $data, int $flags = JSON_UNESCAPED_UNICODE, int $depth = 512): string
     {
         if ($data instanceof Jsonable) {
             return (string)$data;

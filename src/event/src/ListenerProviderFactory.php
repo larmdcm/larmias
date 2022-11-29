@@ -20,13 +20,7 @@ class ListenerProviderFactory
     public static function make(ContainerInterface $container, array $listeners = []): ListenerProviderInterface
     {
         $provider = new ListenerProvider();
-
-        if ($container->has("\Larmias\Contracts\ConfigInterface")) {
-            /** @var  \Larmias\Contracts\ConfigInterface $config */
-            $config = $container->get(\Larmias\Contracts\ConfigInterface::class);
-            $listeners = \array_merge($config->get('listeners',[]),$listeners);
-        }
-
+        
         foreach ($listeners as $listener => $priority) {
             if (is_int($listener)) {
                 $listener = $priority;

@@ -150,7 +150,6 @@ class Uri implements UriInterface
     public function getUserInfo(): string
     {
         return $this->userInfo;
-
     }
 
     /**
@@ -716,7 +715,7 @@ class Uri implements UriInterface
         }
 
         if ($this->getAuthority() === '') {
-            if (\strpos($this->path, '//') === 0) {
+            if (str_starts_with($this->path, '//')) {
                 throw new InvalidArgumentException('The path of a URI without an authority must not start with two slashes "//"');
             }
             if ($this->scheme === '' && \strpos(explode('/', $this->path, 2)[0], ':') !== false) {

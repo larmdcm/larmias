@@ -4,13 +4,33 @@ declare(strict_types=1);
 
 namespace Larmias\HttpServer;
 
-use Larmias\Http\Message\ServerRequest;
 use Larmias\HttpServer\Contracts\RequestInterface;
+use Larmias\Http\Message\ServerRequest;
+use Larmias\Http\Message\UploadedFile;
 use Larmias\Routing\Dispatched;
 use Larmias\Utils\Arr;
+use SplFileInfo;
 
 class Request extends ServerRequest implements RequestInterface
 {
+    /**
+     * @param string $name
+     * @return mixed
+     */
+    public function __get(string $name): mixed
+    {
+        return $this->attributes[$name] ?? null;
+    }
+
+    /**
+     * @param string $name
+     * @param mixed $value
+     */
+    public function __set(string $name, mixed $value)
+    {
+        $this->attributes[$name] = $value;
+    }
+
     /**
      * @param string|null $key
      * @param mixed|null $default
@@ -42,7 +62,7 @@ class Request extends ServerRequest implements RequestInterface
      * @param null $default
      * @return mixed
      */
-    public function route(?string $key = null, $default = null): mixed
+    public function route(?string $key = null, mixed $default = null): mixed
     {
         $route = $this->getAttribute(Dispatched::class);
         if (\is_null($route)) {
@@ -80,6 +100,52 @@ class Request extends ServerRequest implements RequestInterface
         }
 
         return $result;
+    }
+
+    /**
+     * Retrieve a file from the request.
+     *
+     * @param null|mixed $default
+     * @return null|UploadedFile|UploadedFile[]
+     */
+    public function file(string $key, $default = null)
+    {
+        return Arr::get($this->getUploadedFiles(), $key, $default);
+    }
+
+    /**
+     * Determine if the uploaded data contains a file.
+     */
+    public function hasFile(string $key): bool
+    {
+        if ($file = $this->file($key)) {
+            return $this->isValidFile($file);
+        }
+        return false;
+    }
+
+    /**
+     * Determine if the $keys is exist in parameters.
+     *
+     * @param array|string $keys
+     */
+    public function has(array|string $keys): bool
+    {
+        return Arr::has($this->getInputData(), $keys);
+    }
+
+    /**
+     * Retrieve the data from request headers.
+     *
+     * @param mixed $default
+     * @return mixed
+     */
+    public function header(string $key, mixed $default = null): mixed
+    {
+        if (!$this->hasHeader($key)) {
+            return $default;
+        }
+        return $this->getHeaderLine($key);
     }
 
     /**
@@ -122,6 +188,21 @@ class Request extends ServerRequest implements RequestInterface
         return $this->getMethod() === strtoupper($method);
     }
 
+    /**
+     * Get the current path info for the request.
+     *
+     * @return string
+     */
+    public function path(): string
+    {
+        $pattern = trim($this->getPathInfo(), '/');
+
+        return $pattern == '' ? '/' : $pattern;
+    }
+
+    /**
+     * @return string
+     */
     public function getPathInfo(): string
     {
         $requestUri = $this->getRequestTarget();
@@ -138,6 +219,59 @@ class Request extends ServerRequest implements RequestInterface
     }
 
     /**
+     * Get the URL (no query string) for the request.
+     * @return string
+     */
+    public function url(): string
+    {
+        return rtrim(preg_replace('/\?.*/', '', (string)$this->getUri()), '/');
+    }
+
+    /**
+     * Get the full URL for the request.
+     */
+    public function fullUrl(): string
+    {
+        $query = $this->getQueryString();
+
+        return $this->url() . '?' . $query;
+    }
+
+    /**
+     * Generates the normalized query string for the Request.
+     *
+     * It builds a normalized query string, where keys/value pairs are alphabetized
+     * and have consistent escaping.
+     *
+     * @return string A normalized query string for the Request
+     */
+    public function getQueryString(): string
+    {
+        return static::normalizeQueryString($this->getUri()->getQuery());
+    }
+
+    /**
+     * Normalizes a query string.
+     *
+     * It builds a normalized query string, where keys/value pairs are alphabetized,
+     * have consistent escaping and unneeded delimiters are removed.
+     *
+     * @param string $qs Query string
+     * @return string A normalized query string for the Request
+     */
+    public function normalizeQueryString(string $qs): string
+    {
+        if ($qs == '') {
+            return '';
+        }
+
+        parse_str($qs, $qsData);
+        ksort($qsData);
+
+        return http_build_query($qsData, '', '&', PHP_QUERY_RFC3986);
+    }
+
+    /**
      * @return array
      */
     public function all(): array
@@ -150,8 +284,20 @@ class Request extends ServerRequest implements RequestInterface
      */
     public function getInputData(): array
     {
-        $body = $this->getParsedBody();
-        $route = $this->route();
-        return \array_merge(\is_array($route) ? $route : [], $this->getQueryParams(), \is_array($body) ? $body : []);
+        if (!isset($this->attributes[__FUNCTION__])) {
+            $body = $this->getParsedBody();
+            $route = $this->route();
+            $this->attributes[__FUNCTION__] = \array_merge(\is_array($route) ? $route : [], $this->getQueryParams(), \is_array($body) ? $body : []);
+        }
+        return $this->attributes[__FUNCTION__];
+    }
+
+    /**
+     * Check that the given file is a valid SplFileInfo instance.
+     * @param mixed $file
+     */
+    protected function isValidFile(mixed $file): bool
+    {
+        return $file instanceof SplFileInfo && $file->getPath() !== '';
     }
 }

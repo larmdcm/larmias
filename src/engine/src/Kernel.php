@@ -6,6 +6,7 @@ namespace Larmias\Engine;
 
 use Larmias\Engine\Contracts\DriverInterface;
 use Larmias\Engine\Contracts\KernelInterface;
+use Larmias\Engine\Contracts\WorkerInterface;
 use Psr\Container\ContainerInterface;
 use RuntimeException;
 
@@ -14,8 +15,8 @@ class Kernel implements KernelInterface
     /** @var EngineConfig */
     protected EngineConfig $engineConfig;
 
-    /** @var DriverConfig */
-    protected DriverConfig $driverConfig;
+    /** @var \Larmias\Engine\Contracts\DriverInterface */
+    protected DriverInterface $driver;
 
     /**
      * Server constructor.
@@ -24,17 +25,18 @@ class Kernel implements KernelInterface
      */
     public function __construct(protected ContainerInterface $container)
     {
-        DriverConfigManager::init();
     }
 
     /**
-     * @param EngineConfig $engineConfig
+     * @param \Larmias\Engine\EngineConfig $engineConfig
      * @return self
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
     public function setConfig(EngineConfig $engineConfig): self
     {
         $this->engineConfig = $engineConfig;
-        $this->driverConfig = DriverConfigManager::get($this->engineConfig->getDriver());
+        $this->driver = $this->container->get($this->engineConfig->getDriver());
         return $this;
     }
 
@@ -46,35 +48,24 @@ class Kernel implements KernelInterface
     {
         $workers = $this->engineConfig->getWorkers();
         foreach ($workers as $workerConfig) {
-            $this->makeWorker($workerConfig);
+            $this->addWorker($workerConfig);
         }
-         $this->makeDriver()->run();
-    }
-
-    /**
-     * @return DriverInterface
-     * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws \Psr\Container\NotFoundExceptionInterface
-     */
-    protected function makeDriver(): DriverInterface
-    {
-        $driver = $this->driverConfig->getDriver();
-        return $this->container->get($driver);
+        $this->driver->run();
     }
 
     /**
      * @param WorkerConfig $workerConfig
-     * @return object
+     * @return \Larmias\Engine\Contracts\WorkerInterface
      */
-    protected function makeWorker(WorkerConfig $workerConfig): object
+    public function addWorker(WorkerConfig $workerConfig): WorkerInterface
     {
         $class = match ($workerConfig->getType()) {
-            WorkerType::HTTP_SERVER => $this->driverConfig->getHttpServer(),
+            WorkerType::HTTP_SERVER => $this->driver->getHttpServerClass(),
             default => null,
         };
         if (!$class || !class_exists($class)) {
             throw new RuntimeException('driver class not set.');
         }
-        return new $class($this->container,$this->engineConfig,$workerConfig);
+        return new $class($this->container, $this->engineConfig, $workerConfig);
     }
 }

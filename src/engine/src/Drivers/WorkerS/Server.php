@@ -8,6 +8,7 @@ use Larmias\Engine\Worker;
 use Larmias\WorkerS\Server as WorkerServer;
 use Larmias\WorkerS\Constants\Event as WorkerEvent;
 use Larmias\Engine\Event;
+use Larmias\WorkerS\Process\Worker\Worker as ProcessWorker;
 
 class Server extends Worker
 {
@@ -31,8 +32,9 @@ class Server extends Worker
         $this->server->setName($this->workerConfig->getName());
         $this->server->setConfig($this->workerConfig->getSettings());
 
-        $this->server->on(WorkerEvent::ON_WORKER_START, function ($worker) {
-            $this->trigger(Event::ON_WORKER_START, [$worker, $this]);
+        $this->server->on(WorkerEvent::ON_WORKER_START, function (ProcessWorker $worker) {
+            $this->setWorkerId($worker->getWorkerId());
+            $this->trigger(Worker::ON_WORKER_START, [$this]);
         });
     }
 }

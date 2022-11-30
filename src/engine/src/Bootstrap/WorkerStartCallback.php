@@ -36,6 +36,7 @@ class WorkerStartCallback
         if ($this->container->has(EventDispatcherInterface::class)) {
             $this->eventDispatcher = $this->container->get(EventDispatcherInterface::class);
         }
+        
         if ($this->container->has(LoggerInterface::class)) {
             $this->logger = $this->container->get(LoggerInterface::class);
         }

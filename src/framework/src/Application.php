@@ -7,9 +7,14 @@ namespace Larmias\Framework;
 use Larmias\Contracts\ApplicationInterface;
 use Larmias\Di\Container;
 use Larmias\Contracts\ContainerInterface;
+use Larmias\Framework\Listeners\WorkerStartListener;
 use Psr\Container\ContainerInterface as PsrContainerInterface;
 use Larmias\Engine\Kernel;
 use Larmias\Engine\EngineConfig;
+use Psr\EventDispatcher\EventDispatcherInterface;
+use Psr\EventDispatcher\ListenerProviderInterface;
+use Larmias\Event\EventDispatcherFactory;
+use Larmias\Event\ListenerProviderFactory;
 use RuntimeException;
 
 class Application extends Container implements ApplicationInterface
@@ -34,10 +39,14 @@ class Application extends Container implements ApplicationInterface
      */
     protected Kernel $engine;
 
+    /** @var bool */
+    protected bool $isInitialize = false;
+
     /**
      * Application constructor.
      *
      * @param string $rootPath
+     * @throws \ReflectionException
      */
     public function __construct(string $rootPath = '')
     {
@@ -52,6 +61,12 @@ class Application extends Container implements ApplicationInterface
             ContainerInterface::class => $this,
             PsrContainerInterface::class => $this,
             ApplicationInterface::class => $this,
+            ListenerProviderInterface::class => function () {
+                return ListenerProviderFactory::make($this, $this->getBootListeners());
+            },
+            EventDispatcherInterface::class => function () {
+                return EventDispatcherFactory::make($this);
+            },
         ]);
 
         $this->engine = $this->make(Kernel::class);
@@ -60,16 +75,29 @@ class Application extends Container implements ApplicationInterface
     /**
      * @return void
      */
+    public function initialize(): void
+    {
+        if ($this->isInitialize) {
+            return;
+        }
+        $this->isInitialize = true;
+    }
+
+    /**
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
+     * @throws \Throwable
+     */
     public function run(): void
     {
         $configFile = $this->getConfigPath() . 'worker.php';
 
         if (!is_file($configFile)) {
-            throw new RuntimeException(sprintf('%s The worker configuration file does not exist.',$configFile));
+            throw new RuntimeException(sprintf('%s The worker configuration file does not exist.', $configFile));
         }
 
         $this->engine->setConfig(EngineConfig::build(require $configFile));
-        
+
         $this->engine->run();
     }
 
@@ -137,5 +165,15 @@ class Application extends Container implements ApplicationInterface
     {
         $this->runtimePath = $runtimePath;
         return $this;
+    }
+
+    /**
+     * @return string[]
+     */
+    protected function getBootListeners(): array
+    {
+        return [
+            WorkerStartListener::class,
+        ];
     }
 }

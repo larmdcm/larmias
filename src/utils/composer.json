@@ -21,7 +21,6 @@
     "ext-json": "*"
   },
   "require-dev": {
-    "vendor/phpunit/phpunit": "^9.5.10"
   },
   "autoload": {
     "psr-4": {

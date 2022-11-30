@@ -11,7 +11,7 @@ class AfterWorkerStart
      *
      * @param int $workerId
      */
-    public function __construct(protected int $workerId)
+    public function __construct(public int $workerId)
     {
     }
 }

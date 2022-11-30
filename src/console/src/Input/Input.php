@@ -29,7 +29,6 @@ class Input implements InputInterface
 
     protected function parse()
     {
-
     }
 
     /**

@@ -11,8 +11,12 @@ class Input implements InputInterface
     /** @var string */
     protected string $scriptFile;
 
+    /** @var string */
+    protected string $command;
+
     /** @var array */
     protected array $tokens;
+
 
     /**
      * @param array|null $argv
@@ -22,9 +26,27 @@ class Input implements InputInterface
         if (\is_null($argv)) {
             $argv = $_SERVER['argv'];
         }
-        $this->scriptFile = $argv[0];
-        array_shift($argv);
+        $this->scriptFile = array_shift($argv);
+        $this->command = array_shift($argv);
         $this->tokens = $argv;
+    }
+
+    public function bool(): bool
+    {
+        return false;
+    }
+
+    public function getOption()
+    {
+
+    }
+
+    /**
+     * @return string
+     */
+    public function getCommand(): string
+    {
+        return $this->command;
     }
 
     protected function parse()

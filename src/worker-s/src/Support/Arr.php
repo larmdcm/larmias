@@ -27,15 +27,11 @@ class Arr
             return Helper::value($default);
         }
 
-        if (is_null($key)) {
-            return $array;
-        }
-
         if (static::exists($array, $key)) {
             return $array[$key];
         }
 
-        if (strpos($key, '.') === false) {
+        if (!str_contains($key, '.')) {
             return $array[$key] ?? Helper::value($default);
         }
 

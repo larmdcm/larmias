@@ -21,7 +21,7 @@ interface TimerInterface
      *
      * @param float    $time
      * @param callable $func
-     * @param array $  args
+     * @param array    $args
      * @return integer
      */
     public function after(float $time,callable $func,array $args = []): int;

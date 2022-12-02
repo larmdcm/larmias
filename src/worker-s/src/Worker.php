@@ -82,6 +82,7 @@ class Worker
 
     /**
      * @return void
+     * @throws \Throwable
      */
     public function start(): void
     {

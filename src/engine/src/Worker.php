@@ -46,6 +46,17 @@ class Worker implements WorkerInterface
     }
 
     /**
+     * @param int $workerId
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
+     */
+    public function onWorkerStart(int $workerId)
+    {
+        $this->setWorkerId($workerId);
+        $this->trigger(static::ON_WORKER_START, [$this]);
+    }
+
+    /**
      *  触发回调函数
      *
      * @param string $event

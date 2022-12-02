@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Engine\Drivers\WorkerS;
+namespace Larmias\Engine\WorkerS;
 
-use Larmias\Engine\Drivers\WorkerS\Http\Request;
-use Larmias\Engine\Drivers\WorkerS\Http\Response;
+use Larmias\Engine\WorkerS\Http\Request;
+use Larmias\Engine\WorkerS\Http\Response;
 use Larmias\Engine\Event;
 use Larmias\WorkerS\Constants\Event as WorkerEvent;
 use Larmias\WorkerS\Manager;

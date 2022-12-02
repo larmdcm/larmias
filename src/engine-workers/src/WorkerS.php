@@ -2,10 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Engine\Drivers;
+namespace Larmias\Engine\WorkerS;
 
 use Larmias\Engine\Contracts\DriverInterface;
-use Larmias\Engine\Drivers\WorkerS\HttpServer;
 use Larmias\WorkerS\Manager;
 
 class WorkerS implements DriverInterface

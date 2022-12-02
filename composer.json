@@ -45,6 +45,7 @@
       "Larmias\\Event\\": "src/event/src/",
       "Larmias\\WorkerS\\": "src/worker-s/src/",
       "Larmias\\Engine\\": "src/engine/src/",
+      "Larmias\\Engine\\WorkerS": "src/engine-workers/src/",
       "Larmias\\Http\\Message\\": "src/http-message/src/",
       "Larmias\\HttpServer\\": "src/http-server/src/",
       "Larmias\\Routing\\": "src/routing/src/",

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Engine\Drivers\WorkerS\Http;
+namespace Larmias\Engine\WorkerS\Http;
 
 use Larmias\Contracts\Http\RequestInterface;
 use Larmias\WorkerS\Protocols\Http\Request as WorkerRequest;

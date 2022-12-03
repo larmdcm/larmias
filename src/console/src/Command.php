@@ -65,13 +65,18 @@ abstract class Command
         return 0;
     }
 
+
     /**
-     * @param Option $option
-     * @return $this
+     * @param string $name
+     * @param string $shortcut
+     * @param int $mode
+     * @param string $description
+     * @param mixed|null $default
+     * @return self
      */
-    public function addOption(Option $option): self
+    public function addOption(string $name, string $shortcut, int $mode = Option::VALUE_NONE, string $description = '', mixed $default = null): self
     {
-        $this->options[] = $option;
+        $this->options[] = new Option($name, $shortcut, $mode, $description, $default);
         return $this;
     }
 

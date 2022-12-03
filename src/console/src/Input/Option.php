@@ -51,9 +51,9 @@ class Option
     }
 
     /**
-     * @return string|null
+     * @return string
      */
-    public function getShortcut(): ?string
+    public function getShortcut(): string
     {
         return $this->shortcut;
     }

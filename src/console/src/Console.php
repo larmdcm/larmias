@@ -12,16 +12,22 @@ use Larmias\Contracts\ContainerInterface;
 
 class Console
 {
+    /** @var string */
+    public const VERSION = '1.0.0';
+
     /** @var InputInterface */
     protected InputInterface $input;
 
     /** @var OutputInterface */
     protected OutputInterface $output;
 
-    /**
-     * @var array
-     */
-    protected array $commands = [];
+    /** @var array */
+    protected array $commands = [
+        'help' => Commands\Help::class,
+    ];
+
+    /** @var bool */
+    protected bool $autoExit = true;
 
     /**
      * @param ContainerInterface $container
@@ -35,8 +41,8 @@ class Console
     }
 
     /**
-     * @return void
-     * @throws \ReflectionException
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
     protected function initialize(): void
     {
@@ -47,10 +53,11 @@ class Console
     /**
      * @param string $commandClass
      * @param string $name
-     * @return self
-     * @throws \ReflectionException
+     * @return $this
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
-    public function addCommand(string $commandClass,string $name = ''): self
+    public function addCommand(string $commandClass, string $name = ''): self
     {
         if ($name) {
             $this->commands[$name] = $commandClass;
@@ -64,16 +71,98 @@ class Console
     }
 
     /**
-     * @return void
-     * @throws \ReflectionException
+     * @param string $name
+     * @return \Larmias\Console\Command
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
-    public function run(): void
+    public function getCommand(string $name): Command
+    {
+        if (!$this->hasCommand($name)) {
+            throw new \InvalidArgumentException(sprintf('The command "%s" does not exist.', $name));
+        }
+        /** @var \Larmias\Console\Command $command */
+        $command = $this->commands[$name];
+        if (is_string($command)) {
+            $command = $this->container->get($command);
+            $command->setConsole($this);
+        }
+        return $command;
+    }
+
+    /**
+     * @param string $name
+     * @return bool
+     */
+    public function hasCommand(string $name): bool
+    {
+        return isset($this->commands[$name]);
+    }
+
+    /**
+     * @return int
+     * @throws \Psr\Container\NotFoundExceptionInterface
+     * @throws \Psr\Container\ContainerExceptionInterface
+     */
+    public function run(): int
     {
         $this->initialize();
+        $name = $this->input->getCommand();
+        $command = $name ? $this->getCommand($name) : $this->getCommand('help');
         try {
-
+            $exitCode = $this->doRunCommand($command);
         } catch (\Throwable $e) {
-
+            $exitCode = $e->getCode();
+            if (is_numeric($exitCode)) {
+                $exitCode = (int)$exitCode;
+                if (0 === $exitCode) {
+                    $exitCode = 1;
+                }
+            } else {
+                $exitCode = 1;
+            }
         }
+        if ($this->autoExit) {
+            if ($exitCode > 255) {
+                $exitCode = 255;
+            }
+
+            exit($exitCode);
+        }
+
+        return $exitCode;
+    }
+
+    /**
+     * @param \Larmias\Console\Command $command
+     * @return int
+     */
+    protected function doRunCommand(Command $command): int
+    {
+        return $command->run($this->input, $this->output);
+    }
+
+    /**
+     * @return string
+     */
+    public function getVersion(): string
+    {
+        return self::VERSION;
+    }
+
+    /**
+     * @return array
+     */
+    public function getCommands(): array
+    {
+        return $this->commands;
+    }
+
+    /**
+     * @param bool $autoExit
+     */
+    public function setAutoExit(bool $autoExit): void
+    {
+        $this->autoExit = $autoExit;
     }
 }

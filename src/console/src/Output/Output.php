@@ -4,10 +4,22 @@ declare(strict_types=1);
 
 namespace Larmias\Console\Output;
 
+use Larmias\Console\Contracts\OutputHandlerInterface;
 use Larmias\Console\Contracts\OutputInterface;
+use Larmias\Console\Output\Handler\Console;
 
 class Output implements OutputInterface
 {
+    protected OutputHandlerInterface $handler;
+
+    /**
+     * Output constructor.
+     */
+    public function __construct()
+    {
+        $this->handler = new Console();
+    }
+
     /**
      * 输出空行
      *
@@ -22,11 +34,11 @@ class Output implements OutputInterface
     /**
      * 输出信息并换行
      *
-     * @param string $messages
+     * @param string|array $messages
      * @param int $type
      * @return void
      */
-    public function writeln(string $messages, int $type = 0): void
+    public function writeln(string|array $messages, int $type = 0): void
     {
         $this->write($messages, true, $type);
     }
@@ -34,11 +46,12 @@ class Output implements OutputInterface
     /**
      * 输出信息
      *
-     * @param string $messages
+     * @param string|array $messages
      * @param bool $newline
      * @param int $type
      */
-    public function write(string $messages, bool $newline = false, int $type = 0): void
+    public function write(string|array $messages, bool $newline = false, int $type = 0): void
     {
+        $this->handler->write($messages, $newline, $type);
     }
 }

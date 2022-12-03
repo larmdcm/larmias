@@ -12,11 +12,13 @@ class Input implements InputInterface
     protected string $scriptFile;
 
     /** @var string */
-    protected string $command;
+    protected string $command = '';
 
     /** @var array */
     protected array $tokens;
 
+    /** @var array */
+    protected array $options = [];
 
     /**
      * @param array|null $argv
@@ -26,9 +28,11 @@ class Input implements InputInterface
         if (\is_null($argv)) {
             $argv = $_SERVER['argv'];
         }
-        $this->scriptFile = array_shift($argv);
-        $this->command = array_shift($argv);
-        $this->tokens = $argv;
+        $this->scriptFile = (string)array_shift($argv);
+        if (isset($argv[0]) && substr($argv[0], 0, 1) !== '-' && substr($argv[0], 0, 2) !== '--') {
+            $this->command = (string)array_shift($argv);
+        }
+        $this->tokens = (array)$argv;
     }
 
     public function bool(): bool
@@ -36,9 +40,15 @@ class Input implements InputInterface
         return false;
     }
 
-    public function getOption()
+    /**
+     * @return array
+     */
+    public function getOptions(): array
     {
-
+        if (empty($this->options)) {
+            $this->parse();
+        }
+        return $this->options;
     }
 
     /**
@@ -49,8 +59,32 @@ class Input implements InputInterface
         return $this->command;
     }
 
-    protected function parse()
+    /**
+     * @return void
+     */
+    protected function parse(): void
     {
+        foreach ($this->tokens as $key => $item) {
+            $name = $item;
+            $value = '';
+            if (str_contains($name, '=')) {
+                [$name] = explode('=', $item);
+                $value = ltrim(strstr($item, "="), "=");
+            }
+            if (substr($name, 0, 2) == '--' || substr($name, 0, 1) == '-') {
+                if (substr($name, 0, 1) == '-' && $value === '' && isset($argv[$key + 1]) && substr($argv[$key + 1], 0, 1) != '-') {
+                    $next = $argv[$key + 1];
+                    if (preg_match('/^[\S\s]+$/i', $next)) {
+                        $value = $next;
+                    }
+                }
+            } else {
+                $name = '';
+            }
+            if ($name !== '') {
+                $this->options[$name] = $value;
+            }
+        }
     }
 
     /**

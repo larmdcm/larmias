@@ -164,6 +164,7 @@ class Router
     {
         $this->collectGroup();
         $this->collectRoute();
+
         $routeInfo = $this->dispatcher->dispatch($method, $route);
         if ($routeInfo[0] === FastRouteDispatcher::FOUND) {
             /** @var \Larmias\Routing\Rule $rule */

@@ -15,7 +15,6 @@ interface SignalInterface
 
     /**
      * @param integer $signal
-     * @param callable $func
      * @return bool
      */
     public function offSignal(int $signal): bool;

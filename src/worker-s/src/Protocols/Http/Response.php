@@ -284,7 +284,7 @@ class Response
             $this->header('Content-Range', "bytes $offset - $offsetEnd / $fileSize");
         }
         if ($bodyLen <= self::SEND_MAX_FILE_SIZE) {
-            $this->end(file_get_contents($file, false, null, $offset, $bodyLen));
+            $this->end(\file_get_contents($file, false, null, $offset, $bodyLen));
             return;
         }
     }
@@ -322,7 +322,7 @@ class Response
     {
         $bodyLen = \strlen($body);
         $headers = $this->headers;
-        $header  = sprintf("HTTP/%s %d %s\r\n",$this->version,$this->statusCode,$this->reason ?: static::$phrases[$this->statusCode]);
+        $header  = \sprintf("HTTP/%s %d %s\r\n",$this->version,$this->statusCode,$this->reason ?: static::$phrases[$this->statusCode]);
         
         if (!isset($headers['Server'])) {
             $headers['Server'] = 'worker-s/' . Manager::VERSION;
@@ -354,7 +354,7 @@ class Response
         }
                  
         if (isset($headers['Transfer-Encoding'])) {
-            return "$header\r\n" . dechex($bodyLen) . "\r\n{$body}\r\n";
+            return "$header\r\n" . \dechex($bodyLen) . "\r\n{$body}\r\n";
         }
         
         return $header . "\r\n" . $body;

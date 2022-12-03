@@ -150,7 +150,9 @@ class Request extends ServerRequest implements RequestInterface
 
     /**
      * Retrieve a cookie from the request.
-     * @param null|mixed $default
+     *
+     * @param string $key
+     * @param mixed $default
      * @return mixed
      */
     public function cookie(string $key, mixed $default = null): mixed

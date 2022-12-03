@@ -54,6 +54,7 @@
       "Larmias\\ExceptionHandler\\": "src/exception-handler/src/",
       "Larmias\\Support\\": "src/support/src/",
       "Larmias\\Log\\": "src/log/src/",
+      "Larmias\\Console\\": "src/console/src/",
       "Larmias\\Framework\\": "src/framework/src/"
     }
   }

@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace Larmias\Console\Output;
 
-class Table
-{
-    public const ALIGN_LEFT = 1;
-    public const ALIGN_RIGHT = 0;
-    public const ALIGN_CENTER = 2;
+use Larmias\Console\Contracts\OutputTableInterface;
 
+class Table implements OutputTableInterface
+{
     /**
      * 头信息数据
      * @var array
@@ -99,14 +97,15 @@ class Table
      * @access public
      * @param array $header 要输出的Header信息
      * @param int $align 对齐方式 默认1 ALGIN_LEFT 0 ALIGN_RIGHT 2 ALIGN_CENTER
-     * @return void
+     * @return self
      */
-    public function setHeader(array $header, int $align = 1): void
+    public function setHeader(array $header, int $align = 1): self
     {
         $this->header = $header;
         $this->headerAlign = $align;
 
         $this->checkColWidth($header);
+        return $this;
     }
 
     /**
@@ -114,9 +113,9 @@ class Table
      * @access public
      * @param array $rows 要输出的表格数据（二维数组）
      * @param int $align 对齐方式 默认1 ALGIN_LEFT 0 ALIGN_RIGHT 2 ALIGN_CENTER
-     * @return void
+     * @return self
      */
-    public function setRows(array $rows, int $align = 1): void
+    public function setRows(array $rows, int $align = 1): self
     {
         $this->rows = $rows;
         $this->cellAlign = $align;
@@ -124,6 +123,8 @@ class Table
         foreach ($rows as $row) {
             $this->checkColWidth($row);
         }
+
+        return $this;
     }
 
     /**

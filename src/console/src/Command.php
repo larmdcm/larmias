@@ -6,6 +6,8 @@ namespace Larmias\Console;
 
 use Larmias\Console\Contracts\InputInterface;
 use Larmias\Console\Contracts\OutputInterface;
+use Larmias\Console\Input\Argument;
+use Larmias\Console\Input\Definition;
 use Larmias\Console\Input\Option;
 
 abstract class Command
@@ -15,6 +17,9 @@ abstract class Command
 
     /** @var string */
     protected string $description = '';
+
+    /** @var array */
+    protected array $arguments = [];
 
     /** @var array */
     protected array $options = [];
@@ -28,11 +33,15 @@ abstract class Command
     /** @var Console */
     protected Console $console;
 
+    /** @var Definition */
+    protected Definition $definition;
+
     /**
      * Command __construct
      */
     public function __construct()
     {
+        $this->definition = new Definition();
         $this->configure();
         if (!$this->name) {
             throw new \LogicException(sprintf('The command defined in "%s" cannot have an empty name.', get_class($this)));
@@ -51,7 +60,6 @@ abstract class Command
     {
     }
 
-
     /**
      * @param InputInterface $input
      * @param OutputInterface $output
@@ -61,22 +69,35 @@ abstract class Command
     {
         $this->input = $input;
         $this->output = $output;
+        $this->input->setDefinition($this->definition);
         $this->handle();
         return 0;
     }
 
+    /**
+     * @param string $name
+     * @param int $mode
+     * @param string $description
+     * @param mixed|null $default
+     * @return $this
+     */
+    public function addArgument(string $name, int $mode = Argument::REQUIRED, string $description = '', mixed $default = null): self
+    {
+        $this->definition->addArgument($name,$mode,$description,$default);
+        return $this;
+    }
 
     /**
      * @param string $name
-     * @param string $shortcut
+     * @param string|null $shortcut
      * @param int $mode
      * @param string $description
      * @param mixed|null $default
      * @return self
      */
-    public function addOption(string $name, string $shortcut, int $mode = Option::VALUE_NONE, string $description = '', mixed $default = null): self
+    public function addOption(string $name, ?string $shortcut = null, int $mode = Option::VALUE_NONE, string $description = '', mixed $default = null): self
     {
-        $this->options[] = new Option($name, $shortcut, $mode, $description, $default);
+        $this->definition->addOption($name, $shortcut, $mode, $description, $default);
         return $this;
     }
 

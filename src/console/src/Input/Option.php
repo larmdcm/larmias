@@ -24,15 +24,17 @@ class Option
 
     /**
      * @param string $name
-     * @param string $shortcut
+     * @param string|null $shortcut
      * @param int $mode
      * @param string $description
      * @param mixed|null $default
      */
-    public function __construct(protected string $name,
-        protected string $shortcut = '',
+    public function __construct(
+        protected string $name,
+        protected ?string $shortcut = null,
         protected int $mode = self::VALUE_NONE,
-        protected string $description = '',protected mixed $default = null)
+        protected string $description = '',
+        protected mixed $default = null)
     {
         if (empty($this->name)) {
             throw new \InvalidArgumentException('An option name cannot be empty.');
@@ -51,9 +53,9 @@ class Option
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getShortcut(): string
+    public function getShortcut(): ?string
     {
         return $this->shortcut;
     }

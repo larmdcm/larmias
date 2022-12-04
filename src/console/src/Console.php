@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Larmias\Console;
 
 use Larmias\Console\Contracts\InputInterface;
+use Larmias\Console\Contracts\OutputHandlerInterface;
 use Larmias\Console\Contracts\OutputInterface;
+use Larmias\Console\Contracts\OutputTableInterface;
 use Larmias\Console\Input\Input;
 use Larmias\Console\Output\Output;
 use Larmias\Contracts\ContainerInterface;
@@ -37,6 +39,8 @@ class Console
         $this->container->bind([
             InputInterface::class => Input::class,
             OutputInterface::class => Output::class,
+            OutputHandlerInterface::class => \Larmias\Console\Output\Handler\Console::class,
+            OutputTableInterface::class => \Larmias\Console\Output\Table::class,
         ]);
     }
 
@@ -101,8 +105,8 @@ class Console
 
     /**
      * @return int
-     * @throws \Psr\Container\NotFoundExceptionInterface
      * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
     public function run(): int
     {
@@ -112,6 +116,7 @@ class Console
         try {
             $exitCode = $this->doRunCommand($command);
         } catch (\Throwable $e) {
+            $this->output->writeln($e->getFile() . '('. $e->getLine() .')' . ':' . $e->getMessage() . PHP_EOL . $e->getTraceAsString());
             $exitCode = $e->getCode();
             if (is_numeric($exitCode)) {
                 $exitCode = (int)$exitCode;
@@ -122,11 +127,11 @@ class Console
                 $exitCode = 1;
             }
         }
+
         if ($this->autoExit) {
             if ($exitCode > 255) {
                 $exitCode = 255;
             }
-
             exit($exitCode);
         }
 

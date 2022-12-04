@@ -18,7 +18,13 @@ class Input implements InputInterface
     protected array $tokens;
 
     /** @var array */
+    protected array $arguments = [];
+
+    /** @var array */
     protected array $options = [];
+
+    /** @var Definition */
+    protected Definition $definition;
 
     /**
      * @param array|null $argv
@@ -29,15 +35,39 @@ class Input implements InputInterface
             $argv = $_SERVER['argv'];
         }
         $this->scriptFile = (string)array_shift($argv);
-        if (isset($argv[0]) && substr($argv[0], 0, 1) !== '-' && substr($argv[0], 0, 2) !== '--') {
+        if (isset($argv[0]) && !str_starts_with($argv[0], '-') && !str_starts_with($argv[0], '--')) {
             $this->command = (string)array_shift($argv);
         }
-        $this->tokens = (array)$argv;
+        $this->definition = new Definition();
+        $this->tokens = array_values((array)$argv);
+        $this->parse();
     }
 
-    public function bool(): bool
+    /**
+     * @param Definition $definition
+     * @return void
+     */
+    public function setDefinition(Definition $definition): void
     {
-        return false;
+        $this->definition = $definition;
+    }
+
+    /**
+     * @param string $name
+     * @return string|null
+     */
+    public function getOption(string $name): ?string
+    {
+        return $this->hasOption($name) ? $this->options[$name] : null;
+    }
+
+    /**
+     * @param string $name
+     * @return bool
+     */
+    public function hasOption(string $name): bool
+    {
+        return isset($this->options[$name]);
     }
 
     /**
@@ -45,9 +75,6 @@ class Input implements InputInterface
      */
     public function getOptions(): array
     {
-        if (empty($this->options)) {
-            $this->parse();
-        }
         return $this->options;
     }
 
@@ -64,27 +91,48 @@ class Input implements InputInterface
      */
     protected function parse(): void
     {
-        foreach ($this->tokens as $key => $item) {
-            $name = $item;
-            $value = '';
-            if (str_contains($name, '=')) {
-                [$name] = explode('=', $item);
-                $value = ltrim(strstr($item, "="), "=");
+        $key = 0;
+        while (true) {
+            if (!isset($this->tokens[$key])) {
+                break;
             }
-            if (substr($name, 0, 2) == '--' || substr($name, 0, 1) == '-') {
-                if (substr($name, 0, 1) == '-' && $value === '' && isset($argv[$key + 1]) && substr($argv[$key + 1], 0, 1) != '-') {
-                    $next = $argv[$key + 1];
-                    if (preg_match('/^[\S\s]+$/i', $next)) {
-                        $value = $next;
-                    }
+            $item = $this->tokens[$key];
+            $isArgument = false;
+            $name = null;
+            $value = null;
+            if (str_contains($item, '=')) {
+                [$name, $value] = explode('=', $item, 2);
+            } else if ($this->isOptionInstruct($item)) {
+                $name = $item;
+                $nextKey = $key + 1;
+                if (isset($this->tokens[$nextKey]) && $this->tokens[$nextKey] && !$this->isOptionInstruct($this->tokens[$nextKey])) {
+                    $value = $this->tokens[$nextKey];
+                    $key++;
                 }
             } else {
-                $name = '';
+                $name = $item;
+                $isArgument = true;
             }
-            if ($name !== '') {
-                $this->options[$name] = $value;
+
+            if ($name) {
+                $name = ltrim($name, '-');
+                if ($isArgument) {
+                    $this->arguments[]= $name;
+                } else {
+                    $this->options = $value;
+                }
             }
+            $key++;
         }
+    }
+
+    /**
+     * @param string $name
+     * @return bool
+     */
+    protected function isOptionInstruct(string $name): bool
+    {
+        return str_starts_with($name, '-') || str_starts_with($name, '--');
     }
 
     /**

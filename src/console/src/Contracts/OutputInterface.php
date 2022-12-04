@@ -6,6 +6,49 @@ namespace Larmias\Console\Contracts;
 
 interface OutputInterface
 {
+    /** @var int */
+    public const OUTPUT_NORMAL = 0;
+    /** @var int */
+    public const OUTPUT_RAW    = 1;
+    /** @var int */
+    public const OUTPUT_PLAIN  = 2;
+
+    /**
+     * @param string $message
+     * @return void
+     */
+    public function info(string $message): void;
+
+    /**
+     * @param string $message
+     * @return void
+     */
+    public function error(string $message): void;
+
+    /**
+     * @param string $message
+     * @return void
+     */
+    public function comment(string $message): void;
+
+    /**
+     * @param string $message
+     * @return void
+     */
+    public function question(string $message): void;
+
+    /**
+     * @param string $message
+     * @return void
+     */
+    public function highlight(string $message): void;
+
+    /**
+     * @param string $message
+     * @return void
+     */
+    public function warning(string $message): void;
+
     /**
      * 输出空行
      *
@@ -31,4 +74,9 @@ interface OutputInterface
      * @param int $type
      */
     public function write(string|array $messages, bool $newline = false, int $type = 0): void;
+
+    /**
+     * @return OutputTableInterface
+     */
+    public function table(): OutputTableInterface;
 }

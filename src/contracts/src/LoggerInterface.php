@@ -17,5 +17,4 @@ interface LoggerInterface extends BaseLoggerInterface
      * @return void
      */
     public function sql(string|\Stringable $message, array $context = []): void;
-
 }

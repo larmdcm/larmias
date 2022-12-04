@@ -6,19 +6,83 @@ namespace Larmias\Console\Output;
 
 use Larmias\Console\Contracts\OutputHandlerInterface;
 use Larmias\Console\Contracts\OutputInterface;
-use Larmias\Console\Output\Handler\Console;
+use Larmias\Console\Contracts\OutputTableInterface;
+use Larmias\Contracts\ContainerInterface;
 
 class Output implements OutputInterface
 {
-    protected OutputHandlerInterface $handler;
+    /**
+     * @param ContainerInterface $container
+     * @param OutputHandlerInterface $handler
+     */
+    public function __construct(protected ContainerInterface $container,protected OutputHandlerInterface $handler)
+    {
+    }
 
     /**
-     * Output constructor.
+     * @param string $style
+     * @param string $message
+     * @return void
      */
-    public function __construct()
+    protected function block(string $style, string $message): void
     {
-        $this->handler = new Console();
+        $this->writeln("<{$style}>{$message}</$style>");
     }
+
+    /**
+     * @param string $message
+     * @return void
+     */
+    public function info(string $message): void
+    {
+        $this->block(__FUNCTION__,$message);
+    }
+
+    /**
+     * @param string $message
+     * @return void
+     */
+    public function error(string $message): void
+    {
+        $this->block(__FUNCTION__,$message);
+    }
+
+    /**
+     * @param string $message
+     * @return void
+     */
+    public function comment(string $message): void
+    {
+        $this->block(__FUNCTION__,$message);
+    }
+
+    /**
+     * @param string $message
+     * @return void
+     */
+    public function question(string $message): void
+    {
+        $this->block(__FUNCTION__,$message);
+    }
+
+    /**
+     * @param string $message
+     * @return void
+     */
+    public function highlight(string $message): void
+    {
+        $this->block(__FUNCTION__,$message);
+    }
+
+    /**
+     * @param string $message
+     * @return void
+     */
+    public function warning(string $message): void
+    {
+        $this->block(__FUNCTION__,$message);
+    }
+
 
     /**
      * 输出空行
@@ -41,6 +105,16 @@ class Output implements OutputInterface
     public function writeln(string|array $messages, int $type = 0): void
     {
         $this->write($messages, true, $type);
+    }
+
+    /**
+     * @return OutputTableInterface
+     */
+    public function table(): OutputTableInterface
+    {
+        /** @var OutputTableInterface $table */
+        $table = $this->container->make(OutputTableInterface::class,[],true);
+        return $table;
     }
 
     /**

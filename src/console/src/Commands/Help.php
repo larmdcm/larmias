@@ -32,13 +32,12 @@ class Help extends Command
      */
     public function handle(): void
     {
-        $this->output->writeln('version ' . $this->console->getVersion());
+        $this->output->writeln(sprintf('version <comment>%s</comment>',$this->console->getVersion()));
         $this->output->newLine();
-        $this->output->writeln('Usage:' . PHP_EOL . '  command [options]');
+        $this->output->writeln('<comment>Usage:</comment>' . PHP_EOL . '  php '. $this->input->getScriptFile() .' command [arguments] [options]');
         $this->printCommandOptions();
         $this->printCommands();
-
-        var_dump($this->input->getOptions());
+        $this->input->getOptions();
     }
 
     /**
@@ -52,11 +51,11 @@ class Help extends Command
             return;
         }
         $this->output->newLine();
-        $this->output->writeln('Commands:');
+        $this->output->writeln('<comment>Commands:</comment>');
 
         foreach ($commands as $name) {
             $command = $this->console->getCommand($name);
-            $this->output->writeln("  {$command->getName()}\t{$command->getDescription()}");
+            $this->output->writeln("  <info>{$command->getName()}</info>\t{$command->getDescription()}");
         }
     }
 
@@ -69,7 +68,7 @@ class Help extends Command
             return;
         }
         $this->output->newLine();
-        $this->output->writeln('Options:');
+        $this->output->writeln('<comment>Options:</comment>');
 
         /** @var \Larmias\Console\Input\Option $option */
         foreach ($this->options as $option) {
@@ -80,7 +79,7 @@ class Help extends Command
             }
             $names[] = '--' . $option->getName();
             $name = implode(', ', $names);
-            $this->output->writeln("  {$name}\t{$option->getDescription()}");
+            $this->output->writeln("  <info>{$name}</info>\t{$option->getDescription()}");
         }
     }
 

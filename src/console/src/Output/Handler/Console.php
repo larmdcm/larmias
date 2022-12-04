@@ -5,11 +5,16 @@ declare(strict_types=1);
 namespace Larmias\Console\Output\Handler;
 
 use Larmias\Console\Contracts\OutputHandlerInterface;
+use Larmias\Console\Contracts\OutputInterface;
+use Larmias\Console\Output\Formatter;
 
 class Console implements OutputHandlerInterface
 {
     /** @var resource */
     protected $stdout;
+
+    /** @var Formatter */
+    protected Formatter $formatter;
 
     /**
      * Console constructor.
@@ -17,6 +22,17 @@ class Console implements OutputHandlerInterface
     public function __construct()
     {
         $this->stdout = $this->openOutputStream();
+        $this->formatter = new Formatter();
+        $this->setDecorated($this->hasColorSupport($this->stdout));
+    }
+
+    /**
+     * @param bool $decorated
+     * @return void
+     */
+    public function setDecorated(bool $decorated): void
+    {
+        $this->formatter->setDecorated($decorated);
     }
 
     /**
@@ -30,6 +46,18 @@ class Console implements OutputHandlerInterface
         $messages = (array)$messages;
 
         foreach ($messages as $message) {
+            switch ($type) {
+                case OutputInterface::OUTPUT_NORMAL:
+                    $message = $this->formatter->format($message);
+                    break;
+                case OutputInterface::OUTPUT_RAW:
+                    break;
+                case OutputInterface::OUTPUT_PLAIN:
+                    $message = strip_tags($this->formatter->format($message));
+                    break;
+                default:
+                    throw new \InvalidArgumentException(sprintf('Unknown output type given (%s)', $type));
+            }
             $this->doWrite($message, $newline);
         }
     }
@@ -86,5 +114,22 @@ class Console implements OutputHandlerInterface
             PHP_OS,
         ];
         return false !== stripos(implode(';', $checks), 'OS400');
+    }
+
+    /**
+     * 是否支持着色
+     * @param resource $stream
+     * @return bool
+     */
+    protected function hasColorSupport($stream): bool
+    {
+        if (DIRECTORY_SEPARATOR === '\\') {
+            return
+                '10.0.10586' === PHP_WINDOWS_VERSION_MAJOR . '.' . PHP_WINDOWS_VERSION_MINOR . '.' . PHP_WINDOWS_VERSION_BUILD
+                || false !== getenv('ANSICON')
+                || 'ON' === getenv('ConEmuANSI')
+                || 'xterm' === getenv('TERM');
+        }
+        return function_exists('posix_isatty') && @posix_isatty($stream);
     }
 }

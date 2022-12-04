@@ -123,7 +123,7 @@ if (!function_exists('data_get')) {
      * @param mixed $default
      * @return mixed
      */
-    function data_get(mixed $target,string|array $key, mixed $default = null): mixed
+    function data_get(mixed $target,string|array|null $key, mixed $default = null): mixed
     {
         if (is_null($key)) {
             return $target;

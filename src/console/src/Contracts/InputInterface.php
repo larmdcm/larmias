@@ -10,15 +10,32 @@ interface InputInterface
 {
     /**
      * @param Definition $definition
-     * @return void
+     * @return InputInterface
      */
-    public function setDefinition(Definition $definition): void;
+    public function bind(Definition $definition): InputInterface;
 
     /**
      * @param string $name
-     * @return string|null
+     * @return mixed
      */
-    public function getOption(string $name): ?string;
+    public function getArgument(string $name): mixed;
+
+    /**
+     * @param string $name
+     * @return bool
+     */
+    public function hasArgument(string $name): bool;
+
+    /**
+     * @return array
+     */
+    public function getArguments(): array;
+
+    /**
+     * @param string $name
+     * @return mixed
+     */
+    public function getOption(string $name): mixed;
 
     /**
      * @return array
@@ -40,4 +57,21 @@ interface InputInterface
      * @return string
      */
     public function getCommand(): string;
+
+    /**
+     * 获取输入的参数
+     *
+     * @param string|int $key
+     * @param mixed|null $default
+     * @return mixed
+     */
+    public function getInputParam(string|int $key, mixed $default = null): mixed;
+
+    /**
+     * 输入的参数是否存在
+     *
+     * @param string|int $key
+     * @return bool
+     */
+    public function hasInputParam(string|int $key): bool;
 }

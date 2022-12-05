@@ -6,18 +6,21 @@ class Option
 {
     /**
      * 无需传值
+     *
      * @var int
      */
     public const VALUE_NONE = 1;
 
     /**
      * 必须传值
+     *
      * @var int
      */
     public const VALUE_REQUIRED = 2;
 
     /**
      * 可选传值
+     *
      * @var int
      */
     public const VALUE_OPTIONAL = 3;
@@ -74,5 +77,29 @@ class Option
     public function getDefault(): mixed
     {
         return $this->default;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isValueRequired(): bool
+    {
+        return $this->mode === self::VALUE_REQUIRED;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isValueOptional(): bool
+    {
+        return $this->mode === self::VALUE_OPTIONAL;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isAcceptValue(): bool
+    {
+        return $this->isValueRequired() || $this->isValueOptional();
     }
 }

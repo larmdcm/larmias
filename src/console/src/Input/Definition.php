@@ -20,7 +20,7 @@ class Definition
      * @param int $mode
      * @param string $description
      * @param mixed|null $default
-     * @return $this
+     * @return self
      */
     public function addArgument(string $name, int $mode = Argument::REQUIRED, string $description = '', mixed $default = null): self
     {
@@ -37,21 +37,28 @@ class Definition
     }
 
     /**
-     * @param string $name
+     * @param string|int $name
      * @return Argument|null
      */
-    public function getArgument(string $name): ?Argument
+    public function getArgument(string|int $name): ?Argument
     {
-        return $this->hasArgument($name) ? $this->arguments[$name] : null;
+        if (!$this->hasArgument($name)) {
+            return null;
+        }
+
+        $arguments = is_int($name) ? array_values($this->arguments) : $this->arguments;
+
+        return $arguments[$name];
     }
 
     /**
-     * @param string $name
+     * @param string|int $name
      * @return bool
      */
-    public function hasArgument(string $name): bool
+    public function hasArgument(string|int $name): bool
     {
-        return isset($this->arguments[$name]);
+        $arguments = is_int($name) ? array_values($this->arguments) : $this->arguments;
+        return isset($arguments[$name]);
     }
 
     /**
@@ -70,7 +77,7 @@ class Definition
         $option = new Option($name, $shortcut, $mode, $description, $default);
         $this->options[] = $option;
         if ($shortcut) {
-            foreach (explode('|',$shortcut) as $shortcut) {
+            foreach (explode('|', $shortcut) as $shortcut) {
                 $this->shortcuts[$name] = $shortcut;
             }
         }
@@ -80,7 +87,7 @@ class Definition
     /**
      * @return Option[]
      */
-    public function geOptions(): array
+    public function getOptions(): array
     {
         return $this->options;
     }
@@ -91,6 +98,7 @@ class Definition
      */
     public function getOption(string $name): ?Option
     {
+        $name = $this->getLongOptionName($name);
         return $this->hasOption($name) ? $this->options[$name] : null;
     }
 
@@ -100,6 +108,43 @@ class Definition
      */
     public function hasOption(string $name): bool
     {
-        return isset($this->options[$name]);
+        return isset($this->options[$this->getLongOptionName($name)]);
+    }
+
+    /**
+     * 获取参数默认值
+     * @return array
+     */
+    public function getArgumentDefaults(): array
+    {
+        $values = [];
+        foreach ($this->arguments as $argument) {
+            $values[$argument->getName()] = $argument->getDefault();
+        }
+
+        return $values;
+    }
+
+    /**
+     * 获取所有选项的默认值
+     *
+     * @return array
+     */
+    public function getOptionDefaults(): array
+    {
+        $values = [];
+        foreach ($this->options as $option) {
+            $values[$option->getName()] = $option->getDefault();
+        }
+        return $values;
+    }
+
+    /**
+     * @param string $name
+     * @return string
+     */
+    protected function getLongOptionName(string $name): string
+    {
+        return $this->shortcuts[$name] ?? $name;
     }
 }

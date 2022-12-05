@@ -17,6 +17,12 @@ class Input implements InputInterface
     /** @var array */
     protected array $tokens;
 
+    /** @var string[] */
+    protected array $data = [
+        'arguments' => [],
+        'options' => [],
+    ];
+
     /** @var array */
     protected array $arguments = [];
 
@@ -40,25 +46,61 @@ class Input implements InputInterface
         }
         $this->definition = new Definition();
         $this->tokens = array_values((array)$argv);
-        $this->parse();
+        $this->parseToken();
     }
 
     /**
      * @param Definition $definition
-     * @return void
+     * @return InputInterface
      */
-    public function setDefinition(Definition $definition): void
+    public function bind(Definition $definition): InputInterface
     {
         $this->definition = $definition;
+        $this->arguments = [];
+        $this->options = [];
+        $this->parse();
+        return $this;
     }
 
     /**
      * @param string $name
-     * @return string|null
+     * @return mixed
      */
-    public function getOption(string $name): ?string
+    public function getArgument(string $name): mixed
     {
-        return $this->hasOption($name) ? $this->options[$name] : null;
+        if (!$this->definition->hasArgument($name)) {
+            throw new \InvalidArgumentException(sprintf('The "%s" argument does not exist.', $name));
+        }
+        return $this->arguments[$name] ?? $this->definition->getArgument($name)->getDefault();
+    }
+
+    /**
+     * @param string $name
+     * @return bool
+     */
+    public function hasArgument(string $name): bool
+    {
+        return $this->definition->hasArgument($name) && isset($this->arguments[$name]);
+    }
+
+    /**
+     * @return array
+     */
+    public function getArguments(): array
+    {
+        return array_merge($this->definition->getArgumentDefaults(), $this->arguments);
+    }
+
+    /**
+     * @param string $name
+     * @return mixed
+     */
+    public function getOption(string $name): mixed
+    {
+        if (!$this->definition->hasOption($name)) {
+            throw new \InvalidArgumentException(sprintf('The "%s" option does not exist.', $name));
+        }
+        return $this->options[$name] ?? $this->definition->getOption($name)->getDefault();
     }
 
     /**
@@ -67,7 +109,7 @@ class Input implements InputInterface
      */
     public function hasOption(string $name): bool
     {
-        return isset($this->options[$name]);
+        return $this->definition->hasOption($name) && isset($this->options[$name]);
     }
 
     /**
@@ -75,7 +117,7 @@ class Input implements InputInterface
      */
     public function getOptions(): array
     {
-        return $this->options;
+        return array_merge($this->definition->getOptionDefaults(), $this->options);
     }
 
     /**
@@ -87,9 +129,69 @@ class Input implements InputInterface
     }
 
     /**
+     * 获取输入的参数
+     *
+     * @param string|int $key
+     * @param mixed|null $default
+     * @return mixed
+     */
+    public function getInputParam(string|int $key, mixed $default = null): mixed
+    {
+        $name = is_int($key) ? 'arguments' : 'options';
+        return $this->data[$name][$key] ?? $default;
+    }
+
+    /**
+     * 输入的参数是否存在
+     *
+     * @param string|int $key
+     * @return bool
+     */
+    public function hasInputParam(string|int $key): bool
+    {
+        $name = is_int($key) ? 'arguments' : 'options';
+        return isset($this->data[$name][$key]);
+    }
+
+    /**
      * @return void
      */
     protected function parse(): void
+    {
+        foreach ($this->definition->getOptions() as $option) {
+            $name = $option->getName();
+            $value = false;
+            if ($this->hasInputParam($name)) {
+                $value = $this->getInputParam($name);
+            } else if ($this->hasInputParam($option->getShortcut())) {
+                $value = $this->getInputParam($option->getShortcut());
+            }
+            if ($option->isValueRequired() && $value === false) {
+                throw new \InvalidArgumentException(sprintf('The "%s" options Required.', $name));
+            }
+            if ($option->isAcceptValue()) {
+                $this->options[$name] = $value;
+            }
+        }
+
+        foreach ($this->definition->getArguments() as $argument) {
+            $name = $argument->getName();
+            $value = false;
+            $key = count($this->arguments);
+            if ($this->hasInputParam($key)) {
+                $value = $this->getInputParam($key);
+            }
+            if ($argument->isRequired() && $value === false) {
+                throw new \InvalidArgumentException(sprintf('The "%s" arguments Required.', $name));
+            }
+            $this->arguments[$name] = $value;
+        }
+    }
+
+    /**
+     * @return void
+     */
+    protected function parseToken(): void
     {
         $key = 0;
         while (true) {
@@ -117,9 +219,9 @@ class Input implements InputInterface
             if ($name) {
                 $name = ltrim($name, '-');
                 if ($isArgument) {
-                    $this->arguments[]= $name;
+                    $this->data['arguments'][] = $name;
                 } else {
-                    $this->options = $value;
+                    $this->data['options'][$name] = $value;
                 }
             }
             $key++;

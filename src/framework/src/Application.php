@@ -4,18 +4,19 @@ declare(strict_types=1);
 
 namespace Larmias\Framework;
 
+use Larmias\Console\Console;
 use Larmias\Contracts\ApplicationInterface;
+use Larmias\Contracts\ConfigInterface;
+use Larmias\Contracts\ConsoleInterface;
 use Larmias\Di\Container;
 use Larmias\Contracts\ContainerInterface;
+use Larmias\Framework\Commands\Start;
 use Larmias\Framework\Listeners\WorkerStartListener;
 use Psr\Container\ContainerInterface as PsrContainerInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\EventDispatcher\ListenerProviderInterface;
-use Larmias\Engine\Kernel;
-use Larmias\Engine\EngineConfig;
 use Larmias\Event\EventDispatcherFactory;
 use Larmias\Event\ListenerProviderFactory;
-use RuntimeException;
 
 class Application extends Container implements ApplicationInterface
 {
@@ -33,11 +34,7 @@ class Application extends Container implements ApplicationInterface
      * @var string
      */
     protected string $runtimePath;
-
-    /**
-     * @var Kernel
-     */
-    protected Kernel $engine;
+    
 
     /** @var bool */
     protected bool $isInitialize = false;
@@ -61,6 +58,7 @@ class Application extends Container implements ApplicationInterface
             ContainerInterface::class => $this,
             PsrContainerInterface::class => $this,
             ApplicationInterface::class => $this,
+            ConsoleInterface::class => Console::class,
             ListenerProviderInterface::class => function () {
                 return ListenerProviderFactory::make($this, $this->getBootListeners());
             },
@@ -68,8 +66,6 @@ class Application extends Container implements ApplicationInterface
                 return EventDispatcherFactory::make($this);
             },
         ]);
-
-        $this->engine = $this->make(Kernel::class);
     }
 
     /**
@@ -84,21 +80,35 @@ class Application extends Container implements ApplicationInterface
     }
 
     /**
+     * 加载配置
+     *
+     * @return void
+     */
+    public function loadConfig(): void
+    {
+        if (is_dir($this->configPath)) {
+            foreach (glob($this->configPath . '*.*') as $filename) {
+                $this->get(ConfigInterface::class)->load($filename);
+            }
+        }
+    }
+
+
+    /**
      * @throws \Psr\Container\ContainerExceptionInterface
      * @throws \Psr\Container\NotFoundExceptionInterface
      * @throws \Throwable
      */
     public function run(): void
     {
-        $configFile = $this->getConfigPath() . 'worker.php';
+        /** @var ConsoleInterface $console */
+        $console = $this->make(ConsoleInterface::class);
 
-        if (!is_file($configFile)) {
-            throw new RuntimeException(sprintf('%s The worker configuration file does not exist.', $configFile));
+        foreach ($this->getBootCommands() as $command) {
+            $console->addCommand($command);
         }
 
-        $this->engine->setConfig(EngineConfig::build(require $configFile));
-
-        $this->engine->run();
+        $console->run();
     }
 
     /**
@@ -165,6 +175,24 @@ class Application extends Container implements ApplicationInterface
     {
         $this->runtimePath = $runtimePath;
         return $this;
+    }
+
+    /**
+     * @return string[]
+     */
+    protected function getBootCommands(): array
+    {
+        $configFile = $this->getConfigPath() . 'commands.php';
+        $commands = [];
+
+        if (is_file($configFile)) {
+            $commands = require $configFile;
+        }
+
+        return [
+            Start::class,
+            ...$commands,
+        ];
     }
 
     /**

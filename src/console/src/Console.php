@@ -10,9 +10,10 @@ use Larmias\Console\Contracts\OutputInterface;
 use Larmias\Console\Contracts\OutputTableInterface;
 use Larmias\Console\Input\Input;
 use Larmias\Console\Output\Output;
+use Larmias\Contracts\ConsoleInterface;
 use Larmias\Contracts\ContainerInterface;
 
-class Console
+class Console implements ConsoleInterface
 {
     /** @var string */
     public const VERSION = '1.0.0';
@@ -25,6 +26,7 @@ class Console
 
     /** @var array */
     protected array $commands = [
+        'version' => Commands\Version::class,
         'help' => Commands\Help::class,
     ];
 

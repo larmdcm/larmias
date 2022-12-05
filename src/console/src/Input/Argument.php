@@ -21,7 +21,7 @@ class Argument
     public const OPTIONAL = 2;
 
     /**
-     * @param string $shortcut
+     * @param string $name
      * @param int $mode
      * @param string $description
      * @param mixed|null $default
@@ -29,7 +29,8 @@ class Argument
     public function __construct(
         protected string $name,
         protected int $mode = self::REQUIRED,
-        protected string $description = '',protected mixed $default = null)
+        protected string $description = '',
+        protected mixed $default = null)
     {
         if (empty($this->name)) {
             throw new \InvalidArgumentException('An argument name cannot be empty.');
@@ -61,5 +62,13 @@ class Argument
     public function getDefault(): mixed
     {
         return $this->default;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isRequired(): bool
+    {
+        return $this->mode === self::REQUIRED;
     }
 }

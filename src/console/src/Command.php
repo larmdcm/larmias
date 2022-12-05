@@ -12,17 +12,17 @@ use Larmias\Console\Input\Option;
 
 abstract class Command
 {
+    /** @var int */
+    public const SUCCESS = 0;
+
     /** @var string */
     protected string $name;
 
     /** @var string */
     protected string $description = '';
 
-    /** @var array */
-    protected array $arguments = [];
-
-    /** @var array */
-    protected array $options = [];
+    /** @var string */
+    protected string $help = '';
 
     /** @var InputInterface */
     protected InputInterface $input;
@@ -49,9 +49,9 @@ abstract class Command
     }
 
     /**
-     * @return void
+     * @return int
      */
-    abstract public function handle(): void;
+    abstract public function handle(): int;
 
     /**
      * @return void
@@ -69,9 +69,8 @@ abstract class Command
     {
         $this->input = $input;
         $this->output = $output;
-        $this->input->setDefinition($this->definition);
-        $this->handle();
-        return 0;
+        $this->input->bind($this->definition);
+        return $this->handle();
     }
 
     /**
@@ -79,11 +78,11 @@ abstract class Command
      * @param int $mode
      * @param string $description
      * @param mixed|null $default
-     * @return $this
+     * @return self
      */
     public function addArgument(string $name, int $mode = Argument::REQUIRED, string $description = '', mixed $default = null): self
     {
-        $this->definition->addArgument($name,$mode,$description,$default);
+        $this->definition->addArgument($name, $mode, $description, $default);
         return $this;
     }
 
@@ -134,6 +133,24 @@ abstract class Command
     public function setDescription(string $description): self
     {
         $this->description = $description;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getHelp(): string
+    {
+        return $this->help;
+    }
+
+    /**
+     * @param string $help
+     * @return self
+     */
+    public function setHelp(string $help): self
+    {
+        $this->help = $help;
         return $this;
     }
 

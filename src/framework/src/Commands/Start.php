@@ -25,6 +25,7 @@ class Start extends Command
 
     /**
      * @return int
+     * @throws \Throwable
      */
     public function handle(): int
     {

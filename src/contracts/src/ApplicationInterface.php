@@ -9,7 +9,7 @@ interface ApplicationInterface extends ContainerInterface
     /**
      * @return void
      */
-    public function initialize(): void;
+    public function boot(): void;
 
     /**
      * @param ServiceProviderInterface|string $provider

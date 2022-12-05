@@ -74,7 +74,7 @@ class Application extends Container implements ApplicationInterface
     /**
      * @return void
      */
-    public function initialize(): void
+    public function boot(): void
     {
         foreach ($this->providers as $provider) {
             $provider->register();

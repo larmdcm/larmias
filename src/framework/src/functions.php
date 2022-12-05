@@ -3,7 +3,6 @@
 use Larmias\Di\Container;
 use Larmias\Contracts\ApplicationInterface;
 use Larmias\Contracts\ConfigInterface;
-use Larmias\Contracts\ConsoleInterface;
 
 if (!function_exists('container')) {
     /**
@@ -38,7 +37,7 @@ if (!function_exists('app')) {
 
 if (!function_exists('config')) {
     /**
-     * 获取配置项
+     * 配置操作辅助函数
      *
      * @param mixed $key
      * @param mixed $value

@@ -23,6 +23,9 @@
   "autoload": {
     "psr-4": {
       "Larmias\\Framework\\": "src/"
-    }
+    },
+    "files": [
+      "src/functions.php"
+    ]
   }
 }

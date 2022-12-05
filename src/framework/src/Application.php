@@ -6,17 +6,15 @@ namespace Larmias\Framework;
 
 use Larmias\Console\Console;
 use Larmias\Contracts\ApplicationInterface;
-use Larmias\Contracts\ConfigInterface;
 use Larmias\Contracts\ConsoleInterface;
-use Larmias\Di\Container;
 use Larmias\Contracts\ContainerInterface;
-use Larmias\Framework\Commands\Start;
-use Larmias\Framework\Listeners\WorkerStartListener;
+use Larmias\Contracts\ServiceProviderInterface;
+use Larmias\Di\Container;
+use Larmias\Event\EventDispatcherFactory;
+use Larmias\Event\ListenerProviderFactory;
 use Psr\Container\ContainerInterface as PsrContainerInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\EventDispatcher\ListenerProviderInterface;
-use Larmias\Event\EventDispatcherFactory;
-use Larmias\Event\ListenerProviderFactory;
 
 class Application extends Container implements ApplicationInterface
 {
@@ -34,10 +32,11 @@ class Application extends Container implements ApplicationInterface
      * @var string
      */
     protected string $runtimePath;
-    
 
-    /** @var bool */
-    protected bool $isInitialize = false;
+    /**
+     * @var ServiceProviderInterface[]
+     */
+    protected array $providers = [];
 
     /**
      * Application constructor.
@@ -66,6 +65,10 @@ class Application extends Container implements ApplicationInterface
                 return EventDispatcherFactory::make($this);
             },
         ]);
+
+        foreach ($this->getBootProviders() as $provider) {
+            $this->register($provider);
+        }
     }
 
     /**
@@ -73,26 +76,39 @@ class Application extends Container implements ApplicationInterface
      */
     public function initialize(): void
     {
-        if ($this->isInitialize) {
-            return;
+        foreach ($this->providers as $provider) {
+            $provider->register();
+            $provider->boot();
         }
-        $this->isInitialize = true;
     }
 
     /**
-     * 加载配置
-     *
-     * @return void
+     * @param ServiceProviderInterface|string $provider
+     * @param bool $force
+     * @return ServiceProviderInterface|null
      */
-    public function loadConfig(): void
+    public function register(ServiceProviderInterface|string $provider, bool $force = false): ?ServiceProviderInterface
     {
-        if (is_dir($this->configPath)) {
-            foreach (glob($this->configPath . '*.*') as $filename) {
-                $this->get(ConfigInterface::class)->load($filename);
-            }
+        if ($this->getServiceProvider($provider) && !$force) {
+            return null;
         }
+        if (\is_string($provider)) {
+            $provider = new $provider($this);
+        }
+        $provider->initialize();
+        $this->providers[\get_class($provider)] = $provider;
+        return $provider;
     }
 
+    /**
+     * @param ServiceProviderInterface|string $provider
+     * @return ServiceProviderInterface|null
+     */
+    public function getServiceProvider(ServiceProviderInterface|string $provider): ?ServiceProviderInterface
+    {
+        $provider = \is_object($provider) ? \get_class($provider) : $provider;
+        return $this->providers[$provider] ?? null;
+    }
 
     /**
      * @throws \Psr\Container\ContainerExceptionInterface
@@ -102,12 +118,7 @@ class Application extends Container implements ApplicationInterface
     public function run(): void
     {
         /** @var ConsoleInterface $console */
-        $console = $this->make(ConsoleInterface::class);
-
-        foreach ($this->getBootCommands() as $command) {
-            $console->addCommand($command);
-        }
-
+        $console = $this->get(ConsoleInterface::class);
         $console->run();
     }
 
@@ -180,18 +191,10 @@ class Application extends Container implements ApplicationInterface
     /**
      * @return string[]
      */
-    protected function getBootCommands(): array
+    protected function getBootProviders(): array
     {
-        $configFile = $this->getConfigPath() . 'commands.php';
-        $commands = [];
-
-        if (is_file($configFile)) {
-            $commands = require $configFile;
-        }
-
         return [
-            Start::class,
-            ...$commands,
+            Providers\BootServiceProvider::class
         ];
     }
 
@@ -201,7 +204,7 @@ class Application extends Container implements ApplicationInterface
     protected function getBootListeners(): array
     {
         return [
-            WorkerStartListener::class,
+            Listeners\WorkerStartListener::class,
         ];
     }
 }

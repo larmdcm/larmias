@@ -35,7 +35,8 @@
   },
   "autoload": {
     "files": [
-      "src/utils/src/functions.php"
+      "src/utils/src/functions.php",
+      "src/framework/src/functions.php"
     ],
     "psr-4": {
       "Larmias\\Utils\\": "src/utils/src/",

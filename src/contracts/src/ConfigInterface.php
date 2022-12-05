@@ -26,11 +26,11 @@ interface ConfigInterface
     /**
      * 设置配置参数.
      *
-     * @param  string $key
+     * @param  string|array $key
      * @param  mixed $value
      * @return array
      */
-    public function set(string $key,mixed $value): array;
+    public function set(string|array $key,mixed $value = null): array;
 
     /**
      * 获取配置参数

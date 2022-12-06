@@ -21,7 +21,6 @@ if (!function_exists('container')) {
 }
 
 if (!function_exists('app')) {
-
     /**
      * App辅助函数
      *

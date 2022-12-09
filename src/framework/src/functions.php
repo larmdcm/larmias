@@ -4,19 +4,18 @@ use Larmias\Di\Container;
 use Larmias\Contracts\ApplicationInterface;
 use Larmias\Contracts\ConfigInterface;
 
-if (!function_exists('container')) {
+if (!function_exists('make')) {
     /**
-     * 服务容器辅助函数
+     * make
      *
      * @param string $abstract
      * @param array $params
      * @param bool $newInstance
      * @return object
      */
-    function container(string $abstract, array $params = [], bool $newInstance = false): object
+    function make(string $abstract, array $params = [], bool $newInstance = false): object
     {
-        $container = Container::getInstance();
-        return $abstract ? $container->make($abstract, $params, $newInstance) : $container;
+        return Container::getInstance()->make($abstract, $params, $newInstance);
     }
 }
 
@@ -29,7 +28,7 @@ if (!function_exists('app')) {
     function app(): ApplicationInterface
     {
         /** @var ApplicationInterface $app */
-        $app = container(ApplicationInterface::class);
+        $app = make(ApplicationInterface::class);
         return $app;
     }
 }
@@ -45,7 +44,7 @@ if (!function_exists('config')) {
     function config(mixed $key = null, mixed $value = null): mixed
     {
         /** @var ConfigInterface $config */
-        $config = \container(ConfigInterface::class);
+        $config = make(ConfigInterface::class);
         if ($key === null && $value === null) {
             return $config;
         }

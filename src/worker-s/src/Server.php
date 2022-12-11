@@ -189,11 +189,9 @@ class Server extends BaseWorker
      */
     protected function acceptTcpConnection($socket): void
     {
-        try {
-            $newSocket = \stream_socket_accept($socket, 0, $remoteAddr);
-        } catch (\Throwable $e) {
-            return;
-        }
+        \set_error_handler(function(){});
+        $newSocket = \stream_socket_accept($socket,0,$remoteAddr);
+        \restore_error_handler();
         if (!\is_resource($newSocket)) {
             return;
         }

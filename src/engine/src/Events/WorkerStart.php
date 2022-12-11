@@ -11,7 +11,7 @@ class WorkerStart
      *
      * @param int $workerId
      */
-    public function __construct(public int $workerId)
+    public function __construct(public int $workerId = 1)
     {
     }
 }

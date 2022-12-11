@@ -15,4 +15,9 @@ interface DriverInterface
      * @return string
      */
     public function getHttpServerClass(): string;
+
+    /**
+     * @return string
+     */
+    public function getTimerClass(): string;
 }

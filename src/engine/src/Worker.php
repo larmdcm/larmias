@@ -5,11 +5,18 @@ declare(strict_types=1);
 namespace Larmias\Engine;
 
 use Larmias\Engine\Bootstrap\WorkerStartCallback;
+use Larmias\Engine\Contracts\KernelInterface;
 use Larmias\Engine\Contracts\WorkerInterface;
 use Psr\Container\ContainerInterface;
 
 class Worker implements WorkerInterface
 {
+
+    /**
+     * @var string
+     */
+    public const ON_WORKER_START = 'onWorkerStart';
+
     /**
      * @var array
      */
@@ -20,20 +27,19 @@ class Worker implements WorkerInterface
      */
     protected int $workerId;
 
-    /**
-     * @var string
-     */
-    public const ON_WORKER_START = 'onWorkerStart';
+    /** @var EngineConfig */
+    protected EngineConfig $engineConfig;
 
     /**
      * Server constructor.
      *
      * @param ContainerInterface $container
-     * @param EngineConfig $engineConfig
+     * @param KernelInterface $kernel
      * @param WorkerConfig $workerConfig
      */
-    public function __construct(protected ContainerInterface $container, protected EngineConfig $engineConfig, protected WorkerConfig $workerConfig)
+    public function __construct(protected ContainerInterface $container, protected KernelInterface $kernel, protected WorkerConfig $workerConfig)
     {
+        $this->engineConfig = $this->kernel->getConfig();
         $this->initialize();
     }
 
@@ -52,6 +58,7 @@ class Worker implements WorkerInterface
      */
     public function onWorkerStart(int $workerId)
     {
+        Timer::init($this->container->get($this->kernel->getDriver()->getTimerClass()));
         $this->setWorkerId($workerId);
         $this->trigger(static::ON_WORKER_START, [$this]);
     }

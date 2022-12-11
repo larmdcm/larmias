@@ -20,6 +20,9 @@ class EngineConfig
     /** @var array */
     protected array $callbacks = [];
 
+    /** @var array */
+    protected array $watch = [];
+    
     /**
      * ServerConfig constructor.
      *

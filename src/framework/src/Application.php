@@ -6,6 +6,7 @@ namespace Larmias\Framework;
 
 use Larmias\Console\Console;
 use Larmias\Contracts\ApplicationInterface;
+use Larmias\Contracts\ConfigInterface;
 use Larmias\Contracts\ConsoleInterface;
 use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\ServiceProviderInterface;
@@ -26,6 +27,11 @@ class Application extends Container implements ApplicationInterface
     /**
      * @var string
      */
+    protected string $configExt = '.php';
+
+    /**
+     * @var string
+     */
     protected string $configPath;
 
     /**
@@ -34,15 +40,20 @@ class Application extends Container implements ApplicationInterface
     protected string $runtimePath;
 
     /**
-     * @var ServiceProviderInterface[]
+     * @var ServiceProviderInterface|string[]
      */
     protected array $providers = [];
+
+    /**
+     * @var ConfigInterface
+     */
+    protected ConfigInterface $config;
 
     /**
      * Application constructor.
      *
      * @param string $rootPath
-     * @throws \ReflectionException
+     * @throws \Throwable
      */
     public function __construct(string $rootPath = '')
     {
@@ -59,66 +70,102 @@ class Application extends Container implements ApplicationInterface
             ApplicationInterface::class => $this,
             ConsoleInterface::class => Console::class,
             ListenerProviderInterface::class => function () {
-                return ListenerProviderFactory::make($this, $this->getBootListeners());
+                return ListenerProviderFactory::make($this, $this->loadFileConfig('listeners',false));
             },
             EventDispatcherInterface::class => function () {
                 return EventDispatcherFactory::make($this);
             },
         ]);
+    }
 
-        foreach ($this->getBootProviders() as $provider) {
-            $this->register($provider);
+    /**
+     * 初始化
+     *
+     * @return void
+     */
+    public function initialize(): void
+    {
+        $this->bind($this->loadFileConfig('dependencies'));
+        $this->loadConfig();
+        \date_default_timezone_set($this->config->get('app.default_timezone','Asia/Shanghai'));
+        $this->bind($this->config->get('dependencies',[]));
+        $this->boot();
+    }
+
+    /**
+     * 加载配置
+     *
+     * @return void
+     */
+    protected function loadConfig(): void
+    {
+        $configPath = $this->getConfigPath();
+        if (!\is_dir($configPath)) {
+            return;
+        }
+        $this->config = $this->get(ConfigInterface::class);
+        foreach (\glob($configPath . '*' . $this->configExt) as $filename) {
+            $this->config->load($filename);
         }
     }
 
     /**
      * @return void
      */
-    public function boot(): void
+    protected function boot(): void
     {
+        $bootProviders = \array_merge($this->loadFileConfig('providers',false),$this->config->get('providers',[]));
+        foreach ($bootProviders as $provider) {
+            $this->register($provider);
+        }
+
         foreach ($this->providers as $provider) {
-            $provider->register();
-            $provider->boot();
+            $service = $this->getServiceProvider($provider);
+            $service->register();
+            $service->boot();
         }
     }
 
     /**
-     * @param ServiceProviderInterface|string $provider
+     * @param string $provider
      * @param bool $force
+     * @return ApplicationInterface
+     */
+    public function register(string $provider, bool $force = false): ApplicationInterface
+    {
+        if (isset($this->providers[$provider]) && !$force) {
+            return $this;
+        }
+        $this->providers[$provider] = $provider;
+        return $this;
+    }
+
+    /**
+     * @param string $provider
      * @return ServiceProviderInterface|null
      */
-    public function register(ServiceProviderInterface|string $provider, bool $force = false): ?ServiceProviderInterface
+    public function getServiceProvider(string $provider): ?ServiceProviderInterface
     {
-        if ($this->getServiceProvider($provider) && !$force) {
+        if (!isset($this->providers[$provider])) {
             return null;
         }
-        if (\is_string($provider)) {
-            $provider = new $provider($this);
+        if (!\is_object($this->providers[$provider])) {
+            $this->providers[$provider] = $this->get($this->providers[$provider]);
         }
-        $provider->initialize();
-        $this->providers[\get_class($provider)] = $provider;
-        return $provider;
+        return $this->providers[$provider];
     }
 
     /**
-     * @param ServiceProviderInterface|string $provider
-     * @return ServiceProviderInterface|null
-     */
-    public function getServiceProvider(ServiceProviderInterface|string $provider): ?ServiceProviderInterface
-    {
-        $provider = \is_object($provider) ? \get_class($provider) : $provider;
-        return $this->providers[$provider] ?? null;
-    }
-
-    /**
-     * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws \Psr\Container\NotFoundExceptionInterface
      * @throws \Throwable
      */
     public function run(): void
     {
         /** @var ConsoleInterface $console */
         $console = $this->get(ConsoleInterface::class);
+        $commands = $this->loadFileConfig('commands');
+        foreach ($commands as $command) {
+            $console->addCommand($command);
+        }
         $console->run();
     }
 
@@ -189,22 +236,44 @@ class Application extends Container implements ApplicationInterface
     }
 
     /**
-     * @return string[]
+     * @return string
      */
-    protected function getBootProviders(): array
+    public function getConfigExt(): string
     {
-        return [
-            Providers\BootServiceProvider::class
-        ];
+        return $this->configExt;
     }
 
     /**
-     * @return string[]
+     * @param string $configExt
+     * @return self
      */
-    protected function getBootListeners(): array
+    public function setConfigExt(string $configExt): self
     {
-        return [
-            Listeners\WorkerStartListener::class,
-        ];
+        $this->configExt = $configExt;
+        return $this;
+    }
+
+    /**
+     * @param string $name
+     * @param bool $loadConfigPath
+     * @return array
+     */
+    public function loadFileConfig(string $name,bool $loadConfigPath = true): array
+    {
+        $files = [__DIR__ . '/../config/' . $name . '.php'];
+        if ($loadConfigPath) {
+            $files[] = $this->getConfigPath() . $name . $this->configExt;
+        }
+        $config = [];
+        foreach ($files as $file) {
+            if (!\is_file($file)) {
+                continue;
+            }
+            $extension = pathinfo($file,PATHINFO_EXTENSION);
+            if ($extension === 'php') {
+                $config = \array_merge($config,require $file);
+            }
+        }
+        return $config;
     }
 }

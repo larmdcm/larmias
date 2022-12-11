@@ -66,6 +66,22 @@ class Kernel implements KernelInterface
         if (!$class || !class_exists($class)) {
             throw new RuntimeException('driver class not set.');
         }
-        return new $class($this->container, $this->engineConfig, $workerConfig);
+        return new $class($this->container, $this, $workerConfig);
+    }
+
+    /**
+     * @return EngineConfig
+     */
+    public function getConfig(): EngineConfig
+    {
+        return $this->engineConfig;
+    }
+
+    /**
+     * @return DriverInterface
+     */
+    public function getDriver(): DriverInterface
+    {
+        return $this->driver;
     }
 }

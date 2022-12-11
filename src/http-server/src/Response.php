@@ -28,7 +28,7 @@ class Response extends ServerResponse implements ResponseInterface
     public function json(array|object $data): ResponseInterface
     {
         $json = Json::encode($data);
-        return $this->withAddedHeader('content-type', 'application/json; charset=utf-8')
+        return $this->withAddedHeader('Content-Type', 'application/json; charset=utf-8')
             ->withBody(Stream::create($json));
     }
 
@@ -38,7 +38,7 @@ class Response extends ServerResponse implements ResponseInterface
      */
     public function raw(string|\Stringable $data): ResponseInterface
     {
-        return $this->withAddedHeader('content-type', 'text/plain; charset=utf-8')
+        return $this->withAddedHeader('Content-Type', 'text/plain; charset=utf-8')
             ->withBody(Stream::create((string)$data));
     }
 

@@ -9,11 +9,6 @@ interface ServiceProviderInterface
     /**
      * @return void
      */
-    public function initialize(): void;
-
-    /**
-     * @return void
-     */
     public function register(): void;
 
     /**

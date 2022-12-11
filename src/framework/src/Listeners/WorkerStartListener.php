@@ -34,6 +34,6 @@ class WorkerStartListener implements ListenerInterface
      */
     public function process(object $event): void
     {
-        $this->app->boot();
+        $this->app->initialize();
     }
 }

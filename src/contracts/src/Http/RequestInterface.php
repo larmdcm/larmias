@@ -13,7 +13,7 @@ interface RequestInterface
      * @param mixed $default
      * @return mixed
      */
-    public function header(?string $key = null, $default = null): mixed;
+    public function header(?string $key = null, mixed $default = null): mixed;
 
     /**
      * get 'Get' request data.
@@ -22,7 +22,7 @@ interface RequestInterface
      * @param mixed $default
      * @return mixed
      */
-    public function query(?string $key = null, $default = null): mixed;
+    public function query(?string $key = null, mixed $default = null): mixed;
 
     /**
      * get 'Post' request data.
@@ -31,25 +31,25 @@ interface RequestInterface
      * @param mixed $default
      * @return mixed
      */
-    public function post(?string $key = null, $default = null): mixed;
+    public function post(?string $key = null, mixed $default = null): mixed;
 
     /**
      * get 'Cookie' request data.
      *
      * @param string|null $key
-     * @param null $default
+     * @param mixed $default
      * @return mixed
      */
-    public function cookie(?string $key = null, $default = null): mixed;
+    public function cookie(?string $key = null, mixed $default = null): mixed;
 
     /**
      * get 'session' request data.
      *
      * @param string|null $key
-     * @param null $default
+     * @param mixed $default
      * @return mixed
      */
-    public function session(?string $key = null, $default = null): mixed;
+    public function session(?string $key = null, mixed $default = null): mixed;
 
     /**
      * get Upload files.

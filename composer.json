@@ -28,7 +28,8 @@
     "psr/http-message": "^1.0",
     "psr/http-factory": "^1.0",
     "opis/closure": "^3.6",
-    "nikic/fast-route": "^1.3"
+    "nikic/fast-route": "^1.3",
+    "workerman/workerman": "^4.1"
   },
   "require-dev": {
     "phpunit/phpunit": "^9.5.10"
@@ -47,6 +48,7 @@
       "Larmias\\WorkerS\\": "src/worker-s/src/",
       "Larmias\\Engine\\": "src/engine/src/",
       "Larmias\\Engine\\WorkerS\\": "src/engine-workers/src/",
+      "Larmias\\Engine\\WorkerMan\\": "src/engine-workerman/src/",
       "Larmias\\Http\\Message\\": "src/http-message/src/",
       "Larmias\\HttpServer\\": "src/http-server/src/",
       "Larmias\\Routing\\": "src/routing/src/",

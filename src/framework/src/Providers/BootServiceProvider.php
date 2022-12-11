@@ -4,74 +4,37 @@ declare(strict_types=1);
 
 namespace Larmias\Framework\Providers;
 
-use Larmias\Config\Config;
-use Larmias\Contracts\ConfigInterface;
+use Larmias\Event\ListenerProviderFactory;
 use Larmias\Framework\ServiceProvider;
-use Psr\Container\ContainerExceptionInterface;
-use Psr\Container\NotFoundExceptionInterface;
+use Psr\EventDispatcher\ListenerProviderInterface;
 
 class BootServiceProvider extends ServiceProvider
 {
     /**
      * @return void
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
-     */
-    public function initialize(): void
-    {
-        $this->commands($this->getBootCommands());
-    }
-
-    /**
-     * @return void
-     */
-    public function register(): void
-    {
-        $this->app->bind([
-            ConfigInterface::class => Config::class,
-        ]);
-    }
-
-    /**
-     * @return void
+     * @throws \Throwable
      */
     public function boot(): void
     {
-        $this->loadConfig();
+        $this->listeners();
     }
 
     /**
-     * 加载配置
-     *
      * @return void
+     * @throws \Throwable
      */
-    protected function loadConfig(): void
+    protected function listeners(): void
     {
-        $configPath = $this->app->getConfigPath();
-        if (\is_dir($configPath)) {
-            /** @var ConfigInterface $config */
-            $config = config();
-            foreach (\glob($configPath . '*.*') as $filename) {
-                $config->load($filename);
+        $listeners = config('listeners',[]);
+        $provider = $this->app->get(ListenerProviderInterface::class);
+        foreach ($listeners as $listener => $priority) {
+            if (is_int($listener)) {
+                $listener = $priority;
+                $priority = 1;
+            }
+            if (is_string($listener)) {
+                ListenerProviderFactory::register($provider, $this->app, $listener, $priority);
             }
         }
-    }
-
-    /**
-     * @return string[]
-     */
-    protected function getBootCommands(): array
-    {
-        $configFile = $this->app->getConfigPath() . 'commands.php';
-        $commands = [];
-
-        if (is_file($configFile)) {
-            $commands = require $configFile;
-        }
-
-        return [
-            \Larmias\Framework\Commands\Start::class,
-            ...$commands,
-        ];
     }
 }

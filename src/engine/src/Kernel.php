@@ -12,11 +12,20 @@ use RuntimeException;
 
 class Kernel implements KernelInterface
 {
-    /** @var EngineConfig */
+    /**
+     * @var \Larmias\Engine\EngineConfig
+     */
     protected EngineConfig $engineConfig;
 
-    /** @var \Larmias\Engine\Contracts\DriverInterface */
+    /**
+     * @var \Larmias\Engine\Contracts\DriverInterface
+     */
     protected DriverInterface $driver;
+
+    /**
+     * @var WorkerInterface[]
+     */
+    protected array $workers = [];
 
     /**
      * Server constructor.
@@ -48,9 +57,9 @@ class Kernel implements KernelInterface
     {
         $workers = $this->engineConfig->getWorkers();
         foreach ($workers as $workerConfig) {
-            $this->addWorker($workerConfig);
+            $this->workers[$workerConfig->getName()] = $this->addWorker($workerConfig);
         }
-        $this->driver->run();
+        $this->driver->run($this->workers);
     }
 
     /**
@@ -61,6 +70,7 @@ class Kernel implements KernelInterface
     {
         $class = match ($workerConfig->getType()) {
             WorkerType::HTTP_SERVER => $this->driver->getHttpServerClass(),
+            WorkerType::WORKER_PROCESS => $this->driver->getProcessClass(),
             default => null,
         };
         if (!$class || !class_exists($class)) {

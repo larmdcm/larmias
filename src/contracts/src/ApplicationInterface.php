@@ -10,14 +10,7 @@ interface ApplicationInterface extends ContainerInterface
      * @return void
      */
     public function initialize(): void;
-
-    /**
-     * @param string $provider
-     * @param bool $force
-     * @return ApplicationInterface
-     */
-    public function register(string $provider,bool $force = false): ApplicationInterface;
-
+    
     /**
      * @param string $provider
      * @return ServiceProviderInterface|null

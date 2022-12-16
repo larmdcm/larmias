@@ -45,7 +45,7 @@ class Server
         } catch (Throwable $e) {
             $response = $this->getExceptionResponse($request, $e);
         } finally {
-            isset($response) && $response->send();
+            $response->send();
         }
     }
 

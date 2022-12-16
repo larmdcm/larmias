@@ -8,27 +8,24 @@ interface TimerInterface
 {
     /**
      * 定时器间隔触发
-     *
-     * @param float     $time
+     * @param int       $ms
      * @param callable  $func
      * @param array     $args
      * @return integer
      */
-    public function tick(float $time,callable $func,array $args = []): int;
+    public function tick(int $ms,callable $func,array $args = []): int;
 
     /**
      * 定时器延时触发 只会触发一次
-     *
-     * @param float    $time
+     * @param int      $ms
      * @param callable $func
      * @param array    $args
      * @return integer
      */
-    public function after(float $time,callable $func,array $args = []): int;
+    public function after(int $ms,callable $func,array $args = []): int;
 
     /**
      * 删除指定定时器
-     *
      * @param int $timerId
      * @return boolean
      */
@@ -36,7 +33,6 @@ interface TimerInterface
 
     /**
      * 清空全部定时器
-     *
      * @return boolean
      */
     public function clear(): bool;

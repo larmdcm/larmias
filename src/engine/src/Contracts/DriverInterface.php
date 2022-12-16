@@ -9,12 +9,22 @@ interface DriverInterface
     /**
      * @return void
      */
-    public function run(): void;
+    public function run(array $workers): void;
+
+    /**
+     * @return void
+     */
+    public function reload(): void;
 
     /**
      * @return string
      */
     public function getHttpServerClass(): string;
+
+    /**
+     * @return string
+     */
+    public function getProcessClass(): string;
 
     /**
      * @return string

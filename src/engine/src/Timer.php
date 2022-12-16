@@ -19,7 +19,6 @@ class Timer
 
     /**
      * 初始化
-     *
      * @param TimerInterface $timer
      * @return void
      */

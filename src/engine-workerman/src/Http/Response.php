@@ -16,7 +16,7 @@ class Response implements ResponseInterface
      */
     public function __construct(protected TcpConnection $connection,protected ?WorkerResponse $response = null)
     {
-        if (is_null($this->response)) {
+        if (\is_null($this->response)) {
             $this->response = new WorkerResponse();
         }
     }

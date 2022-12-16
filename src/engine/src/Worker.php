@@ -6,12 +6,13 @@ namespace Larmias\Engine;
 
 use Larmias\Engine\Bootstrap\WorkerStartCallback;
 use Larmias\Engine\Contracts\KernelInterface;
+use Larmias\Engine\Contracts\WatcherInterface;
 use Larmias\Engine\Contracts\WorkerInterface;
+use Larmias\Engine\Watcher\Scan;
 use Psr\Container\ContainerInterface;
 
 class Worker implements WorkerInterface
 {
-
     /**
      * @var string
      */
@@ -27,8 +28,15 @@ class Worker implements WorkerInterface
      */
     protected int $workerId;
 
-    /** @var EngineConfig */
+    /**
+     * @var \Larmias\Engine\EngineConfig
+     */
     protected EngineConfig $engineConfig;
+
+    /**
+     * @var \Larmias\Engine\Contracts\WatcherInterface
+     */
+    protected WatcherInterface $watcher;
 
     /**
      * Server constructor.
@@ -56,16 +64,16 @@ class Worker implements WorkerInterface
      * @throws \Psr\Container\ContainerExceptionInterface
      * @throws \Psr\Container\NotFoundExceptionInterface
      */
-    public function onWorkerStart(int $workerId)
+    public function onWorkerStart(int $workerId): void
     {
         Timer::init($this->container->get($this->kernel->getDriver()->getTimerClass()));
         $this->setWorkerId($workerId);
+        $this->watchHandler();
         $this->trigger(static::ON_WORKER_START, [$this]);
     }
 
     /**
      *  触发回调函数
-     *
      * @param string $event
      * @param array $args
      * @throws \Psr\Container\ContainerExceptionInterface
@@ -103,6 +111,23 @@ class Worker implements WorkerInterface
     public function setWorkerId(int $workerId): void
     {
         $this->workerId = $workerId;
+    }
+
+    /**
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
+     */
+    protected function watchHandler(): void
+    {
+        $watch = \array_merge($this->engineConfig->getSettings()['watch'] ?? [],$this->workerConfig->getSettings()['watch'] ?? []);
+        $enabled = $watch['enabled'] ?? false;
+        if (!$enabled) {
+            return;
+        }
+        $this->watcher = $this->container->get($watch['driver'] ?? Scan::class);
+        $this->watcher->include($watch['includes'] ?? [])->watch(function (string $realpath) {
+            $this->kernel->getDriver()->reload();
+        });
     }
 
     /**

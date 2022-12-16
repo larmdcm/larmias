@@ -6,6 +6,12 @@ namespace Larmias\Engine\Contracts;
 
 interface WorkerInterface
 {
+	/**
+	 * @param  int    $workerId 
+	 * @return void
+	 */
+    public function onWorkerStart(int $workerId): void;
+    
     /**
      * @param string $event
      * @param array $args

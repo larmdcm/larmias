@@ -28,7 +28,7 @@ class Server extends Worker
             sprintf('%s://%s:%d', $this->protocol, $this->workerConfig->getHost(), $this->workerConfig->getPort())
         );
 
-        $this->server->count = $this->workerConfig->getSettings()['worker_num'];
+        $this->server->count = $this->workerConfig->getSettings()['worker_num'] ?? 1;
 
         $this->server->onWorkerStart = function ($worker) {
             $this->onWorkerStart($worker->id);

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Larmias\Engine\Watcher;
 
 use Larmias\Engine\Contracts\WatcherInterface;
@@ -11,7 +13,7 @@ class Scan implements WatcherInterface
     /**
      * @var string[]
      */
-    protected array $path = [];
+    protected array $includes = [];
 
     /**
      * @var SplFileInfo[]
@@ -19,18 +21,23 @@ class Scan implements WatcherInterface
     protected array $files = [];
 
     /**
+     * @var int
+     */
+    protected int $intervalTime = 1000;
+
+    /**
      * @param string|array $path
      * @return WatcherInterface
      */
-    public function add(string|array $path): WatcherInterface
+    public function include(string|array $path): WatcherInterface
     {
         if (\is_array($path)) {
             foreach ($path as $item) {
-                $this->add($item);
+                $this->include($item);
             }
         } else {
             if (\is_file($path) || \is_dir($path)) {
-                $this->path[] = $path;
+                $this->includes[] = $path;
             }
         }
         return $this;
@@ -43,7 +50,7 @@ class Scan implements WatcherInterface
     public function watch(callable $callback): void
     {
         $this->files = $this->getFiles();
-        Timer::tick(2,function () use ($callback) {
+        Timer::tick($this->intervalTime,function () use ($callback) {
             $files = $this->getFiles();
             foreach ($files as $realpath => $mtime) {
                 if (!isset($this->files[$realpath]) || $this->files[$realpath] != $mtime) {
@@ -61,7 +68,7 @@ class Scan implements WatcherInterface
     protected function getFiles(): array
     {
         $files = [];
-        foreach ($this->path as $path) {
+        foreach ($this->includes as $path) {
             if (\is_dir($path)) {
                 $files = \array_merge($files,$this->findFiles($path));
             } else {

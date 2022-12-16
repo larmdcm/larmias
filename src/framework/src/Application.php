@@ -131,7 +131,7 @@ class Application extends Container implements ApplicationInterface
      * @param bool $force
      * @return ApplicationInterface
      */
-    public function register(string $provider, bool $force = false): ApplicationInterface
+    protected function register(string $provider, bool $force = false): ApplicationInterface
     {
         if (isset($this->providers[$provider]) && !$force) {
             return $this;

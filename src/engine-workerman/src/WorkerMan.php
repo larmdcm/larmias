@@ -10,10 +10,11 @@ use Workerman\Worker;
 class WorkerMan implements DriverInterface
 {
     /**
+     * @param array $workers
      * @return void
      * @throws \Throwable
      */
-    public function run(): void
+    public function run(array $workers): void
     {
         Worker::runAll();
     }
@@ -23,7 +24,7 @@ class WorkerMan implements DriverInterface
      */
     public function reload(): void
     {
-        Worker::reloadAllWorkers();
+        \posix_kill(\posix_getppid(), \SIGUSR1);
     }
 
     /**
@@ -32,6 +33,14 @@ class WorkerMan implements DriverInterface
     public function getHttpServerClass(): string
     {
         return HttpServer::class;
+    }
+
+    /**
+     * @return string
+     */
+    public function getProcessClass(): string
+    {
+        return '';
     }
 
     /**

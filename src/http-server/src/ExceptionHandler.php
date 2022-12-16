@@ -15,7 +15,6 @@ class ExceptionHandler extends BaseExceptionHandler implements ExceptionHandlerI
 {
     /**
      * 异常渲染处理
-     *
      * @param \Larmias\HttpServer\Contracts\RequestInterface $request
      * @param \Throwable $e
      * @return \Larmias\HttpServer\Contracts\ResponseInterface

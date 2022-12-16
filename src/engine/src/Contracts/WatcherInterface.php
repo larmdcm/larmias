@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Larmias\Engine\Contracts;
 
 interface WatcherInterface
@@ -8,7 +10,7 @@ interface WatcherInterface
      * @param string|array $path
      * @return WatcherInterface
      */
-    public function add(string|array $path): WatcherInterface;
+    public function include(string|array $path): WatcherInterface;
 
     /**
      * @param callable $callback

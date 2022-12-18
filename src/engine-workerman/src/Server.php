@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Larmias\Engine\WorkerMan;
 
-use Larmias\Engine\Worker;
 use Workerman\Worker as WorkerManWorker;
 
 class Server extends Worker
@@ -24,14 +23,9 @@ class Server extends Worker
     {
         parent::initialize();
 
-        $this->server = new WorkerManWorker(
-            sprintf('%s://%s:%d', $this->protocol, $this->workerConfig->getHost(), $this->workerConfig->getPort())
-        );
+        $config = $this->workerConfig->getSettings();
+        $config['listen'] = sprintf('%s://%s:%d', $this->protocol, $this->workerConfig->getHost(), $this->workerConfig->getPort());
 
-        $this->server->count = $this->workerConfig->getSettings()['worker_num'] ?? 1;
-
-        $this->server->onWorkerStart = function ($worker) {
-            $this->onWorkerStart($worker->id);
-        };
+        $this->server = $this->makeWorker($config);
     }
 }

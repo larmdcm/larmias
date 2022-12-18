@@ -7,12 +7,12 @@ namespace Larmias\Framework\Commands;
 use Larmias\Console\Command;
 use Larmias\Contracts\ApplicationInterface;
 use Larmias\Engine\EngineConfig;
-use Larmias\Engine\Kernel;
+use Larmias\Engine\Contracts\KernelInterface;
 use RuntimeException;
 
 class Start extends Command
 {
-    public function __construct(protected ApplicationInterface $app, protected Kernel $kernel)
+    public function __construct(protected ApplicationInterface $app, protected KernelInterface $kernel)
     {
         parent::__construct();
     }

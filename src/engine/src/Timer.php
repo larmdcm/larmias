@@ -14,11 +14,21 @@ use Larmias\Engine\Contracts\TimerInterface;
  */
 class Timer
 {
+    /** @var int */
+    public const MILLISECOND = 1;
+    /** @var int */
+    public const SECOND = 1000 * self::MILLISECOND;
+    /** @var int */
+    public const MINUTE = 60 * self::SECOND;
+    /** @var int */
+    public const HOUR = 60 * self::MINUTE;
+
     /** @var TimerInterface */
     protected static TimerInterface $timer;
 
     /**
      * 初始化
+     *
      * @param TimerInterface $timer
      * @return void
      */

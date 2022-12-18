@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\HttpServer;
 
+use Larmias\Contracts\Http\OnRequestInterface;
 use Larmias\Contracts\Http\RequestInterface as ServerRequestInterface;
 use Larmias\Contracts\Http\ResponseInterface as ServerResponseInterface;
 use Larmias\HttpServer\Contracts\ExceptionHandlerInterface;
@@ -16,7 +17,7 @@ use Larmias\HttpServer\Routing\Middleware as RouteMiddleware;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Throwable;
 
-class Server
+class Server implements OnRequestInterface
 {
     /** @var string */
     public const ON_REQUEST = 'onRequest';
@@ -24,16 +25,16 @@ class Server
     /**
      * Server constructor.
      *
-     * @param \Larmias\Contracts\ContainerInterface $container
-     * @param \Psr\EventDispatcher\EventDispatcherInterface $eventDispatcher
+     * @param ContainerInterface $container
+     * @param EventDispatcherInterface $eventDispatcher
      */
     public function __construct(protected ContainerInterface $container,protected  EventDispatcherInterface $eventDispatcher)
     {
     }
 
     /**
-     * @param \Larmias\Contracts\Http\RequestInterface $serverRequest
-     * @param \Larmias\Contracts\Http\ResponseInterface $serverResponse
+     * @param ServerRequestInterface $serverRequest
+     * @param ServerResponseInterface $serverResponse
      */
     public function onRequest(ServerRequestInterface $serverRequest, ServerResponseInterface $serverResponse): void
     {
@@ -50,9 +51,9 @@ class Server
     }
 
     /**
-     * @param \Larmias\HttpServer\Contracts\RequestInterface $request
+     * @param RequestInterface $request
      * @param \Throwable $e
-     * @return \Larmias\HttpServer\Contracts\ResponseInterface
+     * @return ResponseInterface
      */
     protected function getExceptionResponse(RequestInterface $request, Throwable $e): ResponseInterface
     {
@@ -63,12 +64,12 @@ class Server
     }
 
     /**
-     * @param \Larmias\HttpServer\Contracts\RequestInterface $request
-     * @return \Larmias\HttpServer\Contracts\ResponseInterface
+     * @param RequestInterface $request
+     * @return ResponseInterface
      */
     protected function runWithRequest(RequestInterface $request): ResponseInterface
     {
-        /** @var \Larmias\HttpServer\Middleware $middleware */
+        /** @var Middleware $middleware */
         $middleware = $this->container->make(Middleware::class);
         return $middleware->pipeline()->send($request)->then(function (RequestInterface $request) {
             return $this->dispatchRoute($request);
@@ -76,7 +77,7 @@ class Server
     }
 
     /**
-     * @param \Larmias\HttpServer\Contracts\RequestInterface $request
+     * @param RequestInterface $request
      * @return ResponseInterface
      */
     protected function dispatchRoute(RequestInterface $request): ResponseInterface
@@ -84,7 +85,7 @@ class Server
         $dispatched = Router::getRouteCollector()->dispatch($request->getMethod(), $request->getPathInfo());
         $this->container->instance(RequestInterface::class, $request = $request->withAttribute(Dispatched::class, $dispatched));
         $option = $dispatched->rule->getOption();
-        /** @var \Larmias\HttpServer\Routing\Middleware $middleware */
+        /** @var RouteMiddleware $middleware */
         $middleware = $this->container->make(RouteMiddleware::class);
         return $middleware->import($option['middleware'])->pipeline()->send($request)->then(function (RequestInterface $request) use ($dispatched) {
             return $dispatched->dispatcher->run($request->all());
@@ -92,9 +93,9 @@ class Server
     }
 
     /**
-     * @param \Larmias\Contracts\Http\RequestInterface $serverRequest
-     * @param \Larmias\Contracts\Http\ResponseInterface $serverResponse
-     * @return \Larmias\HttpServer\Contracts\RequestInterface
+     * @param ServerRequestInterface $serverRequest
+     * @param ServerResponseInterface $serverResponse
+     * @return RequestInterface
      */
     protected function makeRequest(ServerRequestInterface $serverRequest, ServerResponseInterface $serverResponse): RequestInterface
     {

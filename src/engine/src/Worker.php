@@ -6,9 +6,7 @@ namespace Larmias\Engine;
 
 use Larmias\Engine\Bootstrap\WorkerStartCallback;
 use Larmias\Engine\Contracts\KernelInterface;
-use Larmias\Engine\Contracts\WatcherInterface;
 use Larmias\Engine\Contracts\WorkerInterface;
-use Larmias\Engine\Watcher\Scan;
 use Psr\Container\ContainerInterface;
 
 class Worker implements WorkerInterface
@@ -32,11 +30,6 @@ class Worker implements WorkerInterface
      * @var \Larmias\Engine\EngineConfig
      */
     protected EngineConfig $engineConfig;
-
-    /**
-     * @var \Larmias\Engine\Contracts\WatcherInterface
-     */
-    protected WatcherInterface $watcher;
 
     /**
      * Server constructor.
@@ -64,11 +57,10 @@ class Worker implements WorkerInterface
      * @throws \Psr\Container\ContainerExceptionInterface
      * @throws \Psr\Container\NotFoundExceptionInterface
      */
-    public function onWorkerStart(int $workerId): void
+    public function start(int $workerId): void
     {
         Timer::init($this->container->get($this->kernel->getDriver()->getTimerClass()));
         $this->setWorkerId($workerId);
-        $this->watchHandler();
         $this->trigger(static::ON_WORKER_START, [$this]);
     }
 
@@ -97,6 +89,33 @@ class Worker implements WorkerInterface
     }
 
     /**
+     * @return ContainerInterface
+     */
+    public function getContainer(): ContainerInterface
+    {
+        return $this->container;
+    }
+
+    /**
+     * @return KernelInterface
+     */
+    public function getKernel(): KernelInterface
+    {
+        return $this->kernel;
+    }
+
+    /**
+     * @param string|null $name
+     * @param mixed|null $default
+     * @return mixed
+     */
+    public function getSettings(string $name = null, mixed $default = null): mixed
+    {
+        $config = \array_merge($this->workerConfig->getSettings(),$this->engineConfig->getSettings());
+        return $name ? data_get($config,$name,$default) : $config;
+    }
+
+    /**
      * @return int
      */
     public function getWorkerId(): int
@@ -114,20 +133,19 @@ class Worker implements WorkerInterface
     }
 
     /**
-     * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws \Psr\Container\NotFoundExceptionInterface
+     * @return EngineConfig
      */
-    protected function watchHandler(): void
+    public function getEngineConfig(): EngineConfig
     {
-        $watch = \array_merge($this->engineConfig->getSettings()['watch'] ?? [],$this->workerConfig->getSettings()['watch'] ?? []);
-        $enabled = $watch['enabled'] ?? false;
-        if (!$enabled) {
-            return;
-        }
-        $this->watcher = $this->container->get($watch['driver'] ?? Scan::class);
-        $this->watcher->include($watch['includes'] ?? [])->watch(function (string $realpath) {
-            $this->kernel->getDriver()->reload();
-        });
+        return $this->engineConfig;
+    }
+
+    /**
+     * @return WorkerConfig
+     */
+    public function getWorkerConfig(): WorkerConfig
+    {
+        return $this->workerConfig;
     }
 
     /**

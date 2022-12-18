@@ -4,13 +4,17 @@ declare(strict_types=1);
 
 namespace Larmias\Engine\Contracts;
 
+use Larmias\Engine\EngineConfig;
+use Larmias\Engine\WorkerConfig;
+use Psr\Container\ContainerInterface;
+
 interface WorkerInterface
 {
 	/**
 	 * @param  int    $workerId 
 	 * @return void
 	 */
-    public function onWorkerStart(int $workerId): void;
+    public function start(int $workerId): void;
     
     /**
      * @param string $event
@@ -22,4 +26,31 @@ interface WorkerInterface
      * @return int
      */
     public function getWorkerId(): int;
+
+    /**
+     * @return ContainerInterface
+     */
+    public function getContainer(): ContainerInterface;
+
+    /**
+     * @return KernelInterface
+     */
+    public function getKernel(): KernelInterface;
+
+    /**
+     * @param string $name
+     * @param mixed|null $default
+     * @return mixed
+     */
+    public function getSettings(string $name,mixed $default = null): mixed;
+
+    /**
+     * @return EngineConfig
+     */
+    public function getEngineConfig(): EngineConfig;
+
+    /**
+     * @return WorkerConfig
+     */
+    public function getWorkerConfig(): WorkerConfig;
 }

@@ -24,7 +24,9 @@ class WorkerMan implements DriverInterface
      */
     public function reload(): void
     {
-        \posix_kill(\posix_getppid(), \SIGUSR1);
+        if (extension_loaded('posix') && extension_loaded('pcntl')) {
+            \posix_kill(\posix_getppid(), \SIGUSR1);
+        }
     }
 
     /**
@@ -40,7 +42,7 @@ class WorkerMan implements DriverInterface
      */
     public function getProcessClass(): string
     {
-        return '';
+        return Process::class;
     }
 
     /**

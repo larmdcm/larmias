@@ -11,6 +11,8 @@ use Larmias\Contracts\ConsoleInterface;
 use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\ServiceProviderInterface;
 use Larmias\Di\Container;
+use Larmias\Engine\Contracts\KernelInterface;
+use Larmias\Engine\Kernel;
 use Larmias\Event\EventDispatcherFactory;
 use Larmias\Event\ListenerProviderFactory;
 use Psr\Container\ContainerInterface as PsrContainerInterface;
@@ -67,6 +69,7 @@ class Application extends Container implements ApplicationInterface
             self::class => $this,
             ContainerInterface::class => $this,
             PsrContainerInterface::class => $this,
+            KernelInterface::class => Kernel::class,
             ApplicationInterface::class => $this,
             ConsoleInterface::class => Console::class,
             ListenerProviderInterface::class => function () {

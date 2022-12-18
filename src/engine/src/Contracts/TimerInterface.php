@@ -7,22 +7,22 @@ namespace Larmias\Engine\Contracts;
 interface TimerInterface
 {
     /**
-     * 定时器间隔触发
-     * @param int       $ms
+     * 毫秒定时器间隔触发
+     * @param int       $duration
      * @param callable  $func
      * @param array     $args
-     * @return integer
+     * @return int
      */
-    public function tick(int $ms,callable $func,array $args = []): int;
+    public function tick(int $duration,callable $func,array $args = []): int;
 
     /**
-     * 定时器延时触发 只会触发一次
-     * @param int      $ms
+     * 毫秒定时器延时触发 只会触发一次
+     * @param int      $duration
      * @param callable $func
      * @param array    $args
-     * @return integer
+     * @return int
      */
-    public function after(int $ms,callable $func,array $args = []): int;
+    public function after(int $duration,callable $func,array $args = []): int;
 
     /**
      * 删除指定定时器

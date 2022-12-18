@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Larmias\Engine\Watcher;
 
-use Larmias\Engine\Contracts\WatcherInterface;
 use Larmias\Engine\Timer;
 use SplFileInfo;
+use Larmias\Engine\Contracts\WatcherInterface;
 
 class Scan implements WatcherInterface
 {

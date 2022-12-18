@@ -10,25 +10,25 @@ use Workerman\Timer as WorkerManTimer;
 class Timer implements TimerInterface
 {
     /**
-     * @param int $ms
+     * @param int $duration
      * @param callable $func
      * @param array $args
      * @return int
      */
-    public function tick(int $ms, callable $func, array $args = []): int
+    public function tick(int $duration, callable $func, array $args = []): int
     {
-        return WorkerManTimer::add(floatval($ms / 1000), $func, $args);
+        return WorkerManTimer::add(floatval($duration / 1000), $func, $args);
     }
 
     /**
-     * @param int $ms
+     * @param int $duration
      * @param callable $func
      * @param array $args
      * @return int
      */
-    public function after(int $ms, callable $func, array $args = []): int
+    public function after(int $duration, callable $func, array $args = []): int
     {
-        return WorkerManTimer::add(floatval($ms / 1000), $func, $args, false);
+        return WorkerManTimer::add(floatval($duration / 1000), $func, $args, false);
     }
 
     /**

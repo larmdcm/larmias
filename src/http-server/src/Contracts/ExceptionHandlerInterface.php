@@ -10,9 +10,9 @@ use Throwable;
 interface ExceptionHandlerInterface extends ExceptionReportHandlerInterface
 {
     /**
-     * @param \Larmias\HttpServer\Contracts\RequestInterface $request
+     * @param RequestInterface $request
      * @param \Throwable $e
-     * @return \Larmias\HttpServer\Contracts\ResponseInterface
+     * @return ResponseInterface
      */
     public function render(RequestInterface $request,Throwable $e): ResponseInterface;
 }

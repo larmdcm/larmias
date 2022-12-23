@@ -18,7 +18,8 @@
     "php": ">=8.0",
     "ext-mbstring": "*",
     "ext-ctype": "*",
-    "ext-json": "*"
+    "ext-json": "*",
+    "larmias/contracts": "^1.0"
   },
   "require-dev": {
   },

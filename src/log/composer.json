@@ -1,6 +1,6 @@
 {
   "name": "larmias/log",
-  "description": "Http server library based on PSR-7 / PSR-17 standard.",
+  "description": "PSR-3 based log library, supporting console and file output",
   "type": "library",
   "keywords": [
     "larmias",
@@ -17,7 +17,6 @@
   ],
   "require": {
     "php": ">=8.0",
-    "psr/log": "^3.0",
     "larmias/contracts": "^1.0",
     "larmias/utils": "^1.0"
   },

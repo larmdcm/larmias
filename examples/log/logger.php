@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'default' => 'stdout',
+    'default' => 'file',
     'realtime_write' => true,
     'level_channels' => [],
     'level' => [],
@@ -9,21 +9,23 @@ return [
         'stdout' => [
             'handler' => 'stdout',
             'formatter' => 'default',
+        ],
+        'file' => [
+            'handler' => 'file',
+            'formatter' => 'default',
         ]
     ],
     'handlers' => [
         'stdout' => [
-            'class' => \Larmias\Log\Handler\StdoutHandler::class,
-            'constructor' => []
+            'handler' => \Larmias\Log\Handler\StdoutHandler::class,
+        ],
+        'file' => [
+            'handler' => \Larmias\Log\Handler\FileHandler::class,
         ]
     ],
     'formatters' => [
         'default' => [
-            'class' => \Larmias\Log\Formatter\LineFormatter::class,
-            'constructor' => [
-                'format' => null,
-                'dateFormat' => null,
-            ]
+            'handler' => \Larmias\Log\Formatter\LineFormatter::class,
         ]
     ]
 ];

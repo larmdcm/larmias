@@ -9,7 +9,7 @@ use Larmias\Engine\Contracts\WorkerInterface;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 
-class WorkerWatchReloadHandler
+class WorkerHotUpdateHandler
 {
     /**
      * @param WorkerInterface $worker
@@ -19,15 +19,18 @@ class WorkerWatchReloadHandler
      */
     public function handle(WorkerInterface $worker): void
     {
-        $watch = $worker->getSettings('watch',[]);
+        $watch = $worker->getSettings('watch', []);
         $enabled = $watch['enabled'] ?? false;
         if (!$enabled) {
             return;
         }
         /** @var WatcherInterface $watcher */
         $watcher = $worker->getContainer()->get($watch['driver'] ?? \Larmias\Engine\Watcher\Scan::class);
-        $watcher->include($watch['includes'] ?? [])->watch(function (string $realpath) use ($worker) {
-            $worker->getKernel()->getDriver()->reload();
-        });
+        $watcher->include($watch['includes'] ?? [])
+            ->exclude($watch['excludes'] ?? [])
+            ->excludeExt($watch['excludeExts'] ?? [])
+            ->watch(function (string $path, int $event) use ($worker) {
+                $worker->getKernel()->getDriver()->reload();
+            });
     }
 }

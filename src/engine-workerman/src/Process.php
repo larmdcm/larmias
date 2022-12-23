@@ -34,8 +34,8 @@ class Process extends Worker
     {
         try {
             parent::onWorkerStart($worker);
-            Timer::tick($this->workerConfig->getSettings()['process_handle_wait_time'] ?? 1,function () {
-                $this->trigger(Event::ON_WORKER,[$this]);
+            $this->hasListen(Event::ON_WORKER) && Timer::tick($this->workerConfig->getSettings()['process_tick_time'] ?? 1, function () {
+                $this->trigger(Event::ON_WORKER, [$this]);
             });
         } catch (Throwable $e) {
             $this->exceptionHandler($e);

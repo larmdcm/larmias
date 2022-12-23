@@ -9,7 +9,6 @@ use Workerman\Protocols\Http\Request as WorkerRequest;
 
 class Request implements RequestInterface
 {
-
     /**
      * @param WorkerRequest $request
      */

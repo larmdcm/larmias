@@ -7,9 +7,9 @@ namespace Larmias\Engine\WorkerMan;
 use Larmias\Engine\Event;
 use Larmias\Engine\WorkerMan\Http\Request;
 use Larmias\Engine\WorkerMan\Http\Response;
-use Throwable;
 use Workerman\Connection\TcpConnection;
 use Workerman\Protocols\Http\Request as WorkerRequest;
+use Throwable;
 
 class HttpServer extends Server
 {

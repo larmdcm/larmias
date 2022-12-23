@@ -1,6 +1,6 @@
 {
   "name": "larmias/routing",
-  "description": "Http server library based on PSR-7 / PSR-17 standard.",
+  "description": "Routing processing library",
   "type": "library",
   "keywords": [
     "larmias",

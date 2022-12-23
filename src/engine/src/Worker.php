@@ -8,6 +8,7 @@ use Larmias\Engine\Bootstrap\WorkerStartCallback;
 use Larmias\Engine\Contracts\KernelInterface;
 use Larmias\Engine\Contracts\WorkerInterface;
 use Psr\Container\ContainerInterface;
+use function Larmias\Utils\data_get;
 
 class Worker implements WorkerInterface
 {
@@ -65,6 +66,15 @@ class Worker implements WorkerInterface
     }
 
     /**
+     * @param string $event
+     * @return bool
+     */
+    public function hasListen(string $event): bool
+    {
+        return isset($this->callbacks[$event]);
+    }
+
+    /**
      *  触发回调函数
      * @param string $event
      * @param array $args
@@ -73,10 +83,10 @@ class Worker implements WorkerInterface
      */
     public function trigger(string $event, array $args = []): void
     {
-        $callable = $this->callbacks[$event] ?? null;
-        if (!$callable) {
+        if (!$this->hasListen($event)) {
             return;
         }
+        $callable = $this->callbacks[$event];
         if (\is_callable($callable)) {
             $callable(...$args);
             return;
@@ -111,8 +121,8 @@ class Worker implements WorkerInterface
      */
     public function getSettings(string $name = null, mixed $default = null): mixed
     {
-        $config = \array_merge($this->workerConfig->getSettings(),$this->engineConfig->getSettings());
-        return $name ? data_get($config,$name,$default) : $config;
+        $config = \array_merge($this->workerConfig->getSettings(), $this->engineConfig->getSettings());
+        return $name ? data_get($config, $name, $default) : $config;
     }
 
     /**

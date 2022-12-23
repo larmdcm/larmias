@@ -32,6 +32,14 @@ class WorkerMan implements DriverInterface
     /**
      * @return string
      */
+    public function getTcpServerClass(): string
+    {
+        return TcpServer::class;
+    }
+
+    /**
+     * @return string
+     */
     public function getHttpServerClass(): string
     {
         return HttpServer::class;

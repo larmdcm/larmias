@@ -34,17 +34,21 @@ return [
             'type' => WorkerType::WORKER_PROCESS,
             'settings' => [
                 'worker_num' => 1,
+                 'watch' => [
+                    'enabled'  => true,
+                    'includes' => [
+                        __DIR__ . '/config',
+                        __DIR__ . '/router.php',
+                    ],
+                ],
             ],
+            'callbacks' => [
+                Event::ON_WORKER_START => [\Larmias\Engine\Process\Handler\WorkerHotUpdateHandler::class,'handle'],
+            ]
         ]
     ],
     'settings'  => [
-        'watch' => [
-            'enabled'  => true,
-            'includes' => [
-                __DIR__ . '/config',
-                __DIR__ . '/router.php',
-            ],
-        ]
+
     ],
     'callbacks' => [
         Event::ON_WORKER_START => function () {

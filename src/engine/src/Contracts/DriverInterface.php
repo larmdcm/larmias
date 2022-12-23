@@ -19,6 +19,11 @@ interface DriverInterface
     /**
      * @return string
      */
+    public function getTcpServerClass(): string;
+
+    /**
+     * @return string
+     */
     public function getHttpServerClass(): string;
 
     /**

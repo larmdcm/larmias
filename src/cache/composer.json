@@ -1,0 +1,27 @@
+{
+  "name": "larmias/cache",
+  "description": "PSR-16 based cache library, supporting files, and Redis storage",
+  "type": "library",
+  "keywords": [
+    "larmias",
+    "cache",
+    "redis"
+  ],
+  "homepage": "https://larmias.com/",
+  "license": "Apache-2.0",
+  "authors": [
+    {
+      "name": "larmdcm",
+      "email": "mdcm98@163.com"
+    }
+  ],
+  "require": {
+    "php": ">=8.0",
+    "larmias/contracts": "^1.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Larmias\\Cache\\": "src/"
+    }
+  }
+}

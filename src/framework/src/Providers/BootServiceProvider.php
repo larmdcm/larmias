@@ -8,6 +8,8 @@ use Larmias\Event\ListenerProviderFactory;
 use Larmias\Framework\ServiceProvider;
 use Psr\EventDispatcher\ListenerProviderInterface;
 
+use function Larmias\Framework\config;
+
 class BootServiceProvider extends ServiceProvider
 {
     /**

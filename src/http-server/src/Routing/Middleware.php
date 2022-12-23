@@ -11,5 +11,5 @@ class Middleware extends BaseMiddleware
     /**
      * @var string|null
      */
-    protected ?string $type = 'route';
+    protected ?string $type = 'http_route';
 }

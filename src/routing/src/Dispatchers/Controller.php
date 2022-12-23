@@ -8,7 +8,7 @@ use Larmias\Routing\Dispatcher;
 
 class Controller extends Dispatcher
 {
-    public function execute(): mixed
+    public function execute(array $params = []): mixed
     {
         return null;
     }

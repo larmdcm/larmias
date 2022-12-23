@@ -118,6 +118,7 @@ class Console implements OutputHandlerInterface
 
     /**
      * 是否支持着色
+     * 
      * @param resource $stream
      * @return bool
      */

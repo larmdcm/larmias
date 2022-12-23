@@ -23,7 +23,7 @@ class ExceptionHandler extends BaseExceptionHandler implements ExceptionHandlerI
     {
         /** @var ResponseInterface $response */
         $response = $this->container->make(ResponseInterface::class);
-        $data = $this->convertExceptionToArray($e);
+        $data = $this->collectExceptionToArray($e);
         return $response->json($data);
     }
 }

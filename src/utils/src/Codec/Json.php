@@ -36,7 +36,7 @@ class Json
     /**
      * @throws InvalidArgumentException
      */
-    public static function decode(string $json, bool $assoc = true, int $depth = 512, int $flags = 0)
+    public static function decode(string $json, bool $assoc = true, int $depth = 512, int $flags = 0): mixed
     {
         try {
             $decode = json_decode($json, $assoc, $depth, $flags | JSON_THROW_ON_ERROR);

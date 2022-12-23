@@ -69,11 +69,12 @@ class Kernel implements KernelInterface
     public function addWorker(WorkerConfig $workerConfig): WorkerInterface
     {
         $class = match ($workerConfig->getType()) {
+            WorkerType::TCP_SERVER => $this->driver->getTcpServerClass(),
             WorkerType::HTTP_SERVER => $this->driver->getHttpServerClass(),
             WorkerType::WORKER_PROCESS => $this->driver->getProcessClass(),
             default => null,
         };
-        if (!$class || !class_exists($class)) {
+        if (!$class || !\class_exists($class)) {
             throw new RuntimeException('driver class not set.');
         }
         return new $class($this->container, $this, $workerConfig);

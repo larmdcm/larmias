@@ -222,19 +222,22 @@ class Logger implements LoggerInterface
     public function channel(?string $name = null): Channel
     {
         $name = $name ?: $this->getConfig('default');
+        if (isset($this->channels[$name])) {
+            return $this->channels[$name];
+        }
         $handlers = [];
         $channelConfig = $this->getConfig('channels.' . $name);
         foreach (Arr::wrap($channelConfig['handler']) as $item) {
             $handlerConfig = $this->getConfig('handlers.' . $item);
-            $handlers[] = $this->container->make($handlerConfig['class'], $handlerConfig['constructor'] ?? [], true);
+            $handlers[] = $this->container->make($handlerConfig['handler'], ['config' => $handlerConfig], true);
         }
 
         $formatterConfig = $this->getConfig('formatters.' . $channelConfig['formatter']);
         /** @var \Larmias\Log\Contracts\FormatterInterface $formatter */
-        $formatter = $this->container->make($formatterConfig['class'], $formatterConfig['constructor'] ?? [], true);
+        $formatter = $this->container->make($formatterConfig['handler'], ['config' => $formatterConfig], true);
         $allowLevel = $channelConfig['level'] ?? $this->getConfig('level', []);
         $realtimeWrite = $channelConfig['realtime_write'] ?? $this->getConfig('realtime_write', true);
-        return new Channel($name, $handlers, $formatter, $allowLevel, $realtimeWrite);
+        return $this->channels[$name] = new Channel($name, $handlers, $formatter, $allowLevel, $realtimeWrite);
     }
 
     /**

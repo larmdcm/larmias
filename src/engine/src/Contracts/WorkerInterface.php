@@ -15,7 +15,13 @@ interface WorkerInterface
 	 * @return void
 	 */
     public function start(int $workerId): void;
-    
+
+    /**
+     * @param string $event
+     * @return bool
+     */
+    public function hasListen(string $event): bool;
+
     /**
      * @param string $event
      * @param array $args

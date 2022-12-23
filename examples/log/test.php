@@ -8,3 +8,5 @@ require '../bootstrap.php';
 $logger = require './log.php';
 
 $logger->debug('test');
+$logger->error('test');
+$logger->info('test');

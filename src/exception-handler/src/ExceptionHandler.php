@@ -63,7 +63,7 @@ abstract class ExceptionHandler implements ExceptionReportHandlerInterface
      * @param  Throwable $exception
      * @return array
      */
-    protected function convertExceptionToArray(Throwable $exception): array
+    protected function collectExceptionToArray(Throwable $exception): array
     {
         $traces        = [];
         $nextException = $exception;

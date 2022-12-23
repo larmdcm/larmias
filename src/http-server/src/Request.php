@@ -10,6 +10,7 @@ use Larmias\Http\Message\UploadedFile;
 use Larmias\Routing\Dispatched;
 use Larmias\Utils\Arr;
 use SplFileInfo;
+use function Larmias\Utils\data_get;
 
 class Request extends ServerRequest implements RequestInterface
 {

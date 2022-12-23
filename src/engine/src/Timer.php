@@ -7,8 +7,8 @@ namespace Larmias\Engine;
 use Larmias\Engine\Contracts\TimerInterface;
 
 /**
- * @method static int tick(float $time,callable $func,array $args = [])
- * @method static int after(float $time,callable $func,array $args = [])
+ * @method static int tick(float $duration,callable $func,array $args = [])
+ * @method static int after(float $duration,callable $func,array $args = [])
  * @method static bool del(int $timerId)
  * @method static bool clear()
  */

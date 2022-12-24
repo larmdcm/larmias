@@ -14,6 +14,7 @@ return [
             'port' => 2000,
             'settings' => [
                 'worker_num' => 1,
+                'protocol' => \Workerman\Protocols\Frame::class,
             ],
             'callbacks' => [
                 Event::ON_RECEIVE => [ShareMemoryServer::class,ShareMemoryServer::ON_RECEIVE]

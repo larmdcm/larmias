@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Larmias\Contracts\Tcp;
 
-interface ConnectionInterface
+use Larmias\Contracts\ConnectionInterface as BaseConnectionInterface;
+
+interface ConnectionInterface extends BaseConnectionInterface
 {
     /**
      * 获取连接id

@@ -23,4 +23,15 @@ class Connection implements ConnectionInterface
     {
         return $this->connection;
     }
+
+    public function send(mixed $data): bool
+    {
+        return (bool)$this->connection->send($data);
+    }
+
+    public function close(mixed $data): bool
+    {
+        $this->connection->close($data);
+        return true;
+    }
 }

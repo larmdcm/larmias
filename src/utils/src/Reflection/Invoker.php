@@ -15,13 +15,6 @@ class Invoker
     protected Parameter $parameter;
 
     /**
-     * @var array
-     */
-    protected static array $container = [
-        'class' => [],
-    ];
-
-    /**
      * ReflectionManager constructor.
      *
      * @param Parameter|null $parameter
@@ -91,13 +84,10 @@ class Invoker
      */
     protected function makeClassInvoker(string|object $object, array $params = []): ClassInvoker
     {
-        $class = is_string($object) ? $object : \get_class($object);
-        if (!isset(static::$container['class'][$class])) {
-            static::$container['class'][$class] = new ClassInvoker($object, function (ReflectionFunctionAbstract $abstract) use ($params) {
-                return $this->bindParameter($abstract, $params);
-            });
-        }
-        return static::$container['class'][$class];
+        $class = \is_string($object) ? $object : \get_class($object);
+        return new ClassInvoker($object, function (ReflectionFunctionAbstract $abstract) use ($params) {
+            return $this->bindParameter($abstract, $params);
+        });
     }
 
     /**
@@ -108,7 +98,7 @@ class Invoker
      */
     public function bindParameter(ReflectionFunctionAbstract $abstract, array $params = []): array
     {
-        return $this->parameter->bindReflect($abstract,$params);
+        return $this->parameter->bindReflect($abstract, $params);
     }
 
     /**

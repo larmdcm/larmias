@@ -16,11 +16,31 @@ class TcpServer extends Server
      */
     protected string $protocol = 'tcp';
 
+    public function onConnect(TcpConnection $workerConnection): void
+    {
+        try {
+            $connection = new Connection($workerConnection);
+            $this->trigger(Event::ON_CONNECT, [$connection]);
+        } catch (Throwable $e) {
+            $this->exceptionHandler($e);
+        }
+    }
+
     public function onMessage(TcpConnection $workerConnection, mixed $data): void
     {
         try {
             $connection = new Connection($workerConnection);
             $this->trigger(Event::ON_RECEIVE, [$connection, $data]);
+        } catch (Throwable $e) {
+            $this->exceptionHandler($e);
+        }
+    }
+
+    public function onClose(TcpConnection $workerConnection): void
+    {
+        try {
+            $connection = new Connection($workerConnection);
+            $this->trigger(Event::ON_CLOSE, [$connection]);
         } catch (Throwable $e) {
             $this->exceptionHandler($e);
         }

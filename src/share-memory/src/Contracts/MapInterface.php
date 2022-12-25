@@ -10,7 +10,7 @@ interface MapInterface
 
     public function get(string $key): mixed;
 
-    public function del(string $key): bool;
+    public function delete(string $key): bool;
 
     public function exists(string $key): bool;
 

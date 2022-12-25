@@ -21,7 +21,7 @@ class Map implements MapInterface
         return $this->data[$key] ?? null;
     }
 
-    public function del(string $key): bool
+    public function delete(string $key): bool
     {
         unset($this->data[$key]);
         return true;

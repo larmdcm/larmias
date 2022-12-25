@@ -8,7 +8,7 @@ use Larmias\Engine\Contracts\WorkerInterface;
 use Larmias\Engine\Event;
 use Larmias\Engine\Events\WorkerStart;
 use Larmias\Engine\Events\AfterWorkerStart;
-use Psr\Container\ContainerInterface;
+use Larmias\Contracts\ContainerInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\LoggerInterface;
 
@@ -27,7 +27,7 @@ class WorkerStartCallback
     /**
      * WorkerStartCallback constructor.
      *
-     * @param \Psr\Container\ContainerInterface $container
+     * @param \Larmias\Contracts\ContainerInterface $container
      * @throws \Psr\Container\ContainerExceptionInterface
      * @throws \Psr\Container\NotFoundExceptionInterface
      */

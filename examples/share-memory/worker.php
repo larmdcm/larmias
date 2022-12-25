@@ -15,9 +15,11 @@ return [
             'settings' => [
                 'worker_num' => 1,
                 'protocol' => \Workerman\Protocols\Frame::class,
+                'auth_password' => '123456',
             ],
             'callbacks' => [
-                Event::ON_RECEIVE => [ShareMemoryServer::class,ShareMemoryServer::ON_RECEIVE]
+                Event::ON_CONNECT => [ShareMemoryServer::class,'onConnect'],
+                Event::ON_RECEIVE => [ShareMemoryServer::class,'onReceive'],
             ]
         ],
         [

@@ -7,7 +7,7 @@ namespace Larmias\Engine;
 use Larmias\Engine\Bootstrap\WorkerStartCallback;
 use Larmias\Engine\Contracts\KernelInterface;
 use Larmias\Engine\Contracts\WorkerInterface;
-use Psr\Container\ContainerInterface;
+use Larmias\Contracts\ContainerInterface;
 use function Larmias\Utils\data_get;
 
 class Worker implements WorkerInterface
@@ -62,6 +62,7 @@ class Worker implements WorkerInterface
     {
         Timer::init($this->container->get($this->kernel->getDriver()->getTimerClass()));
         $this->setWorkerId($workerId);
+        $this->container->bind(WorkerInterface::class,$this);
         $this->trigger(static::ON_WORKER_START, [$this]);
     }
 

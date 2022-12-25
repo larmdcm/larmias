@@ -6,7 +6,7 @@ namespace Larmias\Engine\Contracts;
 
 use Larmias\Engine\EngineConfig;
 use Larmias\Engine\WorkerConfig;
-use Psr\Container\ContainerInterface;
+use Larmias\Contracts\ContainerInterface;
 
 interface WorkerInterface
 {

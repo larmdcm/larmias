@@ -16,6 +16,7 @@
   ],
   "require": {
     "php": ">=8.0",
+    "larmias/contracts": "^1.0",
     "larmias/engine": "^1.0"
   },
   "autoload": {

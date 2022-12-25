@@ -7,7 +7,7 @@ namespace Larmias\Engine;
 use Larmias\Engine\Contracts\DriverInterface;
 use Larmias\Engine\Contracts\KernelInterface;
 use Larmias\Engine\Contracts\WorkerInterface;
-use Psr\Container\ContainerInterface;
+use Larmias\Contracts\ContainerInterface;
 use RuntimeException;
 
 class Kernel implements KernelInterface

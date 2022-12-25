@@ -4,36 +4,46 @@ declare(strict_types=1);
 
 namespace Larmias\ShareMemory\Command;
 
+use Larmias\Contracts\ContainerInterface;
+use Larmias\ShareMemory\Contracts\CommandHandlerInterface;
 use Larmias\ShareMemory\Exceptions\CommandException;
 use Larmias\ShareMemory\Message\Command as MessageCommand;
 
-class CommandHandler
+class CommandHandler implements CommandHandlerInterface
 {
-    public static function call(string $raw): mixed
+    public function __construct(protected ContainerInterface $container)
     {
-        $command = static::parse($raw);
-        $handler = static::getHandler($command);
+    }
+
+    public function handle(MessageCommand $command): mixed
+    {
+        $handler = $this->getHandler($command);
         return $handler->call();
     }
 
-    public static function parse(string $raw): MessageCommand
+    public function parse(string $raw): MessageCommand
     {
         return MessageCommand::parse($raw);
     }
 
-    public static function getHandler(MessageCommand $command): Command
+    protected function getHandler(MessageCommand $command): Command
     {
-        $handlers = static::getHandlers();
-        if (!isset($handlers[$command->name])) {
+        $handlers = $this->getHandlers();
+        $name = \str_contains($command->name,':') ? \explode(':',$command->name)[0] : $command->name;
+        if (!isset($handlers[$name])) {
             throw new CommandException(sprintf('Command does not exist: %s', $command->name));
         }
-        return new $handlers[$command->name]($command->args);
+        /** @var Command $result */
+        $result = $this->container->make($handlers[$name],['command' => $command],true);
+        return $result;
     }
 
-    public static function getHandlers(): array
+    protected function getHandlers(): array
     {
         return [
-            MessageCommand::MAP => MapCommand::class,
+            MessageCommand::COMMAND_AUTH => AuthCommand::class,
+            MessageCommand::COMMAND_SELECT => SelectCommand::class,
+            MessageCommand::COMMAND_MAP => MapCommand::class,
         ];
     }
 }

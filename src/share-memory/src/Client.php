@@ -6,6 +6,7 @@ namespace Larmias\ShareMemory;
 
 use Larmias\ShareMemory\Exceptions\ClientException;
 use Larmias\ShareMemory\Message\Command;
+use Larmias\ShareMemory\Message\Result;
 
 class Client
 {
@@ -30,7 +31,7 @@ class Client
     {
         if (!$this->isConnected()) {
             $conn = \stream_socket_client(
-                sprintf('tcp://%s:%d', $this->host, $this->port), $errCode, $errMsg,
+                \sprintf('tcp://%s:%d', $this->host, $this->port), $errCode, $errMsg,
                 $this->options['timeout']
             );
             if (!\is_resource($conn)) {
@@ -44,10 +45,25 @@ class Client
         return $this->connected;
     }
 
-    public function command(string $name, array $args)
+    public function auth(string $password): bool
+    {
+        $result = $this->command(__FUNCTION__, [$password]);
+        return $result && $result->success;
+    }
+
+    public function select(string $name): bool
+    {
+        $result = $this->command(__FUNCTION__, [$name]);
+        return $result && $result->success;
+    }
+
+    public function command(string $name, array $args): ?Result
     {
         $result = $this->send(Command::build($name, $args));
-        return $result;
+        if (!$result) {
+            return null;
+        }
+        return $this->read();
     }
 
     public function send(string $data): bool
@@ -58,10 +74,26 @@ class Client
         $len = \strlen($data) + 4;
         $data = \pack('N', $len) . $data;
         $result = \fwrite($this->socket, $data, $len);
-        if ($result === false) {
-            $this->close();
-        }
         return $result === $len;
+    }
+
+
+    public function read(): ?Result
+    {
+        if (!$this->isConnected()) {
+            return null;
+        }
+
+        $protocolLen = 4;
+
+        $buffer = \fread($this->socket, $protocolLen);
+        if ($buffer === '' || $buffer === false) {
+            return null;
+        }
+        $length = \unpack('Nlength', $buffer)['length'];
+        $buffer = \fread($this->socket, $length - $protocolLen);
+
+        return Result::parse($buffer);
     }
 
     public function close(): bool
@@ -76,5 +108,13 @@ class Client
     public function isConnected(): bool
     {
         return $this->connected && !\feof($this->socket) && \is_resource($this->socket);
+    }
+
+    /**
+     * @return resource
+     */
+    public function getSocket()
+    {
+        return $this->socket;
     }
 }

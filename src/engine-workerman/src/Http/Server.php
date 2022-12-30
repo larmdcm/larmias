@@ -2,16 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Engine\WorkerMan;
+namespace Larmias\Engine\WorkerMan\Http;
 
 use Larmias\Engine\Event;
-use Larmias\Engine\WorkerMan\Http\Request;
-use Larmias\Engine\WorkerMan\Http\Response;
 use Workerman\Connection\TcpConnection;
 use Workerman\Protocols\Http\Request as WorkerRequest;
 use Throwable;
+use Larmias\Engine\WorkerMan\Server as BaseServer;
 
-class HttpServer extends Server
+class Server extends BaseServer
 {
     /**
      * @var string

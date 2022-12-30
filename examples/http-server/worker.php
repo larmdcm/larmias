@@ -14,7 +14,7 @@ use Larmias\Event\ListenerProviderFactory;
 use Larmias\Event\EventDispatcherFactory;
 
 return [
-    'driver' => \Larmias\Engine\WorkerMan\WorkerMan::class,
+    'driver' => \Larmias\Engine\WorkerMan\Driver::class,
     'workers' => [
         [
             'name' => 'http',

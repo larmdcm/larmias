@@ -24,25 +24,32 @@ class Server
 
     public function onConnect(ConnectionInterface $connection): void
     {
-        Context::setConnection($connection);
+        ConnectionManager::add($connection);
     }
 
     public function onReceive(ConnectionInterface $connection, string $data): void
     {
         try {
+            Context::setConnection($connection);
             $command = $this->handler->parse($data);
+            echo '#' . $connection->getId() . " Received command: " . $command->name . PHP_EOL;
             $this->auth->check($command);
             $result = $this->handler->handle($command);
             $connection->send($result instanceof Result ? $result->toString() : Result::build($result));
         } catch (Throwable $e) {
-            $this->handleException($connection,$e);
+            $this->handleException($connection, $e);
         }
     }
 
-    protected function handleException(ConnectionInterface $connection,Throwable $e): void
+    public function onClose(ConnectionInterface $connection): void
     {
-        $message = $e->getFile() . '('. $e->getLine() .')' . ':' . $e->getMessage() . PHP_EOL . $e->getTraceAsString();
-        $sendMessage = Result::build($e->getMessage(),false);
+        ConnectionManager::remove($connection);
+    }
+
+    protected function handleException(ConnectionInterface $connection, Throwable $e): void
+    {
+        $message = $e->getFile() . '(' . $e->getLine() . ')' . ':' . $e->getMessage() . PHP_EOL . $e->getTraceAsString();
+        $sendMessage = Result::build($e->getMessage(), false);
         if ($e instanceof AuthenticateException) {
             $connection->close($sendMessage);
         } else {

@@ -2,12 +2,18 @@
 
 declare(strict_types=1);
 
-namespace Larmias\ShareMemory;
+namespace Larmias\ShareMemory\Client;
 
+use Larmias\Engine\Timer;
+use Larmias\ShareMemory\Client\Command\Channel;
 use Larmias\ShareMemory\Exceptions\ClientException;
 use Larmias\ShareMemory\Message\Command;
 use Larmias\ShareMemory\Message\Result;
 
+/**
+ * Class Client
+ * @package Larmias\ShareMemory
+ */
 class Client
 {
     /**
@@ -17,14 +23,28 @@ class Client
 
     protected array $options = [
         'timeout' => 5,
+        'ping_interval' => 30000,
     ];
 
     protected bool $connected = false;
+
+    protected array $commands = [
+        'channel' => Channel::class,
+    ];
 
     public function __construct(protected string $host = '127.0.0.1', protected int $port = 2000, array $options = [])
     {
         $this->options = \array_merge($this->options, $options);
         $this->connect();
+        $this->ping();
+    }
+
+    public function __get(string $name)
+    {
+        if (isset($this->commands[$name])) {
+            return new $this->commands[$name]($this);
+        }
+        return null;
     }
 
     public function connect(): bool
@@ -37,7 +57,6 @@ class Client
             if (!\is_resource($conn)) {
                 throw new ClientException($errMsg, $errCode);
             }
-
             $this->socket = $conn;
             $this->connected = true;
         }
@@ -57,7 +76,7 @@ class Client
         return $result && $result->success;
     }
 
-    public function command(string $name, array $args): ?Result
+    public function command(string $name, array $args = []): ?Result
     {
         $result = $this->send(Command::build($name, $args));
         if (!$result) {
@@ -100,14 +119,18 @@ class Client
     {
         if ($this->isConnected()) {
             \fclose($this->socket);
-            $this->connected = false;
         }
-        return $this->connected;
+        return $this->connected = false;
     }
 
     public function isConnected(): bool
     {
         return $this->connected && !\feof($this->socket) && \is_resource($this->socket);
+    }
+
+    public function isCli(): bool
+    {
+        return \PHP_SAPI === 'cli';
     }
 
     /**
@@ -116,5 +139,26 @@ class Client
     public function getSocket()
     {
         return $this->socket;
+    }
+
+    protected function ping(): void
+    {
+        if (!$this->options['ping_interval']) {
+            return;
+        }
+        $this->options['ping_interval_id'] = Timer::tick($this->options['ping_interval'], function () {
+            if (!$this->isConnected()) {
+                return;
+            }
+            $this->command(Command::COMMAND_PING);
+        });
+    }
+
+    public function __destruct()
+    {
+        if (isset($this->options['ping_interval_id'])) {
+            Timer::del($this->options['ping_interval_id']);
+        }
+        $this->close();
     }
 }

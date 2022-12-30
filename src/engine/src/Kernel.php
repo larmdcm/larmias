@@ -59,7 +59,7 @@ class Kernel implements KernelInterface
         foreach ($workers as $workerConfig) {
             $this->workers[$workerConfig->getName()] = $this->addWorker($workerConfig);
         }
-        $this->driver->run($this->workers);
+        $this->driver->run($this);
     }
 
     /**

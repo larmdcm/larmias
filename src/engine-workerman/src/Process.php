@@ -5,14 +5,12 @@ declare(strict_types=1);
 namespace Larmias\Engine\WorkerMan;
 
 use Larmias\Engine\Event;
-use Workerman\Worker as WorkerManWorker;
 use Larmias\Engine\Timer;
 use Throwable;
 
-class Process extends Worker
+class Process extends EngineWorker
 {
-    /** @var WorkerManWorker */
-    protected WorkerManWorker $worker;
+    protected Worker $worker;
 
     /**
      * @return void
@@ -25,12 +23,12 @@ class Process extends Worker
     }
 
     /**
-     * @param WorkerManWorker $worker
+     * @param Worker $worker
      * @return void
      * @throws \Psr\Container\ContainerExceptionInterface
      * @throws \Psr\Container\NotFoundExceptionInterface
      */
-    public function onWorkerStart(WorkerManWorker $worker): void
+    public function onWorkerStart(Worker $worker): void
     {
         try {
             parent::onWorkerStart($worker);

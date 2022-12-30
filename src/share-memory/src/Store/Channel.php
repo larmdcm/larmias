@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Larmias\ShareMemory\Store;
 
-class Channel
+use Larmias\ShareMemory\Contracts\ChannelInterface;
+
+class Channel implements ChannelInterface
 {
     protected array $channels = [];
 

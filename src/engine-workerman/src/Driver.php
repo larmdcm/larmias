@@ -5,16 +5,14 @@ declare(strict_types=1);
 namespace Larmias\Engine\WorkerMan;
 
 use Larmias\Engine\Contracts\DriverInterface;
-use Workerman\Worker;
+use Larmias\Engine\Contracts\KernelInterface;
 
-class WorkerMan implements DriverInterface
+class Driver implements DriverInterface
 {
     /**
-     * @param array $workers
-     * @return void
-     * @throws \Throwable
+     * @param \Larmias\Engine\Contracts\KernelInterface $kernel
      */
-    public function run(array $workers): void
+    public function run(KernelInterface $kernel): void
     {
         Worker::runAll();
     }
@@ -34,7 +32,7 @@ class WorkerMan implements DriverInterface
      */
     public function getTcpServerClass(): string
     {
-        return TcpServer::class;
+        return \Larmias\Engine\WorkerMan\Tcp\Server::class;
     }
 
     /**
@@ -42,7 +40,7 @@ class WorkerMan implements DriverInterface
      */
     public function getHttpServerClass(): string
     {
-        return HttpServer::class;
+        return \Larmias\Engine\WorkerMan\Http\Server::class;
     }
 
     /**

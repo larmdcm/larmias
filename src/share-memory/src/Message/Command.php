@@ -11,6 +11,11 @@ class Command implements Stringable
     /**
      * @var string
      */
+    public const COMMAND_PING = 'ping';
+
+    /**
+     * @var string
+     */
     public const COMMAND_SELECT = 'select';
 
     /**
@@ -23,6 +28,11 @@ class Command implements Stringable
      */
     public const COMMAND_MAP = 'map';
 
+    /**
+     * @var string
+     */
+    public const COMMAND_CHANNEL = 'channel';
+
     public function __construct(public string $name, public array $args = [])
     {
     }
@@ -30,12 +40,13 @@ class Command implements Stringable
     public static function build(string $name, array $args = []): string
     {
         $command = new static($name, $args);
+
         return $command->toString();
     }
 
     public static function parse(string $raw): Command
     {
-        $data = \json_decode($raw,true);
+        $data = \json_decode($raw, true);
 
         return new static($data['name'], $data['args']);
     }
@@ -51,7 +62,7 @@ class Command implements Stringable
 
     public function toString(): string
     {
-        return \json_encode($this->toArray(),JSON_UNESCAPED_UNICODE);
+        return \json_encode($this->toArray(), JSON_UNESCAPED_UNICODE);
     }
 
     public function __toString(): string

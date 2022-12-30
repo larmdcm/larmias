@@ -14,7 +14,7 @@ class Response implements ResponseInterface
      * @param TcpConnection $connection
      * @param WorkerResponse|null $response
      */
-    public function __construct(protected TcpConnection $connection,protected ?WorkerResponse $response = null)
+    public function __construct(protected TcpConnection $connection, protected ?WorkerResponse $response = null)
     {
         if (\is_null($this->response)) {
             $this->response = new WorkerResponse();
@@ -46,7 +46,7 @@ class Response implements ResponseInterface
 
     public function getHeader(string $name, $default = null): string|array
     {
-        return $this->response->getHeader($name,$default);
+        return $this->response->getHeader($name) ?? $default;
     }
 
     public function getHeaders(): array
@@ -56,7 +56,7 @@ class Response implements ResponseInterface
 
     public function status(int $statusCode, ?string $reason = null): ResponseInterface
     {
-        $this->response->withStatus($statusCode,$reason);
+        $this->response->withStatus($statusCode, $reason);
         return $this;
     }
 
@@ -75,9 +75,9 @@ class Response implements ResponseInterface
         return $this;
     }
 
-    public function sendFile(string $file, int $offset = 0,int $length = 0): void
+    public function sendFile(string $file, int $offset = 0, int $length = 0): void
     {
-        $this->response->withFile($file,$offset,$length);
+        $this->response->withFile($file, $offset, $length);
         $this->end();
     }
 

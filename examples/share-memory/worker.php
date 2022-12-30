@@ -5,7 +5,7 @@ use Larmias\Engine\Event;
 use Larmias\ShareMemory\Server as ShareMemoryServer;
 
 return [
-    'driver' => \Larmias\Engine\WorkerMan\WorkerMan::class,
+    'driver' => \Larmias\Engine\WorkerMan\Driver::class,
     'workers' => [
         [
             'name' => 'tcp',
@@ -18,8 +18,9 @@ return [
                 'auth_password' => '123456',
             ],
             'callbacks' => [
-                Event::ON_CONNECT => [ShareMemoryServer::class,'onConnect'],
-                Event::ON_RECEIVE => [ShareMemoryServer::class,'onReceive'],
+                Event::ON_CONNECT => [ShareMemoryServer::class, 'onConnect'],
+                Event::ON_RECEIVE => [ShareMemoryServer::class, 'onReceive'],
+                Event::ON_CLOSE => [ShareMemoryServer::class, 'onClose'],
             ]
         ],
         [
@@ -27,19 +28,19 @@ return [
             'type' => WorkerType::WORKER_PROCESS,
             'settings' => [
                 'worker_num' => 1,
-                 'watch' => [
-                    'enabled'  => true,
+                'watch' => [
+                    'enabled' => true,
                     'includes' => [
 
                     ],
                 ],
             ],
             'callbacks' => [
-                Event::ON_WORKER_START => [\Larmias\Engine\Process\Handler\WorkerHotUpdateHandler::class,'handle'],
+                Event::ON_WORKER_START => [\Larmias\Engine\Process\Handler\WorkerHotUpdateHandler::class, 'handle'],
             ]
         ]
     ],
-    'settings'  => [
+    'settings' => [
 
     ],
     'callbacks' => [

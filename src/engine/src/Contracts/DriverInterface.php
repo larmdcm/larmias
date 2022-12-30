@@ -9,7 +9,7 @@ interface DriverInterface
     /**
      * @return void
      */
-    public function run(array $workers): void;
+    public function run(KernelInterface $kernel): void;
 
     /**
      * @return void

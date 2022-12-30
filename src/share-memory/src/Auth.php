@@ -24,15 +24,15 @@ class Auth implements AuthInterface
     {
         $password = $params[0] ?? '';
         if ($password && $password === $this->authPassword) {
-            Context::setData(self::KEY_AUTH,true);
+            Context::setData(self::KEY_AUTH, true);
             return true;
         }
         return $throwException ? throw new AuthenticateException('Authentication failed') : false;
     }
 
-    public function check(Command $command,bool $throwException = true): bool
+    public function check(Command $command, bool $throwException = true): bool
     {
-        if (!$this->authPassword || $command->name === Command::COMMAND_AUTH) {
+        if (!$this->authPassword || \in_array($command->name, [Command::COMMAND_PING, Command::COMMAND_AUTH])) {
             return true;
         }
         if (!Context::getData(self::KEY_AUTH)) {

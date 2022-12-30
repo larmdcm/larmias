@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Engine\WorkerMan;
+namespace Larmias\Engine\WorkerMan\Tcp;
 
 use Larmias\Engine\Event;
-use Larmias\Engine\WorkerMan\Tcp\Connection;
 use Workerman\Connection\TcpConnection;
 use Throwable;
+use Larmias\Engine\WorkerMan\Server as BaseServer;
 
-class TcpServer extends Server
+class Server extends BaseServer
 {
     /**
      * @var string

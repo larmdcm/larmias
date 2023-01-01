@@ -42,7 +42,7 @@ class Scan implements WatcherInterface
 
     /**
      * @param string|array $path
-     * @return \Larmias\Engine\Contracts\WatcherInterface
+     * @return WatcherInterface
      */
     public function exclude(string|array $path): WatcherInterface
     {
@@ -51,7 +51,7 @@ class Scan implements WatcherInterface
 
     /**
      * @param array|string $ext
-     * @return \Larmias\Engine\Contracts\WatcherInterface
+     * @return WatcherInterface
      */
     public function excludeExt(array|string $ext): WatcherInterface
     {
@@ -147,6 +147,11 @@ class Scan implements WatcherInterface
                 $list = \array_map(fn($item) => "\.$item", $this->config['excludeExt']);
                 $list = \implode('|', $list);
                 return \preg_match("/($list)$/", $this->current()->getFilename());
+            }
+
+            public function getChildren()
+            {
+                return new self($this->getInnerIterator()->getChildren(), $this->config);
             }
         });
         return \array_map(fn($fileInfo) => $fileInfo->getPathname(), iterator_to_array($iterator));

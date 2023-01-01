@@ -29,7 +29,7 @@ class Application extends Container implements ApplicationInterface
     /**
      * @var string
      */
-    protected string $configExt = '.php';
+    protected string $configExt = 'php';
 
     /**
      * @var string
@@ -107,7 +107,7 @@ class Application extends Container implements ApplicationInterface
             return;
         }
         $this->config = $this->get(ConfigInterface::class);
-        foreach (\glob($configPath . '*' . $this->configExt) as $filename) {
+        foreach (\glob($configPath . '*' . '.' . $this->configExt) as $filename) {
             $this->config->load($filename);
         }
     }
@@ -122,10 +122,14 @@ class Application extends Container implements ApplicationInterface
             $this->register($provider);
         }
 
-        foreach ($this->providers as $provider) {
-            $service = $this->getServiceProvider($provider);
-            $service->register();
-            $service->boot();
+        $providers = \array_keys($this->providers);
+
+        foreach ($providers as $provider) {
+            $this->getServiceProvider($provider)->register();
+        }
+
+        foreach ($providers as $provider) {
+            $this->getServiceProvider($provider)->boot();
         }
     }
 
@@ -265,7 +269,7 @@ class Application extends Container implements ApplicationInterface
     {
         $files = [__DIR__ . '/../config/' . $name . '.php'];
         if ($loadConfigPath) {
-            $files[] = $this->getConfigPath() . $name . $this->configExt;
+            $files[] = $this->getConfigPath() . $name . '.' .  $this->configExt;
         }
         $config = [];
         foreach ($files as $file) {

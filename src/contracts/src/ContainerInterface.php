@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Larmias\Contracts;
 
 use Psr\Container\ContainerInterface as PsrContainerInterface;
+use Closure;
 
 interface ContainerInterface extends PsrContainerInterface
 {
@@ -69,4 +70,13 @@ interface ContainerInterface extends PsrContainerInterface
      * @return mixed
      */
     public function invoke(mixed $callable, array $params = [], bool $accessible = false): mixed;
+
+    /**
+     * 注册一个容器对象回调
+     *
+     * @param string|Closure $abstract
+     * @param Closure|null $callback
+     * @return void
+     */
+    public function resolving(string|Closure $abstract, Closure $callback = null): void;
 }

@@ -1,0 +1,35 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Larmias\HttpServer\Providers;
+
+use Larmias\Di\AnnotationManager;
+use Larmias\Framework\ServiceProvider;
+use Larmias\HttpServer\Annotation\Controller;
+use Larmias\HttpServer\Annotation\DeleteMapping;
+use Larmias\HttpServer\Annotation\GetMapping;
+use Larmias\HttpServer\Annotation\Handler\RouteAnnotationHandler;
+use Larmias\HttpServer\Annotation\PatchMapping;
+use Larmias\HttpServer\Annotation\PostMapping;
+use Larmias\HttpServer\Annotation\PutMapping;
+use Larmias\HttpServer\Annotation\RequestMapping;
+use Larmias\HttpServer\Routing\Router;
+
+class HttpRouteServiceProvider extends ServiceProvider
+{
+    public function register(): void
+    {
+        Router::init($this->app);
+
+        AnnotationManager::addHandler([
+            Controller::class,
+            RequestMapping::class,
+            GetMapping::class,
+            PostMapping::class,
+            DeleteMapping::class,
+            PatchMapping::class,
+            PutMapping::class
+        ],RouteAnnotationHandler::class);
+    }
+}

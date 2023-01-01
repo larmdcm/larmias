@@ -7,4 +7,5 @@ return [
     \Larmias\Contracts\PipelineInterface::class => \Larmias\Pipeline\Pipeline::class,
     \Larmias\Contracts\LoggerInterface::class => \Larmias\Log\Logger::class,
     \Psr\Log\LoggerInterface::class => \Larmias\Contracts\LoggerInterface::class,
+    \Larmias\Di\Contracts\AnnotationInterface::class => \Larmias\Di\Annotation::class,
 ];

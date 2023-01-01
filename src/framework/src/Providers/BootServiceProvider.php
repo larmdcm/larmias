@@ -16,7 +16,7 @@ class BootServiceProvider extends ServiceProvider
      * @return void
      * @throws \Throwable
      */
-    public function boot(): void
+    public function register(): void
     {
         $this->listeners();
     }

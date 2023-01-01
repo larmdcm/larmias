@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Larmias\Routing;
 
+use function Larmias\Utils\is_empty;
+
 class Group
 {
     /**

@@ -30,7 +30,7 @@ class RouteAnnotationHandler implements AnnotationHandlerInterface
             }
             Router::group($param->prefix, function () use ($routes) {
                 foreach ($routes as $route) {
-                    Router::rule($route['value']->methods, $route['value']->path, [$route['class'], $route['method']]);
+                    Router::rule($route['value'][0]->methods, $route['value'][0]->path, [$route['class'], $route['method']]);
                 }
             })->middleware($param->middleware);
         }
@@ -52,7 +52,7 @@ class RouteAnnotationHandler implements AnnotationHandlerInterface
     {
         switch ($param['annotation']) {
             case Controller::class:
-                static::$container['class'][$param['class']] = $param['value'];
+                static::$container['class'][$param['class']] = $param['value'][0];
                 break;
         }
     }

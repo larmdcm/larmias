@@ -10,6 +10,7 @@ use Larmias\Di\Contracts\AnnotationInterface;
 use Larmias\Utils\FileSystem\Finder;
 use Larmias\Utils\Reflection\ReflectionManager;
 use Larmias\Utils\Reflection\ReflectUtil;
+use ReflectionClass;
 use ReflectionAttribute;
 use ReflectionMethod;
 use ReflectionParameter;
@@ -44,7 +45,7 @@ class Annotation implements AnnotationInterface
             }
 
             foreach ($classes as $class) {
-                $this->parseClassAnnotation($class);
+                $this->parse($class);
             }
         }
         $this->handle();
@@ -76,23 +77,40 @@ class Annotation implements AnnotationInterface
     /**
      * @throws \ReflectionException
      */
-    protected function parseClassAnnotation(string|object $class): void
+    protected function parse(string|object $class): void
     {
         $refClass = ReflectionManager::reflectClass($class);
-        // 收集类注解
-        AnnotationCollector::collectClass($refClass->getName(), $this->buildAttribute($refClass->getAttributes()));
-        // 获取方法注解
+        // 解析类注解
+        $this->parseClassAnnotation($refClass);
+        // 解析方法注解
         foreach ($refClass->getMethods() as $refMethod) {
             $this->parseMethodAnnotation($refMethod);
-            // 获取方法参数注解
+            // 解析方法参数注解
             foreach ($refMethod->getParameters() as $refParameter) {
                 $this->parseMethodParameterAnnotation($refMethod, $refParameter);
             }
         }
-        // 获取属性注解
+        // 解析属性注解
         foreach ($refClass->getProperties() as $refProperty) {
-            $this->parsePropertiesAnnotation($refProperty);
+            $this->parsePropertiesAnnotation($refClass,$refProperty);
         }
+    }
+
+    protected function parseClassAnnotation(ReflectionClass $refClass): void
+    {
+        $annotations = $this->getClassAnnotation($refClass);
+        AnnotationCollector::collectClass($refClass->getName(), $annotations);
+    }
+
+    protected function getClassAnnotation(ReflectionClass $refClass): array
+    {
+        $annotations = $this->buildAttribute($refClass->getAttributes());
+        $parentClass = $refClass->getParentClass();
+        if ($parentClass) {
+            $parentAnnotations = $this->getClassAnnotation($parentClass);
+            return $this->handleAnnotationExtend($annotations,$parentAnnotations);
+        }
+        return $annotations;
     }
 
     protected function parseMethodAnnotation(ReflectionMethod $refMethod): void
@@ -105,9 +123,33 @@ class Annotation implements AnnotationInterface
         AnnotationCollector::collectMethodParam($refMethod->class, $refMethod->getName(), $refParameter->getName(), $this->buildAttribute($refParameter->getAttributes()));
     }
 
-    protected function parsePropertiesAnnotation(ReflectionProperty $refProperty): void
+    /**
+     * @throws \ReflectionException
+     */
+    protected function parsePropertiesAnnotation(ReflectionClass $refClass,ReflectionProperty $refProperty): void
     {
-        AnnotationCollector::collectProperty($refProperty->class, $refProperty->getName(), $this->buildAttribute($refProperty->getAttributes()));
+        $annotations = $this->getPropertiesAnnotation($refProperty);
+        AnnotationCollector::collectProperty($refClass->getName(), $refProperty->getName(), $annotations);
+    }
+
+    /**
+     * @throws \ReflectionException
+     */
+    protected function getPropertiesAnnotation(ReflectionProperty $refProperty): array
+    {
+        $annotations = $this->buildAttribute($refProperty->getAttributes());
+        $parentClass = $refProperty->getDeclaringClass()->getParentClass();
+        if ($parentClass && $parentClass->hasProperty($refProperty->getName())) {
+            $parentProperty = $parentClass->getProperty($refProperty->getName());
+            $parentAnnotations = $this->getPropertiesAnnotation($parentProperty);
+            return $this->handleAnnotationExtend($annotations, $parentAnnotations);
+        }
+        return $annotations;
+    }
+
+    protected function handleAnnotationExtend(array $annotations, array $parentAnnotations): array
+    {
+        return \array_merge($parentAnnotations, $annotations);
     }
 
     protected function buildAttribute(array $attributes): array
@@ -115,7 +157,7 @@ class Annotation implements AnnotationInterface
         $annotations = [];
         foreach ($attributes as $attribute) {
             if ($attribute instanceof ReflectionAttribute) {
-                $annotations[$attribute->getName()] = $attribute->newInstance();
+                $annotations[$attribute->getName()][] = $attribute->newInstance();
             }
         }
         return $annotations;

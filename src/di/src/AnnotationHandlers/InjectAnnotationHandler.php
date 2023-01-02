@@ -23,7 +23,6 @@ class InjectAnnotationHandler implements AnnotationHandlerInterface
                 return;
             }
             $refObject = new ReflectionObject($object);
-
             foreach (static::$inject[$class] as $property => $item) {
                 $reflectorProperty = $refObject->getProperty($property);
                 $value = $this->container->make($item['name']);
@@ -46,7 +45,7 @@ class InjectAnnotationHandler implements AnnotationHandlerInterface
         }
         $reflectionProperty = new ReflectionProperty($param['class'], $param['property']);
         /** @var Inject $value */
-        $value = $param['value'];
+        $value = $param['value'][0];
         $name = $value->name;
         if (!$name) {
             if ($reflectionProperty->hasType() && !$reflectionProperty->getType()->isBuiltin()) {

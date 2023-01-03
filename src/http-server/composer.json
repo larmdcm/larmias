@@ -20,6 +20,9 @@
   "require": {
     "php": ">=8.0",
     "larmias/contracts": "^1.0",
+    "psr/http-server-handler": "^1.0",
+    "psr/http-server-middleware": "^1.0",
+    "larmias/http-message": "^1.0",
     "larmias/utils": "^1.0",
     "larmias/routing": "^1.0",
     "larmias/middleware": "^1.0",

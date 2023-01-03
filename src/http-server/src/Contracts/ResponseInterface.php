@@ -4,22 +4,19 @@ declare(strict_types=1);
 
 namespace Larmias\HttpServer\Contracts;
 
+use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
+
 interface ResponseInterface
 {
     /**
      * @param array|object $data
-     * @return \Larmias\HttpServer\Contracts\ResponseInterface
+     * @return PsrResponseInterface
      */
-    public function json(array|object $data): ResponseInterface;
+    public function json(array|object $data): PsrResponseInterface;
 
     /**
      * @param string|\Stringable $data
-     * @return \Larmias\HttpServer\Contracts\ResponseInterface
+     * @return PsrResponseInterface
      */
-    public function raw(string|\Stringable $data): ResponseInterface;
-
-    /**
-     * @return void
-     */
-    public function send(): void;
+    public function raw(string|\Stringable $data): PsrResponseInterface;
 }

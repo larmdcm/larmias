@@ -112,7 +112,7 @@ class Middleware implements MiddlewareInterface
         if ($aliasMiddleware) {
             $middleware = $aliasMiddleware;
         }
-        return [[$middleware, 'process'], $args];
+        return [[$middleware, $this->getProcess()], $args];
     }
 
     /**
@@ -122,16 +122,42 @@ class Middleware implements MiddlewareInterface
      */
     public function pipeline(): PipelineInterface
     {
-        $pipeline = $this->container->make(PipelineInterface::class,[],true);
-        return $pipeline->through(\array_map(function ($middleware) {
+        return $this->makePipeline()->through(\array_map(function ($middleware) {
             return function ($request, $next) use ($middleware) {
                 [$call, $params] = $middleware;
                 if (\is_array($call) && \is_string($call[0])) {
                     $call = [$this->container->make($call[0]), $call[1]];
                 }
-                return \call_user_func($call, $request, $next, ...$params);
+                return \call_user_func($call, $request, $this->warpNext($next), ...$params);
             };
         }, $this->queue));
+    }
+
+    /**
+     * @return PipelineInterface
+     */
+    public function makePipeline(): PipelineInterface
+    {
+        /** @var PipelineInterface $pipeline */
+        $pipeline = $this->container->make(PipelineInterface::class, [], true);
+        return $pipeline;
+    }
+
+    /**
+     * @param \Closure $next
+     * @return mixed
+     */
+    public function warpNext(Closure $next): mixed
+    {
+        return $next;
+    }
+
+    /**
+     * @return string
+     */
+    public function getProcess(): string
+    {
+        return 'process';
     }
 
     /**

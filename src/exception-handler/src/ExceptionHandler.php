@@ -20,9 +20,8 @@ abstract class ExceptionHandler implements ExceptionReportHandlerInterface
      * ExceptionHandler constructor.
      *
      * @param \Larmias\Contracts\ContainerInterface $container
-     * @param \Psr\Log\LoggerInterface $logger
      */
-    public function __construct(protected ContainerInterface $container,protected LoggerInterface $logger)
+    public function __construct(protected ContainerInterface $container)
     {
     }
 
@@ -33,15 +32,19 @@ abstract class ExceptionHandler implements ExceptionReportHandlerInterface
      * @return void
      */
     public function report(Throwable $e): void
-	{
+    {
         if ($this->isIgnoreReport($e)) {
             return;
         }
         try {
-            $this->logger->error($e->getMessage(),['exception' => $e->getTraceAsString()]);
+            if ($this->container->has(LoggerInterface::class)) {
+                /** @var LoggerInterface $logger */
+                $logger = $this->container->get(LoggerInterface::class);
+                $logger->error($e->getMessage(), ['exception' => $e->getTraceAsString()]);
+            }
         } catch (Throwable $e) {
         }
-	}
+    }
 
     /**
      * @param Throwable $exception
@@ -60,27 +63,27 @@ abstract class ExceptionHandler implements ExceptionReportHandlerInterface
     /**
      * 收集异常信息
      *
-     * @param  Throwable $exception
+     * @param Throwable $exception
      * @return array
      */
     protected function collectExceptionToArray(Throwable $exception): array
     {
-        $traces        = [];
+        $traces = [];
         $nextException = $exception;
         do {
             $traces[] = [
-                'name'    => \get_class($nextException),
-                'file'    => $nextException->getFile(),
-                'line'    => $nextException->getLine(),
-                'code'    => $nextException->getCode(),
+                'name' => \get_class($nextException),
+                'file' => $nextException->getFile(),
+                'line' => $nextException->getLine(),
+                'code' => $nextException->getCode(),
                 'message' => $nextException->getMessage(),
-                'trace'   => $nextException->getTrace(),
+                'trace' => $nextException->getTrace(),
             ];
         } while ($nextException = $nextException->getPrevious());
         $data = [
-            'code'    => $exception->getCode(),
+            'code' => $exception->getCode(),
             'message' => $exception->getMessage(),
-            'traces'  => $traces,
+            'traces' => $traces,
         ];
         return $data;
     }

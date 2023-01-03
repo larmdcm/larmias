@@ -8,7 +8,6 @@ use Larmias\Contracts\ContainerInterface;
 use Larmias\Http\Message\Stream;
 use Larmias\HttpServer\Contracts\ResponseInterface;
 use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
-use Larmias\Contracts\Http\ResponseInterface as HttpResponseInterface;
 use Larmias\Utils\Codec\Json;
 use Psr\Http\Message\StreamInterface;
 
@@ -20,35 +19,23 @@ class Response implements PsrResponseInterface, ResponseInterface
 
     /**
      * @param array|object $data
-     * @return \Larmias\HttpServer\Contracts\ResponseInterface
+     * @return PsrResponseInterface
      */
-    public function json(array|object $data): ResponseInterface
+    public function json(array|object $data): PsrResponseInterface
     {
         $json = Json::encode($data);
-        return $this->withAddedHeader('Content-Type', 'application/json; charset=utf-8')
+        return $this->withAddedHeader('content-type', 'application/json; charset=utf-8')
             ->withBody(Stream::create($json));
     }
 
     /**
      * @param string|\Stringable $data
-     * @return \Larmias\HttpServer\Contracts\ResponseInterface
+     * @return PsrResponseInterface
      */
-    public function raw(string|\Stringable $data): ResponseInterface
+    public function raw(string|\Stringable $data): PsrResponseInterface
     {
-        return $this->withAddedHeader('Content-Type', 'text/plain; charset=utf-8')
+        return $this->withAddedHeader('content-type', 'text/plain; charset=utf-8')
             ->withBody(Stream::create((string)$data));
-    }
-
-    /**
-     * @return void
-     */
-    public function send(): void
-    {
-        /** @var HttpResponseInterface $response */
-        $response = $this->container->get(HttpResponseInterface::class);
-        $response->withHeaders($this->getHeaders())
-            ->status($this->getStatusCode(), $this->getReasonPhrase())
-            ->end((string)$this->getBody());
     }
 
     protected function getResponse(): PsrResponseInterface
@@ -62,12 +49,7 @@ class Response implements PsrResponseInterface, ResponseInterface
         if (!method_exists($response, $name)) {
             throw new \RuntimeException($name . ' Method not exist.');
         }
-        $result = $response->{$name}(...$arguments);
-        if ($result instanceof PsrResponseInterface) {
-            $this->container->instance(PsrResponseInterface::class, $result);
-            return $this;
-        }
-        return $result;
+        return $response->{$name}(...$arguments);
     }
 
     public function getProtocolVersion(): string
@@ -75,7 +57,7 @@ class Response implements PsrResponseInterface, ResponseInterface
         return $this->call(__FUNCTION__, func_get_args());
     }
 
-    public function withProtocolVersion($version): self
+    public function withProtocolVersion($version): PsrResponseInterface
     {
         return $this->call(__FUNCTION__, func_get_args());
     }
@@ -100,17 +82,17 @@ class Response implements PsrResponseInterface, ResponseInterface
         return $this->call(__FUNCTION__, func_get_args());
     }
 
-    public function withHeader($name, $value): self
+    public function withHeader($name, $value): PsrResponseInterface
     {
         return $this->call(__FUNCTION__, func_get_args());
     }
 
-    public function withAddedHeader($name, $value): self
+    public function withAddedHeader($name, $value): PsrResponseInterface
     {
         return $this->call(__FUNCTION__, func_get_args());
     }
 
-    public function withoutHeader($name): self
+    public function withoutHeader($name): PsrResponseInterface
     {
         return $this->call(__FUNCTION__, func_get_args());
     }
@@ -120,7 +102,7 @@ class Response implements PsrResponseInterface, ResponseInterface
         return $this->call(__FUNCTION__, func_get_args());
     }
 
-    public function withBody(StreamInterface $body): self
+    public function withBody(StreamInterface $body): PsrResponseInterface
     {
         return $this->call(__FUNCTION__, func_get_args());
     }
@@ -130,7 +112,7 @@ class Response implements PsrResponseInterface, ResponseInterface
         return $this->call(__FUNCTION__, func_get_args());
     }
 
-    public function withStatus($code, $reasonPhrase = ''): self
+    public function withStatus($code, $reasonPhrase = ''): PsrResponseInterface
     {
         return $this->call(__FUNCTION__, func_get_args());
     }

@@ -6,13 +6,9 @@ namespace Larmias\HttpServer\Contracts;
 
 use Larmias\Contracts\ExceptionReportHandlerInterface;
 use Throwable;
+use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
 
 interface ExceptionHandlerInterface extends ExceptionReportHandlerInterface
 {
-    /**
-     * @param RequestInterface $request
-     * @param \Throwable $e
-     * @return ResponseInterface
-     */
-    public function render(RequestInterface $request,Throwable $e): ResponseInterface;
+    public function render(RequestInterface $request,Throwable $e): PsrResponseInterface;
 }

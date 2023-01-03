@@ -8,6 +8,7 @@ use Larmias\Di\Contracts\AnnotationHandlerInterface;
 use Larmias\HttpServer\Annotation\Controller;
 use Larmias\HttpServer\Annotation\DeleteMapping;
 use Larmias\HttpServer\Annotation\GetMapping;
+use Larmias\HttpServer\Annotation\Mapping;
 use Larmias\HttpServer\Annotation\PatchMapping;
 use Larmias\HttpServer\Annotation\PostMapping;
 use Larmias\HttpServer\Annotation\PutMapping;
@@ -30,7 +31,8 @@ class RouteAnnotationHandler implements AnnotationHandlerInterface
             }
             Router::group($param->prefix, function () use ($routes) {
                 foreach ($routes as $route) {
-                    Router::rule($route['value'][0]->methods, $route['value'][0]->path, [$route['class'], $route['method']]);
+                    $value = $route['value'][0];
+                    Router::rule($value->methods, $value->path, [$route['class'], $route['method']]);
                 }
             })->middleware($param->middleware);
         }
@@ -60,6 +62,7 @@ class RouteAnnotationHandler implements AnnotationHandlerInterface
     protected function collectMethod(array $param)
     {
         switch ($param['annotation']) {
+            case Mapping::class:
             case RequestMapping::class:
             case GetMapping::class:
             case PostMapping::class:

@@ -19,3 +19,7 @@ Router::get('/middleware',function (RequestInterface $request,ResponseInterface 
 })->middleware([
     CheckAuth::class,
 ]);
+
+Router::get('/auto',function () {
+    return ['name' => 123];
+});

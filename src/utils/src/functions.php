@@ -6,11 +6,40 @@ namespace Larmias\Utils;
 
 use Throwable;
 use Closure;
+use Stringable;
+
+/**
+ * 换行打印输出
+ *
+ * @param string|Stringable|null $format
+ * @param ...$args
+ * @return void
+ */
+function println(string|Stringable $format = null, ...$args): void
+{
+    printf($format . PHP_EOL, ...$args);
+}
+
+/**
+ * 格式化异常信息
+ *
+ * @param \Throwable $e
+ * @param bool $trace
+ * @return string
+ */
+function format_exception(Throwable $e,bool $trace = true): string
+{
+    $message = $e->getFile() . '('. $e->getLine() .')' . ':' . $e->getMessage();
+    if ($trace) {
+        $message = $message . PHP_EOL . $e->getTraceAsString();
+    }
+    return $message;
+}
 
 /**
  * 判断值是否为空
  *
- * @param  mixed   $value
+ * @param mixed $value
  * @return boolean
  */
 function is_empty(mixed $value): bool
@@ -59,7 +88,7 @@ function throw_unless(mixed $condition, Throwable|string $exception, ...$paramet
  * @param callable|null $callback
  * @return mixed
  */
-function tap(mixed $value,callable $callback = null): mixed
+function tap(mixed $value, callable $callback = null): mixed
 {
     if (is_null($callback)) {
         return $value;
@@ -114,7 +143,7 @@ function data_fill(mixed &$target, string|array $key, mixed $value): mixed
  * @param mixed $default
  * @return mixed
  */
-function data_get(mixed $target,string|array|null $key, mixed $default = null): mixed
+function data_get(mixed $target, string|array|null $key, mixed $default = null): mixed
 {
     if (is_null($key)) {
         return $target;
@@ -160,7 +189,7 @@ function data_get(mixed $target,string|array|null $key, mixed $default = null): 
  * @param bool $overwrite
  * @return mixed
  */
-function data_set(mixed &$target, string|array $key, mixed $value,bool $overwrite = true): mixed
+function data_set(mixed &$target, string|array $key, mixed $value, bool $overwrite = true): mixed
 {
     $segments = is_array($key) ? $key : explode('.', $key);
 

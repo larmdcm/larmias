@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace Larmias\HttpServer;
 
 use Larmias\Contracts\Http\OnRequestInterface;
-use Larmias\Contracts\Http\RequestInterface as ServerRequestInterface;
-use Larmias\Contracts\Http\ResponseInterface as ServerResponseInterface;
+use Larmias\Contracts\Http\RequestInterface as HttpRequestInterface;
+use Larmias\Contracts\Http\ResponseInterface as HttpResponseInterface;
+use Larmias\Http\Message\ServerRequest;
+use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
+use Larmias\Http\Message\Response as PsrResponse;
 use Larmias\HttpServer\Contracts\ExceptionHandlerInterface;
 use Larmias\HttpServer\Contracts\RequestInterface;
 use Larmias\HttpServer\Contracts\ResponseInterface;
@@ -15,6 +18,7 @@ use Larmias\HttpServer\Routing\Router;
 use Larmias\Routing\Dispatched;
 use Larmias\HttpServer\Routing\Middleware as RouteMiddleware;
 use Psr\EventDispatcher\EventDispatcherInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Throwable;
 
 class Server implements OnRequestInterface
@@ -28,18 +32,18 @@ class Server implements OnRequestInterface
      * @param ContainerInterface $container
      * @param EventDispatcherInterface $eventDispatcher
      */
-    public function __construct(protected ContainerInterface $container,protected  EventDispatcherInterface $eventDispatcher)
+    public function __construct(protected ContainerInterface $container, protected EventDispatcherInterface $eventDispatcher)
     {
     }
 
     /**
-     * @param ServerRequestInterface $serverRequest
-     * @param ServerResponseInterface $serverResponse
+     * @param HttpRequestInterface $serverRequest
+     * @param HttpResponseInterface $serverResponse
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
-    public function onRequest(ServerRequestInterface $serverRequest, ServerResponseInterface $serverResponse): void
+    public function onRequest(HttpRequestInterface $serverRequest, HttpResponseInterface $serverResponse): void
     {
-        $this->container->instance(ServerRequestInterface::class, $serverRequest);
-        $this->container->instance(ServerResponseInterface::class, $serverResponse);
         $request = $this->makeRequest($serverRequest, $serverResponse);
         try {
             $response = $this->runWithRequest($request);
@@ -93,15 +97,20 @@ class Server implements OnRequestInterface
     }
 
     /**
-     * @param ServerRequestInterface $serverRequest
-     * @param ServerResponseInterface $serverResponse
-     * @return RequestInterface
+     * @param HttpRequestInterface $httpRequest
+     * @param HttpResponseInterface $httpResponse
+     * @return \Larmias\HttpServer\Contracts\RequestInterface
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
-    protected function makeRequest(ServerRequestInterface $serverRequest, ServerResponseInterface $serverResponse): RequestInterface
+    protected function makeRequest(HttpRequestInterface $httpRequest, HttpResponseInterface $httpResponse): RequestInterface
     {
-        $request = Request::loadFormRequest($serverRequest);
-        $this->container->instance(RequestInterface::class, $request);
-        $this->container->instance(ResponseInterface::class, new Response($serverResponse));
-        return $request;
+        $this->container->instance(HttpRequestInterface::class, $httpRequest);
+        $this->container->instance(HttpResponseInterface::class, $httpResponse);
+        $this->container->instance(ServerRequestInterface::class, ServerRequest::loadFormRequest($httpRequest));
+        $this->container->instance(PsrResponseInterface::class, new PsrResponse());
+        $this->container->instance(RequestInterface::class, new Request($this->container));
+        $this->container->instance(ResponseInterface::class, new Response($this->container));
+        return $this->container->get(RequestInterface::class);
     }
 }

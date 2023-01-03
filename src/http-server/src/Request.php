@@ -4,16 +4,25 @@ declare(strict_types=1);
 
 namespace Larmias\HttpServer;
 
+use Larmias\Contracts\ContainerInterface;
 use Larmias\HttpServer\Contracts\RequestInterface;
-use Larmias\Http\Message\ServerRequest;
 use Larmias\Http\Message\UploadedFile;
 use Larmias\Routing\Dispatched;
 use Larmias\Utils\Arr;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\StreamInterface;
+use Psr\Http\Message\UriInterface;
 use SplFileInfo;
 use function Larmias\Utils\data_get;
 
-class Request extends ServerRequest implements RequestInterface
+class Request implements RequestInterface
 {
+    protected array $attributes = [];
+
+    public function __construct(protected ContainerInterface $container)
+    {
+    }
+
     /**
      * @param string $name
      * @return mixed
@@ -300,5 +309,174 @@ class Request extends ServerRequest implements RequestInterface
     protected function isValidFile(mixed $file): bool
     {
         return $file instanceof SplFileInfo && $file->getPath() !== '';
+    }
+
+    protected function getRequest(): ServerRequestInterface
+    {
+        return $this->container->get(ServerRequestInterface::class);
+    }
+
+    protected function call(string $name, array $arguments): mixed
+    {
+        $request = $this->getRequest();
+        if (!method_exists($request, $name)) {
+            throw new \RuntimeException($name . ' Method not exist.');
+        }
+        $result = $request->{$name}(...$arguments);
+        if ($result instanceof ServerRequestInterface) {
+            $this->container->instance(ServerRequestInterface::class, $result);
+            return $this;
+        }
+        return $result;
+    }
+
+    public function getProtocolVersion(): string
+    {
+        return $this->call(__FUNCTION__, func_get_args());
+    }
+
+    public function withProtocolVersion($version): self
+    {
+        return $this->call(__FUNCTION__, func_get_args());
+    }
+
+    public function getHeaders(): array
+    {
+        return $this->call(__FUNCTION__, func_get_args());
+    }
+
+    public function hasHeader($name): bool
+    {
+        return $this->call(__FUNCTION__, func_get_args());
+    }
+
+    public function getHeader($name): array
+    {
+        return $this->call(__FUNCTION__, func_get_args());
+    }
+
+    public function getHeaderLine($name): string
+    {
+        return $this->call(__FUNCTION__, func_get_args());
+    }
+
+    public function withHeader($name, $value): self
+    {
+        return $this->call(__FUNCTION__, func_get_args());
+    }
+
+    public function withAddedHeader($name, $value): self
+    {
+        return $this->call(__FUNCTION__, func_get_args());
+    }
+
+    public function withoutHeader($name): self
+    {
+        return $this->call(__FUNCTION__, func_get_args());
+    }
+
+    public function getBody(): StreamInterface
+    {
+        return $this->call(__FUNCTION__, func_get_args());
+    }
+
+    public function withBody(StreamInterface $body): self
+    {
+        return $this->call(__FUNCTION__, func_get_args());
+    }
+
+    public function getRequestTarget(): string
+    {
+        return $this->call(__FUNCTION__, func_get_args());
+    }
+
+    public function withRequestTarget($requestTarget): self
+    {
+        return $this->call(__FUNCTION__, func_get_args());
+    }
+
+    public function getMethod(): string
+    {
+        return $this->call(__FUNCTION__, func_get_args());
+    }
+
+    public function withMethod($method): self
+    {
+        return $this->call(__FUNCTION__, func_get_args());
+    }
+
+    public function getUri(): UriInterface
+    {
+        return $this->call(__FUNCTION__, func_get_args());
+    }
+
+    public function withUri(UriInterface $uri, $preserveHost = false): self
+    {
+        return $this->call(__FUNCTION__, func_get_args());
+    }
+
+    public function getServerParams(): array
+    {
+        return $this->call(__FUNCTION__, func_get_args());
+    }
+
+    public function getCookieParams()
+    {
+        return $this->call(__FUNCTION__, func_get_args());
+    }
+
+    public function withCookieParams(array $cookies): self
+    {
+        return $this->call(__FUNCTION__, func_get_args());
+    }
+
+    public function getQueryParams(): array
+    {
+        return $this->call(__FUNCTION__, func_get_args());
+    }
+
+    public function withQueryParams(array $query): self
+    {
+        return $this->call(__FUNCTION__, func_get_args());
+    }
+
+    public function getUploadedFiles(): array
+    {
+        return $this->call(__FUNCTION__, func_get_args());
+    }
+
+    public function withUploadedFiles(array $uploadedFiles): self
+    {
+        return $this->call(__FUNCTION__, func_get_args());
+    }
+
+    public function getParsedBody(): mixed
+    {
+        return $this->call(__FUNCTION__, func_get_args());
+    }
+
+    public function withParsedBody($data): self
+    {
+        return $this->call(__FUNCTION__, func_get_args());
+    }
+
+    public function getAttributes(): array
+    {
+        return $this->call(__FUNCTION__, func_get_args());
+    }
+
+    public function getAttribute($name, $default = null): mixed
+    {
+        return $this->call(__FUNCTION__, func_get_args());
+    }
+
+    public function withAttribute($name, $value): self
+    {
+        return $this->call(__FUNCTION__, func_get_args());
+    }
+
+    public function withoutAttribute($name): self
+    {
+        return $this->call(__FUNCTION__, func_get_args());
     }
 }

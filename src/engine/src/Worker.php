@@ -60,9 +60,10 @@ class Worker implements WorkerInterface
      */
     public function start(int $workerId): void
     {
+        EventLoop::init($this->container->get($this->kernel->getDriver()->getEventLoopClass()));
         Timer::init($this->container->get($this->kernel->getDriver()->getTimerClass()));
         $this->setWorkerId($workerId);
-        $this->container->bind(WorkerInterface::class,$this);
+        $this->container->bind(WorkerInterface::class, $this);
         $this->trigger(static::ON_WORKER_START, [$this]);
     }
 

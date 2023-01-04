@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Larmias\ShareMemory;
 
 use Larmias\Contracts\ContainerInterface;
-use Larmias\ShareMemory\Client\Command\Channel;
 use Larmias\ShareMemory\Command\AuthCommand;
+use Larmias\ShareMemory\Command\ChannelCommand;
 use Larmias\ShareMemory\Command\Command;
 use Larmias\ShareMemory\Command\MapCommand;
 use Larmias\ShareMemory\Command\PingCommand;
@@ -51,7 +51,7 @@ class CommandHandler implements CommandHandlerInterface
             MessageCommand::COMMAND_AUTH => AuthCommand::class,
             MessageCommand::COMMAND_SELECT => SelectCommand::class,
             MessageCommand::COMMAND_MAP => MapCommand::class,
-            MessageCommand::COMMAND_CHANNEL => Channel::class,
+            MessageCommand::COMMAND_CHANNEL => ChannelCommand::class,
         ];
     }
 }

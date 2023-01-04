@@ -34,5 +34,11 @@ interface DriverInterface
     /**
      * @return string
      */
+    public function getEventLoopClass(): string;
+
+    /**
+     * @return string
+     */
     public function getTimerClass(): string;
+
 }

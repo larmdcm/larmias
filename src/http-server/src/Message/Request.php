@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Larmias\HttpServer;
+namespace Larmias\HttpServer\Message;
 
 use Larmias\Contracts\ContainerInterface;
 use Larmias\HttpServer\Contracts\RequestInterface;

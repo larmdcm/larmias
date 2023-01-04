@@ -11,8 +11,7 @@ use Larmias\ShareMemory\Message\Command;
 use Larmias\ShareMemory\Message\Result;
 
 /**
- * Class Client
- * @package Larmias\ShareMemory
+ * @property Channel $channel
  */
 class Client
 {
@@ -22,8 +21,11 @@ class Client
     protected $socket;
 
     protected array $options = [
-        'timeout' => 5,
         'ping_interval' => 30000,
+        'auto_connect' => true,
+        'password' => '',
+        'select' => 'default',
+        'timeout' => 5,
     ];
 
     protected bool $connected = false;
@@ -32,48 +34,79 @@ class Client
         'channel' => Channel::class,
     ];
 
+    protected array $container = [];
+
     public function __construct(protected string $host = '127.0.0.1', protected int $port = 2000, array $options = [])
     {
         $this->options = \array_merge($this->options, $options);
-        $this->connect();
-        $this->ping();
+        $this->init();
     }
+
 
     public function __get(string $name)
     {
         if (isset($this->commands[$name])) {
-            return new $this->commands[$name]($this);
+            if (!isset($this->container[$name])) {
+                $this->container[$name] = new $this->commands[$name]($this);
+            }
+            return $this->container[$name];
         }
         return null;
+    }
+
+    public function init(): void
+    {
+        if ($this->options['auto_connect']) {
+            $this->connect();
+        }
+
+        if (!$this->isConnected()) {
+            return;
+        }
+
+        if ($this->options['password'] !== '') {
+            $this->auth($this->options['password']);
+        }
+
+        if ($this->options['select'] !== 'default') {
+            $this->select($this->options['select']);
+        }
     }
 
     public function connect(): bool
     {
         if (!$this->isConnected()) {
-            $conn = \stream_socket_client(
-                \sprintf('tcp://%s:%d', $this->host, $this->port), $errCode, $errMsg,
-                $this->options['timeout']
-            );
-            if (!\is_resource($conn)) {
-                throw new ClientException($errMsg, $errCode);
-            }
-            $this->socket = $conn;
+            $this->socket = $this->createSocket();
             $this->connected = true;
+            $this->ping();
         }
 
         return $this->connected;
     }
 
+    public function clone(array $options = []): Client
+    {
+        return new static($this->host, $this->port, \array_merge($this->options, $options));
+    }
+
     public function auth(string $password): bool
     {
         $result = $this->command(__FUNCTION__, [$password]);
-        return $result && $result->success;
+        if ($result && $result->success) {
+            $this->options['password'] = $password;
+            return true;
+        }
+        return false;
     }
 
     public function select(string $name): bool
     {
         $result = $this->command(__FUNCTION__, [$name]);
-        return $result && $result->success;
+        if ($result && $result->success) {
+            $this->options['select'] = $name;
+            return true;
+        }
+        return false;
     }
 
     public function command(string $name, array $args = []): ?Result
@@ -141,9 +174,24 @@ class Client
         return $this->socket;
     }
 
+    /**
+     * @return resource
+     */
+    protected function createSocket()
+    {
+        $conn = \stream_socket_client(
+            \sprintf('tcp://%s:%d', $this->host, $this->port), $errCode, $errMsg,
+            $this->options['timeout']
+        );
+        if (!\is_resource($conn)) {
+            throw new ClientException($errMsg, $errCode);
+        }
+        return $conn;
+    }
+
     protected function ping(): void
     {
-        if (!$this->options['ping_interval']) {
+        if (!$this->options['ping_interval'] || !$this->isCli()) {
             return;
         }
         $this->options['ping_interval_id'] = Timer::tick($this->options['ping_interval'], function () {

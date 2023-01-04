@@ -10,6 +10,9 @@ use Larmias\Contracts\Http\ResponseInterface as HttpResponseInterface;
 use Larmias\Http\Message\ServerRequest;
 use Larmias\HttpServer\Events\HttpRequestEnd;
 use Larmias\HttpServer\Events\HttpRequestStart;
+use Larmias\HttpServer\Exceptions\Handler\ExceptionHandler;
+use Larmias\HttpServer\Message\Request;
+use Larmias\HttpServer\Message\Response;
 use Larmias\HttpServer\Middleware\HttpMiddleware;
 use Larmias\HttpServer\Middleware\HttpRouteMiddleware;
 use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
@@ -28,9 +31,6 @@ use function Larmias\Utils\format_exception;
 
 class Server implements OnRequestInterface
 {
-    /** @var string */
-    public const ON_REQUEST = 'onRequest';
-
     public function __construct(
         protected ContainerInterface $container,
         protected EventDispatcherInterface $eventDispatcher,

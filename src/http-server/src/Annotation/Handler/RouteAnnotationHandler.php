@@ -9,6 +9,7 @@ use Larmias\HttpServer\Annotation\Controller;
 use Larmias\HttpServer\Annotation\DeleteMapping;
 use Larmias\HttpServer\Annotation\GetMapping;
 use Larmias\HttpServer\Annotation\Mapping;
+use Larmias\HttpServer\Annotation\Middleware;
 use Larmias\HttpServer\Annotation\PatchMapping;
 use Larmias\HttpServer\Annotation\PostMapping;
 use Larmias\HttpServer\Annotation\PutMapping;
@@ -20,21 +21,24 @@ class RouteAnnotationHandler implements AnnotationHandlerInterface
     protected static array $container = [
         'controller' => [],
         'routes' => [],
+        'middlewares' => [],
+        'method_middlewares' => [],
     ];
 
     public function handle(): void
     {
-        foreach (static::$container['class'] as $class => $param) {
+        foreach (static::$container['controller'] as $class => $param) {
             $routes = static::$container['routes'][$class] ?? [];
             if (empty($routes)) {
                 continue;
             }
+            $middleware = static::$container['middlewares'][$class] ?? null;
             Router::group($param->prefix, function () use ($routes) {
                 foreach ($routes as $route) {
                     $value = $route['value'][0];
                     Router::rule($value->methods, $value->path, [$route['class'], $route['method']]);
                 }
-            })->middleware($param->middleware);
+            })->middleware($param->middleware)->middleware($middleware ? $middleware->middlewares : []);
         }
     }
 
@@ -54,7 +58,10 @@ class RouteAnnotationHandler implements AnnotationHandlerInterface
     {
         switch ($param['annotation']) {
             case Controller::class:
-                static::$container['class'][$param['class']] = $param['value'][0];
+                static::$container['controller'][$param['class']] = $param['value'][0];
+                break;
+            case Middleware::class:
+                static::$container['middlewares'][$param['class']] = $param['value'][0];
                 break;
         }
     }
@@ -70,6 +77,9 @@ class RouteAnnotationHandler implements AnnotationHandlerInterface
             case PatchMapping::class:
             case PutMapping::class:
                 static::$container['routes'][$param['class']][] = $param;
+                break;
+            case Middleware::class:
+                static::$container['method_middlewares'][$param['class']][$param['method']][] = $param;
                 break;
         }
     }

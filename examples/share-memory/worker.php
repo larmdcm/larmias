@@ -22,22 +22,6 @@ return [
                 Event::ON_RECEIVE => [ShareMemoryServer::class, 'onReceive'],
                 Event::ON_CLOSE => [ShareMemoryServer::class, 'onClose'],
             ]
-        ],
-        [
-            'name' => 'watcherProcess',
-            'type' => WorkerType::WORKER_PROCESS,
-            'settings' => [
-                'worker_num' => 1,
-                'watch' => [
-                    'enabled' => true,
-                    'includes' => [
-
-                    ],
-                ],
-            ],
-            'callbacks' => [
-                Event::ON_WORKER_START => [\Larmias\Engine\Process\Handler\WorkerHotUpdateHandler::class, 'handle'],
-            ]
         ]
     ],
     'settings' => [

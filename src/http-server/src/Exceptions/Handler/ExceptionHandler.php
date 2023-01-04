@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Larmias\HttpServer;
+namespace Larmias\HttpServer\Exceptions\Handler;
 
 use Larmias\ExceptionHandler\ExceptionHandler as BaseExceptionHandler;
 

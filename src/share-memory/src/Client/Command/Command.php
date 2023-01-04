@@ -10,5 +10,10 @@ abstract class Command
 {
     public function __construct(protected Client $client)
     {
+        $this->initialize();
+    }
+
+    protected function initialize(): void
+    {
     }
 }

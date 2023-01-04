@@ -8,6 +8,6 @@ class PingCommand extends Command
 {
     public function handle(): string
     {
-        return 'ok';
+        return 'PONG';
     }
 }

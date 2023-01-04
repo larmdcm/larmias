@@ -54,8 +54,17 @@ class Driver implements DriverInterface
     /**
      * @return string
      */
+    public function getEventLoopClass(): string
+    {
+        return EventLoop::class;
+    }
+
+    /**
+     * @return string
+     */
     public function getTimerClass(): string
     {
         return Timer::class;
     }
+
 }

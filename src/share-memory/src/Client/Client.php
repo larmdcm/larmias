@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\ShareMemory\Client;
 
+use Larmias\Engine\EventLoop;
 use Larmias\Engine\Timer;
 use Larmias\ShareMemory\Client\Command\Channel;
 use Larmias\ShareMemory\Exceptions\ClientException;
@@ -16,6 +17,16 @@ use Larmias\ShareMemory\Message\Result;
 class Client
 {
     /**
+     * @var string
+     */
+    public const EVENT_CONNECT = 'connect';
+
+    /**
+     * @var string
+     */
+    public const EVENT_CLOSE = 'close';
+
+    /**
      * @var resource
      */
     protected $socket;
@@ -23,9 +34,11 @@ class Client
     protected array $options = [
         'ping_interval' => 30000,
         'auto_connect' => true,
+        'break_reconnect' => false,
         'password' => '',
         'select' => 'default',
         'timeout' => 5,
+        'event' => [],
     ];
 
     protected bool $connected = false;
@@ -35,6 +48,8 @@ class Client
     ];
 
     protected array $container = [];
+
+    protected array $events = [];
 
     public function __construct(protected string $host = '127.0.0.1', protected int $port = 2000, array $options = [])
     {
@@ -56,6 +71,10 @@ class Client
 
     public function init(): void
     {
+        foreach ($this->options['event'] as $event => $callback) {
+            $this->on($event, $callback);
+        }
+
         if ($this->options['auto_connect']) {
             $this->connect();
         }
@@ -71,6 +90,10 @@ class Client
         if ($this->options['select'] !== 'default') {
             $this->select($this->options['select']);
         }
+
+        if ($this->options['auto_connect']) {
+            $this->trigger(self::EVENT_CONNECT, $this);
+        }
     }
 
     public function connect(): bool
@@ -79,8 +102,10 @@ class Client
             $this->socket = $this->createSocket();
             $this->connected = true;
             $this->ping();
+            if (!$this->options['auto_connect']) {
+                $this->trigger(self::EVENT_CONNECT, $this);
+            }
         }
-
         return $this->connected;
     }
 
@@ -111,16 +136,22 @@ class Client
 
     public function command(string $name, array $args = []): ?Result
     {
-        $result = $this->send(Command::build($name, $args));
+        $result = $this->sendCommand($name, $args);
         if (!$result) {
             return null;
         }
         return $this->read();
     }
 
+    public function sendCommand(string $name, array $args = []): bool
+    {
+        return $this->send(Command::build($name, $args));
+    }
+
     public function send(string $data): bool
     {
         if (!$this->isConnected()) {
+            $this->close();
             return false;
         }
         $len = \strlen($data) + 4;
@@ -133,6 +164,7 @@ class Client
     public function read(): ?Result
     {
         if (!$this->isConnected()) {
+            $this->close();
             return null;
         }
 
@@ -148,12 +180,30 @@ class Client
         return Result::parse($buffer);
     }
 
-    public function close(): bool
+    public function close(bool $destroy = false): bool
     {
+        $this->clearPing();
         if ($this->isConnected()) {
-            \fclose($this->socket);
+            if (\is_resource($this->socket)) {
+                EventLoop::offReadable($this->socket);
+                EventLoop::offWritable($this->socket);
+                \fclose($this->socket);
+            }
+            $this->trigger(self::EVENT_CLOSE, $this);
+            if (!$destroy && $this->options['break_reconnect']) {
+                $this->reconnect();
+            }
         }
-        return $this->connected = false;
+        $this->connected = false;
+        return true;
+    }
+
+    public function reconnect(): self
+    {
+        if ($this->close(true)) {
+            $this->init();
+        }
+        return $this;
     }
 
     public function isConnected(): bool
@@ -172,6 +222,21 @@ class Client
     public function getSocket()
     {
         return $this->socket;
+    }
+
+    public function on(string $event, callable $callback): self
+    {
+        $this->events[$event][] = $callback;
+        return $this;
+    }
+
+    public function trigger(string $event, ...$args): void
+    {
+        if (isset($this->events[$event])) {
+            foreach ($this->events[$event] as $callback) {
+                \call_user_func_array($callback, $args);
+            }
+        }
     }
 
     /**
@@ -194,19 +259,25 @@ class Client
         if (!$this->options['ping_interval'] || !$this->isCli()) {
             return;
         }
+        $this->clearPing();
         $this->options['ping_interval_id'] = Timer::tick($this->options['ping_interval'], function () {
             if (!$this->isConnected()) {
+                $this->close();
                 return;
             }
             $this->command(Command::COMMAND_PING);
         });
     }
 
-    public function __destruct()
+    protected function clearPing()
     {
         if (isset($this->options['ping_interval_id'])) {
             Timer::del($this->options['ping_interval_id']);
         }
-        $this->close();
+    }
+
+    public function __destruct()
+    {
+        $this->close(true);
     }
 }

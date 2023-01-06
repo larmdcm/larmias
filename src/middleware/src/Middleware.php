@@ -128,7 +128,7 @@ class Middleware implements MiddlewareInterface
                 if (\is_array($call) && \is_string($call[0])) {
                     $call = [$this->container->make($call[0]), $call[1]];
                 }
-                return \call_user_func($call, $request, $this->warpNext($next), ...$params);
+                return \call_user_func($call, $request, $this->warpHandler($next), ...$params);
             };
         }, $this->queue));
     }
@@ -144,12 +144,12 @@ class Middleware implements MiddlewareInterface
     }
 
     /**
-     * @param \Closure $next
+     * @param \Closure $handler
      * @return mixed
      */
-    public function warpNext(Closure $next): mixed
+    public function warpHandler(Closure $handler): mixed
     {
-        return $next;
+        return $handler;
     }
 
     /**

@@ -10,18 +10,15 @@ class Channel implements ChannelInterface
 {
     protected array $channels = [];
 
-    public function subscribe(string|array $channels,int $id): array
+    public function subscribe(string|array $channels, int $id): array
     {
         foreach ((array)$channels as $name) {
-            if (!isset($this->channels[$name])) {
-                $this->channels[$name] = [];
-            }
             $this->channels[$name][$id] = $id;
         }
         return $this->channels($id);
     }
 
-    public function unsubscribe(string|array $channels,int $id): array
+    public function unsubscribe(string|array $channels, int $id): array
     {
         foreach ((array)$channels as $name) {
             if (isset($this->channels[$name][$id])) {
@@ -42,18 +39,19 @@ class Channel implements ChannelInterface
             if (!isset($this->channels[$name])) {
                 continue;
             }
-            $result = \array_merge($result,\array_keys($this->channels[$name]));
+            $result[] = ['id' => $this->channels[$name], 'channel' => $name];
         }
         return $result;
     }
 
     public function channels(int $id): array
     {
-        return \array_keys(\array_filter($this->channels,fn($item) => isset($item[$id])));
+        return \array_keys(\array_filter($this->channels, fn($item) => isset($item[$id])));
     }
 
-    public function close(int $id): array
+    public function close(int $id): bool
     {
-        return $this->unsubscribe(\array_keys($this->channels),$id);
+        $this->unsubscribe(\array_keys($this->channels), $id);
+        return true;
     }
 }

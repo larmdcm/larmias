@@ -112,7 +112,7 @@ class Server implements OnRequestInterface
      * @throws \Psr\Container\ContainerExceptionInterface
      * @throws \Psr\Container\NotFoundExceptionInterface
      */
-    public function warpResult(mixed $result): PsrResponseInterface
+    protected function warpResult(mixed $result): PsrResponseInterface
     {
         if ($result instanceof PsrResponseInterface) {
             return $result;

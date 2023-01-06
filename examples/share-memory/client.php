@@ -15,7 +15,7 @@ $kernel->setConfig(EngineConfig::build([
     'driver' => \Larmias\Engine\WorkerMan\Driver::class,
     'workers' => [
         [
-            'name' => 'watcherProcess',
+            'name' => 'process',
             'type' => \Larmias\Engine\WorkerType::WORKER_PROCESS,
             'settings' => [
                 'worker_num' => 1,

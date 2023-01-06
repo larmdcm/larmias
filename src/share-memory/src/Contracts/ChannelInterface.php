@@ -14,5 +14,5 @@ interface ChannelInterface
 
     public function channels(int $id): array;
 
-    public function close(int $id): array;
+    public function close(int $id): bool;
 }

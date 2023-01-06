@@ -44,7 +44,7 @@ class CommandHandler implements CommandHandlerInterface
         return $result;
     }
 
-    protected function getHandlers(): array
+    public function getHandlers(): array
     {
         return [
             MessageCommand::COMMAND_PING => PingCommand::class,

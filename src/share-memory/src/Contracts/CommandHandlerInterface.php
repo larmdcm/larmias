@@ -11,4 +11,6 @@ interface CommandHandlerInterface
     public function handle(MessageCommand $command): mixed;
 
     public function parse(string $raw): MessageCommand;
+
+    public function getHandlers(): array;
 }

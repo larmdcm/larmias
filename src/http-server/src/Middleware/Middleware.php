@@ -10,11 +10,11 @@ use Larmias\Middleware\Middleware as BaseMiddleware;
 class Middleware extends BaseMiddleware
 {
     /**
-     * @param \Closure $next
+     * @param Closure $handler
      * @return RequestHandler
      */
-    public function warpNext(Closure $next): RequestHandler
+    public function warpHandler(Closure $handler): RequestHandler
     {
-        return new RequestHandler($next);
+        return new RequestHandler($handler);
     }
 }

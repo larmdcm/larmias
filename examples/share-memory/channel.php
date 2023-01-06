@@ -15,7 +15,7 @@ $kernel->setConfig(EngineConfig::build([
     'driver' => \Larmias\Engine\WorkerMan\Driver::class,
     'workers' => [
         [
-            'name' => 'watcherProcess',
+            'name' => 'process',
             'type' => \Larmias\Engine\WorkerType::WORKER_PROCESS,
             'settings' => [
                 'worker_num' => 1,
@@ -30,7 +30,14 @@ $kernel->setConfig(EngineConfig::build([
                 \Larmias\Engine\Event::ON_WORKER_START => function () {
                     $client = new Client();
                     $client->auth('123456');
-                    $client->channel->subscribe(['chat','public'],function ($data) {
+                    $client->channel->subscribe(['chat', 'public'], function ($data) {
+                        var_dump($data);
+                    });
+
+                    $client->channel->publish('chat', 'hello chat');
+                    $client->channel->publish('public', 'hello public');
+
+                    $client->channel->channels(function ($data) {
                         var_dump($data);
                     });
                 },

@@ -292,7 +292,7 @@ class Request implements RequestInterface
     /**
      * @return array
      */
-    public function getInputData(): array
+    protected function getInputData(): array
     {
         if (!isset($this->attributes[__FUNCTION__])) {
             $body = $this->getParsedBody();

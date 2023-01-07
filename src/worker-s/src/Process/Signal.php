@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\WorkerS\Process;
 
-use Larmias\WorkerS\Concerts\HasEvents;
+use Larmias\WorkerS\Concerns\HasEvents;
 use Larmias\WorkerS\Process\Contracts\SignalInterface;
 use Larmias\WorkerS\Support\Helper;
 

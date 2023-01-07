@@ -19,22 +19,30 @@ class Response implements PsrResponseInterface, ResponseInterface
 
     /**
      * @param array|object $data
+     * @param int $code
+     * @param array $headers
      * @return PsrResponseInterface
      */
-    public function json(array|object $data): PsrResponseInterface
+    public function json(array|object $data, int $code = 200, array $headers = []): PsrResponseInterface
     {
         $json = Json::encode($data);
         return $this->withAddedHeader('content-type', 'application/json; charset=utf-8')
+            ->withStatus($code)
+            ->withHeaders($headers)
             ->withBody(Stream::create($json));
     }
 
     /**
      * @param string|\Stringable $data
+     * @param int $code
+     * @param array $headers
      * @return PsrResponseInterface
      */
-    public function raw(string|\Stringable $data): PsrResponseInterface
+    public function raw(string|\Stringable $data, int $code = 200, array $headers = []): PsrResponseInterface
     {
         return $this->withAddedHeader('content-type', 'text/plain; charset=utf-8')
+            ->withStatus($code)
+            ->withHeaders($headers)
             ->withBody(Stream::create((string)$data));
     }
 

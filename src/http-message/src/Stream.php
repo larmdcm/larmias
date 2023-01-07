@@ -80,11 +80,11 @@ class Stream implements StreamInterface
     /**
      * Creates a new PSR-7 stream.
      *
-     * @param resource|StreamInterface|string $body
+     * @param string|StreamInterface|resource $body
      *
      * @throws \InvalidArgumentException
      */
-    public static function create($body = ''): StreamInterface
+    public static function create(mixed $body = ''): StreamInterface
     {
         if ($body instanceof StreamInterface) {
             return $body;

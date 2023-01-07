@@ -6,7 +6,7 @@ namespace Larmias\WorkerS;
 
 use Larmias\WorkerS\Support\Arr;
 use Larmias\WorkerS\Task\TaskWorker;
-use Larmias\WorkerS\Concerts\HasEvents;
+use Larmias\WorkerS\Concerns\HasEvents;
 
 class Worker
 {

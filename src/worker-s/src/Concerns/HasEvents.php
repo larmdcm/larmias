@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Larmias\WorkerS\Concerts;
+namespace Larmias\WorkerS\Concerns;
 
 trait HasEvents
 {

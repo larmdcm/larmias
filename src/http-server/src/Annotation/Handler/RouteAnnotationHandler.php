@@ -27,18 +27,18 @@ class RouteAnnotationHandler implements AnnotationHandlerInterface
 
     public function handle(): void
     {
-        foreach (static::$container['controller'] as $class => $param) {
+        foreach (static::$container['controller'] as $class => $controller) {
             $routes = static::$container['routes'][$class] ?? [];
             if (empty($routes)) {
                 continue;
             }
-            $middleware = static::$container['middlewares'][$class] ?? null;
-            Router::group($param->prefix, function () use ($routes) {
+            Router::group($controller->prefix, function () use ($routes) {
                 foreach ($routes as $route) {
                     $value = $route['value'][0];
-                    Router::rule($value->methods, $value->path, [$route['class'], $route['method']]);
+                    Router::rule($value->methods, $value->path, [$route['class'], $route['method']])
+                        ->middleware($this->buildMiddleware(static::$container['method_middlewares'][$route['class']][$route['method']] ?? []));
                 }
-            })->middleware($param->middleware)->middleware($middleware ? $middleware->middlewares : []);
+            })->middleware($controller->middleware)->middleware($this->buildMiddleware(static::$container['middlewares'][$class] ?? []));
         }
     }
 
@@ -61,7 +61,7 @@ class RouteAnnotationHandler implements AnnotationHandlerInterface
                 static::$container['controller'][$param['class']] = $param['value'][0];
                 break;
             case Middleware::class:
-                static::$container['middlewares'][$param['class']] = $param['value'][0];
+                static::$container['middlewares'][$param['class']] = $param['value'];
                 break;
         }
     }
@@ -79,8 +79,17 @@ class RouteAnnotationHandler implements AnnotationHandlerInterface
                 static::$container['routes'][$param['class']][] = $param;
                 break;
             case Middleware::class:
-                static::$container['method_middlewares'][$param['class']][$param['method']][] = $param;
+                static::$container['method_middlewares'][$param['class']][$param['method']] = $param['value'];
                 break;
         }
+    }
+
+    protected function buildMiddleware(array $middlewares): array
+    {
+        $result = [];
+        foreach ($middlewares as $item) {
+            $result = \array_merge($result, $item->middlewares);
+        }
+        return $result;
     }
 }

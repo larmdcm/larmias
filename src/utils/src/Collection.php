@@ -329,7 +329,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
     /**
      * 用回调函数处理数组中的元素
      * @access public
-     * @param callable|null $callback 回调
+     * @param callable $callback
      * @return static
      */
     public function map(callable $callback): self
@@ -666,6 +666,10 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
     {
         if ($items instanceof self) {
             return $items->all();
+        }
+
+        if (\is_object($items) && \method_exists($items,'toArray')) {
+            return $items->toArray();
         }
 
         return (array) $items;

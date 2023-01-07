@@ -18,7 +18,7 @@ class EventLoop
 {
     protected static ?EventLoopInterface $eventLoop = null;
 
-    public static function init(EventLoopInterface $eventLoop)
+    public static function init(EventLoopInterface $eventLoop): void
     {
         static::$eventLoop = $eventLoop;
     }

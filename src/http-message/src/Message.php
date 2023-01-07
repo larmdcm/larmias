@@ -281,7 +281,7 @@ class Message implements MessageInterface
      */
     public function getBody(): StreamInterface
     {
-        if (!$this->stream) {
+        if (!isset($this->stream)) {
             $this->stream = Stream::create();
         }
         return $this->stream;

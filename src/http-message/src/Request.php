@@ -39,9 +39,8 @@ class Request extends Message implements RequestInterface
         if (!$this->hasHeader('Host')) {
             $this->updateHostFromUri();
         }
-
         if ($body !== null && $body !== '') {
-            $this->stream = $body;
+            $this->stream = Stream::create($body);
         }
     }
 

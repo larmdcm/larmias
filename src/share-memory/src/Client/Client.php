@@ -7,11 +7,13 @@ namespace Larmias\ShareMemory\Client;
 use Larmias\Engine\EventLoop;
 use Larmias\Engine\Timer;
 use Larmias\ShareMemory\Client\Command\Channel;
+use Larmias\ShareMemory\Client\Command\Map;
 use Larmias\ShareMemory\Exceptions\ClientException;
 use Larmias\ShareMemory\Message\Command;
 use Larmias\ShareMemory\Message\Result;
 
 /**
+ * @property Map $map
  * @property Channel $channel
  */
 class Client
@@ -24,6 +26,11 @@ class Client
     /**
      * @var string
      */
+    public const EVENT_RECONNECT = 'reconnect';
+
+    /**
+     * @var string
+     */
     public const EVENT_CLOSE = 'close';
 
     /**
@@ -32,9 +39,11 @@ class Client
     protected $socket;
 
     protected array $options = [
+        'host' => '127.0.0.1',
+        'port' => 2000,
         'ping_interval' => 30000,
         'auto_connect' => true,
-        'break_reconnect' => false,
+        'break_reconnect' => true,
         'password' => '',
         'select' => 'default',
         'timeout' => 5,
@@ -44,6 +53,7 @@ class Client
     protected bool $connected = false;
 
     protected array $commands = [
+        'map' => Map::class,
         'channel' => Channel::class,
     ];
 
@@ -51,12 +61,16 @@ class Client
 
     protected array $events = [];
 
-    public function __construct(protected string $host = '127.0.0.1', protected int $port = 2000, array $options = [])
+    public function __construct(array $options = [])
     {
         $this->options = \array_merge($this->options, $options);
-        $this->init();
+        foreach ($this->options['event'] as $event => $callback) {
+            $this->on($event, $callback);
+        }
+        if ($this->options['auto_connect']) {
+            $this->connect();
+        }
     }
-
 
     public function __get(string $name)
     {
@@ -69,49 +83,26 @@ class Client
         return null;
     }
 
-    public function init(): void
-    {
-        foreach ($this->options['event'] as $event => $callback) {
-            $this->on($event, $callback);
-        }
-
-        if ($this->options['auto_connect']) {
-            $this->connect();
-        }
-
-        if (!$this->isConnected()) {
-            return;
-        }
-
-        if ($this->options['password'] !== '') {
-            $this->auth($this->options['password']);
-        }
-
-        if ($this->options['select'] !== 'default') {
-            $this->select($this->options['select']);
-        }
-
-        if ($this->options['auto_connect']) {
-            $this->trigger(self::EVENT_CONNECT, $this);
-        }
-    }
-
     public function connect(): bool
     {
         if (!$this->isConnected()) {
             $this->socket = $this->createSocket();
             $this->connected = true;
-            $this->ping();
-            if (!$this->options['auto_connect']) {
-                $this->trigger(self::EVENT_CONNECT, $this);
+            if ($this->options['password'] !== '') {
+                $this->auth($this->options['password']);
             }
+            if ($this->options['select'] !== 'default') {
+                $this->select($this->options['select']);
+            }
+            $this->ping();
+            $this->trigger(self::EVENT_CONNECT, $this);
         }
         return $this->connected;
     }
 
     public function clone(array $options = []): Client
     {
-        return new static($this->host, $this->port, \array_merge($this->options, $options));
+        return new static(\array_merge($this->options, $options));
     }
 
     public function auth(string $password): bool
@@ -201,7 +192,8 @@ class Client
     public function reconnect(): self
     {
         if ($this->close(true)) {
-            $this->init();
+            $this->connect();
+            $this->trigger(self::EVENT_RECONNECT, $this);
         }
         return $this;
     }
@@ -245,7 +237,7 @@ class Client
     protected function createSocket()
     {
         $conn = \stream_socket_client(
-            \sprintf('tcp://%s:%d', $this->host, $this->port), $errCode, $errMsg,
+            \sprintf('tcp://%s:%d', $this->options['host'], $this->options['port']), $errCode, $errMsg,
             $this->options['timeout']
         );
         if (!\is_resource($conn)) {
@@ -269,7 +261,7 @@ class Client
         });
     }
 
-    protected function clearPing()
+    protected function clearPing(): void
     {
         if (isset($this->options['ping_interval_id'])) {
             Timer::del($this->options['ping_interval_id']);

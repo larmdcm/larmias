@@ -79,6 +79,9 @@ class Annotation implements AnnotationInterface
      */
     protected function parse(string|object $class): void
     {
+        if (\is_string($class) && !class_exists($class)) {
+            return;
+        }
         $refClass = ReflectionManager::reflectClass($class);
         // 解析类注解
         $this->parseClassAnnotation($refClass);

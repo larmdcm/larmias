@@ -16,19 +16,19 @@ class Channel extends Command
         $this->client = $this->client->clone([
             'auto_connect' => true,
             'event' => [
-                 Client::EVENT_CONNECT => [$this, 'onConnect']
+                Client::EVENT_CONNECT => [$this, 'onConnect']
             ]
         ]);
-
     }
 
-    public function onConnect(): void
+    public function onConnect(Client $client): void
     {
-        $socket = $this->client->getSocket();
+        $socket = $client->getSocket();
         \stream_set_blocking($socket, false);
+        \stream_set_write_buffer($socket, 0);
         \stream_set_read_buffer($socket, 0);
-        EventLoop::onReadable($socket, function () {
-            $result = $this->client->read();
+        EventLoop::onReadable($socket, function () use ($client) {
+            $result = $client->read();
             if (!$result || !$result->success || !\is_array($result->data) || !isset($result->data['type'])) {
                 return;
             }

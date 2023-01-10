@@ -22,7 +22,7 @@ class Server extends BaseWorker
     protected $mainSocket;
 
     /**
-     * stream-context resource
+     * stream context resource
      *
      * @var resource
      */

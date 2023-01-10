@@ -35,7 +35,7 @@ class CommandHandler implements CommandHandlerInterface
     protected function getHandler(MessageCommand $command): Command
     {
         $handlers = $this->getHandlers();
-        $name = \str_contains($command->name, ':') ? \explode(':', $command->name)[0] : $command->name;
+        $name = \str_contains($command->name, ':') ? \explode(':', $command->name,2)[0] : $command->name;
         if (!isset($handlers[$name])) {
             throw new CommandException(sprintf('Command does not exist: %s', $command->name));
         }

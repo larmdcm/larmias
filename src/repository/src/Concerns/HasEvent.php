@@ -42,8 +42,8 @@ trait HasEvent
         if (!isset(static::$events[$event])) {
             return null;
         }
-        array_unshift($params, $this);
-        return call_user_func(static::$events[$event],...$params);
+        \array_unshift($params, $this);
+        return \call_user_func(static::$events[$event],...$params);
     }
 
     /**

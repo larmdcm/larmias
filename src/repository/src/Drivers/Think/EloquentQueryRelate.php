@@ -357,8 +357,8 @@ class EloquentQueryRelate extends QueryRelate
      */
     public function callable(callable $callable): QueryRelateInterface
     {
-        $query = call_user_func($callable, $this->query);
-        if ($query instanceof Query) {
+        $result = \call_user_func($callable, $this->query);
+        if ($result instanceof Query) {
             $this->query = $query;
         }
         return $this;

@@ -66,7 +66,8 @@
       "Larmias\\Log\\": "src/log/src/",
       "Larmias\\Console\\": "src/console/src/",
       "Larmias\\Framework\\": "src/framework/src/",
-      "Larmias\\Repository\\": "src/repository/src/"
+      "Larmias\\Repository\\": "src/repository/src/",
+      "Larmias\\Env\\": "src/env/src/"
     }
   }
 }

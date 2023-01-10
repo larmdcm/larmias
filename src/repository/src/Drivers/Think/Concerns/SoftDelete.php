@@ -19,7 +19,7 @@ trait SoftDelete
      */
     protected function isSoftDelete(): bool
     {
-        $traitList = \class_uses_recursive($this->repository->getModel());
+        $traitList = \class_uses_recursive($this->repository->newModel());
         return \in_array(BooleanSoftDelete::class, $traitList, true);
     }
 
@@ -43,10 +43,10 @@ trait SoftDelete
      */
     protected function getDeleteField(): string
     {
-        if (isset($this->dataOpt['deleteTime'])) {
-            return $this->dataOpt['deleteTime'];
+        if (isset($this->data['deleteTime'])) {
+            return $this->data['deleteTime'];
         }
-        $model = $this->repository->getModel();
+        $model = $this->repository->newModel();
         $refObject = new \ReflectionObject($model);
         $refProperty = $refObject->getProperty('deleteTime');
         if (!$refProperty->isPublic()) {
@@ -56,7 +56,7 @@ trait SoftDelete
         if (!$field) {
             throw new \RuntimeException('The soft deletion field is incorrect');
         }
-        return $this->dataOpt['deleteTime'] = $field;
+        return $this->data['deleteTime'] = $field;
     }
 
     /**

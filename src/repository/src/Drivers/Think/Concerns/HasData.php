@@ -13,11 +13,6 @@ use ReflectionObject;
 trait HasData
 {
     /**
-     * @var array
-     */
-    protected array $dataOpt = [];
-
-    /**
      * 获取修改的数据
      *
      * @param array $data
@@ -46,12 +41,12 @@ trait HasData
     protected function setUpdateDataTime(array &$data): void
     {
         $field = null;
-        if (isset($this->dataOpt['updateTime'])) {
-            $field = $this->dataOpt['updateTime'];
+        if (isset($this->data['updateTime'])) {
+            $field = $this->data['updateTime'];
         } else {
             $autoWriteTimestamp = $this->getAutoWriteTimestamp();
             if ($autoWriteTimestamp) {
-                $model = $this->repository->getModel();
+                $model = $this->repository->newModel();
                 $refObject = new ReflectionObject($model);
                 $updateTime = $refObject->getProperty('updateTime');
                 if (!$updateTime->isPublic()) {
@@ -59,7 +54,7 @@ trait HasData
                 }
                 $field = $updateTime->getValue($model);
             }
-            $this->dataOpt['updateTime'] = $field;
+            $this->data['updateTime'] = $field;
         }
         if ($field && !isset($data[$field])) {
             $data[$field] = $this->getAutoWriteDateTime();
@@ -73,10 +68,10 @@ trait HasData
      */
     protected function getAutoWriteTimestamp(): ?string
     {
-        if (isset($this->dataOpt['autoWriteTimestamp'])) {
-            return $this->dataOpt['autoWriteTimestamp'];
+        if (isset($this->data['autoWriteTimestamp'])) {
+            return $this->data['autoWriteTimestamp'];
         }
-        $model = $this->repository->getModel();
+        $model = $this->repository->newModel();
         $refObject = new ReflectionObject($model);
         $refProperty = $refObject->getProperty('autoWriteTimestamp');
         if (!$refProperty->isPublic()) {
@@ -86,7 +81,7 @@ trait HasData
         if (!\is_string($field)) {
             $field = null;
         }
-        return $this->dataOpt['autoWriteTimestamp'] = $field;
+        return $this->data['autoWriteTimestamp'] = $field;
     }
 
     /**

@@ -202,8 +202,7 @@ abstract class AbstractRepository
     {
         $result = $this->getDriver()->{$name}(...$arguments);
         if ($result instanceof RepositoryDriverInterface) {
-            $this->driver = $result;
-            return $this;
+            return $this->setDriver($result);
         }
         return $result;
     }

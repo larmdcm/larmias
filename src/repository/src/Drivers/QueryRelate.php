@@ -42,8 +42,7 @@ abstract class QueryRelate implements QueryRelateInterface
     {
         $result = \call_user_func_array([$this->query, $name], $arguments);
         if ($result instanceof $this->query) {
-            $this->query = $result;
-            return $this;
+            return $this->setQuery($result);
         }
         return $result;
     }

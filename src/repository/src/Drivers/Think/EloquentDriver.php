@@ -26,6 +26,11 @@ class EloquentDriver extends RepositoryDriver
     use HasData, SoftDelete;
 
     /**
+     * @var array
+     */
+    protected array $data = [];
+
+    /**
      * Eloquent __construct.
      *
      * @param AbstractRepository $repository

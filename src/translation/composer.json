@@ -1,10 +1,10 @@
 {
-  "name": "larmias/validation",
-  "description": "larmias validation",
+  "name": "larmias/translation",
+  "description": "larmias translation",
   "type": "library",
   "keywords": [
     "larmias",
-    "validation"
+    "translation"
   ],
   "homepage": "https://larmias.com/",
   "license": "Apache-2.0",
@@ -21,7 +21,7 @@
   },
   "autoload": {
     "psr-4": {
-      "Larmias\\Validation\\": "src/"
+      "Larmias\\Translation\\": "src/"
     }
   }
 }

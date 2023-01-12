@@ -252,10 +252,10 @@ class Str
      */
     public static function template(string $content, array $vars = [], array $options = ['open' => '{', 'close' => '}']): string
     {
-        return preg_replace_callback(sprintf(
-            '/%s\s?([\w]+)\s?%s/', preg_quote($options['open']), preg_quote($options['close'])
-        ), function ($matchs) use ($vars) {
-            return $vars[$matchs[1]] ?? '';
+        return \preg_replace_callback(\sprintf(
+            '/%s([\w]+)%s/', \preg_quote($options['open']), \preg_quote($options['close'])
+        ), function ($match) use ($vars) {
+            return $vars[$match[1]] ?? '';
         }, $content);
     }
 }

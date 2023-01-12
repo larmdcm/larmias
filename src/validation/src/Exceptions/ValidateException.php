@@ -12,7 +12,7 @@ class ValidateException extends RuntimeException
     {
         $values = \array_values($this->errors);
         parent::__construct(
-            \implode(PHP_EOL, array_map(fn($item) => \implode(PHP_EOL, $item), $values))
+            rtrim(\implode(PHP_EOL, array_map(fn($item) => \implode(PHP_EOL, $item), $values)), PHP_EOL)
         );
     }
 

@@ -38,10 +38,10 @@ class Annotation implements AnnotationInterface
     {
         $files = Finder::create()->include($this->config['include_path'])->exclude($this->config['exclude_path'])->includeExt('php')->files();
         foreach ($files as $file) {
-            $pathname = $file->getPathname();
-            $classes = ReflectUtil::getAllClassesInFile($pathname);
+            $realPath = $file->getRealPath();
+            $classes = ReflectUtil::getAllClassesInFile($realPath);
             if (isset($classes[1])) {
-                require_once $file->getRealPath();
+                require_once $realPath;
             }
 
             foreach ($classes as $class) {
@@ -87,15 +87,15 @@ class Annotation implements AnnotationInterface
         $this->parseClassAnnotation($refClass);
         // 解析方法注解
         foreach ($refClass->getMethods() as $refMethod) {
-            $this->parseMethodAnnotation($refMethod);
+            $this->parseMethodAnnotation($refClass, $refMethod);
             // 解析方法参数注解
             foreach ($refMethod->getParameters() as $refParameter) {
-                $this->parseMethodParameterAnnotation($refMethod, $refParameter);
+                $this->parseMethodParameterAnnotation($refClass, $refMethod, $refParameter);
             }
         }
         // 解析属性注解
         foreach ($refClass->getProperties() as $refProperty) {
-            $this->parsePropertiesAnnotation($refClass,$refProperty);
+            $this->parsePropertiesAnnotation($refClass, $refProperty);
         }
     }
 
@@ -111,25 +111,25 @@ class Annotation implements AnnotationInterface
         $parentClass = $refClass->getParentClass();
         if ($parentClass) {
             $parentAnnotations = $this->getClassAnnotation($parentClass);
-            return $this->handleAnnotationExtend($annotations,$parentAnnotations);
+            return $this->handleAnnotationExtend($annotations, $parentAnnotations);
         }
         return $annotations;
     }
 
-    protected function parseMethodAnnotation(ReflectionMethod $refMethod): void
+    protected function parseMethodAnnotation(ReflectionClass $refClass, ReflectionMethod $refMethod): void
     {
-        AnnotationCollector::collectMethod($refMethod->class, $refMethod->getName(), $this->buildAttribute($refMethod->getAttributes()));
+        AnnotationCollector::collectMethod($refClass->getName(), $refMethod->getName(), $this->buildAttribute($refMethod->getAttributes()));
     }
 
-    protected function parseMethodParameterAnnotation(ReflectionMethod $refMethod, ReflectionParameter $refParameter): void
+    protected function parseMethodParameterAnnotation(ReflectionClass $refClass, ReflectionMethod $refMethod, ReflectionParameter $refParameter): void
     {
-        AnnotationCollector::collectMethodParam($refMethod->class, $refMethod->getName(), $refParameter->getName(), $this->buildAttribute($refParameter->getAttributes()));
+        AnnotationCollector::collectMethodParam($refClass->getName(), $refMethod->getName(), $refParameter->getName(), $this->buildAttribute($refParameter->getAttributes()));
     }
 
     /**
      * @throws \ReflectionException
      */
-    protected function parsePropertiesAnnotation(ReflectionClass $refClass,ReflectionProperty $refProperty): void
+    protected function parsePropertiesAnnotation(ReflectionClass $refClass, ReflectionProperty $refProperty): void
     {
         $annotations = $this->getPropertiesAnnotation($refProperty);
         AnnotationCollector::collectProperty($refClass->getName(), $refProperty->getName(), $annotations);

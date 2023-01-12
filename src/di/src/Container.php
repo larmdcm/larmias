@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Larmias\Di;
 
 use Larmias\Contracts\ContainerInterface;
+use Larmias\Di\Annotation\Scope;
 use Psr\Container\ContainerInterface as PsrContainerInterface;
 use Closure;
 use Larmias\Utils\Reflection\Invoker;
@@ -123,11 +124,31 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
             $object = $this->invokeClass($abstract, $params);
         }
 
+        $scope = $this->getScope($object);
+
+        if ($scope) {
+            $newInstance = $scope->type === Scope::PROTOTYPE;
+        }
+
         if (!$newInstance) {
             $this->instances[$abstract] = $object;
         }
 
         return $object;
+    }
+
+    /**
+     * @param string|object $object
+     * @return Scope|null
+     */
+    protected function getScope(string|object $object): ?Scope
+    {
+        $class = \is_object($object) ? \get_class($object) : $object;
+        $annotations = AnnotationCollector::get(sprintf('%s.%s.%s', $class, 'class', Scope::class));
+        if (empty($annotations)) {
+            return null;
+        }
+        return \current($annotations);
     }
 
     /**

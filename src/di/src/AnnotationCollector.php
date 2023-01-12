@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Larmias\Di;
 
+use Larmias\Utils\Arr;
+
 class AnnotationCollector
 {
     public static array $container = [];
@@ -36,32 +38,37 @@ class AnnotationCollector
         }
     }
 
+    public static function get(?string $key = null): mixed
+    {
+        return $key ? Arr::get(static::$container, $key) : static::$container;
+    }
+
     public static function all(): array
     {
         $result = [];
 
         foreach (static::$container as $class => $data) {
             foreach ($data['class'] ?? [] as $annotation => $value) {
-                $result[] = ['type' => 'class','class' => $class, 'annotation' => $annotation, 'value' => $value];
+                $result[] = ['type' => 'class', 'class' => $class, 'annotation' => $annotation, 'value' => $value];
             }
 
             foreach ($data['method'] ?? [] as $method => $items) {
                 foreach ($items as $annotation => $value) {
-                    $result[] = ['type' => 'method','class' => $class, 'method' => $method, 'annotation' => $annotation, 'value' => $value];
+                    $result[] = ['type' => 'method', 'class' => $class, 'method' => $method, 'annotation' => $annotation, 'value' => $value];
                 }
             }
 
             foreach ($data['methodParam'] ?? [] as $method => $params) {
                 foreach ($params as $param => $items) {
                     foreach ($items as $annotation => $value) {
-                        $result[] = ['type' => 'method_param','class' => $class, 'method' => $method, 'param' => $param, 'annotation' => $annotation, 'value' => $value];
+                        $result[] = ['type' => 'method_param', 'class' => $class, 'method' => $method, 'param' => $param, 'annotation' => $annotation, 'value' => $value];
                     }
                 }
             }
 
             foreach ($data['property'] ?? [] as $property => $items) {
                 foreach ($items as $annotation => $value) {
-                    $result[] = ['type' => 'property','class' => $class, 'property' => $property, 'annotation' => $annotation, 'value' => $value];
+                    $result[] = ['type' => 'property', 'class' => $class, 'property' => $property, 'annotation' => $annotation, 'value' => $value];
                 }
             }
         }

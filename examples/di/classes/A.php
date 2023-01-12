@@ -24,4 +24,14 @@ class A extends B
     {
         dump($this->config ?? null);
     }
+
+    public function index3()
+    {
+        /** @var C $c1 */
+        $c1 = $this->container->get(C::class);
+        /** @var C $c1 */
+        $c2 = $this->container->get(C::class);
+        dump($c1 === $c2);
+        dump($c1->validator === $c2->validator);
+    }
 }

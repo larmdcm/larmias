@@ -23,6 +23,7 @@ class Translator implements TranslatorInterface
         'locale' => 'zh_CN',
         'fallback_locale' => 'zh_CN',
         'path' => '',
+        'use_group' => false,
     ];
 
     /**
@@ -93,19 +94,13 @@ class Translator implements TranslatorInterface
         if (!isset($this->lang[$locale])) {
             $this->lang[$locale] = [];
         }
-        $lang = [];
 
         foreach ((array)$file as $name) {
-            if (is_file($name)) {
+            if (\is_file($name)) {
                 $result = $this->parse($name);
-                $lang = array_change_key_case($result) + $lang;
+                $this->lang[$locale] = \array_merge($this->lang[$locale], $result);
             }
         }
-
-        if (!empty($lang)) {
-            $this->lang[$locale] = $lang + $this->lang[$locale];
-        }
-
         return $this->lang[$locale];
     }
 
@@ -157,9 +152,9 @@ class Translator implements TranslatorInterface
      */
     protected function parse(string $file): array
     {
-        $type = \pathinfo($file, \PATHINFO_EXTENSION);
+        $info = \pathinfo($file);
 
-        switch ($type) {
+        switch ($info['extension']) {
             case 'php':
                 $result = require $file;
                 break;
@@ -182,7 +177,9 @@ class Translator implements TranslatorInterface
 
                 break;
         }
-
-        return isset($result) && \is_array($result) ? $result : [];
+        if (isset($result) && \is_array($result)) {
+            return $this->config['use_group'] ? [$info['filename'] => $result] : $result;
+        }
+        return [];
     }
 }

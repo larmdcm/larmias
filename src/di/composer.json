@@ -1,6 +1,6 @@
 {
   "name": "larmdcm/di",
-  "description": "Utility class library",
+  "description": "A DI for Larmias.",
   "type": "library",
   "keywords": [
     "larmias",

@@ -43,6 +43,11 @@ class AnnotationCollector
         return $key ? Arr::get(static::$container, $key) : static::$container;
     }
 
+    public static function has(string|array $key): bool
+    {
+        return Arr::has(static::$container, $key);
+    }
+
     public static function all(): array
     {
         $result = [];

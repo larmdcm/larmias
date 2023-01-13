@@ -6,13 +6,34 @@ namespace Larmias\Utils\Reflection;
 
 use ReflectionException;
 use ReflectionFunctionAbstract;
+use Closure;
 
 class Invoker
 {
     /**
+     * @var string
+     */
+    public const INVOKE_METHOD = 'method';
+
+    /**
+     * @var string
+     */
+    public const INVOKE_STATIC_METHOD = 'staticMethod';
+
+    /**
      * @var Parameter
      */
     protected Parameter $parameter;
+
+    /**
+     * 调用回调
+     *
+     * @var array
+     */
+    protected array $resolveCallback = [
+        self::INVOKE_METHOD => [],
+        self::INVOKE_STATIC_METHOD => [],
+    ];
 
     /**
      * ReflectionManager constructor.
@@ -22,6 +43,20 @@ class Invoker
     public function __construct(?Parameter $parameter = null)
     {
         $this->parameter = $parameter ?: new Parameter();
+    }
+
+    /**
+     * 注册一个调用回调
+     *
+     * @param string|array $type
+     * @param Closure $callback
+     * @return void
+     */
+    public function resolving(string|array $type, Closure $callback): void
+    {
+        foreach ((array)$type as $item) {
+            $this->resolveCallback[$item] = $callback;
+        }
     }
 
     /**
@@ -46,19 +81,22 @@ class Invoker
      */
     public function invokeMethod(string|array $method, array $params = [], bool $accessible = false): mixed
     {
-        if (is_array($method)) {
+        if (\is_array($method)) {
             [$class, $method] = $method;
             $class = \is_object($class) ? $class : $this->invokeClass($class);
         } else {
             [$class, $method] = explode('::', $method);
         }
-
-        $reflectMethod = \is_object($class) ? ReflectionManager::reflectMethod($class, $method) : ReflectionManager::reflectMethod($class, $method, true);
+        $isObject = \is_object($class);
+        $reflectMethod = $isObject ? ReflectionManager::reflectMethod($class, $method) : ReflectionManager::reflectMethod($class, $method, true);
         $params = $this->bindParameter($reflectMethod, $params);
-        if (\is_object($class)) {
-            return ClassInvoker::invokeMethod([$class, $reflectMethod], $params, $accessible);
-        }
-        return StaticClassInvoker::invokeMethod($reflectMethod, $params, $accessible);
+        $type = $isObject ? self::INVOKE_METHOD : self::INVOKE_STATIC_METHOD;
+        return $this->invoke(
+            $type,
+            fn() => $isObject ? ClassInvoker::invokeMethod([$class, $reflectMethod], $params, $accessible)
+                : StaticClassInvoker::invokeMethod($reflectMethod, $params, $accessible),
+            ['type' => $type, 'class' => $isObject ? \get_class($class) : $class, 'method' => $method, 'parameter' => $params]
+        );
     }
 
     /**
@@ -77,6 +115,20 @@ class Invoker
     }
 
     /**
+     * @param string $type
+     * @param \Closure $handler
+     * @param array $args
+     * @return mixed
+     */
+    protected function invoke(string $type, Closure $handler, array $args = []): mixed
+    {
+        if (!isset($this->resolveCallback[$type])) {
+            return $handler();
+        }
+        return \call_user_func($this->resolveCallback[$type], $handler, $args);
+    }
+
+    /**
      * @param string|object $object
      * @param array $params
      * @return ClassInvoker
@@ -84,7 +136,6 @@ class Invoker
      */
     protected function makeClassInvoker(string|object $object, array $params = []): ClassInvoker
     {
-        $class = \is_string($object) ? $object : \get_class($object);
         return new ClassInvoker($object, function (ReflectionFunctionAbstract $abstract) use ($params) {
             return $this->bindParameter($abstract, $params);
         });

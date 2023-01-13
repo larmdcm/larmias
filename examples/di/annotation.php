@@ -28,4 +28,4 @@ AnnotationManager::scan();
 
 $a = $container->make(\Di\A::class);
 
-$a->index3();
+$a->invoke();

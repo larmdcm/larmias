@@ -34,4 +34,14 @@ class A extends B
         dump($c1 === $c2);
         dump($c1->validator === $c2->validator);
     }
+
+    public function invoke()
+    {
+        println($this->container->invoke([$this, 'invokeTest'], ['name' => __FUNCTION__]));
+    }
+
+    public function invokeTest(string $name)
+    {
+        return $name;
+    }
 }

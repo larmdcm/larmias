@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\Http\Message;
 
+use Larmias\Utils\Arr;
 use Psr\Http\Message\ServerRequestInterface;
 use InvalidArgumentException;
 use Larmias\Contracts\Http\RequestInterface;
@@ -29,7 +30,7 @@ class ServerRequest extends Request implements ServerRequestInterface
     protected mixed $parseBody = null;
 
     /**
-     * @param \Larmias\Contracts\Http\RequestInterface $request
+     * @param RequestInterface $request
      * @return static
      */
     public static function loadFormRequest(RequestInterface $request): static
@@ -45,8 +46,16 @@ class ServerRequest extends Request implements ServerRequestInterface
         $serverRequest->queryParams = $request->query();
         $serverRequest->parseBody = $request->post();
         $serverRequest->cookieParams = $request->cookie();
-        $serverRequest->uploadedFiles = $request->file() ?: [];
-
+        $files = $request->file();
+        foreach ($files as $name => $file) {
+            if (Arr::isList($file)) {
+                foreach ($file as $item) {
+                    $serverRequest->uploadedFiles[$name][] = new UploadedFile($item['tmp_name'], $item['size'], $item['error'], $item['name'], $item['type']);
+                }
+            } else {
+                $serverRequest->uploadedFiles[$name] = new UploadedFile($file['tmp_name'], $file['size'], $file['error'], $file['name'], $file['type']);
+            }
+        }
         return $serverRequest;
     }
 

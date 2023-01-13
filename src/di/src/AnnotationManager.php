@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Larmias\Di;
 
 use Larmias\Di\Annotation\Inject;
+use Larmias\Di\Annotation\InvokeResolver;
 use Larmias\Di\AnnotationHandlers\InjectAnnotationHandler;
+use Larmias\Di\AnnotationHandlers\InvokeResolverAnnotationHandler;
 use Larmias\Di\Contracts\AnnotationInterface;
 
 class AnnotationManager
@@ -39,15 +41,21 @@ class AnnotationManager
 
     public static function get(string $name = 'default'): AnnotationInterface
     {
-        if (!isset(static::$container[$name])) {
+        if (!static::has($name)) {
             throw new \RuntimeException($name . ' not in container');
         }
 
         return static::$container[$name];
     }
 
+    public static function has(string $name = 'default'): bool
+    {
+        return isset(static::$container[$name]);
+    }
+
     public static function registerHandler(AnnotationInterface $annotation): void
     {
         $annotation->addHandler(Inject::class, InjectAnnotationHandler::class);
+        $annotation->addHandler(InvokeResolver::class, InvokeResolverAnnotationHandler::class);
     }
 }

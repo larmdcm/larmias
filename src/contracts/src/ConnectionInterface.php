@@ -12,7 +12,7 @@ interface ConnectionInterface
      * @param mixed $data
      * @return mixed
      */
-    public function send(mixed $data);
+    public function send(mixed $data): mixed;
 
     /**
      * 关闭连接.

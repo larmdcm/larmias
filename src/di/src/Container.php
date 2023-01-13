@@ -16,6 +16,7 @@ use ArrayAccess;
 use ArrayIterator;
 use IteratorAggregate;
 use Countable;
+use Larmias\Di\Invoker\InvokeResolver;
 
 class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, Countable
 {
@@ -54,6 +55,10 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
         $this->invoker = new Invoker(new Parameter(makeClassHandler: function (string $className) {
             return $this->make($className);
         }));
+
+        $this->invoker->resolving(Invoker::INVOKE_METHOD, function (Closure $process, array $args) {
+            return InvokeResolver::process($process, $args);
+        });
 
         $this->bind([
             self::class => $this,
@@ -305,18 +310,18 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
     public function invokeClass(string $class, array $params = []): object
     {
         $object = $this->invoker->invokeClass($class, $params);
-        $this->invokeAfter($class, $object);
+        $this->invokeClassAfter($class, $object);
         return $object;
     }
 
     /**
      * 执行invokeClass回调
-     * @access protected
+     *
      * @param string $class 对象类名
      * @param object $object 容器对象实例
      * @return void
      */
-    protected function invokeAfter(string $class, object $object): void
+    protected function invokeClassAfter(string $class, object $object): void
     {
         if (isset($this->invokeCallback['*'])) {
             foreach ($this->invokeCallback['*'] as $callback) {

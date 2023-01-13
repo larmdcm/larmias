@@ -46,6 +46,20 @@ class Response implements PsrResponseInterface, ResponseInterface
             ->withBody(Stream::create((string)$data));
     }
 
+    /**
+     * @param \Stringable|string $data
+     * @param int $code
+     * @param array $headers
+     * @return \Psr\Http\Message\ResponseInterface
+     */
+    public function html(\Stringable|string $data, int $code = 200, array $headers = []): PsrResponseInterface
+    {
+        return $this->withAddedHeader('content-type', 'text/html; charset=utf-8')
+            ->withStatus($code)
+            ->withHeaders($headers)
+            ->withBody(Stream::create((string)$data));
+    }
+
     protected function getResponse(): PsrResponseInterface
     {
         return $this->container->get(PsrResponseInterface::class);

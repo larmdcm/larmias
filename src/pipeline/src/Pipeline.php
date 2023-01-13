@@ -94,7 +94,7 @@ class Pipeline implements PipelineInterface
             return function ($passable) use ($stack, $pipe) {
                 try {
                     return $pipe($passable, $stack);
-                } catch (Throwable$e) {
+                } catch (Throwable $e) {
                     return $this->handleException($passable, $e);
                 }
             };

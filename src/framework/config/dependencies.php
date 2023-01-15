@@ -8,4 +8,5 @@ return [
     \Larmias\Contracts\LoggerInterface::class => \Larmias\Log\Logger::class,
     \Psr\Log\LoggerInterface::class => \Larmias\Contracts\LoggerInterface::class,
     \Larmias\Di\Contracts\AnnotationInterface::class => \Larmias\Di\Annotation::class,
+    \Larmias\Contracts\TranslatorInterface::class => \Larmias\Translation\Translator::class,
 ];

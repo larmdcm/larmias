@@ -90,11 +90,11 @@ class DotEnv implements DotEnvInterface, ArrayAccess
             \putenv("{$name}={$value}");
         }
 
-        if (!isset($_ENV[$name]) || empty($_ENV[$name])) {
+        if (empty($_ENV[$name])) {
             $_ENV[$name] = $value;
         }
 
-        if (!isset($_SERVER[$name]) || empty($_SERVER[$name])) {
+        if (empty($_SERVER[$name])) {
             $_SERVER[$name] = $value;
         }
     }

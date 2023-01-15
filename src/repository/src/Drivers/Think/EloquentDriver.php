@@ -14,6 +14,7 @@ use Larmias\Repository\Foundation\Collection;
 use Larmias\Repository\AbstractRepository;
 use Larmias\Repository\Drivers\QueryRelate;
 use think\db\exception\DbException;
+use think\facade\Db;
 use think\Model;
 use think\Paginator;
 use Throwable;
@@ -398,6 +399,36 @@ class EloquentDriver extends RepositoryDriver
     public function getPrimaryKey(): string
     {
         return $this->getQueryRelate()->getQuery()->getPk();
+    }
+
+    /**
+     * 开始事物
+     *
+     * @return void
+     */
+    public function beginTransaction(): void
+    {
+        Db::startTrans();
+    }
+
+    /**
+     * 提交事物
+     *
+     * @return void
+     */
+    public function commit(): void
+    {
+        Db::commit();
+    }
+
+    /**
+     * 事物回滚
+     *
+     * @return void
+     */
+    public function rollback(): void
+    {
+        Db::rollback();
     }
 
     /**

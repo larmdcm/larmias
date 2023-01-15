@@ -50,9 +50,9 @@ class Validator implements ValidatorInterface
     protected bool $batch = true;
 
     /**
-     * @var array
+     * @var array|null
      */
-    protected array $validateData = [];
+    protected ?array $validateData = null;
 
     /**
      * @var callable[]
@@ -143,7 +143,7 @@ class Validator implements ValidatorInterface
      * @param array $data
      * @param array $rules
      * @param array $messages
-     * @return \Larmias\Validation\Validator
+     * @return Validator
      */
     public static function make(array $data = [], array $rules = [], array $messages = []): Validator
     {
@@ -165,6 +165,9 @@ class Validator implements ValidatorInterface
      */
     public function validated(): array
     {
+        if ($this->validateData === null) {
+            $this->fails();
+        }
         return $this->validateData;
     }
 
@@ -273,15 +276,29 @@ class Validator implements ValidatorInterface
     {
         $message = $this->messages[$field . '.' . $ruleItem->getName()] ?? ($this->validateMessages[$ruleItem->getName()] ?? $this->validateMessages['default_message']);
         $args = $ruleItem->getArgs() instanceof Closure ? [] : $ruleItem->getArgs();
-        if (isset($this->translator)) {
-            $message = $this->translator->trans($message);
-        }
-        return Str::template($message, [
+        return Str::template($this->trans($message), [
             ...$args,
             'field' => $field,
             'rule' => $ruleItem->getName(),
             'attribute' => $this->attributes[$field] ?? $field,
         ], ['open' => ':', 'close' => '']);
+    }
+
+    /**
+     * @param string $message
+     * @return string
+     */
+    protected function trans(string $message): string
+    {
+        if (isset($this->translator)) {
+            $messages = [$message, 'validator.' . $message];
+            foreach ($messages as $item) {
+                if ($this->translator->has($item)) {
+                    return $this->translator->trans($item);
+                }
+            }
+        }
+        return $message;
     }
 
     /**

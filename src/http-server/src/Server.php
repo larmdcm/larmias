@@ -32,9 +32,9 @@ use function Larmias\Utils\format_exception;
 class Server implements OnRequestInterface
 {
     public function __construct(
-        protected ContainerInterface $container,
+        protected ContainerInterface       $container,
         protected EventDispatcherInterface $eventDispatcher,
-        protected ResponseEmitter $responseEmitter)
+        protected ResponseEmitter          $responseEmitter)
     {
     }
 
@@ -108,7 +108,7 @@ class Server implements OnRequestInterface
 
     /**
      * @param mixed $result
-     * @return \Psr\Http\Message\ResponseInterface
+     * @return PsrResponseInterface
      * @throws \Psr\Container\ContainerExceptionInterface
      * @throws \Psr\Container\NotFoundExceptionInterface
      */
@@ -125,7 +125,7 @@ class Server implements OnRequestInterface
     /**
      * @param HttpRequestInterface $httpRequest
      * @param HttpResponseInterface $httpResponse
-     * @return \Larmias\HttpServer\Contracts\RequestInterface
+     * @return RequestInterface
      * @throws \Psr\Container\ContainerExceptionInterface
      * @throws \Psr\Container\NotFoundExceptionInterface
      */

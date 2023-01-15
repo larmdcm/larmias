@@ -12,11 +12,11 @@ $config = $container->get(\Larmias\Contracts\ConfigInterface::class);
 
 $config->set('translation', [
     'path' => './languages',
-    'use_group' => true,
+    'use_group' => false,
 ]);
 
 /** @var \Larmias\Contracts\TranslatorInterface $translator */
 $translator = $container->get(Translator::class);
 
-$name = $translator->trans('zh_CN.name');
+$name = $translator->trans('name');
 println($name);

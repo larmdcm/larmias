@@ -247,4 +247,25 @@ interface RepositoryDriverInterface
      * @return string
      */
     public function getPrimaryKey(): string;
+
+    /**
+     * 开始事物
+     *
+     * @return void
+     */
+    public function beginTransaction(): void;
+
+    /**
+     * 提交事物
+     *
+     * @return void
+     */
+    public function commit(): void;
+
+    /**
+     * 事物回滚
+     *
+     * @return void
+     */
+    public function rollback(): void;
 }

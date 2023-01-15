@@ -61,6 +61,9 @@ use Larmias\Repository\Foundation\Collection;
  * @method float findAvg(mixed $condition, string $column, float $amount = 1, array $extra = [])
  * @method float findSum(mixed $condition, string $column, float $amount = 1, array $extra = [])
  * @method string getPrimaryKey()
+ * @method void beginTransaction()
+ * @method void commit()
+ * @method void rollback()
  */
 abstract class AbstractRepository
 {
@@ -136,6 +139,25 @@ abstract class AbstractRepository
         $this->fireEvent('deleted', $condition, $row);
 
         return $row;
+    }
+
+    /**
+     * 事物处理.
+     *
+     * @param callable $callback
+     * @return void
+     * @throws \Throwable
+     */
+    public function transaction(callable $callback): void
+    {
+        $this->beginTransaction();
+        try {
+            $callback();
+            $this->commit();
+        } catch (\Throwable $e) {
+            $this->rollback();
+            throw $e;
+        }
     }
 
     public function driver(?string $name = null): RepositoryDriverInterface

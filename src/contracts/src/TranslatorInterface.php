@@ -28,9 +28,10 @@ interface TranslatorInterface
     /**
      * @param string|array $file
      * @param string $locale
+     * @param string|null $groupName
      * @return array
      */
-    public function load(string|array $file, string $locale): array;
+    public function load(string|array $file, string $locale, ?string $groupName = null): array;
 
     /**
      * @param string $key

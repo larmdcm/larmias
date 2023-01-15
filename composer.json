@@ -22,6 +22,7 @@
     "ext-mbstring": "*",
     "ext-ctype": "*",
     "ext-json": "*",
+    "ext-fileinfo": "*",
     "psr/container": "^2.0",
     "psr/log": "^3.0",
     "psr/event-dispatcher": "^1.0",
@@ -69,7 +70,8 @@
       "Larmias\\Repository\\": "src/repository/src/",
       "Larmias\\Env\\": "src/env/src/",
       "Larmias\\Validation\\": "src/validation/src/",
-      "Larmias\\Translation\\": "src/translation/src/"
+      "Larmias\\Translation\\": "src/translation/src/",
+      "Larmias\\Enum\\": "src/enum/src/"
     }
   }
 }

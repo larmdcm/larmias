@@ -33,6 +33,6 @@ class Collection extends BaseCollection
      */
     public function toTree(string|int $parentId = 0): array
     {
-        return Tree::getInstance($this->toArray(), $this->config['tree_options'] ?? [])->layer($parentId);
+        return Tree::make($this->toArray(), $this->config['tree_options'] ?? [])->layer($parentId);
     }
 }

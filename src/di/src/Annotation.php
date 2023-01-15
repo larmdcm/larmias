@@ -79,7 +79,7 @@ class Annotation implements AnnotationInterface
      */
     protected function parse(string|object $class): void
     {
-        if (\is_string($class) && !class_exists($class)) {
+        if (\is_string($class) && !\class_exists($class)) {
             return;
         }
         $refClass = ReflectionManager::reflectClass($class);
@@ -160,7 +160,9 @@ class Annotation implements AnnotationInterface
         $annotations = [];
         foreach ($attributes as $attribute) {
             if ($attribute instanceof ReflectionAttribute) {
-                $annotations[$attribute->getName()][] = $attribute->newInstance();
+                if (\class_exists($attribute->getName())) {
+                    $annotations[$attribute->getName()][] = $attribute->newInstance();
+                }
             }
         }
         return $annotations;

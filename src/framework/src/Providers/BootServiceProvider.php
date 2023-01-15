@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Larmias\Framework\Providers;
 
+use Larmias\Contracts\TranslatorInterface;
 use Larmias\Event\ListenerProviderFactory;
 use Larmias\Framework\ServiceProvider;
+use Larmias\Validation\Validator;
 use Psr\EventDispatcher\ListenerProviderInterface;
 
 use function Larmias\Framework\config;
@@ -19,6 +21,7 @@ class BootServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->listeners();
+        $this->validator();
     }
 
     /**
@@ -27,7 +30,7 @@ class BootServiceProvider extends ServiceProvider
      */
     protected function listeners(): void
     {
-        $listeners = config('listeners',[]);
+        $listeners = config('listeners', []);
         $provider = $this->app->get(ListenerProviderInterface::class);
         foreach ($listeners as $listener => $priority) {
             if (is_int($listener)) {
@@ -38,5 +41,15 @@ class BootServiceProvider extends ServiceProvider
                 ListenerProviderFactory::register($provider, $this->app, $listener, $priority);
             }
         }
+    }
+
+    /**
+     * @return void
+     */
+    protected function validator(): void
+    {
+        Validator::maker(function (Validator $validator) {
+            $validator->setTranslator($this->app->get(TranslatorInterface::class));
+        });
     }
 }

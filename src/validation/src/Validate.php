@@ -115,7 +115,7 @@ class Validate
      * @param string $rule
      * @return bool
      */
-    public static function filter(mixed $value, string $rule): bool
+    public static function filter(mixed $value, string|array $rule): bool
     {
         if (\is_string($rule) && \strpos($rule, ',')) {
             [$rule, $param] = \explode(',', $rule);

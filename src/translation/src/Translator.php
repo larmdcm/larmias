@@ -23,7 +23,6 @@ class Translator implements TranslatorInterface
         'locale' => 'zh_CN',
         'fallback_locale' => 'zh_CN',
         'path' => '',
-        'use_group' => false,
     ];
 
     /**
@@ -57,9 +56,7 @@ class Translator implements TranslatorInterface
     public function trans(string $key, array $vars = [], ?string $locale = null): string
     {
         $locale = $locale ?: $this->getLocale();
-        if (!isset($this->lang[$locale])) {
-            $this->loadLocale($locale);
-        }
+        $this->loadLocale($locale);
         if (!$this->has($key, $locale) && $this->has($key, $this->fallbackLocale)) {
             return $this->trans($key, $vars, $this->fallbackLocale);
         }
@@ -87,18 +84,26 @@ class Translator implements TranslatorInterface
     /**
      * @param string|array $file
      * @param string $locale
+     * @param string|null $groupName
      * @return array
      */
-    public function load(string|array $file, string $locale): array
+    public function load(string|array $file, string $locale, ?string $groupName = null): array
     {
         if (!isset($this->lang[$locale])) {
             $this->lang[$locale] = [];
+        }
+        if ($groupName && !isset($this->lang[$locale][$groupName])) {
+            $this->lang[$locale][$groupName] = [];
         }
 
         foreach ((array)$file as $name) {
             if (\is_file($name)) {
                 $result = $this->parse($name);
-                $this->lang[$locale] = \array_merge($this->lang[$locale], $result);
+                if ($groupName) {
+                    $this->lang[$locale][$groupName] = \array_merge($this->lang[$locale][$groupName], $result);
+                } else {
+                    $this->lang[$locale] = \array_merge($this->lang[$locale], $result);
+                }
             }
         }
         return $this->lang[$locale];
@@ -112,9 +117,7 @@ class Translator implements TranslatorInterface
     public function has(string $key, ?string $locale = null): bool
     {
         $locale = $locale ?: $this->getLocale();
-        if (!isset($this->lang[$locale])) {
-            $this->loadLocale($locale);
-        }
+        $this->loadLocale($locale);
         return Arr::has($this->lang[$locale], $key);
     }
 
@@ -141,9 +144,17 @@ class Translator implements TranslatorInterface
      */
     protected function loadLocale(string $locale): void
     {
-        $path = rtrim($this->config['path'], DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $locale . DIRECTORY_SEPARATOR . '*.*';
-        $files = \glob($path);
-        $this->load($files, $locale);
+        if (!isset($this->lang[$locale])) {
+            $path = rtrim($this->config['path'], DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $locale . DIRECTORY_SEPARATOR . '*';
+            $list = \glob($path);
+            foreach ($list as $item) {
+                if (\is_dir($item)) {
+                    $this->load(\glob($item . DIRECTORY_SEPARATOR . '*.*'), $locale, \basename($item));
+                } else {
+                    $this->load($item, $locale);
+                }
+            }
+        }
     }
 
     /**
@@ -177,9 +188,6 @@ class Translator implements TranslatorInterface
 
                 break;
         }
-        if (isset($result) && \is_array($result)) {
-            return $this->config['use_group'] ? [$info['filename'] => $result] : $result;
-        }
-        return [];
+        return isset($result) && \is_array($result) ? $result : [];
     }
 }

@@ -42,6 +42,10 @@ Router::get('/cookie', function (RequestInterface $request, ResponseInterface $r
     return $request->cookie($request->query('key', 'null'), 'null');
 });
 
+Router::get('/exception', function () {
+    throw new RuntimeException('发生了异常');
+});
+
 Router::get('/session', function (\Larmias\Contracts\SessionInterface $session, ResponseInterface $response) {
     $session->set('name', 'session');
     return $session->get('name');

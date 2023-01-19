@@ -59,32 +59,4 @@ abstract class ExceptionHandler implements ExceptionReportHandlerInterface
         }
         return false;
     }
-
-    /**
-     * 收集异常信息
-     *
-     * @param Throwable $exception
-     * @return array
-     */
-    protected function collectExceptionToArray(Throwable $exception): array
-    {
-        $traces = [];
-        $nextException = $exception;
-        do {
-            $traces[] = [
-                'name' => \get_class($nextException),
-                'file' => $nextException->getFile(),
-                'line' => $nextException->getLine(),
-                'code' => $nextException->getCode(),
-                'message' => $nextException->getMessage(),
-                'trace' => $nextException->getTrace(),
-            ];
-        } while ($nextException = $nextException->getPrevious());
-        $data = [
-            'code' => $exception->getCode(),
-            'message' => $exception->getMessage(),
-            'traces' => $traces,
-        ];
-        return $data;
-    }
 }

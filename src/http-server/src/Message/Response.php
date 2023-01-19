@@ -8,8 +8,8 @@ use Larmias\Contracts\ContainerInterface;
 use Larmias\Http\Message\Cookie;
 use Larmias\Http\Message\Stream;
 use Larmias\HttpServer\Contracts\ResponseInterface;
-use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
 use Larmias\Utils\Codec\Json;
+use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
 use Psr\Http\Message\StreamInterface;
 use BadMethodCallException;
 
@@ -20,14 +20,14 @@ class Response implements PsrResponseInterface, ResponseInterface
     }
 
     /**
-     * @param array|object $data
+     * @param array|object|string $data
      * @param int $code
      * @param array $headers
      * @return PsrResponseInterface
      */
-    public function json(array|object $data, int $code = 200, array $headers = []): PsrResponseInterface
+    public function json(array|object|string $data, int $code = 200, array $headers = []): PsrResponseInterface
     {
-        $json = Json::encode($data);
+        $json = \is_string($data) || $data instanceof \Stringable ? (string)$data : Json::encode($data);
         /** @var \Larmias\Http\Message\Response $response */
         $response = $this->withAddedHeader('Content-Type', 'application/json; charset=utf-8')
             ->withStatus($code)

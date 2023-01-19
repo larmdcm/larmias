@@ -119,7 +119,7 @@ class Server implements OnRequestInterface
         }
         /** @var ResponseInterface $response */
         $response = $this->container->get(ResponseInterface::class);
-        return \is_scalar($result) ? $response->raw($result) : $response->json($result);
+        return \is_scalar($result) || $result instanceof \Stringable ? $response->html((string)$result) : $response->json($result);
     }
 
     /**

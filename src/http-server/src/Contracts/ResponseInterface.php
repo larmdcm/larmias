@@ -15,7 +15,7 @@ interface ResponseInterface
      * @param array $headers
      * @return PsrResponseInterface
      */
-    public function json(array|object $data, int $code = 200, array $headers = []): PsrResponseInterface;
+    public function json(array|object|string $data, int $code = 200, array $headers = []): PsrResponseInterface;
 
     /**
      * @param string|\Stringable $data

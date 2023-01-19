@@ -32,9 +32,9 @@ use function Larmias\Utils\format_exception;
 class Server implements OnRequestInterface
 {
     public function __construct(
-        protected ContainerInterface       $container,
+        protected ContainerInterface $container,
         protected EventDispatcherInterface $eventDispatcher,
-        protected ResponseEmitter          $responseEmitter)
+        protected ResponseEmitter $responseEmitter)
     {
     }
 
@@ -133,10 +133,30 @@ class Server implements OnRequestInterface
     {
         $this->container->instance(HttpRequestInterface::class, $httpRequest);
         $this->container->instance(HttpResponseInterface::class, $httpResponse);
-        $this->container->instance(ServerRequestInterface::class, ServerRequest::loadFormRequest($httpRequest));
+        $this->container->instance(ServerRequestInterface::class, $this->createServerRequest($httpRequest));
         $this->container->instance(PsrResponseInterface::class, new PsrResponse());
         $this->container->instance(RequestInterface::class, new Request($this->container));
         $this->container->instance(ResponseInterface::class, new Response($this->container));
         return $this->container->get(RequestInterface::class);
+    }
+
+    /**
+     * @param HttpRequestInterface $httpRequest
+     * @return ServerRequestInterface
+     */
+    protected function createServerRequest(HttpRequestInterface $httpRequest): ServerRequestInterface
+    {
+        return ServerRequest::create([
+            'method' => $httpRequest->method(),
+            'uri' => $httpRequest->uri(),
+            'header' => $httpRequest->header(),
+            'rawBody' => $httpRequest->rawBody(),
+            'protocolVersion' => $httpRequest->protocolVersion(),
+            'server' => $_SERVER,
+            'query' => $httpRequest->query(),
+            'post' => $httpRequest->post(),
+            'cookie' => $httpRequest->cookie(),
+            'file' => $httpRequest->file(),
+        ]);
     }
 }

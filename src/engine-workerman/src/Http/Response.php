@@ -70,6 +70,13 @@ class Response implements ResponseInterface
         return $this->response->getReasonPhrase();
     }
 
+    public function cookie(string $name, string $value = '', int $expire = 0, string $path = '/', string $domain = '', bool $secure = false, bool $httpOnly = true, ?string $sameSite = null): self
+    {
+        $maxAge = $expire !== 0 ? $expire - time() : null;
+        $this->response->cookie($name, $value, $maxAge, $path, $domain, $secure, $httpOnly, $sameSite);
+        return $this;
+    }
+
     public function write(string $data): ResponseInterface
     {
         return $this;

@@ -1,6 +1,6 @@
 {
   "name": "larmias/event",
-  "description": "Http message library based on PSR-7 / PSR-17 standard.",
+  "description": "an event manager that implements PSR-14.",
   "type": "library",
   "keywords": [
     "larmias",

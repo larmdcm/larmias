@@ -71,7 +71,8 @@
       "Larmias\\Env\\": "src/env/src/",
       "Larmias\\Validation\\": "src/validation/src/",
       "Larmias\\Translation\\": "src/translation/src/",
-      "Larmias\\Enum\\": "src/enum/src/"
+      "Larmias\\Redis\\": "src/redis/src/",
+      "Larmias\\Lock\\": "src/lock/src/"
     }
   }
 }

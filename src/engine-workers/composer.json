@@ -1,6 +1,6 @@
 {
   "name": "larmias/engine-workers",
-  "description": "A base engine library for Larmias.",
+  "description": "A worker-s engine library for Larmias.",
   "type": "library",
   "keywords": [
     "larmias",

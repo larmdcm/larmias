@@ -67,6 +67,21 @@ interface ResponseInterface
     public function getReason(): ?string;
 
     /**
+     * 设置cookie
+     *
+     * @param string $name
+     * @param string $value
+     * @param int $expire
+     * @param string $path
+     * @param string $domain
+     * @param bool $secure
+     * @param bool $httpOnly
+     * @param string|null $sameSite
+     * @return ResponseInterface
+     */
+    public function cookie(string $name, string $value = '', int $expire = 0, string $path = '/', string $domain = '', bool $secure = false, bool $httpOnly = true, ?string $sameSite = null): ResponseInterface;
+
+    /**
      * 分块传输数据
      *
      * @param string $data
@@ -81,7 +96,7 @@ interface ResponseInterface
      * @param int $offset
      * @param int $length
      */
-    public function sendFile(string $file, int $offset = 0,int $length = 0): void;
+    public function sendFile(string $file, int $offset = 0, int $length = 0): void;
 
     /**
      * 结束请求.

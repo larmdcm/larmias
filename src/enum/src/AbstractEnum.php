@@ -6,11 +6,12 @@ namespace Larmias\Enum;
 
 use Closure;
 use Larmias\Contracts\TranslatorInterface;
+use Larmias\Enum\Annotation\Text;
 
 abstract class AbstractEnum
 {
     /**
-     * @var array
+     * @var Closure[]
      */
     protected static array $maker = [];
 
@@ -23,6 +24,11 @@ abstract class AbstractEnum
      * @var array
      */
     protected static array $cache = [];
+
+    /**
+     * @var array
+     */
+    protected static array $data = [];
 
     /**
      * @var TranslatorInterface
@@ -114,25 +120,28 @@ abstract class AbstractEnum
         return $this->key;
     }
 
-    public static function getMessage(string $name): string
+    /**
+     * @param mixed $value
+     * @return string
+     */
+    public static function getText(mixed $value): string
     {
-        return '';
+        $enum = new static($value);
+        return $enum->getDataItem('text') ?: '';
     }
 
     /**
      * @param mixed $value
      * @return boolean
-     * @throws \ReflectionException
      */
     public static function isValid(mixed $value): bool
     {
-        return in_array($value, static::toArray(), true);
+        return \in_array($value, static::toArray(), true);
     }
 
     /**
      * @param string $key
      * @return boolean
-     * @throws \ReflectionException
      */
     public static function isValidKey(string $key): bool
     {
@@ -158,7 +167,6 @@ abstract class AbstractEnum
      *
      * @param mixed $value
      * @return bool|int|string
-     * @throws \ReflectionException
      */
     public static function search(mixed $value): bool|int|string
     {
@@ -171,7 +179,6 @@ abstract class AbstractEnum
      * @psalm-pure
      * @psalm-return list<string>
      * @return array
-     * @throws \ReflectionException
      */
     public static function keys(): array
     {
@@ -184,7 +191,6 @@ abstract class AbstractEnum
      * @psalm-pure
      * @psalm-return array<string, static>
      * @return static[] Constant name in key, Enum instance in value
-     * @throws \ReflectionException
      */
     public static function values(): array
     {
@@ -206,13 +212,21 @@ abstract class AbstractEnum
     }
 
     /**
-     * @param string $name
+     * @param string|null $name
      * @return mixed
      */
-    protected function getDataItem(string $name): mixed
+    protected function getDataItem(?string $name = null): mixed
     {
-        $data = static::data()[$this->getValue()] ?? [];
-        return $data[$name] ?? null;
+        $value = $this->getValue();
+        $data = static::mergeArray(static::getAnnotationData()[$value] ?? [], static::data()[$value] ?? []);
+        if (\is_array($data) && $name) {
+            $result = $data[$name] ?? null;
+            if ($name === 'text' && $result && isset($this->translator)) {
+                return $this->translator->trans($result);
+            }
+            return $result;
+        }
+        return $data;
     }
 
     /**
@@ -227,7 +241,6 @@ abstract class AbstractEnum
 
     /**
      * @return array
-     * @throws \ReflectionException
      */
     protected static function toArray(): array
     {
@@ -242,12 +255,34 @@ abstract class AbstractEnum
     }
 
     /**
-     * Enum __callStatic.
+     * @return array
+     */
+    protected static function getAnnotationData(): array
+    {
+        $class = static::class;
+        if (!isset(static::$data[$class])) {
+            $data = [];
+            $reflection = new \ReflectionClass($class);
+            foreach ($reflection->getReflectionConstants() as $reflectionConstant) {
+                $attributes = $reflectionConstant->getAttributes();
+                foreach ($attributes as $item) {
+                    $attribute = $item->newInstance();
+                    if ($attribute instanceof Text) {
+                        $data[$reflectionConstant->getValue()]['text'] = $attribute->text;
+                    }
+                }
+            }
+            static::$data[$class] = $data;
+        }
+        return static::$data[$class];
+    }
+
+    /**
+     * AbstractEnum __callStatic.
      *
      * @param string $name
      * @param array $arguments
      * @return mixed
-     * @throws \ReflectionException
      */
     public static function __callStatic(string $name, array $arguments)
     {
@@ -259,11 +294,34 @@ abstract class AbstractEnum
             }
             self::$instances[$class][$name] = new static($array[$name]);
         }
+
+        /** @var static $enum */
         $enum = self::$instances[$class][$name];
         if (empty($arguments)) {
             return $enum;
         }
+        if ($arguments[0] === 'value') {
+            return $enum->getValue();
+        }
         return $enum->getDataItem($arguments[0]);
+    }
+
+    /**
+     * @param array $array
+     * @param array $distArray
+     * @return array
+     */
+    private static function mergeArray(array $array, array $distArray): array
+    {
+        foreach ($distArray as $key => $item) {
+            if (\is_array($item) && isset($array[$key]) && \is_array($array[$key])) {
+                $array[$key] = static::mergeArray($array[$key], $item);
+            } else {
+                $array[$key] = $item;
+            }
+        }
+
+        return $array;
     }
 
     /**

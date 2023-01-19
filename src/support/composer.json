@@ -1,6 +1,6 @@
 {
-  "name": "larmias/manager",
-  "description": "Http server library based on PSR-7 / PSR-17 standard.",
+  "name": "larmias/support",
+  "description": "The Larmias Support package.",
   "type": "library",
   "keywords": [
     "larmias",

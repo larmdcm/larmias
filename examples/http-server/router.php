@@ -33,3 +33,11 @@ Router::post('/upload', function (RequestInterface $request, ResponseInterface $
     $file->moveTo('./upload/a.jpg');
     return $response->html(file_get_contents('./views/upload.html'));
 });
+
+Router::get('/cookie', function (RequestInterface $request, ResponseInterface $response) {
+    $value = $request->query('value');
+    if ($value) {
+        return $response->withCookie(new \Larmias\Http\Message\Cookie('ckValue', $value));
+    }
+    return $request->cookie($request->query('key', 'null'), 'null');
+});

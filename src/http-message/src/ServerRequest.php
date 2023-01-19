@@ -7,7 +7,6 @@ namespace Larmias\Http\Message;
 use Larmias\Utils\Arr;
 use Psr\Http\Message\ServerRequestInterface;
 use InvalidArgumentException;
-use Larmias\Contracts\Http\RequestInterface;
 
 class ServerRequest extends Request implements ServerRequestInterface
 {
@@ -30,23 +29,23 @@ class ServerRequest extends Request implements ServerRequestInterface
     protected mixed $parseBody = null;
 
     /**
-     * @param RequestInterface $request
-     * @return static
+     * @param array $params
+     * @return ServerRequestInterface
      */
-    public static function loadFormRequest(RequestInterface $request): static
+    public static function create(array $params): ServerRequestInterface
     {
         $serverRequest = new static(
-            $request->method(),
-            $request->uri(),
-            $request->header(),
-            $request->rawBody(),
-            $request->protocolVersion()
+            $params['method'],
+            $params['uri'],
+            $params['header'],
+            $params['rawBody'],
+            $params['protocolVersion']
         );
-        $serverRequest->serverParams = $_SERVER;
-        $serverRequest->queryParams = $request->query();
-        $serverRequest->parseBody = $request->post();
-        $serverRequest->cookieParams = $request->cookie();
-        $files = $request->file();
+        $serverRequest->serverParams = $params['server'] ?? [];
+        $serverRequest->queryParams = $params['query'] ?? [];
+        $serverRequest->parseBody = $params['post'] ?? [];
+        $serverRequest->cookieParams = $params['cookie'] ?? [];
+        $files = $params['file'];
         foreach ($files as $name => $file) {
             if (Arr::isList($file)) {
                 foreach ($file as $item) {

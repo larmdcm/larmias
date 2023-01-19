@@ -7,7 +7,7 @@ namespace Larmias\Di\Annotation;
 use Attribute;
 
 #[Attribute(Attribute::TARGET_CLASS | Attribute::TARGET_PROPERTY)]
-class Scope extends AnnotationAbstract
+class Scope extends AbstractAnnotation
 {
     /**
      * @var string

@@ -1,6 +1,6 @@
 {
   "name": "larmias/middleware",
-  "description": "Http server library based on PSR-7 / PSR-17 standard.",
+  "description": "A middleware component for larmias.",
   "type": "library",
   "keywords": [
     "larmias",

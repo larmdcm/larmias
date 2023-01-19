@@ -189,7 +189,7 @@ class Message implements MessageInterface
 
     /**
      * @param array $headers
-     * @return $this
+     * @return self
      */
     public function withHeaders(array $headers): self
     {
@@ -199,7 +199,7 @@ class Message implements MessageInterface
             }
 
             $value = $this->trimHeaderValues($value);
-            $normalized = strtolower($header);
+            $normalized = \strtolower($header);
             if (isset($this->headerNames[$normalized])) {
                 $header = $this->headerNames[$normalized];
                 $this->headers[$header] = array_merge($this->headers[$header], $value);

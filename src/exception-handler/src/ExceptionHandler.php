@@ -19,7 +19,7 @@ abstract class ExceptionHandler implements ExceptionReportHandlerInterface
     /**
      * ExceptionHandler constructor.
      *
-     * @param \Larmias\Contracts\ContainerInterface $container
+     * @param ContainerInterface $container
      */
     public function __construct(protected ContainerInterface $container)
     {

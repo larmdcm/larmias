@@ -16,7 +16,7 @@ class Cache implements CacheInterface
      */
     protected array $stores = [];
 
-    public function __construct(protected ConfigInterface $config,protected ContainerInterface $container)
+    public function __construct(protected ContainerInterface $container, protected ConfigInterface $config)
     {
     }
 
@@ -34,7 +34,7 @@ class Cache implements CacheInterface
         }
         $storeConfig = $this->getConfig('stores.' . $name);
         /** @var CacheInterface $store */
-        $store = $this->container->make($storeConfig['driver'],['config' => $storeConfig]);
+        $store = $this->container->make($storeConfig['driver'], ['config' => $storeConfig]);
         return $this->stores[$name] = $store;
     }
 

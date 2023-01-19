@@ -77,6 +77,9 @@ class Response extends Message implements ResponseInterface
     /** @var int */
     protected int $statusCode = 200;
 
+    /** @var array */
+    protected array $cookies = [];
+
     /**
      * Response constructor.
      *
@@ -101,7 +104,6 @@ class Response extends Message implements ResponseInterface
         } else {
             $this->reasonPhrase = (string)$reason;
         }
-
     }
 
     /**
@@ -164,5 +166,24 @@ class Response extends Message implements ResponseInterface
     public function getReasonPhrase(): string
     {
         return $this->reasonPhrase;
+    }
+
+    /**
+     * @param Cookie $cookie
+     * @return self
+     */
+    public function withCookie(Cookie $cookie): self
+    {
+        $clone = clone $this;
+        $clone->cookies[$cookie->getDomain()][$cookie->getPath()][$cookie->getName()] = $cookie;
+        return $clone;
+    }
+
+    /**
+     * @return array
+     */
+    public function getCookies(): array
+    {
+        return $this->cookies;
     }
 }

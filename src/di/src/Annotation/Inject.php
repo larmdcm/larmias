@@ -7,7 +7,7 @@ namespace Larmias\Di\Annotation;
 use Attribute;
 
 #[Attribute(Attribute::TARGET_PROPERTY)]
-class Inject extends AnnotationAbstract
+class Inject extends AbstractAnnotation
 {
     public function __construct(public ?string $name = null, public bool $required = true, public ?string $scope = null)
     {

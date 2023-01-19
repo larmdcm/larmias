@@ -7,7 +7,7 @@ namespace Larmias\Di\Annotation;
 use Larmias\Utils\Reflection\ReflectionManager;
 use ReflectionProperty;
 
-abstract class AnnotationAbstract
+abstract class AbstractAnnotation
 {
     /**
      * @return array

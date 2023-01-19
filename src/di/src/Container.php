@@ -6,6 +6,7 @@ namespace Larmias\Di;
 
 use Larmias\Contracts\ContainerInterface;
 use Larmias\Di\Annotation\Scope;
+use Larmias\Utils\ApplicationContext;
 use Psr\Container\ContainerInterface as PsrContainerInterface;
 use Closure;
 use Larmias\Utils\Reflection\Invoker;
@@ -73,18 +74,19 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
     public static function getInstance(): ContainerInterface
     {
         if (is_null(static::$instance)) {
-            static::$instance = new static();
+            static::setInstance(new static());
         }
         return static::$instance;
     }
 
     /**
      * @param ContainerInterface|null $container
-     * @return ContainerInterface|null
+     * @return void
      */
-    public static function setInstance(ContainerInterface $container = null): ?ContainerInterface
+    public static function setInstance(ContainerInterface $container = null): void
     {
-        return static::$instance = $container;
+        static::$instance = $container;
+        ApplicationContext::setContainer(static::$instance);
     }
 
     /**

@@ -20,6 +20,9 @@ class FileHandler extends Driver
         'gc_divisor' => 100,
     ];
 
+    /**
+     * @throws \Exception
+     */
     public function initialize(): void
     {
         if (empty($this->config['path'])) {
@@ -63,11 +66,11 @@ class FileHandler extends Driver
     /**
      * @see https://php.net/manual/en/sessionhandlerinterface.gc.php
      * @param int $max_lifetime
-     * @return void
+     * @return int|false
      */
-    public function gc(int $max_lifetime): void
+    public function gc(int $max_lifetime): int|false
     {
-        $now = time();
+        $now = \time();
 
         $files = $this->findFiles($this->config['path'], function (SplFileInfo $item) use ($max_lifetime, $now) {
             return $now - $max_lifetime > $item->getMTime();
@@ -76,6 +79,8 @@ class FileHandler extends Driver
         foreach ($files as $file) {
             $this->unlink($file->getPathname());
         }
+
+        return 0;
     }
 
     /**
@@ -170,7 +175,7 @@ class FileHandler extends Driver
             $name = 'sess_' . $name;
         }
 
-        $filename = $this->config['path'] . $name;
+        $filename = $this->config['path'] . DIRECTORY_SEPARATOR . $name;
         $dir = \dirname($filename);
 
         if ($auto && !\is_dir($dir)) {

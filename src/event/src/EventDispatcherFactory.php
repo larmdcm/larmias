@@ -11,8 +11,8 @@ use Psr\EventDispatcher\ListenerProviderInterface;
 class EventDispatcherFactory
 {
     /**
-     * @param \Larmias\Contracts\ContainerInterface $container
-     * @return \Psr\EventDispatcher\EventDispatcherInterface
+     * @param ContainerInterface $container
+     * @return EventDispatcherInterface
      * @throws \Psr\Container\ContainerExceptionInterface
      * @throws \Psr\Container\NotFoundExceptionInterface
      */

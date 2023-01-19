@@ -29,7 +29,7 @@ class Response implements PsrResponseInterface, ResponseInterface
     {
         $json = Json::encode($data);
         /** @var \Larmias\Http\Message\Response $response */
-        $response = $this->withAddedHeader('content-type', 'application/json; charset=utf-8')
+        $response = $this->withAddedHeader('Content-Type', 'application/json; charset=utf-8')
             ->withStatus($code)
             ->withBody(Stream::create($json));
         if (!empty($headers) && \method_exists($response, 'withHeaders')) {
@@ -47,7 +47,7 @@ class Response implements PsrResponseInterface, ResponseInterface
     public function raw(string|\Stringable $data, int $code = 200, array $headers = []): PsrResponseInterface
     {
         /** @var \Larmias\Http\Message\Response $response */
-        $response = $this->withAddedHeader('content-type', 'text/plain; charset=utf-8')->withStatus($code)
+        $response = $this->withAddedHeader('Content-Type', 'text/plain; charset=utf-8')->withStatus($code)
             ->withBody(Stream::create((string)$data));
         if (!empty($headers) && \method_exists($response, 'withHeaders')) {
             $response->withHeaders($headers);
@@ -64,7 +64,7 @@ class Response implements PsrResponseInterface, ResponseInterface
     public function html(\Stringable|string $data, int $code = 200, array $headers = []): PsrResponseInterface
     {
         /** @var \Larmias\Http\Message\Response $response */
-        $response = $this->withAddedHeader('content-type', 'text/html; charset=utf-8')->withStatus($code)
+        $response = $this->withAddedHeader('Content-Type', 'text/html; charset=utf-8')->withStatus($code)
             ->withBody(Stream::create((string)$data));
         if (!empty($headers) && \method_exists($response, 'withHeaders')) {
             $response->withHeaders($headers);

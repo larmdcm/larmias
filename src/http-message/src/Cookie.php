@@ -52,10 +52,12 @@ class Cookie implements Stringable
             throw new InvalidArgumentException(\sprintf('The cookie name "%s" contains invalid characters.', $this->name));
         }
         if ($expire instanceof DateTimeInterface) {
-            $this->expire = (int)$expire->format('U');
+            $expire = (int)$expire->format('U');
         } else if (!\is_numeric($expire)) {
-            $this->expire = \strtotime($expire);
+            $expire = \strtotime($expire);
         }
+
+        $this->expire = $expire;
 
         if ($this->sameSite !== null) {
             $this->sameSite = strtolower($sameSite);

@@ -26,7 +26,7 @@ return [
                 'task_worker_num' => 1,
             ],
             'callbacks' => [
-                Event::ON_REQUEST => [HttpServer::class,HttpServer::ON_REQUEST]
+                Event::ON_REQUEST => [HttpServer::class, HttpServer::ON_REQUEST]
             ]
         ],
         [
@@ -34,8 +34,8 @@ return [
             'type' => WorkerType::WORKER_PROCESS,
             'settings' => [
                 'worker_num' => 1,
-                 'watch' => [
-                    'enabled'  => true,
+                'watch' => [
+                    'enabled' => true,
                     'includes' => [
                         __DIR__ . '/config',
                         __DIR__ . '/router.php',
@@ -43,20 +43,23 @@ return [
                 ],
             ],
             'callbacks' => [
-                Event::ON_WORKER_START => [\Larmias\Engine\Process\Handler\WorkerHotUpdateHandler::class,'handle'],
+                Event::ON_WORKER_START => [\Larmias\Engine\Process\Handler\WorkerHotUpdateHandler::class, 'handle'],
             ]
         ]
     ],
-    'settings'  => [
+    'settings' => [
 
     ],
     'callbacks' => [
         Event::ON_WORKER_START => function () {
             $container = require '../di/container.php';
-            $container->bind(ConfigInterface::class,Config::class);
-            $container->bind(PipelineInterface::class,Pipeline::class);
-            $container->bind(ListenerProviderInterface::class,ListenerProviderFactory::make($container,[]));
-            $container->bind(EventDispatcherInterface::class,EventDispatcherFactory::make($container));
+            $container->bind(ConfigInterface::class, Config::class);
+            $container->bind(PipelineInterface::class, Pipeline::class);
+            $container->bind(ListenerProviderInterface::class, ListenerProviderFactory::make($container, []));
+            $container->bind(EventDispatcherInterface::class, EventDispatcherFactory::make($container));
+            $container->bind(\Larmias\Contracts\Redis\RedisFactoryInterface::class, \Larmias\Redis\RedisFactory::class);
+            $container->bind(\Larmias\Contracts\SessionInterface::class, \Larmias\Session\Session::class);
+            $container->bind(\Larmias\Contracts\ViewInterface::class, \Larmias\View\View::class);
             foreach (glob(__DIR__ . '/config/*.php') as $file) {
                 $container->make(ConfigInterface::class)->load($file);
             }

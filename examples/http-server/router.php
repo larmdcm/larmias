@@ -24,14 +24,14 @@ Router::get('/auto', function () {
     return ['name' => 123];
 });
 
-Router::get('/upload', function (RequestInterface $request, ResponseInterface $response) {
-    return $response->html(file_get_contents('./views/upload.html'));
+Router::get('/upload', function (RequestInterface $request, ResponseInterface $response, \Larmias\Contracts\ViewInterface $view) {
+    return $response->html($view->render('upload'));
 });
 
-Router::post('/upload', function (RequestInterface $request, ResponseInterface $response) {
+Router::post('/upload', function (RequestInterface $request, ResponseInterface $response, \Larmias\Contracts\ViewInterface $view) {
     $file = $request->file('file');
     $file->moveTo('./upload/a.jpg');
-    return $response->html(file_get_contents('./views/upload.html'));
+    return $response->html($view->render('upload'));
 });
 
 Router::get('/cookie', function (RequestInterface $request, ResponseInterface $response) {
@@ -41,3 +41,8 @@ Router::get('/cookie', function (RequestInterface $request, ResponseInterface $r
     }
     return $request->cookie($request->query('key', 'null'), 'null');
 });
+
+Router::get('/session', function (\Larmias\Contracts\SessionInterface $session, ResponseInterface $response) {
+    $session->set('name', 'session');
+    return $session->get('name');
+})->middleware(\Larmias\Session\Middlewares\SessionMiddleware::class);

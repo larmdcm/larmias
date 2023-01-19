@@ -109,7 +109,7 @@ class FileHandler extends Driver
         if (\is_file($filename) && \filemtime($filename) >= \time() - $this->config['expire']) {
             $content = $this->readFile($filename);
 
-            if ($this->config['data_compress'] && \function_exists('gzcompress')) {
+            if ($this->config['data_compress'] && \function_exists('gzuncompress')) {
                 //启用数据压缩
                 $content = (string)gzuncompress($content);
             }

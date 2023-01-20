@@ -75,7 +75,8 @@
       "Larmias\\Lock\\": "src/lock/src/",
       "Larmias\\Session\\": "src/session/src/",
       "Larmias\\View\\": "src/view/src/",
-      "Larmias\\Crontab\\": "src/crontab/src/"
+      "Larmias\\Crontab\\": "src/crontab/src/",
+      "Larmias\\Rpn\\": "src/rpn/src/"
     }
   }
 }

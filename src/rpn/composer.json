@@ -1,0 +1,29 @@
+{
+    "name": "larmdcm/rpn",
+    "description": "Expression of rpn computation implemented by php.",
+    "type": "library",
+    "keywords": [
+        "php",
+        "rpn",
+        "lexer"
+    ],
+    "homepage": "https://larmdcm.cn/",
+    "license": "MIT",
+    "authors": [{
+        "name": "larmdcm",
+        "email": "mdcm98@163.com"
+    }],
+    "require": {
+        "php": ">=8.0",
+        "ext-ctype": "*",
+        "ext-bcmath": "*"
+    },
+    "require-dev": {
+        
+    },
+    "autoload": {
+        "psr-4": {
+            "Larmias\\Rpn\\": "src/"
+        }
+    }
+}

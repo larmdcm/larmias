@@ -117,7 +117,7 @@
         }
 
         .line-numbers-rows {
-            counter-reset: itemcounter <?=$data['source_code']['line']?> !important;
+            counter-reset: itemcounter <?=$data['source_code']['first']?> !important;
         }
 
         .line-numbers-rows > span {
@@ -212,7 +212,7 @@
             <a href="javascript:;" class="err-msg"><?= $data['message'] ?></a>
         </p>
 
-        <pre data-line="<?= $data['source_code']['line'] ?>">
+        <pre data-line="<?= $data['source_code']['highlight'] ?>">
     <code class="language-php line-numbers">
         <?php foreach ($data['source_code']['source'] as $item): ?>
             <?= $item ?>

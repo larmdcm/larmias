@@ -16,7 +16,6 @@ class JsonRender extends Render
     {
         try {
             $data = $this->getData($e);
-            unset($data['source_code']);
             return \json_encode($data, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
         } catch (Throwable) {
             return ' ';

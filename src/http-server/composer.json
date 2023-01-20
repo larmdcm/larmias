@@ -7,7 +7,7 @@
     "http",
     "server",
     "psr",
-    "WorkerS"
+    "psr-7"
   ],
   "homepage": "https://larmias.com/",
   "license": "Apache-2.0",

@@ -3,7 +3,7 @@
   "description": "Repositories to the database layer",
   "type": "library",
   "keywords": [
-    "RepositoryAbstract",
+    "repository",
     "db"
   ],
   "homepage": "https://larmias.com/",

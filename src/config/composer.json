@@ -4,7 +4,7 @@
   "type": "library",
   "keywords": [
     "larmias",
-    "utils"
+    "config"
   ],
   "homepage": "https://larmias.com/",
   "license": "Apache-2.0",

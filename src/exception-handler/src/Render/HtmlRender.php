@@ -17,7 +17,7 @@ class HtmlRender extends Render
         try {
             $data = $this->getData($e);
             $data['resource_path'] = \realpath(__DIR__ . '/../../resources');
-            extract(['data' => $data]);
+            $data['source_code'] = $this->getSourceCode($e);
             ob_start();
             include $data['resource_path'] . '/views/html_render.php';
             $content = ob_get_clean();

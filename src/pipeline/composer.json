@@ -4,8 +4,7 @@
   "type": "library",
   "keywords": [
     "larmias",
-    "routing",
-    "router"
+    "pipeline"
   ],
   "homepage": "https://larmias.com/",
   "license": "Apache-2.0",

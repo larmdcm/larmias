@@ -32,7 +32,6 @@ abstract class Render implements RenderInterface
     public function getData(Throwable $e): array
     {
         $data = $this->collectExceptionToArray($e);
-        $data['source_code'] = $this->getSourceCode($e);
         $data['tables'] = $this->getDataTable();
         return $data;
     }
@@ -41,24 +40,44 @@ abstract class Render implements RenderInterface
      * 获取出错文件内容
      *
      * @param Throwable $exception
+     * @param int $showLine
      * @return array
      */
-    protected function getSourceCode(Throwable $exception): array
+    protected function getSourceCode(Throwable $exception, int $showLine = 15): array
     {
-        $line = $exception->getLine();
-        $first = ($line - 9 > 0) ? $line - 9 : 1;
-
+        $data = [
+            'line' => $exception->getLine(),
+            'source' => [],
+            'first' => 0,
+            'highlight' => 0,
+        ];
         try {
-            $contents = \file($exception->getFile()) ?: [];
-            $source = [
-                'line' => $line,
-                'source' => \array_slice($contents, $first - 1, 19),
-            ];
-        } catch (Throwable $e) {
             $source = [];
+            $contents = \file($exception->getFile()) ?: [];
+            for ($i = $showLine; $i > 0; $i--) {
+                $line = $data['line'] - $i;
+                if (!isset($contents[$line])) {
+                    break;
+                }
+                if ($i == $showLine) {
+                    $data['first'] = $line - 1;
+                }
+                $source[] = $contents[$line];
+            }
+            $source[] = $contents[$data['line']];
+            $data['highlight'] = \count($source);
+            for ($i = 1; $i <= $showLine; $i++) {
+                $line = $data['line'] + $i;
+                if (!isset($contents[$line])) {
+                    break;
+                }
+                $source[] = $contents[$line];
+            }
+            $data['source'] = $source;
+        } catch (Throwable $e) {
         }
 
-        return $source;
+        return $data;
     }
 
     /**

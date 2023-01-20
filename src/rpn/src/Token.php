@@ -8,14 +8,14 @@ use Stringable;
 
 class Token implements Stringable
 {
-	/** @var string */
-	public const TYPE_OPERATOR = 'OPERATOR';
+    /** @var string */
+    public const TYPE_OPERATOR = 'OPERATOR';
 
-	/** @var string */
-	public const TYPE_NUMBER = 'NUMBER';
+    /** @var string */
+    public const TYPE_NUMBER = 'NUMBER';
 
-	/** @var string */
-	public const TYPE_IDENTIFY = 'IDENTIFY';
+    /** @var string */
+    public const TYPE_IDENTIFY = 'IDENTIFY';
 
     /**
      * Token __construct.
@@ -24,9 +24,9 @@ class Token implements Stringable
      * @param string|null $name
      * @param string|null $value
      */
-	public function __construct(protected ?string $type = null,protected ?string $name = null,protected ?string $value = null)
-	{
-	}
+    public function __construct(protected ?string $type = null, protected ?string $name = null, protected ?string $value = null)
+    {
+    }
 
     /**
      * @return string|null
@@ -89,11 +89,11 @@ class Token implements Stringable
         return $this->getType() == self::TYPE_NUMBER || $this->getType() == self::TYPE_IDENTIFY;
     }
 
-	/**
-	 * @return string
-	 */
-	public function __toString()
-	{
-		return sprintf('Token{type=%s,name=%s,value=%s};',$this->type,$this->name,$this->value);
-	}
+    /**
+     * @return string
+     */
+    public function __toString(): string
+    {
+        return sprintf('Token{type=%s,name=%s,value=%s};', $this->type, $this->name, $this->value);
+    }
 }

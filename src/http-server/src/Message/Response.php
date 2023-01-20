@@ -12,6 +12,7 @@ use Larmias\Utils\Codec\Json;
 use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
 use Psr\Http\Message\StreamInterface;
 use BadMethodCallException;
+use Larmias\Http\Message\Stream\FileStream;
 
 class Response implements PsrResponseInterface, ResponseInterface
 {
@@ -70,6 +71,15 @@ class Response implements PsrResponseInterface, ResponseInterface
             $response->withHeaders($headers);
         }
         return $response;
+    }
+
+    /**
+     * @param string|\SplFileInfo $file
+     * @return PsrResponseInterface
+     */
+    public function file(string|\SplFileInfo $file): PsrResponseInterface
+    {
+        return $this->withBody(new FileStream($file));
     }
 
     protected function getResponse(): PsrResponseInterface

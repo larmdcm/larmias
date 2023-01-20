@@ -19,6 +19,9 @@
     "larmias/contracts": "^1.0"
   },
   "autoload": {
+    "files": [
+      "src/Blade/helpers.php"
+    ],
     "psr-4": {
       "Larmias\\View\\": "src/"
     }

@@ -34,6 +34,12 @@ interface ResponseInterface
     public function html(string|\Stringable $data, int $code = 200, array $headers = []): PsrResponseInterface;
 
     /**
+     * @param string|\SplFileInfo $file
+     * @return PsrResponseInterface
+     */
+    public function file(string|\SplFileInfo $file): PsrResponseInterface;
+
+    /**
      * @param Cookie $cookie
      * @return ResponseInterface
      */

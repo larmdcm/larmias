@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\HttpServer;
 
+use Larmias\Contracts\FileInterface;
 use Larmias\Contracts\Http\ResponseInterface;
 use Larmias\Utils\Helper;
 use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
@@ -11,9 +12,15 @@ use Larmias\Contracts\Http\ResponseEmitterInterface;
 
 class ResponseEmitter implements ResponseEmitterInterface
 {
-    public function emit(PsrResponseInterface $response, ResponseInterface $serverResponse, bool $withContent = true)
+    public function emit(PsrResponseInterface $response, ResponseInterface $serverResponse, bool $withContent = true): void
     {
         $content = $response->getBody();
+
+        if ($content instanceof FileInterface) {
+            $serverResponse->sendFile($content->getPathname());
+            return;
+        }
+
         $serverResponse = $serverResponse->withHeaders($response->getHeaders())
             ->status($response->getStatusCode(), $response->getReasonPhrase());
 
@@ -34,6 +41,7 @@ class ResponseEmitter implements ResponseEmitterInterface
                 }
             }
         }
+
         if ($withContent) {
             $serverResponse->end((string)$content);
         } else {

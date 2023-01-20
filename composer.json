@@ -43,7 +43,8 @@
     "files": [
       "src/utils/src/functions.php",
       "src/engine/src/functions.php",
-      "src/framework/src/functions.php"
+      "src/framework/src/functions.php",
+      "src/view/src/Blade/helpers.php"
     ],
     "psr-4": {
       "Larmias\\Utils\\": "src/utils/src/",

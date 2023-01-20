@@ -10,7 +10,7 @@
                 'css/prism.css'
              ];
              foreach ($styles as $style) {
-               echo file_get_contents($data['resource_path'] .'/' . $style);
+               echo \file_get_contents($data['resource_path'] .'/' . $style);
              }
         ?>
     </style>
@@ -199,10 +199,10 @@
 <div class="container">
     <h1>
         <?php
-        echo "<span class='exception-name' title='" . $data['exception'] . "'>" . basename(str_replace('\\', DIRECTORY_SEPARATOR, $data['exception'])) . "</span>" . " in ";
+        echo "<span class='exception-name' title='" . $data['exception'] . "'>" . \basename(\str_replace('\\', \DIRECTORY_SEPARATOR, $data['exception'])) . "</span>" . " in ";
         ?>
         <a class="toggle" href="javascript:;"
-           title="<?= $data['file'] ?> line <?= $data['line'] ?>"> <?= basename($data['file']) ?>
+           title="<?= $data['file'] ?> line <?= $data['line'] ?>"> <?= \basename($data['file']) ?>
             line <?= $data['line'] ?></a>
     </h1>
 
@@ -221,32 +221,35 @@
   </pre>
         <p class="notice">Call Stack</p>
 
-        <ol class="call-trace">
-            <li>in <span class="toggle" title="<?= $data['file'] ?>"> <?= basename($data['file']) ?></span> line
-                <span><?= $data['line'] ?></span></li>
-            <?php foreach ($data['traces'] as $trace): ?>
-                <li>
-                    at&nbsp;
-                    <?php if (isset($trace['class'])): ?>
-                        <span title="<?= $trace['class'] ?>"
-                              class="toggle"><?= basename(str_replace('\\', DIRECTORY_SEPARATOR, $trace['class'])) ?></span>
-                    <?php endif ?>
-                    <?php if (isset($trace['type'])): ?>
-                        <span><?= $trace['type'] ?></span>
-                    <?php endif ?>
-                    <?php if (isset($trace['function'])): ?>
-                        <span><?= $trace['function'] ?></span>
-                    <?php endif ?>
-                    <?php if (isset($trace['file'])): ?>
-                        in &nbsp;<span title="<?= $trace['file'] ?>"
-                                       class="toggle"><?= basename($trace['file']) ?></span>
-                    <?php endif ?>
-                    <?php if (isset($trace['line'])): ?>
-                        line &nbsp;<span><?= $trace['line'] ?></span>
-                    <?php endif ?>
+        <?php foreach ($data['traces'] as $item): ?>
+            <ol class="call-trace">
+                <li>in <span class="toggle" title="<?= $item['file'] ?>"> <?= \basename($item['file']) ?></span> line
+                    <span><?= $item['line'] ?></span>
                 </li>
-            <?php endforeach; ?>
-        </ol>
+                <?php foreach ($item['trace'] as $trace): ?>
+                    <li>
+                        at&nbsp;
+                        <?php if (isset($trace['class'])): ?>
+                            <span title="<?= $trace['class'] ?>"
+                                  class="toggle"><?= \basename(\str_replace('\\', \DIRECTORY_SEPARATOR, $trace['class'])) ?></span>
+                        <?php endif ?>
+                        <?php if (isset($trace['type'])): ?>
+                            <span><?= $trace['type'] ?></span>
+                        <?php endif ?>
+                        <?php if (isset($trace['function'])): ?>
+                            <span><?= $trace['function'] ?></span>
+                        <?php endif ?>
+                        <?php if (isset($trace['file'])): ?>
+                            in &nbsp;<span title="<?= $trace['file'] ?>"
+                                           class="toggle"><?= \basename($trace['file']) ?></span>
+                        <?php endif ?>
+                        <?php if (isset($trace['line'])): ?>
+                            line &nbsp;<span><?= $trace['line'] ?></span>
+                        <?php endif ?>
+                    </li>
+                <?php endforeach; ?>
+            </ol>
+        <?php endforeach; ?>
         <p class="notice">Environment & details</p>
         <div class="variables-list">
             <?php foreach ($data['tables'] as $name => $var): ?>
@@ -286,7 +289,7 @@
     ];
 
     foreach ($scripts as $script) {
-        echo file_get_contents($data['resource_path'] . '/' . $script);
+        echo \file_get_contents($data['resource_path'] . '/' . $script);
     }
     ?>
 </script>

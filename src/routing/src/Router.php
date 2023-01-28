@@ -36,6 +36,11 @@ class Router
     protected Group $group;
 
     /**
+     * @var RouteName
+     */
+    protected RouteName $routeName;
+
+    /**
      * @var boolean
      */
     protected bool $isCollectRoute = false;
@@ -46,7 +51,7 @@ class Router
     protected bool $isCollectGroup = false;
 
     /**
-     * @var Dispatcher
+     * @var FastRouteDispatcher
      */
     protected FastRouteDispatcher $dispatcher;
 
@@ -55,10 +60,11 @@ class Router
      */
     protected array $queue = [];
 
+
     /**
      * RouterAbstract __construct.
      *
-     * @param \Larmias\Contracts\ContainerInterface $container
+     * @param ContainerInterface $container
      */
     public function __construct(protected ContainerInterface $container)
     {
@@ -132,6 +138,15 @@ class Router
     }
 
     /**
+     * @param string $name
+     * @return self
+     */
+    public function name(string $name): self
+    {
+        return $this->addOption(__FUNCTION__, $name);
+    }
+
+    /**
      * add route middleware
      *
      * @param string|array $middleware
@@ -154,6 +169,24 @@ class Router
     }
 
     /**
+     * @return Rule[]
+     */
+    public function getRules(): array
+    {
+        return $this->rules;
+    }
+
+    /**
+     * @param string|int $name
+     * @return Rule|null
+     */
+    public function getRule(string|int $name): ?Rule
+    {
+        $index = \is_string($name) ? $this->routeName->get($name) : $name;
+        return $this->rules[$index] ?? null;
+    }
+
+    /**
      * 路由调度.
      *
      * @param string $method
@@ -167,7 +200,7 @@ class Router
 
         $routeInfo = $this->dispatcher->dispatch($method, $route);
         if ($routeInfo[0] === FastRouteDispatcher::FOUND) {
-            /** @var \Larmias\Routing\Rule $rule */
+            /** @var Rule $rule */
             $rule = $routeInfo[1];
             return new Dispatched(Dispatcher::create($this->container, $rule), $rule, $routeInfo[2]);
         }
@@ -229,7 +262,13 @@ class Router
         }
         foreach ($this->queue as $item) {
             if ($item['type'] === self::TYPE_RULE) {
-                $this->rules[$item['index']]->setOption([$key => $value]);
+                $rule = $this->rules[$item['index']];
+                if ($key === 'name') {
+                    $rule->setName($value);
+                    $this->routeName->set($value, $item['index']);
+                } else {
+                    $rule->setOption([$key => $value]);
+                }
             } else {
                 $this->group->setOption($item['index'], [$key => $value]);
             }

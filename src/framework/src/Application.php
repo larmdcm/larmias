@@ -9,6 +9,7 @@ use Larmias\Contracts\ApplicationInterface;
 use Larmias\Contracts\ConfigInterface;
 use Larmias\Contracts\ConsoleInterface;
 use Larmias\Contracts\ContainerInterface;
+use Larmias\Contracts\DotEnvInterface;
 use Larmias\Contracts\ServiceProviderInterface;
 use Larmias\Di\Container;
 use Larmias\Engine\Contracts\KernelInterface;
@@ -73,7 +74,7 @@ class Application extends Container implements ApplicationInterface
             ApplicationInterface::class => $this,
             ConsoleInterface::class => Console::class,
             ListenerProviderInterface::class => function () {
-                return ListenerProviderFactory::make($this, $this->loadFileConfig('listeners',false));
+                return ListenerProviderFactory::make($this, $this->loadFileConfig('listeners', false));
             },
             EventDispatcherInterface::class => function () {
                 return EventDispatcherFactory::make($this);
@@ -89,10 +90,27 @@ class Application extends Container implements ApplicationInterface
     public function initialize(): void
     {
         $this->bind($this->loadFileConfig('dependencies'));
+        $this->loadEnv();
         $this->loadConfig();
-        \date_default_timezone_set($this->config->get('app.default_timezone','Asia/Shanghai'));
-        $this->bind($this->config->get('dependencies',[]));
+        \date_default_timezone_set($this->config->get('app.default_timezone', 'Asia/Shanghai'));
+        $this->bind($this->config->get('dependencies', []));
         $this->boot();
+    }
+
+    /**
+     * 加载环境变量配置
+     *
+     * @return void
+     * @throws \ReflectionException
+     */
+    protected function loadEnv(): void
+    {
+        $file = $this->getRootPath() . '.env';
+        if (\is_file($file)) {
+            /** @var DotEnvInterface $dotenv */
+            $dotenv = $this->make(DotEnvInterface::class);
+            $dotenv->load($file);
+        }
     }
 
     /**
@@ -117,7 +135,7 @@ class Application extends Container implements ApplicationInterface
      */
     protected function boot(): void
     {
-        $bootProviders = \array_merge($this->loadFileConfig('providers',false),$this->config->get('providers',[]));
+        $bootProviders = \array_merge($this->loadFileConfig('providers', false), $this->config->get('providers', []));
         foreach ($bootProviders as $provider) {
             $this->register($provider);
         }
@@ -265,20 +283,20 @@ class Application extends Container implements ApplicationInterface
      * @param bool $loadConfigPath
      * @return array
      */
-    public function loadFileConfig(string $name,bool $loadConfigPath = true): array
+    public function loadFileConfig(string $name, bool $loadConfigPath = true): array
     {
         $files = [__DIR__ . '/../config/' . $name . '.php'];
         if ($loadConfigPath) {
-            $files[] = $this->getConfigPath() . $name . '.' .  $this->configExt;
+            $files[] = $this->getConfigPath() . $name . '.' . $this->configExt;
         }
         $config = [];
         foreach ($files as $file) {
             if (!\is_file($file)) {
                 continue;
             }
-            $extension = pathinfo($file,PATHINFO_EXTENSION);
+            $extension = pathinfo($file, PATHINFO_EXTENSION);
             if ($extension === 'php') {
-                $config = \array_merge($config,require $file);
+                $config = \array_merge($config, require $file);
             }
         }
         return $config;

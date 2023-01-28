@@ -6,6 +6,7 @@ namespace Larmias\HttpServer\Routing;
 
 use Larmias\Contracts\ContainerInterface;
 use Larmias\Routing\Router as RouteCollector;
+use Larmias\Routing\Rule;
 
 /**
  * @method static RouteCollector rule(string|array $method, string $route, mixed $handler)
@@ -13,6 +14,7 @@ use Larmias\Routing\Router as RouteCollector;
  * @method static RouteCollector prefix(string $prefix)
  * @method static RouteCollector middleware(string|array $middleware)
  * @method static RouteCollector namespace(string $namespace)
+ * @method static Rule[] getRules()
  */
 class Router
 {
@@ -22,7 +24,7 @@ class Router
     protected static ?RouteCollector $router = null;
 
     /**
-     * @param \Larmias\Contracts\ContainerInterface $container
+     * @param ContainerInterface $container
      * @return void
      */
     public static function init(ContainerInterface $container): void
@@ -35,7 +37,7 @@ class Router
      *
      * @param string $route
      * @param mixed $handler
-     * @return \Larmias\Routing\Router
+     * @return RouteCollector
      */
     public static function get(string $route, mixed $handler): RouteCollector
     {
@@ -47,7 +49,7 @@ class Router
      *
      * @param string $route
      * @param mixed $handler
-     * @return \Larmias\Routing\Router
+     * @return RouteCollector
      */
     public static function post(string $route, mixed $handler): RouteCollector
     {
@@ -59,7 +61,7 @@ class Router
      *
      * @param string $route
      * @param mixed $handler
-     * @return \Larmias\Routing\Router
+     * @return RouteCollector
      */
     public static function put(string $route, mixed $handler): RouteCollector
     {
@@ -71,7 +73,7 @@ class Router
      *
      * @param string $route
      * @param mixed $handler
-     * @return \Larmias\Routing\Router
+     * @return RouteCollector
      */
     public static function delete(string $route, mixed $handler): RouteCollector
     {
@@ -83,7 +85,7 @@ class Router
      *
      * @param string $route
      * @param mixed $handler
-     * @return \Larmias\Routing\Router
+     * @return RouteCollector
      */
     public static function patch(string $route, mixed $handler): RouteCollector
     {
@@ -95,7 +97,7 @@ class Router
      *
      * @param string $route
      * @param mixed $handler
-     * @return \Larmias\Routing\Router
+     * @return RouteCollector
      */
     public static function head(string $route, mixed $handler): RouteCollector
     {
@@ -103,7 +105,7 @@ class Router
     }
 
     /**
-     * @return \Larmias\Routing\Router
+     * @return RouteCollector
      */
     public static function getRouteCollector(): RouteCollector
     {

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\Framework\Providers;
 
+use Larmias\Contracts\DotEnvInterface;
 use Larmias\Contracts\TranslatorInterface;
 use Larmias\Event\ListenerProviderFactory;
 use Larmias\Framework\ServiceProvider;
@@ -21,7 +22,7 @@ class BootServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->listeners();
-        $this->validator();
+        // $this->validator();
     }
 
     /**

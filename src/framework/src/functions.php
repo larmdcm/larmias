@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\Framework;
 
+use Larmias\Contracts\DotEnvInterface;
 use Larmias\Contracts\LoggerInterface;
 use Larmias\Contracts\TranslatorInterface;
 use Larmias\Di\Container;
@@ -95,4 +96,18 @@ function trace(mixed $message, string $level = LoggerLevel::INFO, array $context
 {
     $logger = logger();
     $logger->log($level, \is_scalar($message) ? $message : (string)\var_export($message, true), $context);
+}
+
+/**
+ * 获取环境变量
+ *
+ * @param string $name
+ * @param mixed|null $default
+ * @return mixed
+ */
+function env(string $name, mixed $default = null): mixed
+{
+    /** @var DotEnvInterface $dotenv */
+    $dotenv = make(DotEnvInterface::class);
+    return $dotenv->get($name, $default);
 }

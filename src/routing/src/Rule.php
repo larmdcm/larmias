@@ -9,6 +9,11 @@ class Rule
     /**
      * @var string
      */
+    protected string $name;
+
+    /**
+     * @var string
+     */
     protected string $method;
 
     /**
@@ -48,6 +53,25 @@ class Rule
         $this->handler = $handler;
         $this->groupNumbers = $groupNumbers;
         $this->option = \array_merge($option, self::getDefaultOption());
+    }
+
+    /**
+     * @return string
+     */
+    public function getName(): string
+    {
+        if (!isset($this->name)) {
+            return $this->getMethod() . '::' . $this->getRoute();
+        }
+        return $this->name;
+    }
+
+    /**
+     * @param string $name
+     */
+    public function setName(string $name): void
+    {
+        $this->name = $name;
     }
 
     /**
@@ -141,11 +165,12 @@ class Rule
     /**
      * Get 规则选项.
      *
-     * @return array
+     * @param string|null $name
+     * @return mixed
      */
-    public function getOption(): array
+    public function getOption(?string $name = null): mixed
     {
-        return $this->option;
+        return $name ? ($this->option[$name] ?? null) : $this->option;
     }
 
     /**
@@ -156,7 +181,7 @@ class Rule
      */
     public function setOption(array $option): self
     {
-        $this->option = array_merge($this->option, $option);
+        $this->option = \array_merge($this->option, $option);
         return $this;
     }
 

@@ -50,3 +50,7 @@ Router::get('/session', function (\Larmias\Contracts\SessionInterface $session, 
 Router::get('/exception', function () {
     throw new RuntimeException('发生了异常');
 });
+
+Router::get('/url', function (RequestInterface $request) {
+    return (string)$request->getUri();
+});

@@ -13,12 +13,12 @@ use RuntimeException;
 class Kernel implements KernelInterface
 {
     /**
-     * @var \Larmias\Engine\EngineConfig
+     * @var EngineConfig
      */
     protected EngineConfig $engineConfig;
 
     /**
-     * @var \Larmias\Engine\Contracts\DriverInterface
+     * @var DriverInterface
      */
     protected DriverInterface $driver;
 
@@ -37,7 +37,7 @@ class Kernel implements KernelInterface
     }
 
     /**
-     * @param \Larmias\Engine\EngineConfig $engineConfig
+     * @param EngineConfig $engineConfig
      * @return self
      * @throws \Psr\Container\ContainerExceptionInterface
      * @throws \Psr\Container\NotFoundExceptionInterface
@@ -64,7 +64,7 @@ class Kernel implements KernelInterface
 
     /**
      * @param WorkerConfig $workerConfig
-     * @return \Larmias\Engine\Contracts\WorkerInterface
+     * @return WorkerInterface
      */
     public function addWorker(WorkerConfig $workerConfig): WorkerInterface
     {

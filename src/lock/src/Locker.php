@@ -75,7 +75,7 @@ class Locker implements LockInterface
         $result = true;
         try {
             if ($this->callback !== null) {
-                $result = call_user_func($this->callback);
+                $result = \call_user_func($this->callback);
                 $this->release();
             }
         } catch (\Throwable $e) {

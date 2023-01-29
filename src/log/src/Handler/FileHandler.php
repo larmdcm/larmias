@@ -66,7 +66,7 @@ class FileHandler implements LoggerHandlerInterface
         $info = [];
 
         foreach ($logs as $val) {
-            $info[] = implode(PHP_EOL,array_column($val,'content'));
+            $info[] = \implode(PHP_EOL, \array_column($val, 'content'));
         }
 
         $message = \implode(PHP_EOL, $info);

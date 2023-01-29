@@ -78,12 +78,12 @@ class Cookie implements Stringable
         $str = ($this->isRaw() ? $this->getName() : urlencode($this->getName())) . '=';
 
         if ($this->getValue() === '') {
-            $str .= 'deleted; expires=' . gmdate('D, d-M-Y H:i:s T', time() - 31536001) . '; max-age=-31536001';
+            $str .= 'deleted; expires=' . \gmdate('D, d-M-Y H:i:s T', \time() - 31536001) . '; max-age=-31536001';
         } else {
-            $str .= $this->isRaw() ? $this->getValue() : rawurlencode($this->getValue());
+            $str .= $this->isRaw() ? $this->getValue() : \rawurlencode($this->getValue());
 
             if ($this->getExpiresTime() !== 0) {
-                $str .= '; expires=' . gmdate(
+                $str .= '; expires=' . \gmdate(
                         'D, d-M-Y H:i:s T',
                         $this->getExpiresTime()
                     ) . '; max-age=' . $this->getMaxAge();
@@ -98,11 +98,11 @@ class Cookie implements Stringable
             $str .= '; domain=' . $this->getDomain();
         }
 
-        if ($this->isSecure() === true) {
+        if ($this->isSecure()) {
             $str .= '; secure';
         }
 
-        if ($this->isHttpOnly() === true) {
+        if ($this->isHttpOnly()) {
             $str .= '; httponly';
         }
 

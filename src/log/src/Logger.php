@@ -7,20 +7,21 @@ namespace Larmias\Log;
 use Larmias\Contracts\ConfigInterface;
 use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\LoggerInterface;
+use Larmias\Log\Contracts\FormatterInterface;
 use Larmias\Utils\Arr;
 
 class Logger implements LoggerInterface
 {
     /**
-     * @var \Larmias\Log\Channel[]
+     * @var Channel[]
      */
     protected array $channels = [];
 
     /**
      * Logger constructor.
      *
-     * @param \Larmias\Contracts\ContainerInterface $container
-     * @param \Larmias\Contracts\ConfigInterface $config
+     * @param ContainerInterface $container
+     * @param ConfigInterface $config
      */
     public function __construct(protected ContainerInterface $container, protected ConfigInterface $config)
     {
@@ -233,7 +234,7 @@ class Logger implements LoggerInterface
         }
 
         $formatterConfig = $this->getConfig('formatters.' . $channelConfig['formatter']);
-        /** @var \Larmias\Log\Contracts\FormatterInterface $formatter */
+        /** @var FormatterInterface $formatter */
         $formatter = $this->container->make($formatterConfig['handler'], ['config' => $formatterConfig], true);
         $allowLevel = $channelConfig['level'] ?? $this->getConfig('level', []);
         $realtimeWrite = $channelConfig['realtime_write'] ?? $this->getConfig('realtime_write', true);

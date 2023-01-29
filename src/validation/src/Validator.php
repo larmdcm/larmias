@@ -355,7 +355,7 @@ class Validator implements ValidatorInterface
      * @param string $property
      * @param string|array $field
      * @param string|array $rule
-     * @return $this
+     * @return self
      */
     protected function setRule(string $property, string|array $field, string|array $rule = []): self
     {

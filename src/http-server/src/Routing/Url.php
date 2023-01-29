@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Larmias\HttpServer\Routing;
 
 use Larmias\HttpServer\Contracts\RequestInterface;
-
 use Stringable;
 
 class Url implements Stringable
@@ -113,7 +112,7 @@ class Url implements Stringable
         $result = $this->parseDomain($domain);
         [$path, $vars] = $this->parsePath($parseUrl['path'] ?? '', $this->vars);
         if (!empty($path)) {
-            if (\substr($path, -1) !== '/') {
+            if (!str_ends_with($path, '/')) {
                 $extension = \pathinfo($path, PATHINFO_EXTENSION);
                 if (empty($extension)) {
                     $path .= $this->parseSuffix($this->suffix);
@@ -150,7 +149,7 @@ class Url implements Stringable
                     throw new \RuntimeException('Error parsing path variable {' . $varName . '} is a required parameter');
                 }
                 $varVal = $vars[$varName] ?? '';
-                if ($val[0] === '[') {
+                if ($val[0] === '[' && !empty($varVal)) {
                     $varVal = '/' . $varVal;
                 }
                 unset($vars[$varName]);

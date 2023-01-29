@@ -86,6 +86,7 @@ class Application extends Container implements ApplicationInterface
      * 初始化
      *
      * @return void
+     * @throws \ReflectionException
      */
     public function initialize(): void
     {

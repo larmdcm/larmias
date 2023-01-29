@@ -63,7 +63,7 @@ return [
             foreach (glob(__DIR__ . '/config/*.php') as $file) {
                 $container->make(ConfigInterface::class)->load($file);
             }
-            Router::init($container);
+            Router::init($container->make(\Larmias\Routing\Router::class));
             require __DIR__ . '/router.php';
         }
     ],

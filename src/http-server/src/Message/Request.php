@@ -234,7 +234,7 @@ class Request implements RequestInterface
      */
     public function url(): string
     {
-        return rtrim(preg_replace('/\?.*/', '', (string)$this->getUri()), '/');
+        return \rtrim(\preg_replace('/\?.*/', '', (string)$this->getUri()), '/');
     }
 
     /**

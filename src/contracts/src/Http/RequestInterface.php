@@ -34,6 +34,13 @@ interface RequestInterface
     public function post(?string $key = null, mixed $default = null): mixed;
 
     /**
+     * @param string|null $key
+     * @param mixed|null $default
+     * @return mixed
+     */
+    public function server(?string $key = null, mixed $default = null): mixed;
+
+    /**
      * get 'Cookie' request data.
      *
      * @param string|null $key
@@ -113,5 +120,5 @@ interface RequestInterface
      *
      * @return string
      */
-    public function getPathInfo(): string;
+    public function path(): string;
 }

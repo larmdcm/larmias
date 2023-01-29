@@ -53,6 +53,24 @@ class Request implements RequestInterface
     }
 
     /**
+     * @param string|null $key
+     * @param mixed|null $default
+     * @return mixed
+     */
+    public function server(?string $key = null, mixed $default = null): mixed
+    {
+        $server = [];
+        foreach ($_SERVER as $name => $value) {
+            $server[\strtolower($name)] = $value;
+        }
+
+        if ($key === null) {
+            return $server;
+        }
+        return $server[$key] ?? $default;
+    }
+
+    /**
      * get Upload files.
      *
      * @param string|null $name
@@ -110,7 +128,7 @@ class Request implements RequestInterface
      */
     public function schema(): string
     {
-        return '';
+        return $this->request->connection->transport === 'ssl' ? 'https' : 'http';
     }
 
     /**
@@ -128,22 +146,27 @@ class Request implements RequestInterface
      *
      * @return string
      */
-    public function getPathInfo(): string
+    public function path(): string
     {
         return $this->request->path();
     }
 
     /**
      * @param string|null $key
-     * @param null $default
+     * @param mixed $default
      * @return mixed
      */
-    public function cookie(?string $key = null, $default = null): mixed
+    public function cookie(?string $key = null, mixed $default = null): mixed
     {
         return $this->request->cookie($key, $default);
     }
 
-    public function session(?string $key = null, $default = null): mixed
+    /**
+     * @param string|null $key
+     * @param mixed|null $default
+     * @return mixed
+     */
+    public function session(?string $key = null, mixed $default = null): mixed
     {
         throw new \RuntimeException('session not implement.');
     }

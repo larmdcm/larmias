@@ -52,7 +52,7 @@ class Finder
     protected function findFiles(string $path): array
     {
         $files = [];
-        if (str_contains($path, '*')) {
+        if (\str_contains($path, '*')) {
             $iterator = \glob($path);
         } else {
             $iterator = new FilesystemIterator($path);
@@ -84,8 +84,8 @@ class Finder
                 $patterns = [];
                 $excludedDirs = [];
                 foreach ($this->options['exclude'] as $directory) {
-                    if (str_contains($directory, '/')) {
-                        $patterns[] = preg_quote($directory, '#');
+                    if (\str_contains($directory, '/')) {
+                        $patterns[] = \preg_quote($directory, '#');
                     } else {
                         $excludedDirs[$directory] = true;
                     }

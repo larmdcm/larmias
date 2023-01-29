@@ -96,7 +96,7 @@ class Server implements OnRequestInterface
      */
     protected function dispatchRoute(RequestInterface $request): PsrResponseInterface
     {
-        $dispatched = Router::getRouteCollector()->dispatch($request->getMethod(), $request->getPathInfo());
+        $dispatched = Router::dispatch($request->getMethod(), $request->getPathInfo());
         $this->container->instance(RequestInterface::class, $request = $request->withAttribute(Dispatched::class, $dispatched));
         $option = $dispatched->rule->getOption();
         /** @var HttpRouteMiddleware $middleware */
@@ -133,30 +133,10 @@ class Server implements OnRequestInterface
     {
         $this->container->instance(HttpRequestInterface::class, $httpRequest);
         $this->container->instance(HttpResponseInterface::class, $httpResponse);
-        $this->container->instance(ServerRequestInterface::class, $this->createServerRequest($httpRequest));
+        $this->container->instance(ServerRequestInterface::class, ServerRequest::loadFromRequest($httpRequest));
         $this->container->instance(PsrResponseInterface::class, new PsrResponse());
         $this->container->instance(RequestInterface::class, new Request($this->container));
         $this->container->instance(ResponseInterface::class, new Response($this->container));
         return $this->container->get(RequestInterface::class);
-    }
-
-    /**
-     * @param HttpRequestInterface $httpRequest
-     * @return ServerRequestInterface
-     */
-    protected function createServerRequest(HttpRequestInterface $httpRequest): ServerRequestInterface
-    {
-        return ServerRequest::create([
-            'method' => $httpRequest->method(),
-            'uri' => $httpRequest->uri(),
-            'header' => $httpRequest->header(),
-            'rawBody' => $httpRequest->rawBody(),
-            'protocolVersion' => $httpRequest->protocolVersion(),
-            'server' => $_SERVER,
-            'query' => $httpRequest->query(),
-            'post' => $httpRequest->post(),
-            'cookie' => $httpRequest->cookie(),
-            'file' => $httpRequest->file(),
-        ]);
     }
 }

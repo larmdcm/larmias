@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Larmias\Routing;
 
 use Larmias\Contracts\ContainerInterface;
+use Larmias\Routing\Contracts\RouterInterface;
 use Larmias\Routing\Exceptions\RouteException;
 use Larmias\Routing\Exceptions\RouteNotFoundException;
 use Larmias\Routing\Exceptions\RouteMethodNotAllowedException;
@@ -13,7 +14,7 @@ use FastRoute\Dispatcher as FastRouteDispatcher;
 use FastRoute\RouteCollector;
 use function FastRoute\simpleDispatcher;
 
-class Router
+class Router implements RouterInterface
 {
     /**
      * @var int
@@ -69,6 +70,7 @@ class Router
     public function __construct(protected ContainerInterface $container)
     {
         $this->group = new Group();
+        $this->routeName = new RouteName();
     }
 
     /**

@@ -7,6 +7,8 @@ namespace Larmias\Http\Message;
 use Larmias\Utils\Arr;
 use Psr\Http\Message\ServerRequestInterface;
 use InvalidArgumentException;
+use Larmias\Contracts\Http\RequestInterface as HttpRequestInterface;
+use Psr\Http\Message\UriInterface;
 
 class ServerRequest extends Request implements ServerRequestInterface
 {
@@ -45,7 +47,7 @@ class ServerRequest extends Request implements ServerRequestInterface
         $serverRequest->queryParams = $params['query'] ?? [];
         $serverRequest->parseBody = $params['post'] ?? [];
         $serverRequest->cookieParams = $params['cookie'] ?? [];
-        $files = $params['file'];
+        $files = $params['file'] ?? [];
         foreach ($files as $name => $file) {
             if (Arr::isList($file)) {
                 foreach ($file as $item) {
@@ -56,6 +58,50 @@ class ServerRequest extends Request implements ServerRequestInterface
             }
         }
         return $serverRequest;
+    }
+
+    /**
+     * @param HttpRequestInterface $request
+     * @return ServerRequestInterface
+     */
+    public static function loadFromRequest(HttpRequestInterface $request): ServerRequestInterface
+    {
+        return static::create([
+            'method' => $request->method(),
+            'uri' => static::getUriFromRequest($request),
+            'header' => $request->header(),
+            'rawBody' => $request->rawBody(),
+            'protocolVersion' => $request->protocolVersion(),
+            'server' => $request->server(),
+            'query' => $request->query(),
+            'post' => $request->post(),
+            'cookie' => $request->cookie(),
+            'file' => $request->file(),
+        ]);
+    }
+
+    /**
+     * @param HttpRequestInterface $request
+     * @return UriInterface
+     */
+    protected static function getUriFromRequest(HttpRequestInterface $request): UriInterface
+    {
+        $uri = new Uri();
+        $header = $request->header();
+        $uri = $uri->withScheme($request->schema())->withPath($request->path())->withQuery($request->queryString());
+        if (isset($header['host'])) {
+            if (\str_contains($header['host'], ':')) {
+                [$host, $port] = \explode(':', $header['host'], 2);
+                if ($port !== $uri->getDefaultPort()) {
+                    $uri = $uri->withPort($port);
+                }
+            } else {
+                $host = $header['host'];
+            }
+            $uri = $uri->withHost($host);
+        }
+
+        return $uri;
     }
 
     /**
@@ -106,9 +152,9 @@ class ServerRequest extends Request implements ServerRequestInterface
      */
     public function withCookieParams(array $cookies): self
     {
-        $clone = clone $this;
-        $clone->cookieParams = $cookies;
-        return $clone;
+        $new = clone $this;
+        $new->cookieParams = $cookies;
+        return $new;
     }
 
     /**
@@ -152,9 +198,9 @@ class ServerRequest extends Request implements ServerRequestInterface
      */
     public function withQueryParams(array $query): self
     {
-        $clone = clone $this;
-        $clone->queryParams = $query;
-        return $clone;
+        $new = clone $this;
+        $new->queryParams = $query;
+        return $new;
     }
 
     /**
@@ -187,9 +233,9 @@ class ServerRequest extends Request implements ServerRequestInterface
      */
     public function withUploadedFiles(array $uploadedFiles): self
     {
-        $clone = clone $this;
-        $clone->uploadedFiles = $uploadedFiles;
-        return $clone;
+        $new = clone $this;
+        $new->uploadedFiles = $uploadedFiles;
+        return $new;
     }
 
     /**
@@ -222,10 +268,10 @@ class ServerRequest extends Request implements ServerRequestInterface
             throw new InvalidArgumentException('Parsed body value must be an array, an object, or null');
         }
 
-        $clone = clone $this;
-        $clone->parsedBody = $data;
+        $new = clone $this;
+        $new->parsedBody = $data;
 
-        return $clone;
+        return $new;
     }
 
     /**
@@ -281,10 +327,10 @@ class ServerRequest extends Request implements ServerRequestInterface
      */
     public function withAttribute($name, $value): self
     {
-        $clone = clone $this;
-        $clone->attributes[$name] = $value;
+        $new = clone $this;
+        $new->attributes[$name] = $value;
 
-        return $clone;
+        return $new;
     }
 
     /**
@@ -303,9 +349,9 @@ class ServerRequest extends Request implements ServerRequestInterface
      */
     public function withoutAttribute($name): self
     {
-        $clone = clone $this;
-        unset($clone->attributes[$name]);
+        $new = clone $this;
+        unset($new->attributes[$name]);
 
-        return $clone;
+        return $new;
     }
 }

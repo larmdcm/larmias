@@ -29,6 +29,9 @@
     "larmias/exception-handler": "^1.0"
   },
   "autoload": {
+    "files": [
+      "src/functions.php"
+    ],
     "psr-4": {
       "Larmias\\HttpServer\\": "src/"
     }

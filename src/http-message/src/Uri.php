@@ -40,11 +40,8 @@ class Uri implements UriInterface
     /** @var string */
     protected static string $charSubDelims = '!\$&\'\(\)\*\+,;=';
 
-    /** @var array|string[] */
-    protected static array $replaceQuery = ['=' => '%3D', '&' => '%26'];
-
     /** @var string */
-    protected string $scheme;
+    protected string $scheme = '';
 
     /** @var string */
     protected string $userInfo = '';
@@ -71,7 +68,7 @@ class Uri implements UriInterface
      */
     public function __construct(string $uri = '')
     {
-        if ($uri != '') {
+        if ($uri !== '') {
             $parts = \parse_url($uri);
             if ($parts === false) {
                 throw new InvalidArgumentException("Unable to parse URI: {$uri}");
@@ -373,7 +370,7 @@ class Uri implements UriInterface
      */
     public function withPort($port): UriInterface
     {
-        $port = $this->filterPort($port);
+        $port = $this->filterPort($port === null ? $port : (int)$port);
 
         if ($this->port === $port) {
             return $this;
@@ -581,6 +578,16 @@ class Uri implements UriInterface
     {
         return $uri->getPort() === null
             || (isset(self::$defaultPorts[$uri->getScheme()]) && $uri->getPort() === self::$defaultPorts[$uri->getScheme()]);
+    }
+
+    /**
+     * Get default port of the current scheme.
+     *
+     * @return null|int
+     */
+    public function getDefaultPort()
+    {
+        return self::$defaultPorts[$this->getScheme()] ?? null;
     }
 
     /**

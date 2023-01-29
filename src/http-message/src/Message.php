@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\Http\Message;
 
+use Larmias\Utils\Arr;
 use Psr\Http\Message\MessageInterface;
 use Psr\Http\Message\StreamInterface;
 
@@ -25,7 +26,7 @@ class Message implements MessageInterface
     protected array $headerNames = [];
 
     /**
-     * @var \Psr\Http\Message\StreamInterface
+     * @var StreamInterface
      */
     protected StreamInterface $stream;
 
@@ -56,8 +57,12 @@ class Message implements MessageInterface
      */
     public function withProtocolVersion($version): self
     {
-        $this->protocolVersion = $version;
-        return $this;
+        if ($this->protocolVersion === $version) {
+            return $this;
+        }
+        $new = clone $this;
+        $new->protocolVersion = $version;
+        return $new;
     }
 
     /**
@@ -171,20 +176,17 @@ class Message implements MessageInterface
      */
     public function withHeader($name, $value): self
     {
-        if (!\is_array($value)) {
-            $value = [$value];
-        }
-
-        $value = $this->trimHeaderValues($value);
+        $value = $this->trimHeaderValues(Arr::wrap($value));
         $normalized = \strtolower($name);
+        $new = clone $this;
 
-        if (isset($this->headerNames[$normalized])) {
-            unset($this->headers[$this->headerNames[$normalized]]);
+        if (isset($new->headerNames[$normalized])) {
+            unset($new->headers[$new->headerNames[$normalized]]);
         }
-        $this->headerNames[$normalized] = $name;
-        $this->headers[$name] = $value;
+        $new->headerNames[$normalized] = $name;
+        $new->headers[$name] = $value;
 
-        return $this;
+        return $new;
     }
 
     /**
@@ -193,22 +195,12 @@ class Message implements MessageInterface
      */
     public function withHeaders(array $headers): self
     {
-        foreach ($headers as $header => $value) {
-            if (!\is_array($value)) {
-                $value = [$value];
-            }
+        $new = clone $this;
 
-            $value = $this->trimHeaderValues($value);
-            $normalized = \strtolower($header);
-            if (isset($this->headerNames[$normalized])) {
-                $header = $this->headerNames[$normalized];
-                $this->headers[$header] = array_merge($this->headers[$header], $value);
-            } else {
-                $this->headerNames[$normalized] = $header;
-                $this->headers[$header] = $value;
-            }
+        foreach ($headers as $name => $value) {
+            $new = $new->withHeader($name, $value);
         }
-        return $this;
+        return $new;
     }
 
     /**
@@ -229,22 +221,19 @@ class Message implements MessageInterface
      */
     public function withAddedHeader($name, $value): self
     {
-        if (!\is_array($value)) {
-            $value = [$value];
-        }
-
-        $value = $this->trimHeaderValues($value);
+        $value = $this->trimHeaderValues(Arr::wrap($value));
         $normalized = \strtolower($name);
+        $new = clone $this;
 
-        if (isset($this->headerNames[$normalized])) {
-            $name = $this->headerNames[$normalized];
-            $this->headers[$name] = array_merge($this->headers[$name], $value);
+        if (isset($new->headerNames[$normalized])) {
+            $name = $new->headerNames[$normalized];
+            $new->headers[$name] = array_merge($new->headers[$name], $value);
         } else {
-            $this->headerNames[$normalized] = $name;
-            $this->headers[$name] = $value;
+            $new->headerNames[$normalized] = $name;
+            $new->headers[$name] = $value;
         }
 
-        return $this;
+        return $new;
     }
 
     /**
@@ -267,11 +256,13 @@ class Message implements MessageInterface
             return $this;
         }
 
+
         $name = $this->headerNames[$normalized];
+        $new = clone $this;
 
-        unset($this->headers[$name], $this->headerNames[$normalized]);
+        unset($new->headers[$name], $new->headerNames[$normalized]);
 
-        return $this;
+        return $new;
     }
 
     /**
@@ -302,7 +293,33 @@ class Message implements MessageInterface
      */
     public function withBody(StreamInterface $body): self
     {
-        $this->stream = $body;
+        if (isset($this->stream) && $this->stream === $body) {
+            return $this;
+        }
+        $new = clone $this;
+        $new->stream = $body;
+        return $new;
+    }
+
+    /**
+     * @return self
+     */
+    protected function setHeaders(array $headers): self
+    {
+        $this->headerNames = $this->headers = [];
+        foreach ($headers as $header => $value) {
+            $value = $this->trimHeaderValues(Arr::wrap($value));
+            $header = (string)$header;
+
+            $normalized = \strtolower($header);
+            if (isset($this->headerNames[$normalized])) {
+                $header = $this->headerNames[$normalized];
+                $this->headers[$header] = array_merge($this->headers[$header], $value);
+            } else {
+                $this->headerNames[$normalized] = $header;
+                $this->headers[$header] = $value;
+            }
+        }
         return $this;
     }
 

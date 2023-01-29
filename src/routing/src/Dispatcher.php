@@ -14,17 +14,17 @@ abstract class Dispatcher
     /**
      * Dispatch constructor.
      *
-     * @param \Larmias\Contracts\ContainerInterface $container
-     * @param \Larmias\Routing\Rule $rule
+     * @param ContainerInterface $container
+     * @param Rule $rule
      */
     public function __construct(protected ContainerInterface $container, protected Rule $rule)
     {
     }
 
     /**
-     * @param \Larmias\Contracts\ContainerInterface $container
-     * @param \Larmias\Routing\Rule $rule
-     * @return \Larmias\Routing\Dispatcher
+     * @param ContainerInterface $container
+     * @param Rule $rule
+     * @return Dispatcher
      */
     public static function create(ContainerInterface $container, Rule $rule): Dispatcher
     {
@@ -49,7 +49,7 @@ abstract class Dispatcher
     }
 
     /**
-     * @return \Larmias\Contracts\ContainerInterface
+     * @return ContainerInterface
      */
     public function getContainer(): ContainerInterface
     {
@@ -57,7 +57,7 @@ abstract class Dispatcher
     }
 
     /**
-     * @return \Larmias\Routing\Rule
+     * @return Rule
      */
     public function getRule(): Rule
     {

@@ -51,6 +51,12 @@ Router::get('/exception', function () {
     throw new RuntimeException('发生了异常');
 });
 
-Router::get('/url', function (RequestInterface $request) {
-    return (string)$request->getUri();
-});
+Router::get('/url/{id}[/{name:\w+}]', function (RequestInterface $request) {
+    return [
+        'route' => $request->route(),
+//        \Larmias\HttpServer\url_string('http://localhost:9863/index/url/{id}/{name}.html?a=123#page=1&page_size=25', ['id' => 1, 'b' => 666, 'name' => 'url']),
+//        \Larmias\HttpServer\url_string('/index/url/{id}/{name}?a=123#page=1&page_size=25', ['id' => 1, 'b' => 666, 'name' => 'url']),
+        \Larmias\HttpServer\url_string('index.url', ['id' => 1, 'name' => '哈哈哈', 'age' => 25]),
+//        \Larmias\HttpServer\url_string('/url/{id}[/{name}]/{id2}[/{name2}]'),
+    ];
+})->name('index.url');

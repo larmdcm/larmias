@@ -15,13 +15,16 @@ use Larmias\HttpServer\Annotation\PatchMapping;
 use Larmias\HttpServer\Annotation\PostMapping;
 use Larmias\HttpServer\Annotation\PutMapping;
 use Larmias\HttpServer\Annotation\RequestMapping;
+use \Larmias\Routing\Router as BaseRouter;
 use Larmias\HttpServer\Routing\Router;
 
 class HttpServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        Router::init($this->app);
+        /** @var BaseRouter $router */
+        $router = $this->app->make(BaseRouter::class);
+        Router::init($router);
 
         AnnotationManager::addHandler([
             Controller::class,

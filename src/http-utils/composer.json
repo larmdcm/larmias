@@ -1,11 +1,11 @@
 {
-  "name": "larmias/http-csrf",
-  "description": "A http-csrf component for larmias.",
+  "name": "larmias/http-utils",
+  "description": "A http-utils component for larmias.",
   "type": "library",
   "keywords": [
     "larmias",
     "http",
-    "csrf"
+    "utils"
   ],
   "homepage": "https://larmias.com/",
   "license": "Apache-2.0",
@@ -17,17 +17,11 @@
   ],
   "require": {
     "php": ">=8.0",
-    "psr/http-server-handler": "^1.0",
-    "psr/http-server-middleware": "^1.0",
-    "larmias/contracts": "^1.0",
     "larmias/utils": "^1.0"
   },
   "autoload": {
-    "files": [
-      "src/functions.php"
-    ],
     "psr-4": {
-      "Larmias\\Http\\CSRF": "src/"
+      "Larmias\\Http\\Utils": "src/"
     }
   }
 }

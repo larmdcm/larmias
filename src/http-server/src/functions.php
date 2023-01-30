@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Larmias\HttpServer;
 
 use Larmias\HttpServer\Routing\Url;

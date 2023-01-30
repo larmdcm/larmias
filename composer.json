@@ -45,7 +45,8 @@
       "src/engine/src/functions.php",
       "src/framework/src/functions.php",
       "src/view/src/Blade/helpers.php",
-      "src/http-server/src/functions.php"
+      "src/http-server/src/functions.php",
+      "src/http-csrf/src/functions.php"
     ],
     "psr-4": {
       "Larmias\\Utils\\": "src/utils/src/",
@@ -78,7 +79,9 @@
       "Larmias\\Session\\": "src/session/src/",
       "Larmias\\View\\": "src/view/src/",
       "Larmias\\Crontab\\": "src/crontab/src/",
-      "Larmias\\Rpn\\": "src/rpn/src/"
+      "Larmias\\Rpn\\": "src/rpn/src/",
+      "Larmias\\Http\\CSRF\\": "src/http-csrf/src/",
+      "Larmias\\Http\\Utils\\": "src/http-utils/src/"
     }
   }
 }

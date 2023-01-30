@@ -28,7 +28,7 @@ class Worker implements WorkerInterface
     protected int $workerId;
 
     /**
-     * @var \Larmias\Engine\EngineConfig
+     * @var EngineConfig
      */
     protected EngineConfig $engineConfig;
 

@@ -60,3 +60,13 @@ Router::get('/url/{id}[/{name:\w+}]', function (RequestInterface $request) {
 //        \Larmias\HttpServer\url_string('/url/{id}[/{name}]/{id2}[/{name2}]'),
     ];
 })->name('index.url');
+
+Router::rule(['GET', 'POST'], '/csrf', function (RequestInterface $request, \Larmias\Contracts\ViewInterface $view, ResponseInterface $response) {
+    if ($request->isMethod('POST')) {
+
+    }
+    return $response->html($view->render('csrf'));
+})->middleware([
+    \Larmias\Session\Middlewares\SessionMiddleware::class,
+    \Larmias\Http\CSRF\Middlewares\CsrfMiddleware::class,
+]);

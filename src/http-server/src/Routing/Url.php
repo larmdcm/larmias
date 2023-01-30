@@ -146,7 +146,7 @@ class Url implements Stringable
             foreach ($matches[0] as $key => $val) {
                 $varName = $val[0] === '{' ? $matches[1][$key] : $matches[2][$key];
                 if ($val[0] === '{' && !isset($vars[$varName])) {
-                    throw new \RuntimeException('Error parsing path variable {' . $varName . '} is a required parameter');
+                    throw new \InvalidArgumentException('Error parsing path variable {' . $varName . '} is a required parameter');
                 }
                 $varVal = $vars[$varName] ?? '';
                 if ($val[0] === '[' && !empty($varVal)) {

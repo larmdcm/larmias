@@ -6,7 +6,7 @@ namespace Larmias\Http\Utils\Html;
 
 class Parser
 {
-    public function __construct(protected string $content)
+    public function __construct(protected Content $content)
     {
     }
 

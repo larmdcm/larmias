@@ -1,11 +1,10 @@
 {
-  "name": "larmias/http-utils",
-  "description": "A http-utils component for larmias.",
+  "name": "larmias/captcha",
+  "description": "A captcha component for larmias.",
   "type": "library",
   "keywords": [
     "larmias",
-    "http",
-    "utils"
+    "captcha"
   ],
   "homepage": "https://larmias.com/",
   "license": "Apache-2.0",
@@ -17,14 +16,11 @@
   ],
   "require": {
     "php": ">=8.0",
-    "psr/http-client": "^1.0",
-    "larmias/contracts": "^1.0",
-    "larmias/utils": "^1.0",
-    "larmias/http-message": "^1.0"
+    "larmias/contracts": "^1.0"
   },
   "autoload": {
     "psr-4": {
-      "Larmias\\Http\\Utils": "src/"
+      "Larmias\\Captcha\\": "src/"
     }
   }
 }

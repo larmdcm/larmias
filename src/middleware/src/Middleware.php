@@ -47,12 +47,12 @@ class Middleware implements MiddlewareInterface
     /**
      * 导入中间件
      *
-     * @param array $middlewares
+     * @param array $middleware
      * @return self
      */
-    public function import(array $middlewares): self
+    public function import(array $middleware): self
     {
-        foreach ($middlewares as $item) {
+        foreach ($middleware as $item) {
             $this->push($item);
         }
         return $this;

@@ -10,10 +10,10 @@ use Attribute;
 #[Attribute(Attribute::TARGET_CLASS | Attribute::TARGET_METHOD | Attribute::IS_REPEATABLE)]
 class Middleware extends AbstractAnnotation
 {
-    public array $middlewares = [];
+    public array $middleware = [];
 
-    public function __construct(...$middlewares)
+    public function __construct(...$middleware)
     {
-        $this->middlewares = $middlewares;
+        $this->middleware = $middleware;
     }
 }

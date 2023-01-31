@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Http\CSRF\Middlewares;
+namespace Larmias\Http\CSRF\Middleware;
 
 use Larmias\Contracts\ConfigInterface;
 use Larmias\Http\CSRF\Contracts\CsrfManagerInterface;

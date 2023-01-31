@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Session\Middlewares;
+namespace Larmias\Session\Middleware;
 
 use Larmias\Contracts\ConfigInterface;
 use Larmias\Contracts\SessionInterface;

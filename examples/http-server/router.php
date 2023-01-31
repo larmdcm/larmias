@@ -45,7 +45,7 @@ Router::get('/cookie', function (RequestInterface $request, ResponseInterface $r
 Router::get('/session', function (\Larmias\Contracts\SessionInterface $session, ResponseInterface $response) {
     $session->set('name', 'session');
     return $session->get('name');
-})->middleware(\Larmias\Session\Middlewares\SessionMiddleware::class);
+})->middleware(\Larmias\Session\Middleware\SessionMiddleware::class);
 
 Router::get('/exception', function () {
     throw new RuntimeException('发生了异常');
@@ -67,6 +67,6 @@ Router::rule(['GET', 'POST'], '/csrf', function (RequestInterface $request, \Lar
     }
     return $response->html($view->render('csrf'));
 })->middleware([
-    \Larmias\Session\Middlewares\SessionMiddleware::class,
-    \Larmias\Http\CSRF\Middlewares\CsrfMiddleware::class,
+    \Larmias\Session\Middleware\SessionMiddleware::class,
+    \Larmias\Http\CSRF\Middleware\CsrfMiddleware::class,
 ]);

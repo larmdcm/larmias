@@ -86,11 +86,11 @@ class Str
      * 获取指定长度的随机字母数字组合的字符串
      *
      * @param int $length
-     * @param int $type
+     * @param int|null $type
      * @param string $addChars
      * @return string
      */
-    public static function random(int $length = 6, int $type = null, string $addChars = ''): string
+    public static function random(int $length = 6, ?int $type = null, string $addChars = ''): string
     {
         $str = '';
         switch ($type) {
@@ -297,5 +297,19 @@ class Str
         }
 
         return false;
+    }
+
+    /**
+     * 编码转换
+     *
+     * @param string $encoding
+     * @param string $deconding
+     * @param array|string[] $encodes
+     * @return string
+     */
+    public static function encode(string $content, string $encoding = 'utf-8', string $deconding = '', array $encodes = ["ASCII", "UTF-8", "GBK", "BIG5", "Unicode"]): string
+    {
+        $encode = $deconding ?: \mb_detect_encoding($content, $encodes);
+        return \iconv($encode, $encoding . '//IGNORE', $content);
     }
 }

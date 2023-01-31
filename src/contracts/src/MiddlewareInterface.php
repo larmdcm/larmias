@@ -9,10 +9,10 @@ interface MiddlewareInterface
     /**
      * 导入中间件
      *
-     * @param array $middlewares
+     * @param array $middleware
      * @return MiddlewareInterface
      */
-    public function import(array $middlewares): MiddlewareInterface;
+    public function import(array $middleware): MiddlewareInterface;
 
     /**
      * 添加中间件到尾部

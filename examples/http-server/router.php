@@ -3,6 +3,7 @@
 use Larmias\HttpServer\Routing\Router;
 use Larmias\HttpServer\Contracts\RequestInterface;
 use Larmias\HttpServer\Contracts\ResponseInterface;
+use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
 
 Router::get('/', function (ResponseInterface $response) {
     return $response->raw('Hello,World!');
@@ -70,3 +71,10 @@ Router::rule(['GET', 'POST'], '/csrf', function (RequestInterface $request, \Lar
     \Larmias\Session\Middleware\SessionMiddleware::class,
     \Larmias\Http\CSRF\Middleware\CsrfMiddleware::class,
 ]);
+
+Router::get('/captcha', function (PsrResponseInterface $response) {
+    $captcha = new \Larmias\Captcha\Captcha();
+    $result = $captcha->create();
+    return $response->withHeader('Content-Type', $result->getMimeType())
+        ->withBody(\Larmias\Http\Message\Stream::create($result->getContent()));
+});

@@ -82,7 +82,8 @@
       "Larmias\\Crontab\\": "src/crontab/src/",
       "Larmias\\Rpn\\": "src/rpn/src/",
       "Larmias\\Http\\CSRF\\": "src/http-csrf/src/",
-      "Larmias\\Http\\Utils\\": "src/http-utils/src/"
+      "Larmias\\Http\\Utils\\": "src/http-utils/src/",
+      "Larmias\\Captcha\\": "src/captcha/src/"
     }
   }
 }

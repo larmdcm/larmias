@@ -7,9 +7,9 @@ namespace Larmias\Http\Utils\Request\Handler;
 use Larmias\Http\Message\Response;
 use Larmias\Http\Message\Stream;
 use Larmias\Http\Utils\Request\Exceptions\RequestException;
+use Larmias\Http\Utils\Request\CookieOption;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use Larmias\Http\Utils\Request\CookieOption;
 
 class CurlRequestHandler implements RequestHandlerInterface
 {
@@ -79,6 +79,15 @@ class CurlRequestHandler implements RequestHandlerInterface
                 \curl_setopt($ch, \CURLOPT_COOKIEFILE, $cookie->file);
             }
         }
+        // 设置版本号
+        $version = $request->getProtocolVersion();
+        if ($version == 1.1) {
+            \curl_setopt($ch, \CURLOPT_HTTP_VERSION, \CURL_HTTP_VERSION_1_1);
+        } elseif ($version == 2.0) {
+            \curl_setopt($ch, \CURLOPT_HTTP_VERSION, \CURL_HTTP_VERSION_2_0);
+        } else {
+            \curl_setopt($ch, \CURLOPT_HTTP_VERSION, \CURL_HTTP_VERSION_1_0);
+        }
 
         // 以文件流信息返回不输出
         \curl_setopt($ch, \CURLOPT_RETURNTRANSFER, true);
@@ -88,9 +97,9 @@ class CurlRequestHandler implements RequestHandlerInterface
             // 获取结果
             $result = \curl_exec($ch);
             $errNo = \curl_errno($ch);
-            if ($errNo !== CURLE_OK) {
+            if ($errNo !== \CURLE_OK) {
                 $error = \curl_error($ch);
-                throw new RequestException($request, $error . ': ' . $errNo);
+                throw new RequestException($request, $error . '@' . $errNo);
             }
             $info = \curl_getinfo($ch);
             $response = new Response();

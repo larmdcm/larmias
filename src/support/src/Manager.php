@@ -24,8 +24,8 @@ abstract class Manager
     /**
      * Manager constructor.
      *
-     * @param \Larmias\Contracts\ContainerInterface $container
-     * @param \Larmias\Contracts\ConfigInterface $config
+     * @param ContainerInterface $container
+     * @param ConfigInterface $config
      */
     public function __construct(protected ContainerInterface $container, protected ConfigInterface $config)
     {

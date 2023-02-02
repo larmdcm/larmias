@@ -12,14 +12,14 @@ class FrameSerializer implements PackerInterface
 
     public function pack(mixed $data): string
     {
-        return strval(\is_scalar($data) ? $data : self::SERIALIZE_PREFIX . \serialize($data));
+        return \strval(\is_scalar($data) ? $data : self::SERIALIZE_PREFIX . \serialize($data));
     }
 
     public function unpack(string $data): mixed
     {
-        if (str_starts_with($data, self::SERIALIZE_PREFIX)) {
-            return unserialize(substr($data, strlen(self::SERIALIZE_PREFIX)));
+        if (\str_starts_with($data, self::SERIALIZE_PREFIX)) {
+            return \unserialize(\substr($data, \strlen(self::SERIALIZE_PREFIX)));
         }
-        return $data;
+        return false;
     }
 }

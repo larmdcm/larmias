@@ -11,16 +11,16 @@ use Larmias\ShareMemory\Command\Command;
 use Larmias\ShareMemory\Command\MapCommand;
 use Larmias\ShareMemory\Command\PingCommand;
 use Larmias\ShareMemory\Command\SelectCommand;
-use Larmias\ShareMemory\Contracts\CommandHandlerInterface;
+use Larmias\ShareMemory\Contracts\CommandExecutorInterface;
 use Larmias\ShareMemory\Exceptions\CommandException;
 use Larmias\ShareMemory\Message\Command as MessageCommand;
 
-class CommandHandler implements CommandHandlerInterface
+class CommandExecutor implements CommandExecutorInterface
 {
     /**
      * @var array|string[]
      */
-    protected array $handlers = [
+    protected array $commands = [
         MessageCommand::COMMAND_PING => PingCommand::class,
         MessageCommand::COMMAND_AUTH => AuthCommand::class,
         MessageCommand::COMMAND_SELECT => SelectCommand::class,
@@ -40,9 +40,9 @@ class CommandHandler implements CommandHandlerInterface
      * @param MessageCommand $command
      * @return mixed
      */
-    public function handle(MessageCommand $command): mixed
+    public function execute(MessageCommand $command): mixed
     {
-        $handler = $this->getHandler($command);
+        $handler = $this->getCommand($command);
         return $handler->call();
     }
 
@@ -51,9 +51,9 @@ class CommandHandler implements CommandHandlerInterface
      * @param string $handler
      * @return self
      */
-    public function addHandler(string $name, string $handler): self
+    public function addCommand(string $name, string $handler): self
     {
-        $this->handlers[$name] = $handler;
+        $this->commands[$name] = $handler;
         return $this;
     }
 
@@ -70,23 +70,23 @@ class CommandHandler implements CommandHandlerInterface
      * @param MessageCommand $command
      * @return Command
      */
-    protected function getHandler(MessageCommand $command): Command
+    public function getCommand(MessageCommand $command): Command
     {
-        $handlers = $this->getHandlers();
+        $commands = $this->getCommands();
         $name = \str_contains($command->name, ':') ? \explode(':', $command->name, 2)[0] : $command->name;
-        if (!isset($handlers[$name])) {
+        if (!isset($commands[$name])) {
             throw new CommandException(sprintf('Command does not exist: %s', $command->name));
         }
         /** @var Command $result */
-        $result = $this->container->make($handlers[$name], ['command' => $command], true);
+        $result = $this->container->make($commands[$name], ['command' => $command], true);
         return $result;
     }
 
     /**
      * @return string[]
      */
-    public function getHandlers(): array
+    public function getCommands(): array
     {
-        return $this->handlers;
+        return $this->commands;
     }
 }

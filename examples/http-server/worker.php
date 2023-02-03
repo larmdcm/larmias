@@ -12,6 +12,7 @@ use Psr\EventDispatcher\ListenerProviderInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Larmias\Event\ListenerProviderFactory;
 use Larmias\Event\EventDispatcherFactory;
+use Larmias\ShareMemory\Server as ShareMemoryServer;
 
 return [
     'driver' => \Larmias\Engine\WorkerMan\Driver::class,
@@ -44,6 +45,35 @@ return [
             ],
             'callbacks' => [
                 Event::ON_WORKER_START => [\Larmias\Engine\Process\Handler\WorkerHotUpdateHandler::class, 'handle'],
+            ]
+        ],
+        [
+            'name' => 'shareMemory',
+            'type' => WorkerType::TCP_SERVER,
+            'host' => '0.0.0.0',
+            'port' => 2000,
+            'settings' => [
+                'worker_num' => 1,
+                'protocol' => \Workerman\Protocols\Frame::class,
+                'auth_password' => '123456',
+            ],
+            'callbacks' => [
+                Event::ON_WORKER_START => function () {
+
+                },
+                Event::ON_CONNECT => [ShareMemoryServer::class, 'onConnect'],
+                Event::ON_RECEIVE => [ShareMemoryServer::class, 'onReceive'],
+                Event::ON_CLOSE => [ShareMemoryServer::class, 'onClose'],
+            ]
+        ],
+        [
+            'name' => 'taskProcess',
+            'type' => WorkerType::WORKER_PROCESS,
+            'settings' => [
+                'worker_num' => 2,
+            ],
+            'callbacks' => [
+                Event::ON_WORKER_START => [\Larmias\Task\TaskProcessHandler::class, 'handle'],
             ]
         ]
     ],

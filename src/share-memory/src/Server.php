@@ -7,7 +7,7 @@ namespace Larmias\ShareMemory;
 use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\Tcp\ConnectionInterface;
 use Larmias\ShareMemory\Contracts\AuthInterface;
-use Larmias\ShareMemory\Contracts\CommandHandlerInterface;
+use Larmias\ShareMemory\Contracts\CommandExecutorInterface;
 use Larmias\ShareMemory\Exceptions\AuthenticateException;
 use Larmias\ShareMemory\Message\Result;
 use Throwable;
@@ -18,7 +18,7 @@ class Server
 {
     public function __construct(
         protected ContainerInterface $container,
-        protected CommandHandlerInterface $handler,
+        protected CommandExecutorInterface $executor,
         protected AuthInterface $auth
     )
     {
@@ -34,10 +34,10 @@ class Server
     {
         try {
             Context::setConnection($connection);
-            $command = $this->handler->parse($data);
+            $command = $this->executor->parse($data);
             println('#' . $connection->getId() . " Received command: " . $command->name);
             $this->auth->check($command);
-            $result = $this->handler->handle($command);
+            $result = $this->executor->execute($command);
             $connection->send($result instanceof Result ? $result->toString() : Result::build($result));
         } catch (Throwable $e) {
             $this->handleException($connection, $e);
@@ -47,9 +47,9 @@ class Server
     public function onClose(ConnectionInterface $connection): void
     {
         try {
-            foreach ($this->handler->getHandlers() as $handler) {
-                if (\method_exists($handler, __FUNCTION__)) {
-                    \call_user_func([$handler, __FUNCTION__], $connection);
+            foreach ($this->executor->getCommands() as $command) {
+                if (\method_exists($command, __FUNCTION__)) {
+                    \call_user_func([$command, __FUNCTION__], $connection);
                 }
             }
             ConnectionManager::remove($connection);

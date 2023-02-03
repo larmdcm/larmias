@@ -18,7 +18,7 @@ class StoreManager
         ChannelInterface::class => Channel::class,
     ];
 
-    public static function setContainer(string $name, string $class): void
+    public static function addContainer(string $name, string $class): void
     {
         static::$container[$name] = $class;
     }

@@ -6,7 +6,7 @@ namespace Larmias\Task;
 
 use Larmias\Engine\Contracts\WorkerInterface;
 
-class TaskHandler
+class TaskProcessHandler
 {
     protected TaskWorker $taskWorker;
 

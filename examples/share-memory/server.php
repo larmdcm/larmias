@@ -9,7 +9,7 @@ use Larmias\Engine\EngineConfig;
 $container = require '../di/container.php';
 
 $container->bind([
-    \Larmias\ShareMemory\Contracts\CommandHandlerInterface::class => \Larmias\ShareMemory\CommandHandler::class,
+    \Larmias\ShareMemory\Contracts\CommandExecutorInterface::class => \Larmias\ShareMemory\CommandExecutor::class,
     \Larmias\ShareMemory\Contracts\AuthInterface::class => \Larmias\ShareMemory\Auth::class,
 ]);
 

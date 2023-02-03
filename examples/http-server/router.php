@@ -63,9 +63,6 @@ Router::get('/url/{id}[/{name:\w+}]', function (RequestInterface $request) {
 })->name('index.url');
 
 Router::rule(['GET', 'POST'], '/csrf', function (RequestInterface $request, \Larmias\Contracts\ViewInterface $view, ResponseInterface $response) {
-    if ($request->isMethod('POST')) {
-
-    }
     return $response->html($view->render('csrf'));
 })->middleware([
     \Larmias\Session\Middleware\SessionMiddleware::class,
@@ -77,4 +74,11 @@ Router::get('/captcha', function (PsrResponseInterface $response) {
     $result = $captcha->create();
     return $response->withHeader('Content-Type', $result->getMimeType())
         ->withBody(\Larmias\Http\Message\Stream::create($result->getContent()));
+});
+
+Router::get('/snowflake', function (\Larmias\Snowflake\Contracts\IdGeneratorInterface $idGenerator, \Larmias\Engine\Contracts\WorkerInterface $worker) {
+    $id = $idGenerator->id();
+    $file = __DIR__ . '/runtime/id.txt';
+    \file_put_contents($file, $id . PHP_EOL, FILE_APPEND);
+    return $id;
 });

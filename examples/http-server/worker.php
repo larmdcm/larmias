@@ -22,7 +22,7 @@ return [
             'host' => '0.0.0.0',
             'port' => 9863,
             'settings' => [
-                'worker_num' => 1,
+                'worker_num' => 2,
                 'task_worker_num' => 1,
             ],
             'callbacks' => [
@@ -61,6 +61,7 @@ return [
             $container->bind(\Larmias\Contracts\SessionInterface::class, \Larmias\Session\Session::class);
             $container->bind(\Larmias\Contracts\ViewInterface::class, \Larmias\View\View::class);
             $container->bind(\Larmias\Http\CSRF\Contracts\CsrfManagerInterface::class, \Larmias\Http\CSRF\CsrfManager::class);
+            $container->bind(\Larmias\Snowflake\Contracts\IdGeneratorInterface::class, \Larmias\Snowflake\IdGenerator::class);
             foreach (glob(__DIR__ . '/config/*.php') as $file) {
                 $container->make(ConfigInterface::class)->load($file);
             }

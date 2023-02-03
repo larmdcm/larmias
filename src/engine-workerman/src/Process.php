@@ -32,9 +32,12 @@ class Process extends EngineWorker
     {
         try {
             parent::onWorkerStart($worker);
-            $this->hasListen(Event::ON_WORKER) && Timer::tick($this->workerConfig->getSettings()['process_tick_time'] ?? 1, function () {
-                $this->trigger(Event::ON_WORKER, [$this]);
-            });
+            $processTickTime = $this->workerConfig->getSettings()['process_tick_time'] ?? 1;
+            if ($this->hasListen(Event::ON_WORKER)) {
+                Timer::tick($processTickTime, function () {
+                    $this->trigger(Event::ON_WORKER, [$this]);
+                });
+            }
         } catch (Throwable $e) {
             $this->exceptionHandler($e);
         }

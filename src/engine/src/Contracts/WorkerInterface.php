@@ -10,10 +10,10 @@ use Larmias\Contracts\ContainerInterface;
 
 interface WorkerInterface
 {
-	/**
-	 * @param  int    $workerId 
-	 * @return void
-	 */
+    /**
+     * @param int $workerId
+     * @return void
+     */
     public function start(int $workerId): void;
 
     /**
@@ -48,7 +48,7 @@ interface WorkerInterface
      * @param mixed|null $default
      * @return mixed
      */
-    public function getSettings(string $name,mixed $default = null): mixed;
+    public function getSettings(string $name, mixed $default = null): mixed;
 
     /**
      * @return EngineConfig

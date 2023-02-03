@@ -38,6 +38,9 @@ class Client
      */
     protected $socket;
 
+    /**
+     * @var array
+     */
     protected array $options = [
         'host' => '127.0.0.1',
         'port' => 2000,

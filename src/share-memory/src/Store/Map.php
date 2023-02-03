@@ -32,6 +32,22 @@ class Map implements MapInterface
         return \array_key_exists($key, $this->data);
     }
 
+    public function incr(string $key, int $step): string
+    {
+        if (!$this->exists($key)) {
+            $this->set($key, (string)$step);
+            return (string)$step;
+        }
+        $value = (int)$this->get($key);
+        $value += $step;
+        return (string)$value;
+    }
+
+    public function decr(string $key, int $step): string
+    {
+        return $this->incr($key, -$step);
+    }
+
     public function clear(): bool
     {
         $this->data = [];

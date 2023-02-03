@@ -11,13 +11,9 @@ use Psr\Container\NotFoundExceptionInterface;
 
 class WorkerHotUpdateHandler
 {
-    /**
-     * @param WorkerInterface $worker
-     * @return void
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
-     */
-    public function handle(WorkerInterface $worker): void
+    protected WatcherInterface $watcher;
+
+    public function __construct(protected WorkerInterface $worker)
     {
         $watch = $worker->getSettings('watch', []);
         $enabled = $watch['enabled'] ?? false;
@@ -26,11 +22,21 @@ class WorkerHotUpdateHandler
         }
         /** @var WatcherInterface $watcher */
         $watcher = $worker->getContainer()->get($watch['driver'] ?? \Larmias\Engine\Watcher\Scan::class);
-        $watcher->include($watch['includes'] ?? [])
+        $this->watcher = $watcher->include($watch['includes'] ?? [])
             ->exclude($watch['excludes'] ?? [])
-            ->excludeExt($watch['excludeExts'] ?? [])
-            ->watch(function (string $path, int $event) use ($worker) {
-                $worker->getKernel()->getDriver()->reload();
-            });
+            ->excludeExt($watch['excludeExts'] ?? []);
+    }
+
+    /**
+     * @param WorkerInterface $worker
+     * @return void
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
+    public function handle(WorkerInterface $worker): void
+    {
+        $this->watcher->watch(function (string $path, int $event) use ($worker) {
+            $worker->getKernel()->getDriver()->reload();
+        });
     }
 }

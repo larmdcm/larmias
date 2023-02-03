@@ -12,5 +12,7 @@ interface CommandHandlerInterface
 
     public function parse(string $raw): MessageCommand;
 
+    public function addHandler(string $name, string $handler): CommandHandlerInterface;
+
     public function getHandlers(): array;
 }

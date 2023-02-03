@@ -14,6 +14,10 @@ interface MapInterface
 
     public function exists(string $key): bool;
 
+    public function incr(string $key, int $step): string;
+
+    public function decr(string $key, int $step): string;
+
     public function clear(): bool;
 
     public function count(): int;

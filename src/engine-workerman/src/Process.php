@@ -25,15 +25,13 @@ class Process extends EngineWorker
     /**
      * @param Worker $worker
      * @return void
-     * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws \Psr\Container\NotFoundExceptionInterface
      */
     public function onWorkerStart(Worker $worker): void
     {
         try {
             parent::onWorkerStart($worker);
-            $processTickTime = $this->workerConfig->getSettings()['process_tick_time'] ?? 1;
             if ($this->hasListen(Event::ON_WORKER)) {
+                $processTickTime = $this->getSettings('process_tick_time', 1);
                 Timer::tick($processTickTime, function () {
                     $this->trigger(Event::ON_WORKER, [$this]);
                 });

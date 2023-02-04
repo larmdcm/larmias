@@ -57,7 +57,7 @@ class Kernel implements KernelInterface
     {
         $workers = $this->engineConfig->getWorkers();
         foreach ($workers as $workerConfig) {
-            $this->workers[$workerConfig->getName()] = $this->addWorker($workerConfig);
+            $this->addWorker($workerConfig);
         }
         $this->driver->run($this);
     }
@@ -77,7 +77,7 @@ class Kernel implements KernelInterface
         if (!$class || !\class_exists($class)) {
             throw new RuntimeException('driver class not set.');
         }
-        return new $class($this->container, $this, $workerConfig);
+        return $this->workers[$workerConfig->getName()] = new $class($this->container, $this, $workerConfig);
     }
 
     /**

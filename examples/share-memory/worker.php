@@ -2,7 +2,7 @@
 
 use Larmias\Engine\WorkerType;
 use Larmias\Engine\Event;
-use Larmias\ShareMemory\Server as ShareMemoryServer;
+use Larmias\SharedMemory\Server as SharedMemoryServer;
 
 return [
     'driver' => \Larmias\Engine\WorkerMan\Driver::class,
@@ -18,9 +18,9 @@ return [
                 'auth_password' => '123456',
             ],
             'callbacks' => [
-                Event::ON_CONNECT => [ShareMemoryServer::class, 'onConnect'],
-                Event::ON_RECEIVE => [ShareMemoryServer::class, 'onReceive'],
-                Event::ON_CLOSE => [ShareMemoryServer::class, 'onClose'],
+                Event::ON_CONNECT => [SharedMemoryServer::class, 'onConnect'],
+                Event::ON_RECEIVE => [SharedMemoryServer::class, 'onReceive'],
+                Event::ON_CLOSE => [SharedMemoryServer::class, 'onClose'],
             ]
         ]
     ],

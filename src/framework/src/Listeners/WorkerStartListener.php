@@ -13,7 +13,7 @@ class WorkerStartListener implements ListenerInterface
     /**
      * WorkerStartListener constructor.
      *
-     * @param \Larmias\Contracts\ApplicationInterface $app
+     * @param ApplicationInterface $app
      */
     public function __construct(protected ApplicationInterface $app)
     {

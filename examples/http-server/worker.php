@@ -12,7 +12,7 @@ use Psr\EventDispatcher\ListenerProviderInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Larmias\Event\ListenerProviderFactory;
 use Larmias\Event\EventDispatcherFactory;
-use Larmias\ShareMemory\Server as ShareMemoryServer;
+use Larmias\SharedMemory\Server as SharedMemoryServer;
 
 return [
     'driver' => \Larmias\Engine\WorkerMan\Driver::class,
@@ -48,7 +48,7 @@ return [
             ]
         ],
         [
-            'name' => 'shareMemory',
+            'name' => 'SharedMemory',
             'type' => WorkerType::TCP_SERVER,
             'host' => '0.0.0.0',
             'port' => 2000,
@@ -58,12 +58,10 @@ return [
                 'auth_password' => '123456',
             ],
             'callbacks' => [
-                Event::ON_WORKER_START => function () {
-
-                },
-                Event::ON_CONNECT => [ShareMemoryServer::class, 'onConnect'],
-                Event::ON_RECEIVE => [ShareMemoryServer::class, 'onReceive'],
-                Event::ON_CLOSE => [ShareMemoryServer::class, 'onClose'],
+                Event::ON_WORKER_START => [[SharedMemoryServer::class, 'onWorkerStart']],
+                Event::ON_CONNECT => [SharedMemoryServer::class, 'onConnect'],
+                Event::ON_RECEIVE => [SharedMemoryServer::class, 'onReceive'],
+                Event::ON_CLOSE => [SharedMemoryServer::class, 'onClose'],
             ]
         ],
         [
@@ -81,7 +79,7 @@ return [
 
     ],
     'callbacks' => [
-        Event::ON_WORKER_START => function () {
+        Event::ON_WORKER_START => function (\Larmias\Engine\Contracts\WorkerInterface $worker) {
             $container = require '../di/container.php';
             $container->bind(ConfigInterface::class, Config::class);
             $container->bind(PipelineInterface::class, Pipeline::class);
@@ -92,6 +90,10 @@ return [
             $container->bind(\Larmias\Contracts\ViewInterface::class, \Larmias\View\View::class);
             $container->bind(\Larmias\Http\CSRF\Contracts\CsrfManagerInterface::class, \Larmias\Http\CSRF\CsrfManager::class);
             $container->bind(\Larmias\Snowflake\Contracts\IdGeneratorInterface::class, \Larmias\Snowflake\IdGenerator::class);
+            $container->bind([
+                \Larmias\SharedMemory\Contracts\CommandExecutorInterface::class => \Larmias\SharedMemory\CommandExecutor::class,
+                \Larmias\SharedMemory\Contracts\AuthInterface::class => \Larmias\SharedMemory\Auth::class,
+            ]);
             foreach (glob(__DIR__ . '/config/*.php') as $file) {
                 $container->make(ConfigInterface::class)->load($file);
             }

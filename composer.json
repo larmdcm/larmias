@@ -61,7 +61,7 @@
       "Larmias\\Engine\\": "src/engine/src/",
       "Larmias\\Engine\\WorkerS\\": "src/engine-workers/src/",
       "Larmias\\Engine\\WorkerMan\\": "src/engine-workerman/src/",
-      "Larmias\\ShareMemory\\": "src/share-memory/src/",
+      "Larmias\\SharedMemory\\": "src/shared-memory/src/",
       "Larmias\\Http\\Message\\": "src/http-message/src/",
       "Larmias\\HttpServer\\": "src/http-server/src/",
       "Larmias\\Routing\\": "src/routing/src/",

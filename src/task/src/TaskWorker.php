@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\Task;
 
-use Larmias\ShareMemory\Client\Client;
+use Larmias\SharedMemory\Client\Client;
 use Larmias\Task\Enum\WorkerStatus;
 
 class TaskWorker
@@ -43,7 +43,6 @@ class TaskWorker
     public function __construct(array $config = [])
     {
         $this->config = \array_merge($this->config, $config);
-        $this->client = new Client();
     }
 
     /**

@@ -30,14 +30,16 @@
     "psr/http-factory": "^1.0",
     "psr/http-server-handler": "^1.0",
     "psr/http-server-middleware": "^1.0",
+    "psr/http-client": "^1.0",
     "psr/simple-cache": "^1.0",
     "opis/closure": "^3.6",
     "nikic/fast-route": "^1.3",
-    "workerman/workerman": "^4.1"
+    "workerman/workerman": "^4.1",
+    "topthink/think-orm": "^2.0",
+    "godruoyi/php-snowflake": "^1.0"
   },
   "require-dev": {
-    "phpunit/phpunit": "^9.5.10",
-    "topthink/think-orm": "^2.0"
+    "phpunit/phpunit": "^9.5.10"
   },
   "autoload": {
     "files": [
@@ -59,7 +61,7 @@
       "Larmias\\Engine\\": "src/engine/src/",
       "Larmias\\Engine\\WorkerS\\": "src/engine-workers/src/",
       "Larmias\\Engine\\WorkerMan\\": "src/engine-workerman/src/",
-      "Larmias\\ShareMemory\\": "src/share-memory/src/",
+      "Larmias\\SharedMemory\\": "src/shared-memory/src/",
       "Larmias\\Http\\Message\\": "src/http-message/src/",
       "Larmias\\HttpServer\\": "src/http-server/src/",
       "Larmias\\Routing\\": "src/routing/src/",
@@ -80,7 +82,11 @@
       "Larmias\\View\\": "src/view/src/",
       "Larmias\\Crontab\\": "src/crontab/src/",
       "Larmias\\Rpn\\": "src/rpn/src/",
-      "Larmias\\Http\\CSRF\\": "src/http-csrf/src/"
+      "Larmias\\Http\\CSRF\\": "src/http-csrf/src/",
+      "Larmias\\Http\\Utils\\": "src/http-utils/src/",
+      "Larmias\\Captcha\\": "src/captcha/src/",
+      "Larmias\\Snowflake\\": "src/snowflake/src/",
+      "Larmias\\Task\\": "src/task/src/"
     }
   }
 }

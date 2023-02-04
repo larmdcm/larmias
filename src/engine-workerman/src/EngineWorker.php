@@ -69,7 +69,7 @@ class EngineWorker extends BaseWorker
         ];
 
         foreach ($callbackMap as $name => $method) {
-            if (method_exists($instance,$method)) {
+            if (\method_exists($instance,$method)) {
                 $worker->{$name} = [$instance,$method];
             }
         }

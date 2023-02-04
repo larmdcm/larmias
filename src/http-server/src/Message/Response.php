@@ -29,12 +29,11 @@ class Response implements PsrResponseInterface, ResponseInterface
     public function json(array|object|string $data, int $code = 200, array $headers = []): PsrResponseInterface
     {
         $json = \is_string($data) || $data instanceof \Stringable ? (string)$data : Json::encode($data);
-        /** @var \Larmias\Http\Message\Response $response */
         $response = $this->withAddedHeader('Content-Type', 'application/json; charset=utf-8')
             ->withStatus($code)
             ->withBody(Stream::create($json));
         if (!empty($headers) && \method_exists($response, 'withHeaders')) {
-            $response->withHeaders($headers);
+            $response = $response->withHeaders($headers);
         }
         return $response;
     }
@@ -47,11 +46,10 @@ class Response implements PsrResponseInterface, ResponseInterface
      */
     public function raw(string|\Stringable $data, int $code = 200, array $headers = []): PsrResponseInterface
     {
-        /** @var \Larmias\Http\Message\Response $response */
         $response = $this->withAddedHeader('Content-Type', 'text/plain; charset=utf-8')->withStatus($code)
             ->withBody(Stream::create((string)$data));
         if (!empty($headers) && \method_exists($response, 'withHeaders')) {
-            $response->withHeaders($headers);
+            $response = $response->withHeaders($headers);
         }
         return $response;
     }
@@ -64,11 +62,10 @@ class Response implements PsrResponseInterface, ResponseInterface
      */
     public function html(\Stringable|string $data, int $code = 200, array $headers = []): PsrResponseInterface
     {
-        /** @var \Larmias\Http\Message\Response $response */
         $response = $this->withAddedHeader('Content-Type', 'text/html; charset=utf-8')->withStatus($code)
             ->withBody(Stream::create((string)$data));
         if (!empty($headers) && \method_exists($response, 'withHeaders')) {
-            $response->withHeaders($headers);
+            $response = $response->withHeaders($headers);
         }
         return $response;
     }

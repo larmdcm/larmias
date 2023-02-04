@@ -6,8 +6,9 @@ namespace Larmias\Http\Message;
 
 use Psr\Http\Message\StreamInterface;
 use RuntimeException;
+use Stringable;
 
-class Stream implements StreamInterface
+class Stream implements StreamInterface, Stringable
 {
     /** @var array Hash of readable and writable stream types */
     protected const READ_WRITE_HASH = [
@@ -54,6 +55,7 @@ class Stream implements StreamInterface
         $this->readable = isset(self::READ_WRITE_HASH['read'][$meta['mode']]);
         $this->writable = isset(self::READ_WRITE_HASH['write'][$meta['mode']]);
         $this->uri = $this->getMetadata('uri');
+        $this->size = null;
     }
 
     /**
@@ -145,7 +147,6 @@ class Stream implements StreamInterface
         $stats = \fstat($this->stream);
         if (isset($stats['size'])) {
             $this->size = $stats['size'];
-
             return $this->size;
         }
 

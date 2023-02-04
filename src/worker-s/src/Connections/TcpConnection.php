@@ -77,7 +77,7 @@ class TcpConnection extends Connection
 
     /**
      * 当前连接已接收的字节数大小
-     * 
+     *
      * @var integer
      */
     protected int $recvLen = 0;
@@ -98,7 +98,7 @@ class TcpConnection extends Connection
 
     /**
      * ProtocolInterface class
-     * 
+     *
      * @var string
      */
     protected string $protocol;
@@ -111,17 +111,17 @@ class TcpConnection extends Connection
     /**
      * TcpConnection __construct.
      *
-     * @param Server   $server
+     * @param Server $server
      * @param resource $socket
-     * @param string   $remoteAddr
+     * @param string $remoteAddr
      */
-    public function __construct(Server $server,$socket,string $remoteAddr = '')
+    public function __construct(Server $server, $socket, string $remoteAddr = '')
     {
-        $this->server     = $server;
-        $this->socket     = $socket;
+        $this->server = $server;
+        $this->socket = $socket;
         $this->remoteAddr = $remoteAddr;
-        $this->status     = self::STATUS_CONNECTING;
-        $this->protocol   = $this->server->getProtocol();
+        $this->status = self::STATUS_CONNECTING;
+        $this->protocol = $this->server->getProtocol();
 
         if (!\is_resource($this->socket)) {
             throw new RuntimeException('Is not a valid socket connection');
@@ -129,11 +129,11 @@ class TcpConnection extends Connection
 
         $this->id = (int)$this->socket;
         static::$connections[$this->id] = $this->socket;
-        
-        \stream_set_blocking($this->socket,false);
-        \stream_set_read_buffer($this->socket,0);
 
-        $this->server->getEvent()->onReadable($this->socket,[$this,'onRead']);
+        \stream_set_blocking($this->socket, false);
+        \stream_set_read_buffer($this->socket, 0);
+
+        $this->server->getEvent()->onReadable($this->socket, [$this, 'onRead']);
 
         static::$statistics['connection_count']++;
     }
@@ -141,7 +141,7 @@ class TcpConnection extends Connection
     /**
      * @return void
      */
-    public function onRead()
+    public function onRead(): void
     {
         $buffer = '';
         try {
@@ -154,7 +154,7 @@ class TcpConnection extends Connection
             return;
         }
 
-        $this->recvLen    += \strlen($buffer);
+        $this->recvLen += \strlen($buffer);
         $this->recvBuffer .= $buffer;
 
         if ($this->protocol !== null) {
@@ -165,7 +165,7 @@ class TcpConnection extends Connection
         if ($this->recvBuffer === '') {
             return;
         }
-        
+
         $this->runEvent($this->recvBuffer);
         $this->recvBuffer = '';
     }
@@ -182,11 +182,11 @@ class TcpConnection extends Connection
                     break;
                 }
             } else {
-                $this->currentPackageLen = $this->protocol::input($this->recvBuffer,$this);
+                $this->currentPackageLen = $this->protocol::input($this->recvBuffer, $this);
                 if ($this->currentPackageLen === 0) {
                     break;
                 } else if ($this->currentPackageLen > 0 && $this->currentPackageLen <= $this->maxPackageSize) {
-                    if ($this->currentPackageLen  > $recvBuffeLen) {
+                    if ($this->currentPackageLen > $recvBuffeLen) {
                         break;
                     }
                 } else {
@@ -194,11 +194,11 @@ class TcpConnection extends Connection
                     $this->close();
                     return;
                 }
-            }            
-            $message = \substr($this->recvBuffer,0,$this->currentPackageLen);
-            $this->recvBuffer = \substr($this->recvBuffer,$this->currentPackageLen);
+            }
+            $message = \substr($this->recvBuffer, 0, $this->currentPackageLen);
+            $this->recvBuffer = \substr($this->recvBuffer, $this->currentPackageLen);
             $this->currentPackageLen = 0;
-            $data = $this->protocol::decode($message,$this);
+            $data = $this->protocol::decode($message, $this);
             $this->runEvent($data);
         }
     }
@@ -207,35 +207,35 @@ class TcpConnection extends Connection
      * @param mixed $message
      * @return void
      */
-    public function runEvent($message): void
+    public function runEvent(mixed $message): void
     {
         static::$statistics['total_request']++;
         switch ($this->server->getScheme()) {
             case 'http':
-                $this->server->fireEvent(EventConstant::ON_REQUEST,$message,$this->protocol::createResponse($this));
+                $this->server->fireEvent(EventConstant::ON_REQUEST, $message, $this->protocol::createResponse($this));
                 break;
             case 'websocket':
                 if (!isset($this->webSocketHandShake)) {
                     $this->request = $message;
                     if ($this->send()) {
                         $this->webSocketHandShake = true;
-                        $this->server->fireEvent(EventConstant::ON_OPEN,$this);
+                        $this->server->fireEvent(EventConstant::ON_OPEN, $this);
                     } else {
                         $this->close();
                     }
                 } else {
-                    $this->server->fireEvent(EventConstant::ON_MESSAGE,$this,$message);
+                    $this->server->fireEvent(EventConstant::ON_MESSAGE, $this, $message);
                 }
                 break;
             default:
-                $this->server->fireEvent(EventConstant::ON_RECEIVE,$this,$message);
+                $this->server->fireEvent(EventConstant::ON_RECEIVE, $this, $message);
         }
     }
 
     /**
      * @return int
      */
-    public function onWrite()
+    public function onWrite(): int
     {
         if (!$this->isConnected()) {
             $this->close();
@@ -268,11 +268,11 @@ class TcpConnection extends Connection
     /**
      * 发送数据
      *
-     * @param  string|Stringable $data
-     * @param  bool $isRaw
+     * @param string|Stringable $data
+     * @param bool $isRaw
      * @return int
      */
-    public function send(string|Stringable $data = '',bool $isRaw = false): int
+    public function send(string|Stringable $data = '', bool $isRaw = false): int
     {
         if (!$this->isConnected()) {
             $this->close();
@@ -280,7 +280,7 @@ class TcpConnection extends Connection
         }
 
         if ($this->protocol !== null && !$isRaw) {
-            $data = $this->protocol::encode((string)$data,$this);
+            $data = $this->protocol::encode((string)$data, $this);
             if ($data === '') {
                 return 0;
             }
@@ -304,8 +304,8 @@ class TcpConnection extends Connection
                 static::$statistics['total_response']++;
             } else {
                 if (!$this->isConnected()) {
-                   try {
-                        $this->server->fireEvent(EventConstant::ON_ERROR,$this,self::SEND_FAIL,'client closed');
+                    try {
+                        $this->server->fireEvent(EventConstant::ON_ERROR, $this, self::SEND_FAIL, 'client closed');
                         static::$statistics['send_fail']++;
                     } catch (\Throwable $e) {
                         Manager::trace($e->getMessage());
@@ -315,7 +315,7 @@ class TcpConnection extends Connection
                 }
                 $this->sendBuffer = $data;
             }
-            $this->server->getEvent()->onWritable($this->socket,[$this,'onWrite']);
+            $this->server->getEvent()->onWritable($this->socket, [$this, 'onWrite']);
             return -1;
         }
         $this->sendBuffer .= $data;
@@ -326,20 +326,20 @@ class TcpConnection extends Connection
     /**
      * 关闭连接.
      *
-     * @param string  $data
+     * @param string $data
      * @param boolean $isRaw
      * @return void
      */
-    public function close(string|Stringable $data = null,bool $isRaw = false): void
+    public function close(string|Stringable $data = null, bool $isRaw = false): void
     {
         if ($this->status === self::STATUS_CLOSED) {
             return;
         }
 
         if ($data !== null) {
-            $this->send($data,$isRaw);
+            $this->send($data, $isRaw);
         }
-        
+
         if (\is_resource($this->socket)) {
             $this->server->getEvent()->offReadable($this->socket);
             $this->server->getEvent()->offWritable($this->socket);
@@ -350,9 +350,9 @@ class TcpConnection extends Connection
         }
 
         static::$statistics['connection_count']--;
-        
+
         $this->status = self::STATUS_CLOSED;
-        $this->server->fireEvent(EventConstant::ON_CLOSE,$this);
+        $this->server->fireEvent(EventConstant::ON_CLOSE, $this);
 
         $id = $this->getId();
         if ($this->server) {

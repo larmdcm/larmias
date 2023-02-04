@@ -66,7 +66,9 @@ class Session implements SessionInterface
     {
         $data = $this->handler->read($this->getId());
         if (!empty($data)) {
-            $this->data = \array_merge($this->data, $this->packer->unpack($data));
+            $this->data = $this->packer->unpack($data);
+        } else {
+            $this->data = [];
         }
         return $this->started = true;
     }

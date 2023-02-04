@@ -44,6 +44,6 @@ class Timer
      */
     public static function __callStatic(string $name,array $arguments): mixed
     {
-        return call_user_func_array([static::$timer,$name],$arguments);
+        return \call_user_func_array([static::$timer,$name],$arguments);
     }
 }

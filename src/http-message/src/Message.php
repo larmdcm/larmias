@@ -57,6 +57,7 @@ class Message implements MessageInterface
      */
     public function withProtocolVersion($version): self
     {
+        $version = (string)$version;
         if ($this->protocolVersion === $version) {
             return $this;
         }

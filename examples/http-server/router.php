@@ -3,6 +3,7 @@
 use Larmias\HttpServer\Routing\Router;
 use Larmias\HttpServer\Contracts\RequestInterface;
 use Larmias\HttpServer\Contracts\ResponseInterface;
+use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
 
 Router::get('/', function (ResponseInterface $response) {
     return $response->raw('Hello,World!');
@@ -45,7 +46,7 @@ Router::get('/cookie', function (RequestInterface $request, ResponseInterface $r
 Router::get('/session', function (\Larmias\Contracts\SessionInterface $session, ResponseInterface $response) {
     $session->set('name', 'session');
     return $session->get('name');
-})->middleware(\Larmias\Session\Middlewares\SessionMiddleware::class);
+})->middleware(\Larmias\Session\Middleware\SessionMiddleware::class);
 
 Router::get('/exception', function () {
     throw new RuntimeException('发生了异常');
@@ -60,3 +61,24 @@ Router::get('/url/{id}[/{name:\w+}]', function (RequestInterface $request) {
 //        \Larmias\HttpServer\url_string('/url/{id}[/{name}]/{id2}[/{name2}]'),
     ];
 })->name('index.url');
+
+Router::rule(['GET', 'POST'], '/csrf', function (RequestInterface $request, \Larmias\Contracts\ViewInterface $view, ResponseInterface $response) {
+    return $response->html($view->render('csrf'));
+})->middleware([
+    \Larmias\Session\Middleware\SessionMiddleware::class,
+    \Larmias\Http\CSRF\Middleware\CsrfMiddleware::class,
+]);
+
+Router::get('/captcha', function (PsrResponseInterface $response) {
+    $captcha = new \Larmias\Captcha\Captcha();
+    $result = $captcha->create();
+    return $response->withHeader('Content-Type', $result->getMimeType())
+        ->withBody(\Larmias\Http\Message\Stream::create($result->getContent()));
+});
+
+Router::get('/snowflake', function (\Larmias\Snowflake\Contracts\IdGeneratorInterface $idGenerator, \Larmias\Engine\Contracts\WorkerInterface $worker) {
+    $id = $idGenerator->id();
+    $file = __DIR__ . '/runtime/id.txt';
+    \file_put_contents($file, $id . PHP_EOL, FILE_APPEND);
+    return $id;
+});

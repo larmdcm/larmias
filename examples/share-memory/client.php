@@ -2,7 +2,7 @@
 
 require '../bootstrap.php';
 
-use Larmias\ShareMemory\Client\Client;
+use Larmias\SharedMemory\Client\Client;
 use Larmias\Engine\Kernel;
 use Larmias\Engine\EngineConfig;
 

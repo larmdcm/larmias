@@ -15,19 +15,19 @@ use Psr\Log\LoggerInterface;
 class WorkerStartCallback
 {
     /**
-     * @var \Psr\EventDispatcher\EventDispatcherInterface|null
+     * @var EventDispatcherInterface|null
      */
     protected ?EventDispatcherInterface $eventDispatcher = null;
 
     /**
-     * @var \Psr\Log\LoggerInterface|null
+     * @var LoggerInterface|null
      */
     protected ?LoggerInterface $logger = null;
 
     /**
      * WorkerStartCallback constructor.
      *
-     * @param \Larmias\Contracts\ContainerInterface $container
+     * @param ContainerInterface $container
      * @throws \Psr\Container\ContainerExceptionInterface
      * @throws \Psr\Container\NotFoundExceptionInterface
      */
@@ -43,7 +43,7 @@ class WorkerStartCallback
     }
 
     /**
-     * @param \Larmias\Engine\Contracts\WorkerInterface $worker
+     * @param WorkerInterface $worker
      * @return void
      */
     public function onWorkerStart(WorkerInterface $worker): void

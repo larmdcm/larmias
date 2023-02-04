@@ -6,11 +6,13 @@ namespace Larmias\Engine\WorkerMan;
 
 use Larmias\Engine\Contracts\DriverInterface;
 use Larmias\Engine\Contracts\KernelInterface;
+use Larmias\Engine\WorkerMan\Tcp\Server as TcpServer;
+use Larmias\Engine\WorkerMan\Http\Server as HttpServer;
 
 class Driver implements DriverInterface
 {
     /**
-     * @param \Larmias\Engine\Contracts\KernelInterface $kernel
+     * @param KernelInterface $kernel
      */
     public function run(KernelInterface $kernel): void
     {
@@ -32,7 +34,7 @@ class Driver implements DriverInterface
      */
     public function getTcpServerClass(): string
     {
-        return \Larmias\Engine\WorkerMan\Tcp\Server::class;
+        return TcpServer::class;
     }
 
     /**
@@ -40,7 +42,7 @@ class Driver implements DriverInterface
      */
     public function getHttpServerClass(): string
     {
-        return \Larmias\Engine\WorkerMan\Http\Server::class;
+        return HttpServer::class;
     }
 
     /**
@@ -66,5 +68,4 @@ class Driver implements DriverInterface
     {
         return Timer::class;
     }
-
 }

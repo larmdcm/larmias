@@ -37,6 +37,10 @@ class Request implements RequestInterface
      */
     public function query(?string $key = null, mixed $default = null): mixed
     {
+        $rawBody = $this->rawBody();
+        if (\strlen($rawBody) > 65535) {
+            throw new \InvalidArgumentException('The parameter exceeds the length limit.');
+        }
         return $this->request->get($key, $default);
     }
 

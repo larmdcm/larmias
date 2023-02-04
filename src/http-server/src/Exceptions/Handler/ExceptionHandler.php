@@ -12,6 +12,8 @@ use Larmias\ExceptionHandler\Render\JsonRender;
 use Larmias\HttpServer\Contracts\ExceptionHandlerInterface;
 use Larmias\HttpServer\Contracts\RequestInterface;
 use Larmias\HttpServer\Contracts\ResponseInterface;
+use Larmias\HttpServer\Exceptions\HttpException;
+use Larmias\HttpServer\Exceptions\HttpResponseException;
 use Larmias\Routing\Exceptions\RouteMethodNotAllowedException;
 use Larmias\Routing\Exceptions\RouteNotFoundException;
 use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
@@ -27,6 +29,9 @@ class ExceptionHandler extends BaseExceptionHandler implements ExceptionHandlerI
      */
     public function render(RequestInterface $request, Throwable $e): PsrResponseInterface
     {
+        if ($e instanceof HttpResponseException) {
+            return $e->getResponse();
+        }
         return $this->getRenderResponse($request, $e)->withStatus($this->getHttpCode($e));
     }
 
@@ -36,6 +41,10 @@ class ExceptionHandler extends BaseExceptionHandler implements ExceptionHandlerI
      */
     protected function getHttpCode(Throwable $e): int
     {
+        if ($e instanceof HttpException) {
+            return $e->getStatusCode();
+        }
+
         $code = 500;
         if ($e instanceof RouteNotFoundException) {
             $code = 404;
@@ -55,10 +64,11 @@ class ExceptionHandler extends BaseExceptionHandler implements ExceptionHandlerI
         /** @var ResponseInterface $response */
         $response = $this->container->make(ResponseInterface::class);
         $render = $this->getRender($request);
+        $headers = $e instanceof HttpException ? $e->getHeaders() : [];
         if ($this->isJsonRequest($request)) {
-            $response = $response->json($render->render($e));
+            $response = $response->json($render->render($e), headers: $headers);
         } else {
-            $response = $response->html($render->render($e));
+            $response = $response->html($render->render($e), headers: $headers);
         }
         return $response;
     }

@@ -28,7 +28,7 @@ class Worker implements WorkerInterface
     protected int $workerId;
 
     /**
-     * @var \Larmias\Engine\EngineConfig
+     * @var EngineConfig
      */
     protected EngineConfig $engineConfig;
 
@@ -93,8 +93,11 @@ class Worker implements WorkerInterface
             $callable(...$args);
             return;
         }
-        if (!\is_array($callable) || (!isset($callable[0]) && !isset($callable[1]))) {
+        if (!\is_array($callable) || !isset($callable[0])) {
             return;
+        }
+        if (isset($callable[0])) {
+            
         }
         $object = $this->container->get($callable[0]);
         \call_user_func_array([$object, $callable[1]], $args);

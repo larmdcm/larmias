@@ -18,10 +18,10 @@ abstract class Connection
      */
     public static array $statistics = [
         'connection_count' => 0,
-        'total_request'    => 0,
-        'total_response'   => 0,
-        'throw_exception'  => 0,
-        'send_fail'        => 0,
+        'total_request' => 0,
+        'total_response' => 0,
+        'throw_exception' => 0,
+        'send_fail' => 0,
     ];
 
     /**
@@ -31,7 +31,6 @@ abstract class Connection
 
     /**
      * Connection __set
-
      * @param string $name
      * @return mixed
      */
@@ -39,14 +38,14 @@ abstract class Connection
     {
         return $this->attributes[$name] ?? null;
     }
-    
+
     /**
      * Connection __set
-     * 
+     *
      * @param string $name
      * @param mixed $value
      */
-    public function __set(string $name,$value)
+    public function __set(string $name, mixed $value)
     {
         $this->attributes[$name] = $value;
     }
@@ -54,7 +53,7 @@ abstract class Connection
     /**
      * Connection __isset
      *
-     * @param  string  $name
+     * @param string $name
      * @return boolean
      */
     public function __isset(string $name)
@@ -69,18 +68,18 @@ abstract class Connection
     {
         return $this->attributes;
     }
-    
+
     /**
      * @param string $data
      * @param boolean $isRaw
      * @return integer
      */
-    abstract public function send(string|Stringable $data = '',bool $isRaw = false): int;
+    abstract public function send(string|Stringable $data = '', bool $isRaw = false): int;
 
     /**
      * @param string|Stringable $data
      * @param boolean $isRaw
      * @return void
      */
-    abstract public function close(string|Stringable $data = null,bool $isRaw = false): void;
+    abstract public function close(string|Stringable $data = null, bool $isRaw = false): void;
 }

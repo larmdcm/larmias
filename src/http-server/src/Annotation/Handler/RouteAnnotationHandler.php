@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Larmias\HttpServer\Annotation\Handler;
 
-use Larmias\Di\Contracts\AnnotationHandlerInterface;
 use Larmias\HttpServer\Annotation\Controller;
 use Larmias\HttpServer\Annotation\DeleteMapping;
 use Larmias\HttpServer\Annotation\GetMapping;
@@ -16,7 +15,7 @@ use Larmias\HttpServer\Annotation\PutMapping;
 use Larmias\HttpServer\Annotation\RequestMapping;
 use Larmias\HttpServer\Routing\Router;
 
-class RouteAnnotationHandler implements AnnotationHandlerInterface
+class RouteAnnotationHandler implements RouteAnnotationHandlerInterface
 {
     protected static array $container = [
         'controller' => [],
@@ -32,15 +31,24 @@ class RouteAnnotationHandler implements AnnotationHandlerInterface
             if (empty($routes)) {
                 continue;
             }
-            Router::group($controller->prefix, function () use ($routes) {
+            Router::group($this->buildControllerPrefix($controller->prefix), function () use ($routes) {
                 foreach ($routes as $route) {
                     $value = $route['value'][0];
-                    Router::rule($value->methods, $value->path, [$route['class'], $route['method']])
+                    $router = Router::rule($value->methods, $value->path, [$route['class'], $route['method']])
                         ->middleware($this->buildMiddleware(static::$container['method_middleware'][$route['class']][$route['method']] ?? []));
+                    if (isset($value->options['name'])) {
+                        $router->name($value->options['name']);
+                    }
                 }
             })->middleware($controller->middleware)->middleware($this->buildMiddleware(static::$container['middleware'][$class] ?? []));
         }
     }
+
+    public function buildControllerPrefix(string $prefix): string
+    {
+        return $prefix;
+    }
+
 
     public function collect(array $param): void
     {

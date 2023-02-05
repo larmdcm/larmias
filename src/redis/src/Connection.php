@@ -222,8 +222,8 @@ class Connection implements ConnectionInterface
             $redis->setOption($name, $value);
         }
 
-        if ($redis instanceof \Redis && isset($auth) && $auth !== '') {
-            $redis->auth($auth);
+        if (isset($this->config['auth']) && $this->config['auth'] !== '') {
+            $redis->auth($this->config['auth']);
         }
 
         if ($this->config['db'] > 0) {

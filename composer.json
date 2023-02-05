@@ -23,6 +23,8 @@
     "ext-ctype": "*",
     "ext-json": "*",
     "ext-fileinfo": "*",
+    "ext-redis": "*",
+    "ext-curl": "*",
     "psr/container": "^2.0",
     "psr/log": "^3.0",
     "psr/event-dispatcher": "^1.0",

@@ -59,7 +59,7 @@ class Console implements ConsoleInterface
     /**
      * @param string $commandClass
      * @param string $name
-     * @return $this
+     * @return self
      * @throws \Psr\Container\ContainerExceptionInterface
      * @throws \Psr\Container\NotFoundExceptionInterface
      */
@@ -87,7 +87,7 @@ class Console implements ConsoleInterface
         if (!$this->hasCommand($name)) {
             throw new \InvalidArgumentException(sprintf('The command "%s" does not exist.', $name));
         }
-        /** @var \Larmias\Console\Command $command */
+        /** @var Command $command */
         $command = $this->commands[$name];
         if (is_string($command)) {
             $command = $this->container->get($command);

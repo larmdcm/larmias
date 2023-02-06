@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\Engine;
 
-use Larmias\Engine\Contracts\TimerInterface;
+use Larmias\Contracts\TimerInterface;
 
 /**
  * @method static int tick(float $duration,callable $func,array $args = [])

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\Engine;
 
-use Larmias\Engine\Contracts\EventLoopInterface;
+use Larmias\Contracts\EventLoopInterface;
 
 /**
  * @method static bool onReadable($stream, callable $func, array $args = [])

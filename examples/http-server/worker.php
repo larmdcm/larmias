@@ -1,5 +1,6 @@
 <?php
 
+use Larmias\Contracts\Http\OnRequestInterface;
 use Larmias\Engine\WorkerType;
 use Larmias\Engine\Event;
 use Larmias\HttpServer\Server as HttpServer;
@@ -27,7 +28,7 @@ return [
                 'task_worker_num' => 1,
             ],
             'callbacks' => [
-                Event::ON_REQUEST => [HttpServer::class, HttpServer::ON_REQUEST]
+                Event::ON_REQUEST => [HttpServer::class, OnRequestInterface::ON_REQUEST]
             ]
         ],
         [
@@ -58,7 +59,7 @@ return [
                 'auth_password' => '123456',
             ],
             'callbacks' => [
-                Event::ON_WORKER_START => [[SharedMemoryServer::class, 'onWorkerStart']],
+                Event::ON_WORKER_START => [SharedMemoryServer::class, 'onWorkerStart'],
                 Event::ON_CONNECT => [SharedMemoryServer::class, 'onConnect'],
                 Event::ON_RECEIVE => [SharedMemoryServer::class, 'onReceive'],
                 Event::ON_CLOSE => [SharedMemoryServer::class, 'onClose'],
@@ -94,6 +95,9 @@ return [
                 \Larmias\SharedMemory\Contracts\CommandExecutorInterface::class => \Larmias\SharedMemory\CommandExecutor::class,
                 \Larmias\SharedMemory\Contracts\AuthInterface::class => \Larmias\SharedMemory\Auth::class,
             ]);
+            $container->get(\Larmias\SharedMemory\Contracts\CommandExecutorInterface::class)->addCommand(
+                \Larmias\Task\Command\TaskCommand::COMMAND_NAME, \Larmias\Task\Command\TaskCommand::class,
+            );
             foreach (glob(__DIR__ . '/config/*.php') as $file) {
                 $container->make(ConfigInterface::class)->load($file);
             }

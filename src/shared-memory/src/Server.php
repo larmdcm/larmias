@@ -6,6 +6,7 @@ namespace Larmias\SharedMemory;
 
 use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\Tcp\ConnectionInterface;
+use Larmias\Engine\Timer;
 use Larmias\SharedMemory\Contracts\AuthInterface;
 use Larmias\SharedMemory\Contracts\CommandExecutorInterface;
 use Larmias\SharedMemory\Exceptions\AuthenticateException;
@@ -24,9 +25,9 @@ class Server
      * @param AuthInterface $auth
      */
     public function __construct(
-        protected ContainerInterface $container,
+        protected ContainerInterface       $container,
         protected CommandExecutorInterface $executor,
-        protected AuthInterface $auth
+        protected AuthInterface            $auth
     )
     {
     }
@@ -35,8 +36,11 @@ class Server
      * @param WorkerInterface $worker
      * @return void
      */
-    public function onWorkerStart(WorkerInterface $worker)
+    public function onWorkerStart(WorkerInterface $worker): void
     {
+        Timer::tick($worker->getSettings('tick_interval', 1000), function () use ($worker) {
+            $this->triggerCommand('onTick', [$worker]);
+        });
     }
 
     /**
@@ -75,15 +79,25 @@ class Server
     public function onClose(ConnectionInterface $connection): void
     {
         try {
-            foreach ($this->executor->getCommands() as $command) {
-                if (\method_exists($command, __FUNCTION__)) {
-                    \call_user_func([$command, __FUNCTION__], $connection);
-                }
-            }
+            $this->triggerCommand(__FUNCTION__, [$connection]);
             ConnectionManager::remove($connection);
             println('#' . $connection->getId() . " Closed");
         } catch (Throwable $e) {
             $this->handleException($connection, $e);
+        }
+    }
+
+    /**
+     * @param string $method
+     * @param array $args
+     * @return void
+     */
+    protected function triggerCommand(string $method, array $args = []): void
+    {
+        foreach ($this->executor->getCommands() as $command) {
+            if (\method_exists($command, $method)) {
+                \call_user_func_array([$command, $method], $args);
+            }
         }
     }
 

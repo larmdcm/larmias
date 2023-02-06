@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\Engine\WorkerMan;
 
-use Larmias\Engine\Contracts\TimerInterface;
+use Larmias\Contracts\TimerInterface;
 use Workerman\Timer as WorkerManTimer;
 
 class Timer implements TimerInterface

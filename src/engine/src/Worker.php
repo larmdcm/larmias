@@ -8,6 +8,8 @@ use Larmias\Engine\Bootstrap\WorkerStartCallback;
 use Larmias\Engine\Contracts\KernelInterface;
 use Larmias\Engine\Contracts\WorkerInterface;
 use Larmias\Contracts\ContainerInterface;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use function Larmias\Utils\data_get;
 
 class Worker implements WorkerInterface
@@ -55,8 +57,8 @@ class Worker implements WorkerInterface
 
     /**
      * @param int $workerId
-     * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws \Psr\Container\NotFoundExceptionInterface
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
      */
     public function start(int $workerId): void
     {
@@ -80,27 +82,24 @@ class Worker implements WorkerInterface
      *  触发回调函数
      * @param string $event
      * @param array $args
-     * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws \Psr\Container\NotFoundExceptionInterface
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
      */
     public function trigger(string $event, array $args = []): void
     {
         if (!$this->hasListen($event)) {
             return;
         }
-        $callable = $this->callbacks[$event];
-        if (\is_callable($callable)) {
-            $callable(...$args);
-            return;
+        $items = $this->callbacks[$event];
+
+        foreach ($items as $item) {
+            if (\is_callable($item)) {
+                $this->container->invoke($item, $args);
+            } else {
+                $object = $this->container->get($item[0]);
+                \call_user_func_array([$object, $item[1]], $args);
+            }
         }
-        if (!\is_array($callable) || !isset($callable[0])) {
-            return;
-        }
-        if (isset($callable[0])) {
-            
-        }
-        $object = $this->container->get($callable[0]);
-        \call_user_func_array([$object, $callable[1]], $args);
     }
 
     /**
@@ -168,7 +167,28 @@ class Worker implements WorkerInterface
      */
     protected function registerEventCallback(): void
     {
-        $this->callbacks = \array_merge($this->engineConfig->getCallbacks(), $this->workerConfig->getCallbacks());
-        $this->callbacks[static::ON_WORKER_START] = [WorkerStartCallback::class, 'onWorkerStart'];
+        $this->callbacks = $this->mergeCallbacks($this->engineConfig->getCallbacks(), $this->workerConfig->getCallbacks(),[
+            static::ON_WORKER_START => [WorkerStartCallback::class, 'onWorkerStart']
+        ]);
+    }
+
+    /**
+     * @param ...$args
+     * @return array
+     */
+    protected function mergeCallbacks(...$args): array
+    {
+        $callbacks = [];
+        foreach ($args as $argItem) {
+            foreach ($argItem as $name => $callable) {
+                if (!isset($callbacks[$name])) {
+                    $callbacks[$name] = [];
+                }
+                $items = \is_array($callable) && \is_array($callable[0]) ? $callable : [$callable];
+                $callbacks[$name] = \array_merge($callbacks[$name], $items);
+            }
+        }
+
+        return $callbacks;
     }
 }

@@ -9,6 +9,8 @@ use Larmias\Engine\Event;
 use Larmias\Engine\Events\WorkerStart;
 use Larmias\Engine\Events\AfterWorkerStart;
 use Larmias\Contracts\ContainerInterface;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\LoggerInterface;
 
@@ -28,15 +30,15 @@ class WorkerStartCallback
      * WorkerStartCallback constructor.
      *
      * @param ContainerInterface $container
-     * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws \Psr\Container\NotFoundExceptionInterface
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
      */
     public function __construct(protected ContainerInterface $container)
     {
         if ($this->container->has(EventDispatcherInterface::class)) {
             $this->eventDispatcher = $this->container->get(EventDispatcherInterface::class);
         }
-        
+
         if ($this->container->has(LoggerInterface::class)) {
             $this->logger = $this->container->get(LoggerInterface::class);
         }

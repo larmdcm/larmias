@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Engine\Contracts;
+namespace Larmias\Contracts;
 
 interface EventLoopInterface
 {

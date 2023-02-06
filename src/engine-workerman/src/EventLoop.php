@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\Engine\WorkerMan;
 
-use Larmias\Engine\Contracts\EventLoopInterface;
+use Larmias\Contracts\EventLoopInterface;
 use Workerman\Events\EventInterface;
 
 class EventLoop implements EventLoopInterface

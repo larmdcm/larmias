@@ -70,8 +70,12 @@ class TaskStore implements TaskStoreInterface
         return true;
     }
 
-    public function online()
+    /**
+     * @return array
+     */
+    public function online(): array
     {
+        return $this->clients;
     }
 
     /**

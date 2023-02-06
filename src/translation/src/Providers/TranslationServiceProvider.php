@@ -9,7 +9,7 @@ use Larmias\Contracts\ServiceProviderInterface;
 use Larmias\Contracts\TranslatorInterface;
 use Larmias\Translation\Translator;
 
-class TranslationProviderService implements ServiceProviderInterface
+class TranslationServiceProvider implements ServiceProviderInterface
 {
     public function __construct(protected ContainerInterface $container)
     {

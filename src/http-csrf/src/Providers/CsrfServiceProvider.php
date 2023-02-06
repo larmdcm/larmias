@@ -4,17 +4,25 @@ declare(strict_types=1);
 
 namespace Larmias\Http\CSRF\Providers;
 
-use Larmias\Framework\ServiceProvider;
+use Larmias\Contracts\ContainerInterface;
+use Larmias\Contracts\ServiceProviderInterface;
 use Larmias\Http\CSRF\Contracts\CsrfManagerInterface;
 use Larmias\Http\CSRF\CsrfManager;
 
-class CsrfServiceProvider extends ServiceProvider
+class CsrfServiceProvider implements ServiceProviderInterface
 {
-    /**
-     * @return void
-     */
+    public function __construct(protected ContainerInterface $container)
+    {
+
+    }
+
     public function register(): void
     {
-        $this->app->bind(CsrfManagerInterface::class, CsrfManager::class);
+        $this->container->bind(CsrfManagerInterface::class, CsrfManager::class);
+    }
+
+    public function boot(): void
+    {
+        // TODO: Implement boot() method.
     }
 }

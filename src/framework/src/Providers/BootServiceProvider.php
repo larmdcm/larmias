@@ -22,7 +22,6 @@ class BootServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->listeners();
-        // $this->validator();
     }
 
     /**
@@ -42,15 +41,5 @@ class BootServiceProvider extends ServiceProvider
                 ListenerProviderFactory::register($provider, $this->app, $listener, $priority);
             }
         }
-    }
-
-    /**
-     * @return void
-     */
-    protected function validator(): void
-    {
-        Validator::maker(function (Validator $validator) {
-            $validator->setTranslator($this->app->get(TranslatorInterface::class));
-        });
     }
 }

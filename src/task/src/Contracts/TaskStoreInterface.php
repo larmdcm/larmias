@@ -12,7 +12,7 @@ interface TaskStoreInterface
      * @param Task $task
      * @return bool
      */
-    public function add(Task $task): bool;
+    public function publish(Task $task): bool;
 
     /**
      * @return Task|null

@@ -77,7 +77,7 @@ class TaskCommand extends Command
     {
         $data = $this->command->args[0];
         $task = Task::parse($data);
-        $this->taskStore->add($task);
+        $this->taskStore->publish($task);
         return [
             'type' => __FUNCTION__,
             'task_id' => $task->getId(),

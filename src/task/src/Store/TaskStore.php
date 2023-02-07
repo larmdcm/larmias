@@ -30,7 +30,7 @@ class TaskStore implements TaskStoreInterface
      * @param Task $task
      * @return bool
      */
-    public function add(Task $task): bool
+    public function publish(Task $task): bool
     {
         return $this->scheduler->insert($task, $task->getPriority());
     }

@@ -27,7 +27,7 @@ class ChannelCommand extends Command
         ];
     }
 
-    public function unsubscribe()
+    public function unsubscribe(): array
     {
         return [
             'type' => __FUNCTION__,
@@ -55,7 +55,7 @@ class ChannelCommand extends Command
         ];
     }
 
-    public function channels()
+    public function channels(): array
     {
         return [
             'type' => __FUNCTION__,
@@ -63,7 +63,7 @@ class ChannelCommand extends Command
         ];
     }
 
-    public function close()
+    public function close(): array
     {
         return [
             'type' => __FUNCTION__,
@@ -71,7 +71,7 @@ class ChannelCommand extends Command
         ];
     }
 
-    public static function onClose(ConnectionInterface $connection)
+    public static function onClose(ConnectionInterface $connection): void
     {
         StoreManager::channel()->close($connection->getId());
     }

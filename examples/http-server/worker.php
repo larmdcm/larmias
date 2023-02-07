@@ -69,7 +69,7 @@ return [
             'name' => 'taskProcess',
             'type' => WorkerType::WORKER_PROCESS,
             'settings' => [
-                'worker_num' => 2,
+                'worker_num' => 1,
             ],
             'callbacks' => [
                 Event::ON_WORKER_START => [\Larmias\Task\TaskProcessHandler::class, 'handle'],
@@ -77,7 +77,7 @@ return [
         ]
     ],
     'settings' => [
-
+        'eventLoop' => \Workerman\Events\Swoole::class,
     ],
     'callbacks' => [
         Event::ON_WORKER_START => function (\Larmias\Engine\Contracts\WorkerInterface $worker) {

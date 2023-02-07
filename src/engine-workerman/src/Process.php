@@ -18,7 +18,7 @@ class Process extends EngineWorker
     public function initialize(): void
     {
         parent::initialize();
-        $config = $this->workerConfig->getSettings();
+        $config = $this->getSettings();
         $this->worker = $this->makeWorker($config);
     }
 

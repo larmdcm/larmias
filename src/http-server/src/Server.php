@@ -15,6 +15,8 @@ use Larmias\HttpServer\Message\Request;
 use Larmias\HttpServer\Message\Response;
 use Larmias\HttpServer\Middleware\HttpMiddleware;
 use Larmias\HttpServer\Middleware\HttpRouteMiddleware;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
 use Larmias\Http\Message\Response as PsrResponse;
 use Larmias\HttpServer\Contracts\ExceptionHandlerInterface;
@@ -41,8 +43,8 @@ class Server implements OnRequestInterface
     /**
      * @param HttpRequestInterface $serverRequest
      * @param HttpResponseInterface $serverResponse
-     * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws \Psr\Container\NotFoundExceptionInterface
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
      */
     public function onRequest(HttpRequestInterface $serverRequest, HttpResponseInterface $serverResponse): void
     {
@@ -66,7 +68,7 @@ class Server implements OnRequestInterface
 
     /**
      * @param RequestInterface $request
-     * @param \Throwable $e
+     * @param Throwable $e
      * @return PsrResponseInterface
      */
     protected function getExceptionResponse(RequestInterface $request, Throwable $e): PsrResponseInterface
@@ -109,8 +111,8 @@ class Server implements OnRequestInterface
     /**
      * @param mixed $result
      * @return PsrResponseInterface
-     * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws \Psr\Container\NotFoundExceptionInterface
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
      */
     protected function warpResult(mixed $result): PsrResponseInterface
     {
@@ -126,8 +128,8 @@ class Server implements OnRequestInterface
      * @param HttpRequestInterface $httpRequest
      * @param HttpResponseInterface $httpResponse
      * @return RequestInterface
-     * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws \Psr\Container\NotFoundExceptionInterface
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
      */
     protected function makeRequest(HttpRequestInterface $httpRequest, HttpResponseInterface $httpResponse): RequestInterface
     {

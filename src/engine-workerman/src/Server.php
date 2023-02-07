@@ -20,7 +20,7 @@ class Server extends EngineWorker
     {
         parent::initialize();
 
-        $config = $this->workerConfig->getSettings();
+        $config = $this->getSettings();
         $config['listen'] = sprintf('%s://%s:%d', $this->protocol, $this->workerConfig->getHost(), $this->workerConfig->getPort());
 
         $this->server = $this->makeWorker($config);

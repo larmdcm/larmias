@@ -46,7 +46,11 @@ class EngineWorker extends BaseWorker
             }
         }
 
-        return $this->workerBind($worker,$this);
+        if (!empty($config['eventLoop'])) {
+            Worker::$eventLoopClass = $config['eventLoop'];
+        }
+
+        return $this->workerBind($worker, $this);
     }
 
     /**
@@ -54,7 +58,7 @@ class EngineWorker extends BaseWorker
      * @param object|string $instance
      * @return Worker
      */
-    public function workerBind(Worker $worker,object|string $instance): Worker
+    public function workerBind(Worker $worker, object|string $instance): Worker
     {
         $callbackMap = [
             'onWorkerStart' => 'onWorkerStart',
@@ -69,8 +73,8 @@ class EngineWorker extends BaseWorker
         ];
 
         foreach ($callbackMap as $name => $method) {
-            if (\method_exists($instance,$method)) {
-                $worker->{$name} = [$instance,$method];
+            if (\method_exists($instance, $method)) {
+                $worker->{$name} = [$instance, $method];
             }
         }
 
@@ -83,6 +87,6 @@ class EngineWorker extends BaseWorker
      */
     public function exceptionHandler(Throwable $e): void
     {
-        Worker::stopAll(log: $e->getFile() . '('. $e->getLine() .')' . ':' . $e->getMessage() . PHP_EOL . $e->getTraceAsString());
+        Worker::stopAll(log: $e->getFile() . '(' . $e->getLine() . ')' . ':' . $e->getMessage() . PHP_EOL . $e->getTraceAsString());
     }
 }

@@ -10,7 +10,7 @@ use Larmias\Task\Store\TaskStore;
 
 class StoreManager extends BaeStoreManager
 {
-    public static function task()
+    public static function task(): TaskStoreInterface
     {
         return StoreManager::getStore(__FUNCTION__, function () {
             if (!isset(static::$container[TaskStoreInterface::class])) {

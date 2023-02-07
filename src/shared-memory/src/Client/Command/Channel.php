@@ -15,6 +15,7 @@ class Channel extends Command
     {
         $this->client = $this->client->clone([
             'auto_connect' => true,
+            'async' => true,
             'event' => [
                 Client::EVENT_CONNECT => [$this, 'onConnect']
             ]
@@ -23,11 +24,7 @@ class Channel extends Command
 
     public function onConnect(Client $client): void
     {
-        $socket = $client->getSocket();
-        \stream_set_blocking($socket, false);
-        \stream_set_write_buffer($socket, 0);
-        \stream_set_read_buffer($socket, 0);
-        EventLoop::onReadable($socket, function () use ($client) {
+        EventLoop::onReadable($client->getSocket(), function () use ($client) {
             $result = $client->read();
             if (!$result || !$result->success || !\is_array($result->data) || !isset($result->data['type'])) {
                 return;

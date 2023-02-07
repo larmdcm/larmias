@@ -82,3 +82,9 @@ Router::get('/snowflake', function (\Larmias\Snowflake\Contracts\IdGeneratorInte
     \file_put_contents($file, $id . PHP_EOL, FILE_APPEND);
     return $id;
 });
+
+Router::get('/task', function (\Larmias\Task\TaskExecutor $executor) {
+    return $executor->execute(function () {
+        println('task call.');
+    });
+});

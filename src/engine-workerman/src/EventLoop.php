@@ -11,22 +11,22 @@ class EventLoop implements EventLoopInterface
 {
     public function onReadable($stream, callable $func, array $args = []): bool
     {
-        return Worker::getEventLoop()->add($stream, EventInterface::EV_READ, $func, $args);
+        return (bool)Worker::getEventLoop()->add($stream, EventInterface::EV_READ, $func, $args);
     }
 
     public function offReadable($stream): bool
     {
-        return Worker::getEventLoop()->del($stream, EventInterface::EV_READ);
+        return (bool)Worker::getEventLoop()->del($stream, EventInterface::EV_READ);
     }
 
     public function onWritable($stream, callable $func, array $args = []): bool
     {
-        return Worker::getEventLoop()->add($stream, EventInterface::EV_WRITE, $func, $args);
+        return (bool)Worker::getEventLoop()->add($stream, EventInterface::EV_WRITE, $func, $args);
     }
 
     public function offWritable($stream): bool
     {
-        return Worker::getEventLoop()->del($stream, EventInterface::EV_WRITE);
+        return (bool)Worker::getEventLoop()->del($stream, EventInterface::EV_WRITE);
     }
 
     public function run(): void

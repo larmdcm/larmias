@@ -51,19 +51,35 @@ class Client
         'select' => 'default',
         'timeout' => 5,
         'event' => [],
+        'async' => false,
     ];
 
+    /**
+     * @var boolean
+     */
     protected bool $connected = false;
 
+    /**
+     * @var array
+     */
     protected array $commands = [
         'map' => Map::class,
         'channel' => Channel::class,
     ];
 
+    /**
+     * @var array
+     */
     protected array $container = [];
 
+    /**
+     * @var array
+     */
     protected array $events = [];
 
+    /**
+     * @param array $options
+     */
     public function __construct(array $options = [])
     {
         $this->options = \array_merge($this->options, $options);
@@ -75,6 +91,10 @@ class Client
         }
     }
 
+    /**
+     * @param string $name
+     * @return mixed|null
+     */
     public function __get(string $name)
     {
         if (isset($this->commands[$name])) {
@@ -86,6 +106,9 @@ class Client
         return null;
     }
 
+    /**
+     * @return bool
+     */
     public function connect(): bool
     {
         if (!$this->isConnected()) {
@@ -97,17 +120,30 @@ class Client
             if ($this->options['select'] !== 'default') {
                 $this->select($this->options['select']);
             }
+            if ($this->options['async']) {
+                \stream_set_blocking($this->socket, false);
+                \stream_set_write_buffer($this->socket, 0);
+                \stream_set_read_buffer($this->socket, 0);
+            }
             $this->ping();
             $this->trigger(self::EVENT_CONNECT, $this);
         }
         return $this->connected;
     }
 
-    public function clone(array $options = []): Client
+    /**
+     * @param array $options
+     * @return static
+     */
+    public function clone(array $options = []): static
     {
         return new static(\array_merge($this->options, $options));
     }
 
+    /**
+     * @param string $password
+     * @return bool
+     */
     public function auth(string $password): bool
     {
         $result = $this->command(__FUNCTION__, [$password]);
@@ -118,6 +154,10 @@ class Client
         return false;
     }
 
+    /**
+     * @param string $name
+     * @return bool
+     */
     public function select(string $name): bool
     {
         $result = $this->command(__FUNCTION__, [$name]);
@@ -128,6 +168,11 @@ class Client
         return false;
     }
 
+    /**
+     * @param string $name
+     * @param array $args
+     * @return Result|null
+     */
     public function command(string $name, array $args = []): ?Result
     {
         $result = $this->sendCommand($name, $args);
@@ -137,11 +182,20 @@ class Client
         return $this->read();
     }
 
+    /**
+     * @param string $name
+     * @param array $args
+     * @return bool
+     */
     public function sendCommand(string $name, array $args = []): bool
     {
         return $this->send(Command::build($name, $args));
     }
 
+    /**
+     * @param string $data
+     * @return bool
+     */
     public function send(string $data): bool
     {
         if (!$this->isConnected()) {
@@ -154,7 +208,9 @@ class Client
         return $result === $len;
     }
 
-
+    /**
+     * @return Result|null
+     */
     public function read(): ?Result
     {
         if (!$this->isConnected()) {
@@ -174,6 +230,10 @@ class Client
         return Result::parse($buffer);
     }
 
+    /**
+     * @param bool $destroy
+     * @return bool
+     */
     public function close(bool $destroy = false): bool
     {
         $this->clearPing();
@@ -192,6 +252,9 @@ class Client
         return true;
     }
 
+    /**
+     * @return self
+     */
     public function reconnect(): self
     {
         if ($this->close(true)) {
@@ -201,11 +264,17 @@ class Client
         return $this;
     }
 
+    /**
+     * @return bool
+     */
     public function isConnected(): bool
     {
         return $this->connected && !\feof($this->socket) && \is_resource($this->socket);
     }
 
+    /**
+     * @return bool
+     */
     public function isCli(): bool
     {
         return \PHP_SAPI === 'cli';
@@ -219,12 +288,22 @@ class Client
         return $this->socket;
     }
 
+    /**
+     * @param string $event
+     * @param callable $callback
+     * @return self
+     */
     public function on(string $event, callable $callback): self
     {
         $this->events[$event][] = $callback;
         return $this;
     }
 
+    /**
+     * @param string $event
+     * @param ...$args
+     * @return void
+     */
     public function trigger(string $event, ...$args): void
     {
         if (isset($this->events[$event])) {
@@ -249,6 +328,9 @@ class Client
         return $conn;
     }
 
+    /**
+     * @return void
+     */
     protected function ping(): void
     {
         if (!$this->options['ping_interval'] || !$this->isCli()) {
@@ -260,10 +342,13 @@ class Client
                 $this->close();
                 return;
             }
-            $this->command(Command::COMMAND_PING);
+            $this->sendCommand(Command::COMMAND_PING);
         });
     }
 
+    /**
+     * @return void
+     */
     protected function clearPing(): void
     {
         if (isset($this->options['ping_interval_id'])) {

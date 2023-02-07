@@ -33,10 +33,19 @@ class Command implements Stringable
      */
     public const COMMAND_CHANNEL = 'channel';
 
+    /**
+     * @param string $name
+     * @param array $args
+     */
     public function __construct(public string $name, public array $args = [])
     {
     }
 
+    /**
+     * @param string $name
+     * @param array $args
+     * @return string
+     */
     public static function build(string $name, array $args = []): string
     {
         $command = new static($name, $args);
@@ -44,6 +53,10 @@ class Command implements Stringable
         return $command->toString();
     }
 
+    /**
+     * @param string $raw
+     * @return Command
+     */
     public static function parse(string $raw): Command
     {
         $data = \json_decode($raw, true);
@@ -51,7 +64,9 @@ class Command implements Stringable
         return new static($data['name'], $data['args']);
     }
 
-
+    /**
+     * @return array
+     */
     public function toArray(): array
     {
         return [
@@ -60,11 +75,17 @@ class Command implements Stringable
         ];
     }
 
+    /**
+     * @return string
+     */
     public function toString(): string
     {
         return \json_encode($this->toArray(), JSON_UNESCAPED_UNICODE);
     }
 
+    /**
+     * @return string
+     */
     public function __toString(): string
     {
         return $this->toString();

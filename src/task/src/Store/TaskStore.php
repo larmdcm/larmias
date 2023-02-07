@@ -60,13 +60,36 @@ class TaskStore implements TaskStoreInterface
     }
 
     /**
-     * @param string $name
      * @param int $id
+     * @param string $name
      * @return bool
      */
-    public function join(string $name, int $id): bool
+    public function subscribe(int $id, string $name): bool
     {
-        $this->clients[$name] = $id;
+        $this->clients[$id] = ['name' => $name, 'id' => $id];
+        return true;
+    }
+
+    /**
+     * @param int $id
+     * @param string|null $key
+     * @return mixed
+     */
+    public function getInfo(int $id, ?string $key = null): mixed
+    {
+        $info = $this->clients[$id];
+        return $key ? ($info[$key] ?? null) : $info;
+    }
+
+    /**
+     * @param int $id
+     * @param string $key
+     * @param mixed $value
+     * @return bool
+     */
+    public function setInfo(int $id, string $key, mixed $value): bool
+    {
+        $this->clients[$id][$key] = $value;
         return true;
     }
 
@@ -79,16 +102,15 @@ class TaskStore implements TaskStoreInterface
     }
 
     /**
-     * @param string $name
+     * @param int $id
      * @return int
      */
-    public function leave(string $name): int
+    public function leave(int $id): int
     {
-        $id = -1;
-        if (isset($this->clients[$name])) {
-            $id = $this->clients[$name];
-            unset($this->clients[$name]);
+        if (isset($this->clients[$id])) {
+            unset($this->clients[$id]);
+            return $id;
         }
-        return $id;
+        return -1;
     }
 }

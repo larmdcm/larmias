@@ -7,10 +7,13 @@ namespace Larmias\Cache\Driver;
 use Larmias\Contracts\Redis\ConnectionInterface;
 use Larmias\Contracts\Redis\RedisFactoryInterface;
 
+/**
+ * @property ConnectionInterface $handler
+ */
 class Redis extends Driver
 {
     /**
-     * @var ConnectionInterface
+     * @var object
      */
     protected object $handler;
 

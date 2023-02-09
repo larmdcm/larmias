@@ -10,6 +10,9 @@ use Throwable;
 
 class Process extends EngineWorker
 {
+    /**
+     * @var Worker
+     */
     protected Worker $worker;
 
     /**

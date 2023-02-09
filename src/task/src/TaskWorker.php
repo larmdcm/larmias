@@ -119,14 +119,22 @@ class TaskWorker
     {
         $handler = $task->getHandler();
         if (!\is_callable($handler)) {
-            $this->container->invoke($handler);
             if (\is_string($handler)) {
                 $handler = \explode('@', $handler);
             }
             $instance = $this->container->make($handler[0], [], true);
             $handler = [$instance, $handler[1]];
         }
-        $this->container->invoke($handler, $task->getArgs());
+        try {
+            $result = $this->container->invoke($handler, $task->getArgs());
+            if (isset($instance) && \method_exists($instance, 'onFinish')) {
+                $instance->onFinish($task, $result);
+            }
+        } catch (\Throwable $e) {
+            if (isset($instance) && \method_exists($instance, 'onException')) {
+                $instance->onException($task, $e);
+            }
+        }
     }
 
     public function __destruct()

@@ -6,17 +6,19 @@ namespace Larmias\Lock;
 
 use Larmias\Contracts\ConfigInterface;
 use Larmias\Contracts\ContainerInterface;
-use Larmias\Contracts\LockInterface;
+use Larmias\Contracts\LockerInterface;
 use Closure;
 use Larmias\Lock\Drivers\Redis;
 use Larmias\Utils\ApplicationContext;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
-class Locker implements LockInterface
+class Locker implements LockerInterface
 {
     /**
-     * @var LockInterface
+     * @var LockerInterface
      */
-    protected LockInterface $lock;
+    protected LockerInterface $lock;
 
     /**
      * @var array
@@ -29,26 +31,42 @@ class Locker implements LockInterface
         'wait_timeout' => 10000,
     ];
 
-    public function __construct(protected ContainerInterface $container, Key|string $key, protected ?Closure $callback = null, array $config = [])
+    /**
+     * @param ContainerInterface $container
+     * @param Key|string $key
+     * @param Closure|null $callback
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
+    public function __construct(protected ContainerInterface $container, Key|string $key, protected ?Closure $callback = null)
     {
-        $this->config = \array_merge($this->config, $config);
+        /** @var ConfigInterface $config */
+        $config = $this->container->get(ConfigInterface::class);
+        $this->config = \array_merge($this->config, $config->get('lock', []));
         if (\is_string($key)) {
             $key = new Key($key, $this->config['expire']);
         }
         $key->setPrefix($this->config['prefix']);
-        /** @var LockInterface $lock */
+        /** @var LockerInterface $lock */
         $lock = $this->container->make($this->config['driver'], ['key' => $key, 'config' => $config], true);
         $this->lock = $lock;
     }
 
-    public static function create(Key|string $key, ?Closure $callback = null): LockInterface
+    /**
+     * @param Key|string $key
+     * @param Closure|null $callback
+     * @return LockerInterface
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
+    public static function create(Key|string $key, ?Closure $callback = null): LockerInterface
     {
-        $container = ApplicationContext::getContainer();
-        /** @var ConfigInterface $config */
-        $config = $container->get(ConfigInterface::class);
-        return new static($container, $key, $callback, $config->get('lock', []));
+        return new static(ApplicationContext::getContainer(), $key, $callback);
     }
 
+    /**
+     * @return bool
+     */
     public function acquire(): bool
     {
         if (!$this->lock->acquire()) {
@@ -57,6 +75,10 @@ class Locker implements LockInterface
         return $this->resolve();
     }
 
+    /**
+     * @param int|null $waitTimeout
+     * @return bool
+     */
     public function block(?int $waitTimeout = null): bool
     {
         if (!$this->lock->block($waitTimeout)) {
@@ -65,11 +87,17 @@ class Locker implements LockInterface
         return $this->resolve();
     }
 
+    /**
+     * @return bool
+     */
     public function release(): bool
     {
         return $this->__call(__FUNCTION__, func_get_args());
     }
 
+    /**
+     * @return bool
+     */
     protected function resolve(): bool
     {
         $result = true;
@@ -84,6 +112,11 @@ class Locker implements LockInterface
         return \is_bool($result) ? $result : true;
     }
 
+    /**
+     * @param string $name
+     * @param array $arguments
+     * @return mixed
+     */
     public function __call(string $name, array $arguments): mixed
     {
         return $this->lock->{$name}(...$arguments);

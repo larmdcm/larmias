@@ -8,6 +8,8 @@ use Larmias\Engine\Contracts\DriverInterface;
 use Larmias\Engine\Contracts\KernelInterface;
 use Larmias\Engine\Contracts\WorkerInterface;
 use Larmias\Contracts\ContainerInterface;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use RuntimeException;
 
 class Kernel implements KernelInterface
@@ -39,8 +41,8 @@ class Kernel implements KernelInterface
     /**
      * @param EngineConfig $engineConfig
      * @return self
-     * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws \Psr\Container\NotFoundExceptionInterface
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
      */
     public function setConfig(EngineConfig $engineConfig): self
     {

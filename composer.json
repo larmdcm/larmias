@@ -38,7 +38,8 @@
     "nikic/fast-route": "^1.3",
     "workerman/workerman": "^4.1",
     "topthink/think-orm": "^2.0",
-    "godruoyi/php-snowflake": "^1.0"
+    "godruoyi/php-snowflake": "^1.0",
+    "nesbot/carbon": "^2.0"
   },
   "require-dev": {
     "phpunit/phpunit": "^9.5.10"

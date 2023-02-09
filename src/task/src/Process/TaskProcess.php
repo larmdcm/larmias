@@ -2,13 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Task;
+namespace Larmias\Task\Process;
 
 use Larmias\Contracts\ConfigInterface;
 use Larmias\Contracts\ContainerInterface;
 use Larmias\Engine\Contracts\WorkerInterface;
+use Larmias\Task\TaskWorker;
 
-class TaskProcessHandler
+class TaskProcess
 {
     /**
      * @var TaskWorker

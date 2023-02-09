@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\Contracts;
 
-interface LockInterface
+interface LockerInterface
 {
     public function acquire(): bool;
 

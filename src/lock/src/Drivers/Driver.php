@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Larmias\Lock\Drivers;
 
 use Larmias\Contracts\ContainerInterface;
-use Larmias\Contracts\LockInterface;
+use Larmias\Contracts\LockerInterface;
 use Larmias\Lock\Key;
 
-abstract class Driver implements LockInterface
+abstract class Driver implements LockerInterface
 {
     /**
      * @var array|string[]

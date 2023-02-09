@@ -145,7 +145,7 @@ class Translator implements TranslatorInterface
     protected function loadLocale(string $locale): void
     {
         if (!isset($this->lang[$locale])) {
-            $path = rtrim($this->config['path'], DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $locale . DIRECTORY_SEPARATOR . '*';
+            $path = \rtrim($this->config['path'], DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $locale . DIRECTORY_SEPARATOR . '*';
             $list = \glob($path);
             foreach ($list as $item) {
                 if (\is_dir($item)) {

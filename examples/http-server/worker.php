@@ -45,7 +45,7 @@ return [
                 ],
             ],
             'callbacks' => [
-                Event::ON_WORKER_START => [\Larmias\Engine\Process\Handler\WorkerHotUpdateHandler::class, 'handle'],
+                Event::ON_WORKER_START => [\Larmias\Engine\Process\WorkerHotUpdateProcess::class, 'handle'],
             ]
         ],
         [
@@ -72,7 +72,17 @@ return [
                 'worker_num' => 1,
             ],
             'callbacks' => [
-                Event::ON_WORKER_START => [\Larmias\Task\TaskProcessHandler::class, 'handle'],
+                Event::ON_WORKER_START => [\Larmias\Task\Process\TaskProcess::class, 'handle'],
+            ]
+        ],
+        [
+            'name' => 'crontabProcess',
+            'type' => WorkerType::WORKER_PROCESS,
+            'settings' => [
+                'worker_num' => 1,
+            ],
+            'callbacks' => [
+                Event::ON_WORKER_START => [\Larmias\Crontab\Process\CrontabProcess::class, 'handle'],
             ]
         ]
     ],
@@ -94,6 +104,12 @@ return [
             $container->bind([
                 \Larmias\SharedMemory\Contracts\CommandExecutorInterface::class => \Larmias\SharedMemory\CommandExecutor::class,
                 \Larmias\SharedMemory\Contracts\AuthInterface::class => \Larmias\SharedMemory\Auth::class,
+                \Larmias\Contracts\TaskExecutorInterface::class => \Larmias\Task\TaskExecutor::class,
+                \Larmias\Contracts\LockerInterface::class => \Larmias\Lock\Locker::class,
+                \Larmias\Contracts\LockerFactoryInterface::class => \Larmias\Lock\LockerFactory::class,
+                \Larmias\Crontab\Contracts\ParserInterface::class => \Larmias\Crontab\Parser::class,
+                \Larmias\Crontab\Contracts\SchedulerInterface::class => \Larmias\Crontab\Scheduler::class,
+                \Larmias\Crontab\Contracts\ExecutorInterface::class => \Larmias\Crontab\Executor\TaskWorkerExecutor::class,
             ]);
             $container->get(\Larmias\SharedMemory\Contracts\CommandExecutorInterface::class)->addCommand(
                 \Larmias\Task\Command\TaskCommand::COMMAND_NAME, \Larmias\Task\Command\TaskCommand::class,

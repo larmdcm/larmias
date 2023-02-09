@@ -7,7 +7,7 @@ namespace Larmias\Task;
 use Closure;
 use Larmias\Contracts\ConfigInterface;
 use Larmias\Task\Client\Client;
-use Larmias\Task\Contracts\TaskExecutorInterface;
+use Larmias\Contracts\TaskExecutorInterface;
 
 class TaskExecutor implements TaskExecutorInterface
 {

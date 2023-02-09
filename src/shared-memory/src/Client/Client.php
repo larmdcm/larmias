@@ -133,6 +133,16 @@ class Client
 
     /**
      * @param array $options
+     * @return self
+     */
+    public function set(array $options = []): self
+    {
+        $this->options = \array_merge($this->options, $options);
+        return $this;
+    }
+
+    /**
+     * @param array $options
      * @return static
      */
     public function clone(array $options = []): static

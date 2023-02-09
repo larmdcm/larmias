@@ -16,6 +16,10 @@ class Cache implements CacheInterface
      */
     protected array $stores = [];
 
+    /**
+     * @param ContainerInterface $container
+     * @param ConfigInterface $config
+     */
     public function __construct(protected ContainerInterface $container, protected ConfigInterface $config)
     {
     }
@@ -24,7 +28,7 @@ class Cache implements CacheInterface
      * 获取存储驱动
      *
      * @param string|null $name
-     * @return \Larmias\Contracts\CacheInterface
+     * @return CacheInterface
      */
     public function store(?string $name = null): CacheInterface
     {

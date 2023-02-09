@@ -2,17 +2,25 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Engine\Process\Handler;
+namespace Larmias\Engine\Process;
 
 use Larmias\Engine\Contracts\WatcherInterface;
 use Larmias\Engine\Contracts\WorkerInterface;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 
-class WorkerHotUpdateHandler
+class WorkerHotUpdateProcess
 {
+    /**
+     * @var WatcherInterface
+     */
     protected WatcherInterface $watcher;
 
+    /**
+     * @param WorkerInterface $worker
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
     public function __construct(protected WorkerInterface $worker)
     {
         $watch = $worker->getSettings('watch', []);
@@ -30,8 +38,6 @@ class WorkerHotUpdateHandler
     /**
      * @param WorkerInterface $worker
      * @return void
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
      */
     public function handle(WorkerInterface $worker): void
     {

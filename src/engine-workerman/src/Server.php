@@ -6,6 +6,9 @@ namespace Larmias\Engine\WorkerMan;
 
 class Server extends EngineWorker
 {
+    /**
+     * @var Worker
+     */
     protected Worker $server;
 
     /**

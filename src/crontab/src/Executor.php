@@ -84,7 +84,7 @@ abstract class Executor implements ExecutorInterface
     {
         $diff = $crontab->getExecuteTime()->diffInRealSeconds(new Carbon());
         Timer::after($diff > 0 ? $diff * 1000 : 1, function () use ($crontab) {
-            $callback = $this->getCallback($crontab->getHandler());
+            $callback = $this->getCallback($crontab);
             if ($crontab->isSingleton()) {
                 $callback = $this->runInSingleton($crontab, $callback);
             }
@@ -96,13 +96,14 @@ abstract class Executor implements ExecutorInterface
     }
 
     /**
-     * @param mixed $handler
+     * @param Crontab $crontab
      * @return Closure
      */
-    protected function getCallback(mixed $handler): Closure
+    protected function getCallback(mixed $crontab): Closure
     {
-        return function () use ($handler) {
+        return function () use ($crontab) {
             $args = [];
+            $handler = $crontab->getHandler();
             if (!\is_callable($handler)) {
                 if (\is_string($handler)) {
                     $handler = \explode('@', $handler);
@@ -111,7 +112,16 @@ abstract class Executor implements ExecutorInterface
                 $handler = [$instance, $handler[1]];
                 $args = $handler[2] ?? [];
             }
-            $this->container->invoke($handler, $args);
+            try {
+                $result = $this->container->invoke($handler, $args);
+                if (isset($instance) && \method_exists($instance, 'onFinish')) {
+                    $instance->onFinish($crontab, $result);
+                }
+            } catch (\Throwable $e) {
+                if (isset($instance) && \method_exists($instance, 'onException')) {
+                    $instance->onException($crontab, $e);
+                }
+            }
         };
     }
 }

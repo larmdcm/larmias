@@ -2,14 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Snowflake\Providers;
+namespace Larmias\Lock\Providers;
 
 use Larmias\Contracts\ContainerInterface;
+use Larmias\Contracts\LockerFactoryInterface;
+use Larmias\Contracts\LockerInterface;
 use Larmias\Contracts\ServiceProviderInterface;
-use Larmias\Snowflake\Contracts\IdGeneratorInterface;
-use Larmias\Snowflake\IdGenerator;
+use Larmias\Lock\Locker;
+use Larmias\Lock\LockerFactory;
 
-class SnowflakeServiceProvider implements ServiceProviderInterface
+class LockerServiceProvider implements ServiceProviderInterface
 {
     /**
      * @param ContainerInterface $container
@@ -23,7 +25,10 @@ class SnowflakeServiceProvider implements ServiceProviderInterface
      */
     public function register(): void
     {
-        $this->container->bind(IdGeneratorInterface::class, IdGenerator::class);
+        $this->container->bind([
+            LockerInterface::class => Locker::class,
+            LockerFactoryInterface::class => LockerFactory::class,
+        ]);
     }
 
     /**

@@ -34,8 +34,8 @@ class Process extends EngineWorker
         try {
             parent::onWorkerStart($worker);
             if ($this->hasListen(Event::ON_WORKER)) {
-                $processTickTime = $this->getSettings('process_tick_time', 1);
-                Timer::tick($processTickTime, function () {
+                $processTickInterval = $this->getSettings('process_tick_interval', 1);
+                Timer::tick($processTickInterval, function () {
                     $this->trigger(Event::ON_WORKER, [$this]);
                 });
             }

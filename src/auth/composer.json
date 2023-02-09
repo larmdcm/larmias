@@ -1,10 +1,10 @@
 {
-  "name": "larmias/task",
-  "description": "A task component for larmias.",
+  "name": "larmias/auth",
+  "description": "A auth component for larmias.",
   "type": "library",
   "keywords": [
     "larmias",
-    "task"
+    "auth"
   ],
   "homepage": "https://larmias.com/",
   "license": "Apache-2.0",
@@ -16,12 +16,13 @@
   ],
   "require": {
     "php": ">=8.0",
-    "larmias/contracts": "^1.0",
-    "larmias/shared-memory": "^1.0"
+    "psr/http-server-handler": "^1.0",
+    "psr/http-server-middleware": "^1.0",
+    "larmias/contracts": "^1.0"
   },
   "autoload": {
     "psr-4": {
-      "Larmias\\Task\\": "src/"
+      "Larmias\\Auth\\": "src/"
     }
   }
 }

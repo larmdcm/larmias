@@ -57,6 +57,7 @@ return [
                 'worker_num' => 1,
                 'protocol' => \Workerman\Protocols\Frame::class,
                 'auth_password' => '123456',
+                'log_record' => true,
             ],
             'callbacks' => [
                 Event::ON_WORKER_START => [SharedMemoryServer::class, 'onWorkerStart'],
@@ -102,6 +103,9 @@ return [
             $container->bind(\Larmias\Http\CSRF\Contracts\CsrfManagerInterface::class, \Larmias\Http\CSRF\CsrfManager::class);
             $container->bind(\Larmias\Snowflake\Contracts\IdGeneratorInterface::class, \Larmias\Snowflake\IdGenerator::class);
             $container->bind([
+                \Psr\Log\LoggerInterface::class => \Larmias\Log\Logger::class,
+                \Larmias\Contracts\LoggerInterface::class => \Larmias\Log\Logger::class,
+                \Larmias\SharedMemory\Contracts\LoggerInterface::class => \Larmias\SharedMemory\Logger::class,
                 \Larmias\SharedMemory\Contracts\CommandExecutorInterface::class => \Larmias\SharedMemory\CommandExecutor::class,
                 \Larmias\SharedMemory\Contracts\AuthInterface::class => \Larmias\SharedMemory\Auth::class,
                 \Larmias\Contracts\TaskExecutorInterface::class => \Larmias\Task\TaskExecutor::class,

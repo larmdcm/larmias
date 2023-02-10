@@ -4,20 +4,23 @@ declare(strict_types=1);
 
 namespace Larmias\Auth\Guard;
 
-use Larmias\Contracts\Auth\AuthenticationInterface;
 use Larmias\Contracts\Auth\IdentityInterface;
-use Larmias\Contracts\Auth\IdentityRepositoryInterface;
 use Larmias\Contracts\SessionInterface;
 
 class SessionGuard extends Guard
 {
     /**
-     * @param SessionInterface $session
-     * @param IdentityRepositoryInterface $repository
-     * @param AuthenticationInterface $authentication
+     * @var SessionInterface
      */
-    public function __construct(protected SessionInterface $session, protected IdentityRepositoryInterface $repository, protected AuthenticationInterface $authentication)
+    protected SessionInterface $session;
+
+    /**
+     * @param SessionInterface $session
+     * @return void
+     */
+    public function initialize(SessionInterface $session): void
     {
+        $this->session = $session;
     }
 
     /**

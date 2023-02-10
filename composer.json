@@ -89,7 +89,9 @@
       "Larmias\\Http\\Utils\\": "src/http-utils/src/",
       "Larmias\\Captcha\\": "src/captcha/src/",
       "Larmias\\Snowflake\\": "src/snowflake/src/",
-      "Larmias\\Task\\": "src/task/src/"
+      "Larmias\\Task\\": "src/task/src/",
+      "Larmias\\Auth\\": "src/auth/src/",
+      "Larmias\\Encryption\\": "src/encryption/src/"
     }
   }
 }

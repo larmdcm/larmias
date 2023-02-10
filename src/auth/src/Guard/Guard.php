@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace Larmias\Auth\Guard;
 
+use Larmias\Contracts\Auth\AuthenticationInterface;
 use Larmias\Contracts\Auth\GuardInterface;
 use Larmias\Contracts\Auth\IdentityInterface;
+use Larmias\Contracts\Auth\IdentityRepositoryInterface;
+use Larmias\Contracts\ContainerInterface;
 
 abstract class Guard implements GuardInterface
 {
@@ -18,6 +21,26 @@ abstract class Guard implements GuardInterface
      * @var IdentityInterface|null
      */
     protected ?IdentityInterface $identity = null;
+
+    /**
+     * @param ContainerInterface $container
+     * @param IdentityRepositoryInterface $repository
+     * @param AuthenticationInterface $authentication
+     */
+    public function __construct(protected ContainerInterface $container, protected IdentityRepositoryInterface $repository, protected AuthenticationInterface $authentication)
+    {
+        if (\method_exists($this, 'initialize')) {
+            $this->container->invoke([$this, 'initialize']);
+        }
+    }
+
+    /**
+     * @return AuthenticationInterface
+     */
+    public function getAuthentication(): AuthenticationInterface
+    {
+        return $this->authentication;
+    }
 
     /**
      * @param array $params

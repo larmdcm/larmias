@@ -7,15 +7,21 @@ namespace Larmias\Contracts\Auth;
 interface GuardInterface
 {
     /**
+     * @return AuthenticationInterface
+     */
+    public function getAuthentication(): AuthenticationInterface;
+
+    /**
      * @param array $params
      * @return mixed
      */
     public function attempt(array $params): mixed;
 
-     /**
+    /**
      * @return bool
      */
     public function check(): bool;
+
     /**
      * @return bool
      */
@@ -41,6 +47,7 @@ interface GuardInterface
      * @return GuardInterface
      */
     public function setAuthName(string $authName): GuardInterface;
+
     /**
      * @param IdentityInterface $identity
      * @return mixed

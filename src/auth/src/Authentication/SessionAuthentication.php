@@ -4,24 +4,28 @@ declare(strict_types=1);
 
 namespace Larmias\Auth\Authentication;
 
-use Larmias\Contracts\Auth\IdentityRepositoryInterface;
 use Larmias\Contracts\SessionInterface;
 
 class SessionAuthentication extends Authentication
 {
     /**
-     * @param IdentityRepositoryInterface $repository
+     * @var SessionInterface
+     */
+    protected SessionInterface $session;
+
+    /**
      * @param SessionInterface $session
      */
-    public function __construct(IdentityRepositoryInterface $repository, protected SessionInterface $session, array $config = [])
+    public function initialize(SessionInterface $session)
     {
-        parent::__construct($repository, $config);
+        $this->session = $session;
     }
 
     /**
+     * @param mixed $parameter
      * @return mixed
      */
-    public function getCredentials(): mixed
+    public function getCredentials(mixed $parameter): mixed
     {
         return $this->session->get($this->config['name']);
     }

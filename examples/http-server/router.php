@@ -88,3 +88,17 @@ Router::get('/task', function (\Larmias\Task\TaskExecutor $executor) {
         println('task call.');
     });
 });
+
+Router::get('/auth', function () {
+    return '登录成功-' . \Larmias\Auth\Facade\Auth::id();
+})->middleware([
+    \Larmias\Session\Middleware\SessionMiddleware::class,
+    \Larmias\Auth\Middleware\AuthenticateMiddleware::class
+]);
+
+Router::get('/auth/login', function () {
+    \Larmias\Auth\Facade\Auth::attempt(['username' => 'test']);
+    return '登录成功-' . \Larmias\Auth\Facade\Auth::id();
+})->middleware([
+    \Larmias\Session\Middleware\SessionMiddleware::class,
+]);

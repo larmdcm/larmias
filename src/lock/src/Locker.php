@@ -7,11 +7,11 @@ namespace Larmias\Lock;
 use Larmias\Contracts\ConfigInterface;
 use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\LockerInterface;
-use Closure;
 use Larmias\Lock\Drivers\Redis;
 use Larmias\Utils\ApplicationContext;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
+use Closure;
 
 class Locker implements LockerInterface
 {

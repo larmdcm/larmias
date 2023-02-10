@@ -9,15 +9,25 @@ use Larmias\Contracts\Tcp\ConnectionInterface;
 use Larmias\Engine\Timer;
 use Larmias\SharedMemory\Contracts\AuthInterface;
 use Larmias\SharedMemory\Contracts\CommandExecutorInterface;
+use Larmias\SharedMemory\Contracts\LoggerInterface;
 use Larmias\SharedMemory\Exceptions\AuthenticateException;
 use Larmias\SharedMemory\Message\Result;
+use Larmias\Engine\Contracts\WorkerInterface;
 use Throwable;
 use function Larmias\Utils\format_exception;
-use function Larmias\Utils\println;
-use Larmias\Engine\Contracts\WorkerInterface;
 
 class Server
 {
+    /**
+     * @var WorkerInterface
+     */
+    protected WorkerInterface $worker;
+
+    /**
+     * @var LoggerInterface
+     */
+    protected LoggerInterface $logger;
+
     /**
      * Server constructor.
      * @param ContainerInterface $container
@@ -38,8 +48,13 @@ class Server
      */
     public function onWorkerStart(WorkerInterface $worker): void
     {
-        Timer::tick($worker->getSettings('tick_interval', 1000), function () use ($worker) {
-            $this->triggerCommand('onTick', [$worker]);
+        $this->worker = $worker;
+
+        /** @var LoggerInterface $logger */
+        $logger = $this->container->make(LoggerInterface::class);
+        $this->logger = $logger;
+        Timer::tick($worker->getSettings('tick_interval', 1000), function () {
+            $this->triggerCommand('onTick', [$this->worker]);
         });
     }
 
@@ -50,7 +65,7 @@ class Server
     public function onConnect(ConnectionInterface $connection): void
     {
         ConnectionManager::add($connection);
-        println('#' . $connection->getId() . " Connected");
+        $this->logger->trace('#' . $connection->getId() . " Connected", 'info');
     }
 
     /**
@@ -63,7 +78,7 @@ class Server
         try {
             Context::setConnection($connection);
             $command = $this->executor->parse($data);
-            println('#' . $connection->getId() . " Received command: " . $command->name);
+            $this->logger->trace('#' . $connection->getId() . " Received command: " . $command->name, 'info');
             $this->auth->check($command);
             $result = $this->executor->execute($command);
             $connection->send($result instanceof Result ? $result->toString() : Result::build($result));
@@ -81,7 +96,7 @@ class Server
         try {
             $this->triggerCommand(__FUNCTION__, [$connection]);
             ConnectionManager::remove($connection);
-            println('#' . $connection->getId() . " Closed");
+            $this->logger->trace('#' . $connection->getId() . " Closed", 'info');
         } catch (Throwable $e) {
             $this->handleException($connection, $e);
         }
@@ -115,6 +130,6 @@ class Server
         } else {
             $connection->send($sendMessage);
         }
-        println($message);
+        $this->logger->trace($message, 'error');
     }
 }

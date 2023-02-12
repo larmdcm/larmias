@@ -11,8 +11,14 @@ use Closure;
 
 class Rules implements IteratorAggregate
 {
+    /**
+     * @var array
+     */
     protected array $rules = [];
 
+    /**
+     * @param string|array $rule
+     */
     public function __construct(protected string|array $rule)
     {
         $this->parseRule();

@@ -112,10 +112,10 @@ class Validate
 
     /**
      * @param mixed $value
-     * @param string $rule
+     * @param int|string|array $rule
      * @return bool
      */
-    public static function filter(mixed $value, string|array $rule): bool
+    public static function filter(mixed $value, int|string|array $rule): bool
     {
         if (\is_string($rule) && \strpos($rule, ',')) {
             [$rule, $param] = \explode(',', $rule);
@@ -135,7 +135,7 @@ class Validate
      */
     public static function regex(mixed $value, string $rule): bool
     {
-        if (\is_string($rule) && !\str_starts_with($rule, '/') && !\preg_match('/\/[imsU]{0,4}$/', $rule)) {
+        if (!\str_starts_with($rule, '/') && !\preg_match('/\/[imsU]{0,4}$/', $rule)) {
             // 不是正则表达式则两端补上/
             $rule = '/^' . $rule . '$/';
         }
@@ -145,67 +145,64 @@ class Validate
 
     /**
      * @param mixed $value
-     * @param int $rule
+     * @param mixed $rule
      * @return bool
      */
-    public static function max(mixed $value, int $rule): bool
+    public static function max(mixed $value, mixed $rule): bool
     {
         return static::getSize($value) <= $rule;
     }
 
     /**
      * @param mixed $value
-     * @param int $rule
+     * @param mixed $rule
      * @return bool
      */
-    public static function min(mixed $value, int $rule): bool
+    public static function min(mixed $value, mixed $rule): bool
     {
         return static::getSize($value) >= $rule;
     }
 
     /**
      * @param mixed $value
-     * @param string|array $rule
+     * @param ...$rule
      * @return bool
      */
-    public static function in(mixed $value, string|array $rule): bool
+    public static function in(mixed $value, ...$rule): bool
     {
-        return \in_array($value, \is_array($rule) ? $rule : \explode(',', $rule));
+        return \in_array($value, isset($rule[0]) && \is_array($rule[0]) ? $rule[0] : $rule);
     }
 
     /**
      * @param mixed $value
-     * @param string|array $rule
+     * @param ...$rule
      * @return bool
      */
-    public static function notIn(mixed $value, string|array $rule): bool
+    public static function notIn(mixed $value, ...$rule): bool
     {
-        return !static::in($value, $rule);
+        return !static::in(...func_get_args());
     }
 
     /**
      * @param mixed $value
-     * @param string|array $rule
+     * @param ...$rule
      * @return bool
      */
-    public static function between(mixed $value, string|array $rule): bool
+    public static function between(mixed $value, ...$rule): bool
     {
-        if (\is_string($rule)) {
-            $rule = \explode(',', $rule);
-        }
-        [$min, $max] = $rule;
+        [$min, $max] = \is_array($rule[0]) ? $rule[0] : $rule;
         $value = static::getSize($value);
         return $value >= $min && $value <= $max;
     }
 
     /**
      * @param mixed $value
-     * @param string|array $rule
+     * @param ...$rule
      * @return bool
      */
-    public static function notBetween(mixed $value, string|array $rule): bool
+    public static function notBetween(mixed $value, ...$rule): bool
     {
-        return !static::between($value, $rule);
+        return !static::between(...func_get_args());
     }
 
     /**
@@ -220,16 +217,16 @@ class Validate
 
     /**
      * @param mixed $value
-     * @return int
+     * @return int|float
      */
-    protected static function getSize(mixed $value): int
+    protected static function getSize(mixed $value): int|float
     {
         if (\is_array($value)) {
-            $value = count($value);
+            $value = \count($value);
         } else if (\is_string($value)) {
-            $value = mb_strlen($value);
+            $value = \mb_strlen($value);
         }
-        return (int)$value;
+        return $value;
     }
 
     /**

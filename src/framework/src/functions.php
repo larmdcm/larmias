@@ -10,7 +10,7 @@ use Larmias\Contracts\TranslatorInterface;
 use Larmias\Di\Container;
 use Larmias\Contracts\ApplicationInterface;
 use Larmias\Contracts\ConfigInterface;
-use Larmias\Log\LoggerLevel;
+use Psr\Log\LogLevel;
 
 /**
  * make
@@ -92,7 +92,7 @@ function logger(): LoggerInterface
  * @param array $context
  * @return void
  */
-function trace(mixed $message, string $level = LoggerLevel::INFO, array $context = []): void
+function trace(mixed $message, string $level = LogLevel::INFO, array $context = []): void
 {
     $logger = logger();
     $logger->log($level, \is_scalar($message) ? $message : (string)\var_export($message, true), $context);

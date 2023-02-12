@@ -47,7 +47,7 @@ class Validator implements ValidatorInterface
     /**
      * @var bool
      */
-    protected bool $batch = true;
+    protected bool $batch = false;
 
     /**
      * @var array|null
@@ -485,7 +485,7 @@ class Validator implements ValidatorInterface
     {
         return function () use ($scene) {
             $item = $this->scenes[$scene] ?? null;
-            if ($item) {
+            if ($item !== null) {
                 if ($item instanceof Closure) {
                     $item($this);
                 } else if (\is_array($item)) {

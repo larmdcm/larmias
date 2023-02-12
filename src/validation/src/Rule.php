@@ -9,6 +9,10 @@ use Larmias\Utils\Str;
 
 class Rule
 {
+    /**
+     * @param string $name
+     * @param array|Closure $args
+     */
     public function __construct(protected string $name, protected array|Closure $args = [])
     {
     }
@@ -32,7 +36,7 @@ class Rule
     /**
      * @param string $name
      * @param array $args
-     * @return \Larmias\Validation\Rule
+     * @return Rule
      */
     public static function __callStatic(string $name, array $args): Rule
     {

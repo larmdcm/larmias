@@ -15,7 +15,6 @@ class AnnotationManager
     /** @var Annotation[] */
     protected static array $container = [];
 
-
     public static function init(AnnotationInterface $annotation, string $name = 'default'): void
     {
         static::$container[$name] = $annotation;

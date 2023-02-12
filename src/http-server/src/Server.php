@@ -34,9 +34,9 @@ use function Larmias\Utils\format_exception;
 class Server implements OnRequestInterface
 {
     public function __construct(
-        protected ContainerInterface $container,
+        protected ContainerInterface       $container,
         protected EventDispatcherInterface $eventDispatcher,
-        protected ResponseEmitter $responseEmitter)
+        protected ResponseEmitter          $responseEmitter)
     {
     }
 
@@ -99,7 +99,7 @@ class Server implements OnRequestInterface
     protected function dispatchRoute(RequestInterface $request): PsrResponseInterface
     {
         $dispatched = Router::dispatch($request->getMethod(), $request->getPathInfo());
-        $this->container->instance(RequestInterface::class, $request = $request->withAttribute(Dispatched::class, $dispatched));
+        $this->container->instance(ServerRequestInterface::class, $request->withAttribute(Dispatched::class, $dispatched));
         $option = $dispatched->rule->getOption();
         /** @var HttpRouteMiddleware $middleware */
         $middleware = $this->container->make(HttpRouteMiddleware::class, [], true);

@@ -25,6 +25,7 @@
     "ext-fileinfo": "*",
     "ext-redis": "*",
     "ext-curl": "*",
+    "ext-openssl": "*",
     "psr/container": "^2.0",
     "psr/log": "^3.0",
     "psr/event-dispatcher": "^1.0",

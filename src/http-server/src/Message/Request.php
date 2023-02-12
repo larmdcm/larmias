@@ -9,6 +9,8 @@ use Larmias\HttpServer\Contracts\RequestInterface;
 use Larmias\Http\Message\UploadedFile;
 use Larmias\Routing\Dispatched;
 use Larmias\Utils\Arr;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
@@ -17,8 +19,9 @@ use function Larmias\Utils\data_get;
 
 class Request implements RequestInterface
 {
-    protected array $attributes = [];
-
+    /**
+     * @param ContainerInterface $container
+     */
     public function __construct(protected ContainerInterface $container)
     {
     }
@@ -29,7 +32,7 @@ class Request implements RequestInterface
      */
     public function __get(string $name): mixed
     {
-        return $this->attributes[$name] ?? null;
+        return $this->getAttribute($name);
     }
 
     /**
@@ -38,7 +41,7 @@ class Request implements RequestInterface
      */
     public function __set(string $name, mixed $value)
     {
-        $this->attributes[$name] = $value;
+        $this->withAttribute($name, $value);
     }
 
     /**
@@ -294,12 +297,9 @@ class Request implements RequestInterface
      */
     protected function getInputData(): array
     {
-        if (!isset($this->attributes[__FUNCTION__])) {
-            $body = $this->getParsedBody();
-            $route = $this->route();
-            $this->attributes[__FUNCTION__] = \array_merge(\is_array($route) ? $route : [], $this->getQueryParams(), \is_array($body) ? $body : []);
-        }
-        return $this->attributes[__FUNCTION__];
+        $body = $this->getParsedBody();
+        $route = $this->route();
+        return \array_merge(\is_array($route) ? $route : [], $this->getQueryParams(), \is_array($body) ? $body : []);
     }
 
     /**
@@ -311,23 +311,30 @@ class Request implements RequestInterface
         return $file instanceof SplFileInfo && $file->getPath() !== '';
     }
 
+    /**
+     * @return ServerRequestInterface
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
     protected function getRequest(): ServerRequestInterface
     {
         return $this->container->get(ServerRequestInterface::class);
     }
 
+    /**
+     * @param string $name
+     * @param array $arguments
+     * @return mixed
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
     protected function call(string $name, array $arguments): mixed
     {
         $request = $this->getRequest();
-        if (!method_exists($request, $name)) {
+        if (!\method_exists($request, $name)) {
             throw new \RuntimeException($name . ' Method not exist.');
         }
-        $result = $request->{$name}(...$arguments);
-        if ($result instanceof ServerRequestInterface) {
-            $this->container->instance(ServerRequestInterface::class, $result);
-            return $this;
-        }
-        return $result;
+        return $request->{$name}(...$arguments);
     }
 
     public function getProtocolVersion(): string
@@ -335,7 +342,7 @@ class Request implements RequestInterface
         return $this->call(__FUNCTION__, func_get_args());
     }
 
-    public function withProtocolVersion($version): self
+    public function withProtocolVersion($version): ServerRequestInterface
     {
         return $this->call(__FUNCTION__, func_get_args());
     }
@@ -360,17 +367,17 @@ class Request implements RequestInterface
         return $this->call(__FUNCTION__, func_get_args());
     }
 
-    public function withHeader($name, $value): self
+    public function withHeader($name, $value): ServerRequestInterface
     {
         return $this->call(__FUNCTION__, func_get_args());
     }
 
-    public function withAddedHeader($name, $value): self
+    public function withAddedHeader($name, $value): ServerRequestInterface
     {
         return $this->call(__FUNCTION__, func_get_args());
     }
 
-    public function withoutHeader($name): self
+    public function withoutHeader($name): ServerRequestInterface
     {
         return $this->call(__FUNCTION__, func_get_args());
     }
@@ -380,7 +387,7 @@ class Request implements RequestInterface
         return $this->call(__FUNCTION__, func_get_args());
     }
 
-    public function withBody(StreamInterface $body): self
+    public function withBody(StreamInterface $body): ServerRequestInterface
     {
         return $this->call(__FUNCTION__, func_get_args());
     }
@@ -390,7 +397,7 @@ class Request implements RequestInterface
         return $this->call(__FUNCTION__, func_get_args());
     }
 
-    public function withRequestTarget($requestTarget): self
+    public function withRequestTarget($requestTarget): ServerRequestInterface
     {
         return $this->call(__FUNCTION__, func_get_args());
     }
@@ -400,7 +407,7 @@ class Request implements RequestInterface
         return $this->call(__FUNCTION__, func_get_args());
     }
 
-    public function withMethod($method): self
+    public function withMethod($method): ServerRequestInterface
     {
         return $this->call(__FUNCTION__, func_get_args());
     }
@@ -410,7 +417,7 @@ class Request implements RequestInterface
         return $this->call(__FUNCTION__, func_get_args());
     }
 
-    public function withUri(UriInterface $uri, $preserveHost = false): self
+    public function withUri(UriInterface $uri, $preserveHost = false): ServerRequestInterface
     {
         return $this->call(__FUNCTION__, func_get_args());
     }
@@ -425,7 +432,7 @@ class Request implements RequestInterface
         return $this->call(__FUNCTION__, func_get_args());
     }
 
-    public function withCookieParams(array $cookies): self
+    public function withCookieParams(array $cookies): ServerRequestInterface
     {
         return $this->call(__FUNCTION__, func_get_args());
     }
@@ -435,7 +442,7 @@ class Request implements RequestInterface
         return $this->call(__FUNCTION__, func_get_args());
     }
 
-    public function withQueryParams(array $query): self
+    public function withQueryParams(array $query): ServerRequestInterface
     {
         return $this->call(__FUNCTION__, func_get_args());
     }
@@ -445,7 +452,7 @@ class Request implements RequestInterface
         return $this->call(__FUNCTION__, func_get_args());
     }
 
-    public function withUploadedFiles(array $uploadedFiles): self
+    public function withUploadedFiles(array $uploadedFiles): ServerRequestInterface
     {
         return $this->call(__FUNCTION__, func_get_args());
     }
@@ -455,7 +462,7 @@ class Request implements RequestInterface
         return $this->call(__FUNCTION__, func_get_args());
     }
 
-    public function withParsedBody($data): self
+    public function withParsedBody($data): ServerRequestInterface
     {
         return $this->call(__FUNCTION__, func_get_args());
     }
@@ -470,12 +477,12 @@ class Request implements RequestInterface
         return $this->call(__FUNCTION__, func_get_args());
     }
 
-    public function withAttribute($name, $value): self
+    public function withAttribute($name, $value): ServerRequestInterface
     {
         return $this->call(__FUNCTION__, func_get_args());
     }
 
-    public function withoutAttribute($name): self
+    public function withoutAttribute($name): ServerRequestInterface
     {
         return $this->call(__FUNCTION__, func_get_args());
     }

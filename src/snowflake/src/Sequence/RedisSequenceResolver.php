@@ -10,10 +10,19 @@ use Larmias\Contracts\Redis\RedisFactoryInterface;
 
 class RedisSequenceResolver implements SequenceResolver
 {
+    /**
+     * @var ConnectionInterface
+     */
     protected ConnectionInterface $connection;
 
+    /**
+     * @var string
+     */
     protected string $prefix = '';
 
+    /**
+     * @param RedisFactoryInterface $factory
+     */
     public function __construct(RedisFactoryInterface $factory)
     {
         $this->connection = $factory->get();

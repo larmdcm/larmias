@@ -26,13 +26,24 @@ class Collection extends BaseCollection
     }
 
     /**
-     * 输出树形数组
+     * 返回树形结构
      *
      * @param string|int $parentId
-     * @return array
+     * @return static
      */
-    public function toTree(string|int $parentId = 0): array
+    public function toTree(string|int $parentId = 0): static
     {
-        return Tree::make($this->toArray(), $this->config['tree_options'] ?? [])->layer($parentId);
+        return new static(Tree::make($this->toArray(), $this->config['tree_options'] ?? [])->layer($parentId));
+    }
+
+    /**
+     * 返回树形结构level
+     *
+     * @param string|int $parentId
+     * @return static
+     */
+    public function toTreeLevel(string|int $parentId = 0): static
+    {
+        return new static(Tree::make($this->toArray(), $this->config['tree_options'] ?? [])->layerLevel($parentId));
     }
 }

@@ -4,18 +4,20 @@ declare(strict_types=1);
 
 namespace Larmias\Framework;
 
-use Larmias\Console\Console;
 use Larmias\Contracts\ApplicationInterface;
 use Larmias\Contracts\ConfigInterface;
 use Larmias\Contracts\ConsoleInterface;
 use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\DotEnvInterface;
 use Larmias\Contracts\ServiceProviderInterface;
+use Larmias\Contracts\StdoutLoggerInterface;
 use Larmias\Di\Container;
 use Larmias\Engine\Contracts\KernelInterface;
 use Larmias\Engine\Kernel;
 use Larmias\Event\EventDispatcherFactory;
 use Larmias\Event\ListenerProviderFactory;
+use Larmias\Command\Application as ConsoleApplication;
+use Larmias\Framework\Logger\StdoutLogger;
 use Psr\Container\ContainerInterface as PsrContainerInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\EventDispatcher\ListenerProviderInterface;
@@ -70,9 +72,10 @@ class Application extends Container implements ApplicationInterface
             self::class => $this,
             ContainerInterface::class => $this,
             PsrContainerInterface::class => $this,
-            KernelInterface::class => Kernel::class,
             ApplicationInterface::class => $this,
-            ConsoleInterface::class => Console::class,
+            KernelInterface::class => Kernel::class,
+            ConsoleInterface::class => ConsoleApplication::class,
+            StdoutLoggerInterface::class => StdoutLogger::class,
             ListenerProviderInterface::class => function () {
                 return ListenerProviderFactory::make($this, $this->loadFileConfig('listeners', false));
             },
@@ -118,6 +121,7 @@ class Application extends Container implements ApplicationInterface
      * 加载配置
      *
      * @return void
+     * @throws \ReflectionException
      */
     protected function loadConfig(): void
     {
@@ -125,7 +129,9 @@ class Application extends Container implements ApplicationInterface
         if (!\is_dir($configPath)) {
             return;
         }
-        $this->config = $this->get(ConfigInterface::class);
+        /** @var ConfigInterface $config */
+        $config = $this->get(ConfigInterface::class);
+        $this->config = $config;
         foreach (\glob($configPath . '*' . '.' . $this->configExt) as $filename) {
             $this->config->load($filename);
         }
@@ -295,7 +301,7 @@ class Application extends Container implements ApplicationInterface
             if (!\is_file($file)) {
                 continue;
             }
-            $extension = pathinfo($file, PATHINFO_EXTENSION);
+            $extension = \pathinfo($file, PATHINFO_EXTENSION);
             if ($extension === 'php') {
                 $config = \array_merge($config, require $file);
             }

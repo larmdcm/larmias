@@ -7,6 +7,9 @@ namespace Larmias\Engine;
 class Event
 {
     /** @var string */
+    public const ON_BEFORE_START = 'beforeStart';
+
+    /** @var string */
     public const ON_MASTER_START = 'masterStart';
 
     /** @var string */

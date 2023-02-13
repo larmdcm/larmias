@@ -1,0 +1,131 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Larmias\Framework\Logger;
+
+use Larmias\Contracts\ConfigInterface;
+use Larmias\Contracts\StdoutLoggerInterface;
+use Psr\Log\LogLevel;
+use Symfony\Component\Console\Output\ConsoleOutput;
+use Symfony\Component\Console\Output\OutputInterface;
+
+class StdoutLogger implements StdoutLoggerInterface
+{
+    /**
+     * @var array
+     */
+    private array $tags = [
+        'component',
+    ];
+
+    /**
+     * @param ConfigInterface|null $config
+     * @param OutputInterface|null $output
+     */
+    public function __construct(protected ?ConfigInterface $config = null, protected ?OutputInterface $output = null)
+    {
+        if (!$this->output) {
+            $this->output = new ConsoleOutput();
+        }
+    }
+
+    public function emergency(\Stringable|string $message, array $context = []): void
+    {
+        $this->log(__FUNCTION__, $message, $context);
+    }
+
+    public function alert(\Stringable|string $message, array $context = []): void
+    {
+        $this->log(__FUNCTION__, $message, $context);
+    }
+
+    public function critical(\Stringable|string $message, array $context = []): void
+    {
+        $this->log(__FUNCTION__, $message, $context);
+    }
+
+    public function error(\Stringable|string $message, array $context = []): void
+    {
+        $this->log(__FUNCTION__, $message, $context);
+    }
+
+    public function warning(\Stringable|string $message, array $context = []): void
+    {
+        $this->log(__FUNCTION__, $message, $context);
+    }
+
+    public function notice(\Stringable|string $message, array $context = []): void
+    {
+        $this->log(__FUNCTION__, $message, $context);
+    }
+
+    public function info(\Stringable|string $message, array $context = []): void
+    {
+        $this->log(__FUNCTION__, $message, $context);
+    }
+
+    public function debug(\Stringable|string $message, array $context = []): void
+    {
+        $this->log(__FUNCTION__, $message, $context);
+    }
+
+    public function sql(\Stringable|string $message, array $context = []): void
+    {
+        $this->log(__FUNCTION__, $message, $context);
+    }
+
+    public function log($level, \Stringable|string $message, array $context = []): void
+    {
+        $config = $this->config?->get('logger', ['level' => []]);
+        if ($config && !empty($config['level']) && !\in_array($level, $config['level'], true)) {
+            return;
+        }
+        $keys = \array_keys($context);
+        $tags = [];
+        foreach ($keys as $k => $key) {
+            if (\in_array($key, $this->tags, true)) {
+                $tags[$key] = $context[$key];
+                unset($keys[$k]);
+            }
+        }
+        $search = \array_map(fn($key) => \sprintf('{%s}', $key), $keys);
+        $message = \str_replace($search, $context, $this->getMessage((string)$message, $level, $tags));
+        $this->writeln($message);
+    }
+
+    public function write(string $message): void
+    {
+        $this->output->write($message);
+    }
+
+    public function writeln(string $message): void
+    {
+        $this->output->writeln($message);
+    }
+
+
+    /**
+     * @param string $message
+     * @param string $level
+     * @param array $tags
+     * @return string
+     */
+    protected function getMessage(string $message, string $level = LogLevel::INFO, array $tags = []): string
+    {
+        $tag = match ($level) {
+            LogLevel::EMERGENCY, LogLevel::ALERT, LogLevel::CRITICAL => 'error',
+            LogLevel::ERROR => 'fg=red',
+            LogLevel::WARNING, LogLevel::NOTICE => 'comment',
+            default => 'info',
+        };
+
+        $template = \sprintf('<%s>[%s]</>', $tag, strtoupper($level));
+        $implodedTags = '';
+        foreach ($tags as $value) {
+            $implodedTags .= (' [' . $value . ']');
+        }
+
+        return \sprintf($template . $implodedTags . ' %s', $message);
+    }
+}

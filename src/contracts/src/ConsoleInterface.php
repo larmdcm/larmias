@@ -9,7 +9,7 @@ interface ConsoleInterface
     /**
      * @param string $commandClass
      * @param string $name
-     * @return \Larmias\Contracts\ConsoleInterface
+     * @return ConsoleInterface
      */
     public function addCommand(string $commandClass, string $name = ''): ConsoleInterface;
 

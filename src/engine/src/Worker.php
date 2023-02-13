@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\Engine;
 
+use Larmias\Engine\Bootstrap\BeforeStartCallback;
 use Larmias\Engine\Bootstrap\WorkerStartCallback;
 use Larmias\Engine\Contracts\KernelInterface;
 use Larmias\Engine\Contracts\WorkerInterface;
@@ -167,9 +168,12 @@ class Worker implements WorkerInterface
      */
     protected function registerEventCallback(): void
     {
-        $this->callbacks = $this->mergeCallbacks($this->engineConfig->getCallbacks(), $this->workerConfig->getCallbacks(),[
+        $this->callbacks = $this->mergeCallbacks($this->engineConfig->getCallbacks(), $this->workerConfig->getCallbacks(), [
             static::ON_WORKER_START => [WorkerStartCallback::class, 'onWorkerStart']
         ]);
+        if (!$this->hasListen(Event::ON_BEFORE_START)) {
+            $this->callbacks[Event::ON_BEFORE_START] = [[BeforeStartCallback::class, 'onBeforeStart']];
+        }
     }
 
     /**

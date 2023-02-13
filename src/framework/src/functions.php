@@ -6,6 +6,7 @@ namespace Larmias\Framework;
 
 use Larmias\Contracts\DotEnvInterface;
 use Larmias\Contracts\LoggerInterface;
+use Larmias\Contracts\StdoutLoggerInterface;
 use Larmias\Contracts\TranslatorInterface;
 use Larmias\Di\Container;
 use Larmias\Contracts\ApplicationInterface;
@@ -26,7 +27,7 @@ function make(string $abstract, array $params = [], bool $newInstance = false): 
 }
 
 /**
- * App辅助函数
+ * 获取app实例对象
  *
  * @return ApplicationInterface
  */
@@ -38,7 +39,7 @@ function app(): ApplicationInterface
 }
 
 /**
- * 配置操作辅助函数
+ * 框架配置操作
  *
  * @param mixed $key
  * @param mixed $value
@@ -55,6 +56,32 @@ function config(mixed $key = null, mixed $value = null): mixed
         return $config->set($key);
     }
     return \str_starts_with($key, '?') ? $config->has($key) : $config->get($key, $value);
+}
+
+/**
+ * 环境变量操作
+ *
+ * @param string $name
+ * @param mixed|null $default
+ * @return mixed
+ */
+function env(string $name, mixed $default = null): mixed
+{
+    /** @var DotEnvInterface $dotenv */
+    $dotenv = make(DotEnvInterface::class);
+    return $dotenv->get($name, $default);
+}
+
+/**
+ * 获取控制台输出实例
+ *
+ * @return StdoutLoggerInterface
+ */
+function console(): StdoutLoggerInterface
+{
+    /** @var StdoutLoggerInterface $console */
+    $console = make(StdoutLoggerInterface::class);
+    return $console;
 }
 
 /**
@@ -96,18 +123,4 @@ function trace(mixed $message, string $level = LogLevel::INFO, array $context = 
 {
     $logger = logger();
     $logger->log($level, \is_scalar($message) ? $message : (string)\var_export($message, true), $context);
-}
-
-/**
- * 获取环境变量
- *
- * @param string $name
- * @param mixed|null $default
- * @return mixed
- */
-function env(string $name, mixed $default = null): mixed
-{
-    /** @var DotEnvInterface $dotenv */
-    $dotenv = make(DotEnvInterface::class);
-    return $dotenv->get($name, $default);
 }

@@ -7,6 +7,7 @@ namespace Larmias\Utils\Reflection;
 use Larmias\Utils\Str;
 
 use ReflectionFunctionAbstract;
+use ReflectionParameter;
 use InvalidArgumentException;
 use Closure;
 
@@ -93,7 +94,7 @@ class Parameter
             $reflectionType = $param->getType();
 
             if ($reflectionType && $reflectionType->isBuiltin() === false) {
-                $args[] = $this->getObjectParam($reflectionType->getName(), $vars);
+                $args[] = $this->getObjectParam($reflectionType->getName(), $vars, $param);
             } elseif ($type == 1 && !empty($vars)) {
                 $args[] = array_shift($vars);
             } elseif ($type == 0 && array_key_exists($name, $vars)) {
@@ -113,12 +114,12 @@ class Parameter
     /**
      * 获取对象类型的参数值
      *
-     * @param string $className 类名
-     * @param array $vars 参数
-     * @return object
-     * @throws \ReflectionException
+     * @param string $className
+     * @param array $vars
+     * @return object|null
+     * @throws \Throwable
      */
-    protected function getObjectParam(string $className, array &$vars): object
+    protected function getObjectParam(string $className, array &$vars, ReflectionParameter $parameter): ?object
     {
         $array = $vars;
         $value = array_shift($array);
@@ -127,26 +128,36 @@ class Parameter
             $result = $value;
             array_shift($vars);
         } else {
-            $result = $this->make($className);
+            $result = $this->make($className, $parameter);
         }
 
         return $result;
     }
 
     /**
-     * @throws \ReflectionException
+     * @param string $className
+     * @param ReflectionParameter $parameter
+     * @return object|null
+     * @throws \Throwable
      */
-    protected function make(string $className): object
+    protected function make(string $className, ReflectionParameter $parameter): ?object
     {
         if ($this->makeClassHandler) {
-            return call_user_func($this->makeClassHandler, $className);
+            return call_user_func($this->makeClassHandler, $className, $parameter);
         } else if (static::$globalMakeClassHandler) {
-            return call_user_func(static::$globalMakeClassHandler, $className);
+            return call_user_func(static::$globalMakeClassHandler, $className, $parameter);
         }
-        $reflect = ReflectionManager::reflectClass($className);
-        $constructor = $reflect->getConstructor();
-        $args = $constructor ? $this->bindParams($constructor) : [];
-        return $reflect->newInstanceArgs($args);
+        try {
+            $reflect = ReflectionManager::reflectClass($className);
+            $constructor = $reflect->getConstructor();
+            $args = $constructor ? $this->bindParams($constructor) : [];
+            return $reflect->newInstanceArgs($args);
+        } catch (\Throwable $e) {
+            if ($parameter->isDefaultValueAvailable()) {
+                return $parameter->getDefaultValue();
+            }
+            throw $e;
+        }
     }
 
     /**

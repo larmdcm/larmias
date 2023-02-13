@@ -7,6 +7,8 @@ namespace Larmias\Console\Commands;
 use Larmias\Console\Command;
 use Larmias\Console\Input\Argument;
 use Larmias\Console\Input\Option;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 class Help extends Command
 {
@@ -28,8 +30,8 @@ class Help extends Command
 
     /**
      * @return int
-     * @throws \Psr\Container\NotFoundExceptionInterface
-     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     * @throws ContainerExceptionInterface
      */
     public function handle(): int
     {
@@ -96,8 +98,8 @@ class Help extends Command
     }
 
     /**
-     * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws \Psr\Container\NotFoundExceptionInterface
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
      */
     protected function printCommands(): void
     {
@@ -156,7 +158,7 @@ class Help extends Command
     }
 
     /**
-     * @param \Larmias\Console\Input\Option $option
+     * @param Option $option
      * @return string
      */
     protected function getOptionName(Option $option): string

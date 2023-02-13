@@ -40,10 +40,10 @@
     "workerman/workerman": "^4.1",
     "topthink/think-orm": "^2.0",
     "godruoyi/php-snowflake": "^1.0",
-    "nesbot/carbon": "^2.0"
+    "nesbot/carbon": "^2.0",
+    "symfony/console": "^6.0"
   },
   "require-dev": {
-    "phpunit/phpunit": "^9.5.10"
   },
   "autoload": {
     "files": [
@@ -75,6 +75,7 @@
       "Larmias\\Support\\": "src/support/src/",
       "Larmias\\Log\\": "src/log/src/",
       "Larmias\\Console\\": "src/console/src/",
+      "Larmias\\Command\\": "src/command/src/",
       "Larmias\\Framework\\": "src/framework/src/",
       "Larmias\\Repository\\": "src/repository/src/",
       "Larmias\\Env\\": "src/env/src/",

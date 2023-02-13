@@ -12,6 +12,8 @@ use Larmias\Console\Input\Input;
 use Larmias\Console\Output\Output;
 use Larmias\Contracts\ConsoleInterface;
 use Larmias\Contracts\ContainerInterface;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 class Console implements ConsoleInterface
 {
@@ -47,8 +49,8 @@ class Console implements ConsoleInterface
     }
 
     /**
-     * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws \Psr\Container\NotFoundExceptionInterface
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
      */
     protected function initialize(): void
     {
@@ -60,8 +62,8 @@ class Console implements ConsoleInterface
      * @param string $commandClass
      * @param string $name
      * @return self
-     * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws \Psr\Container\NotFoundExceptionInterface
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
      */
     public function addCommand(string $commandClass, string $name = ''): self
     {
@@ -78,9 +80,9 @@ class Console implements ConsoleInterface
 
     /**
      * @param string $name
-     * @return \Larmias\Console\Command
-     * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws \Psr\Container\NotFoundExceptionInterface
+     * @return Command
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
      */
     public function getCommand(string $name): Command
     {
@@ -89,7 +91,7 @@ class Console implements ConsoleInterface
         }
         /** @var Command $command */
         $command = $this->commands[$name];
-        if (is_string($command)) {
+        if (\is_string($command)) {
             $command = $this->container->get($command);
             $command->setConsole($this);
         }
@@ -107,8 +109,8 @@ class Console implements ConsoleInterface
 
     /**
      * @return int
-     * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws \Psr\Container\NotFoundExceptionInterface
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
      */
     public function run(): int
     {
@@ -118,7 +120,7 @@ class Console implements ConsoleInterface
         try {
             $exitCode = $this->doRunCommand($command);
         } catch (\Throwable $e) {
-            $this->output->writeln($e->getFile() . '('. $e->getLine() .')' . ':' . $e->getMessage() . PHP_EOL . $e->getTraceAsString());
+            $this->output->writeln($e->getFile() . '(' . $e->getLine() . ')' . ':' . $e->getMessage() . PHP_EOL . $e->getTraceAsString());
             $exitCode = $e->getCode();
             if (is_numeric($exitCode)) {
                 $exitCode = (int)$exitCode;
@@ -141,7 +143,7 @@ class Console implements ConsoleInterface
     }
 
     /**
-     * @param \Larmias\Console\Command $command
+     * @param Command $command
      * @return int
      */
     protected function doRunCommand(Command $command): int

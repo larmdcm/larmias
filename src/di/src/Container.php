@@ -53,8 +53,15 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
      */
     public function __construct()
     {
-        $this->invoker = new Invoker(new Parameter(makeClassHandler: function (string $className) {
-            return $this->make($className);
+        $this->invoker = new Invoker(new Parameter(makeClassHandler: function (string $className, \ReflectionParameter $parameter) {
+            try {
+                return $this->make($className);
+            } catch (\Throwable $e) {
+                if ($parameter->isDefaultValueAvailable()) {
+                    return $parameter->getDefaultValue();
+                }
+                throw $e;
+            }
         }));
 
         $this->invoker->resolving(Invoker::INVOKE_METHOD, function (Closure $process, array $args) {

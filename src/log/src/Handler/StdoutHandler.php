@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\Log\Handler;
 
+use Larmias\Contracts\StdoutLoggerInterface;
 use Larmias\Log\Contracts\LoggerHandlerInterface;
 use Larmias\Log\LoggerLevel;
 
@@ -47,6 +48,14 @@ class StdoutHandler implements LoggerHandlerInterface
     ];
 
     /**
+     * @param StdoutLoggerInterface|null $logger
+     */
+    public function __construct(protected ?StdoutLoggerInterface $logger = null)
+    {
+    }
+
+
+    /**
      * @param array $logs
      * @return bool
      */
@@ -54,7 +63,11 @@ class StdoutHandler implements LoggerHandlerInterface
     {
         foreach ($logs as $logList) {
             foreach ($logList as $logItem) {
-                static::safeEcho(static::getLevelStyleText($logItem['content'], $logItem['level']));
+                if ($this->logger) {
+                    $this->logger->log($logItem['level'], $logItem['content']);
+                } else {
+                    static::safeEcho(static::getLevelStyleText($logItem['content'], $logItem['level']));
+                }
             }
         }
         return true;

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\Engine;
 
+use Larmias\Engine\Bootstrap\BeforeStartCallback;
 use Larmias\Engine\Contracts\DriverInterface;
 use Larmias\Engine\Contracts\KernelInterface;
 use Larmias\Engine\Contracts\WorkerInterface;
@@ -59,7 +60,10 @@ class Kernel implements KernelInterface
     {
         $workers = $this->engineConfig->getWorkers();
         foreach ($workers as $workerConfig) {
-            $this->addWorker($workerConfig);
+            $worker = $this->addWorker($workerConfig);
+            if ($worker->hasListen(Event::ON_BEFORE_START)) {
+                $worker->trigger(Event::ON_BEFORE_START, [$worker]);
+            }
         }
         $this->driver->run($this);
     }

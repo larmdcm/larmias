@@ -12,7 +12,7 @@ use Larmias\Contracts\ContainerInterface;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
-use Psr\Log\LoggerInterface;
+use Larmias\Contracts\StdoutLoggerInterface;
 
 class WorkerStartCallback
 {
@@ -22,9 +22,9 @@ class WorkerStartCallback
     protected ?EventDispatcherInterface $eventDispatcher = null;
 
     /**
-     * @var LoggerInterface|null
+     * @var StdoutLoggerInterface|null
      */
-    protected ?LoggerInterface $logger = null;
+    protected ?StdoutLoggerInterface $logger = null;
 
     /**
      * WorkerStartCallback constructor.
@@ -39,8 +39,8 @@ class WorkerStartCallback
             $this->eventDispatcher = $this->container->get(EventDispatcherInterface::class);
         }
 
-        if ($this->container->has(LoggerInterface::class)) {
-            $this->logger = $this->container->get(LoggerInterface::class);
+        if ($this->container->has(StdoutLoggerInterface::class)) {
+            $this->logger = $this->container->get(StdoutLoggerInterface::class);
         }
     }
 

@@ -58,12 +58,11 @@ class Finder
             $iterator = new FilesystemIterator($path);
         }
 
-        /** @var SplFileInfo $info */
         foreach ($iterator as $info) {
             if (!($info instanceof SplFileInfo)) {
                 $info = new SplFileInfo($info);
             }
-
+            /** @var SplFileInfo $info */
             if ($info->isDir() && !$info->isLink()) {
                 if ($this->checkDir($info)) {
                     $files = \array_merge($this->findFiles($info->getPathname()), $files);

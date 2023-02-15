@@ -80,7 +80,7 @@ class Worker implements WorkerInterface
     }
 
     /**
-     *  触发回调函数
+     * 触发回调函数
      * @param string $event
      * @param array $args
      * @throws ContainerExceptionInterface
@@ -91,14 +91,14 @@ class Worker implements WorkerInterface
         if (!$this->hasListen($event)) {
             return;
         }
-        $items = $this->callbacks[$event];
+        $callbacks = $this->callbacks[$event];
 
-        foreach ($items as $item) {
-            if (\is_callable($item)) {
-                $this->container->invoke($item, $args);
+        foreach ($callbacks as $callback) {
+            if (\is_callable($callback)) {
+                $this->container->invoke($callback, $args);
             } else {
-                $object = $this->container->get($item[0]);
-                \call_user_func_array([$object, $item[1]], $args);
+                $object = $this->container->get($callback[0]);
+                \call_user_func_array([$object, $callback[1]], $args);
             }
         }
     }
@@ -168,9 +168,8 @@ class Worker implements WorkerInterface
      */
     protected function registerEventCallback(): void
     {
-        $this->callbacks = $this->mergeCallbacks($this->engineConfig->getCallbacks(), $this->workerConfig->getCallbacks(), [
-            static::ON_WORKER_START => [WorkerStartCallback::class, 'onWorkerStart']
-        ]);
+        $defaultCallbacks[static::ON_WORKER_START] = [WorkerStartCallback::class, 'onWorkerStart'];
+        $this->callbacks = $this->mergeCallbacks($this->engineConfig->getCallbacks(), $this->workerConfig->getCallbacks(), $defaultCallbacks);
         if (!$this->hasListen(Event::ON_BEFORE_START)) {
             $this->callbacks[Event::ON_BEFORE_START] = [[BeforeStartCallback::class, 'onBeforeStart']];
         }
@@ -183,16 +182,30 @@ class Worker implements WorkerInterface
     protected function mergeCallbacks(...$args): array
     {
         $callbacks = [];
+        $queueMap = [];
         foreach ($args as $argItem) {
             foreach ($argItem as $name => $callable) {
-                if (!isset($callbacks[$name])) {
-                    $callbacks[$name] = [];
+                $isQueue = \is_array($callable) && (\is_array($callable[0]) || \is_callable($callable[0]));
+                $existsQueue = isset($queueMap[$name]);
+                if (empty($callbacks[$name])) {
+                    $callbacks[$name] = $isQueue ? $callable : [$callable];
+                    if ($isQueue) {
+                        $queueMap[$name] = true;
+                    }
+                } else {
+                    if ($isQueue) {
+                        $callbacks[$name] = [...$callbacks[$name], ...$callable];
+                        $queueMap[$name] = true;
+                    } else {
+                        if ($existsQueue) {
+                            $callbacks[$name] = [...$callbacks[$name], ...[$callable]];
+                        } else {
+                            $callbacks[$name] = [$callable];
+                        }
+                    }
                 }
-                $items = \is_array($callable) && \is_array($callable[0]) ? $callable : [$callable];
-                $callbacks[$name] = \array_merge($callbacks[$name], $items);
             }
         }
-
         return $callbacks;
     }
 }

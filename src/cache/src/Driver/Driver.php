@@ -132,7 +132,7 @@ abstract class Driver implements CacheInterface
     /**
      * 获取有效期
      *
-     * @param int|DateTimeInterface|DateInterval $expire 有效期
+     * @param int|DateTimeInterface|DateInterval $expire
      * @return int
      */
     protected function getExpireTime(int|DateTimeInterface|DateInterval $expire): int

@@ -91,38 +91,40 @@ return [
         'eventLoop' => \Workerman\Events\Swoole::class,
     ],
     'callbacks' => [
-        Event::ON_WORKER_START => function (\Larmias\Engine\Contracts\WorkerInterface $worker) {
-            $container = require '../di/container.php';
-            $container->bind(ConfigInterface::class, Config::class);
-            $container->bind(PipelineInterface::class, Pipeline::class);
-            $container->bind(ListenerProviderInterface::class, ListenerProviderFactory::make($container, []));
-            $container->bind(EventDispatcherInterface::class, EventDispatcherFactory::make($container));
-            $container->bind(\Larmias\Contracts\Redis\RedisFactoryInterface::class, \Larmias\Redis\RedisFactory::class);
-            $container->bind(\Larmias\Contracts\SessionInterface::class, \Larmias\Session\Session::class);
-            $container->bind(\Larmias\Contracts\ViewInterface::class, \Larmias\View\View::class);
-            $container->bind(\Larmias\Http\CSRF\Contracts\CsrfManagerInterface::class, \Larmias\Http\CSRF\CsrfManager::class);
-            $container->bind(\Larmias\Snowflake\Contracts\IdGeneratorInterface::class, \Larmias\Snowflake\IdGenerator::class);
-            $container->bind([
-                \Psr\Log\LoggerInterface::class => \Larmias\Log\Logger::class,
-                \Larmias\Contracts\LoggerInterface::class => \Larmias\Log\Logger::class,
-                \Larmias\SharedMemory\Contracts\LoggerInterface::class => \Larmias\SharedMemory\Logger::class,
-                \Larmias\SharedMemory\Contracts\CommandExecutorInterface::class => \Larmias\SharedMemory\CommandExecutor::class,
-                \Larmias\SharedMemory\Contracts\AuthInterface::class => \Larmias\SharedMemory\Auth::class,
-                \Larmias\Contracts\TaskExecutorInterface::class => \Larmias\Task\TaskExecutor::class,
-                \Larmias\Contracts\LockerInterface::class => \Larmias\Lock\Locker::class,
-                \Larmias\Contracts\LockerFactoryInterface::class => \Larmias\Lock\LockerFactory::class,
-                \Larmias\Crontab\Contracts\ParserInterface::class => \Larmias\Crontab\Parser::class,
-                \Larmias\Crontab\Contracts\SchedulerInterface::class => \Larmias\Crontab\Scheduler::class,
-                \Larmias\Crontab\Contracts\ExecutorInterface::class => \Larmias\Crontab\Executor\TaskWorkerExecutor::class,
-            ]);
-            $container->get(\Larmias\SharedMemory\Contracts\CommandExecutorInterface::class)->addCommand(
-                \Larmias\Task\Command\TaskCommand::COMMAND_NAME, \Larmias\Task\Command\TaskCommand::class,
-            );
-            foreach (glob(__DIR__ . '/config/*.php') as $file) {
-                $container->make(ConfigInterface::class)->load($file);
+        Event::ON_WORKER_START => [
+            function (\Larmias\Engine\Contracts\WorkerInterface $worker) {
+                $container = require '../di/container.php';
+                $container->bind(ConfigInterface::class, Config::class);
+                $container->bind(PipelineInterface::class, Pipeline::class);
+                $container->bind(ListenerProviderInterface::class, ListenerProviderFactory::make($container, []));
+                $container->bind(EventDispatcherInterface::class, EventDispatcherFactory::make($container));
+                $container->bind(\Larmias\Contracts\Redis\RedisFactoryInterface::class, \Larmias\Redis\RedisFactory::class);
+                $container->bind(\Larmias\Contracts\SessionInterface::class, \Larmias\Session\Session::class);
+                $container->bind(\Larmias\Contracts\ViewInterface::class, \Larmias\View\View::class);
+                $container->bind(\Larmias\Http\CSRF\Contracts\CsrfManagerInterface::class, \Larmias\Http\CSRF\CsrfManager::class);
+                $container->bind(\Larmias\Snowflake\Contracts\IdGeneratorInterface::class, \Larmias\Snowflake\IdGenerator::class);
+                $container->bind([
+                    \Psr\Log\LoggerInterface::class => \Larmias\Log\Logger::class,
+                    \Larmias\Contracts\LoggerInterface::class => \Larmias\Log\Logger::class,
+                    \Larmias\SharedMemory\Contracts\LoggerInterface::class => \Larmias\SharedMemory\Logger::class,
+                    \Larmias\SharedMemory\Contracts\CommandExecutorInterface::class => \Larmias\SharedMemory\CommandExecutor::class,
+                    \Larmias\SharedMemory\Contracts\AuthInterface::class => \Larmias\SharedMemory\Auth::class,
+                    \Larmias\Contracts\TaskExecutorInterface::class => \Larmias\Task\TaskExecutor::class,
+                    \Larmias\Contracts\LockerInterface::class => \Larmias\Lock\Locker::class,
+                    \Larmias\Contracts\LockerFactoryInterface::class => \Larmias\Lock\LockerFactory::class,
+                    \Larmias\Crontab\Contracts\ParserInterface::class => \Larmias\Crontab\Parser::class,
+                    \Larmias\Crontab\Contracts\SchedulerInterface::class => \Larmias\Crontab\Scheduler::class,
+                    \Larmias\Crontab\Contracts\ExecutorInterface::class => \Larmias\Crontab\Executor\TaskWorkerExecutor::class,
+                ]);
+                $container->get(\Larmias\SharedMemory\Contracts\CommandExecutorInterface::class)->addCommand(
+                    \Larmias\Task\Command\TaskCommand::COMMAND_NAME, \Larmias\Task\Command\TaskCommand::class,
+                );
+                foreach (glob(__DIR__ . '/config/*.php') as $file) {
+                    $container->make(ConfigInterface::class)->load($file);
+                }
+                Router::init($container->make(\Larmias\Routing\Router::class));
+                require __DIR__ . '/router.php';
             }
-            Router::init($container->make(\Larmias\Routing\Router::class));
-            require __DIR__ . '/router.php';
-        }
+        ]
     ],
 ];

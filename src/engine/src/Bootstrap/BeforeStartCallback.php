@@ -51,14 +51,14 @@ class BeforeStartCallback
         $this->eventDispatcher && $this->eventDispatcher->dispatch(new BeforeStart($worker));
         if ($this->logger) {
             $this->logger->writeln('<info>[INFO]Larmias start...</info>');
-            $this->logger->writeln('<info>[INFO]' . $this->welcome() . '</info>');
+            $this->logger->writeln('<info>[INFO]' . $this->getLogo() . '</info>');
         }
     }
 
     /**
      * @return string
      */
-    protected function welcome(): string
+    protected function getLogo(): string
     {
         return '
  ___       ________  ________  _____ ______   ___  ________  ________      

@@ -140,7 +140,7 @@ class File extends Driver
     {
         try {
             return \is_file($path) && \unlink($path);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return false;
         }
     }

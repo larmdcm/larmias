@@ -102,3 +102,11 @@ Router::get('/auth/login', function () {
 })->middleware([
     \Larmias\Session\Middleware\SessionMiddleware::class,
 ]);
+
+Router::get('/file', function (ResponseInterface $response) {
+    return $response->file('./upload/a.jpg');
+});
+
+Router::get('/download', function (ResponseInterface $response) {
+    return $response->download('./upload/a.jpg');
+});

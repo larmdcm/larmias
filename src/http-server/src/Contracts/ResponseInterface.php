@@ -40,6 +40,13 @@ interface ResponseInterface
     public function file(string|\SplFileInfo $file): PsrResponseInterface;
 
     /**
+     * @param string $file
+     * @param string $name
+     * @return PsrResponseInterface
+     */
+    public function download(string $file, string $name = ''): PsrResponseInterface;
+
+    /**
      * @param Cookie $cookie
      * @return ResponseInterface
      */

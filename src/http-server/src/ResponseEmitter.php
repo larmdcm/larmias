@@ -16,13 +16,13 @@ class ResponseEmitter implements ResponseEmitterInterface
     {
         $content = $response->getBody();
 
+        $serverResponse = $serverResponse->withHeaders($response->getHeaders())
+            ->status($response->getStatusCode(), $response->getReasonPhrase());
+
         if ($content instanceof FileInterface) {
             $serverResponse->sendFile($content->getPathname());
             return;
         }
-
-        $serverResponse = $serverResponse->withHeaders($response->getHeaders())
-            ->status($response->getStatusCode(), $response->getReasonPhrase());
 
         if (\method_exists($response, 'getCookies')) {
             foreach ($response->getCookies() as $paths) {

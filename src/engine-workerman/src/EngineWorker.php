@@ -8,6 +8,7 @@ use Larmias\Engine\Worker as BaseWorker;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Throwable;
+use function Larmias\Utils\format_exception;
 
 class EngineWorker extends BaseWorker
 {
@@ -70,6 +71,7 @@ class EngineWorker extends BaseWorker
             'onBufferDrain' => 'onBufferDrain',
             'onWorkerStop' => 'onWorkerStop',
             'onWebSocketConnect' => 'onWebSocketConnect',
+            'onWebSocketClose' => 'onWebSocketClose',
         ];
 
         foreach ($callbackMap as $name => $method) {
@@ -87,6 +89,6 @@ class EngineWorker extends BaseWorker
      */
     public function exceptionHandler(Throwable $e): void
     {
-        Worker::stopAll(log: $e->getFile() . '(' . $e->getLine() . ')' . ':' . $e->getMessage() . PHP_EOL . $e->getTraceAsString());
+        Worker::stopAll(log: format_exception($e));
     }
 }

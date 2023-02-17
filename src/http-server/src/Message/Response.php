@@ -6,9 +6,11 @@ namespace Larmias\HttpServer\Message;
 
 use Larmias\Contracts\ContainerInterface;
 use Larmias\Http\Message\Cookie;
+use Larmias\Http\Message\Exceptions\FileException;
 use Larmias\Http\Message\Stream;
 use Larmias\HttpServer\Contracts\ResponseInterface;
 use Larmias\Utils\Codec\Json;
+use Larmias\Utils\MimeType;
 use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
 use Psr\Http\Message\StreamInterface;
 use BadMethodCallException;
@@ -16,6 +18,10 @@ use Larmias\Http\Message\Stream\FileStream;
 
 class Response implements PsrResponseInterface, ResponseInterface
 {
+    /**
+     * @param ContainerInterface $container
+     * @param PsrResponseInterface|null $response
+     */
     public function __construct(protected ContainerInterface $container, protected ?PsrResponseInterface $response = null)
     {
     }
@@ -77,6 +83,31 @@ class Response implements PsrResponseInterface, ResponseInterface
     public function file(string|\SplFileInfo $file): PsrResponseInterface
     {
         return $this->withBody(new FileStream($file));
+    }
+
+    /**
+     * @param string $file
+     * @param string $name
+     * @return PsrResponseInterface
+     */
+    public function download(string $file, string $name = ''): PsrResponseInterface
+    {
+        $file = new \SplFileInfo($file);
+
+        if (!$file->isReadable()) {
+            throw new FileException('File must be readable.');
+        }
+        $filename = $name ?: $file->getBasename();
+        $contentType = \Larmias\Utils\value(function () use ($file) {
+            $mimeType = MimeType::fromExtension($file->getExtension());
+            return $mimeType ?? 'application/octet-stream';
+        });
+        return $this->withHeader('content-description', 'File Transfer')
+            ->withHeader('content-type', $contentType)
+            ->withHeader('content-disposition', "attachment; filename={$filename}; filename*=UTF-8''" . \rawurlencode($filename))
+            ->withHeader('content-transfer-encoding', 'binary')
+            ->withHeader('pragma', 'public')
+            ->withBody(new FileStream($file));
     }
 
     protected function getResponse(): PsrResponseInterface

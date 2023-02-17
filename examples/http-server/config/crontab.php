@@ -6,8 +6,8 @@ use Larmias\Crontab\Crontab;
 return [
     'enable' => true,
     'crontab' => [
-        new Crontab('1 * * * * *', function () {
-            echo 'crontab call.' . PHP_EOL;
+        new Crontab('1 * * * *', function () {
+             echo 'crontab call.' . PHP_EOL;
         })
     ]
 ];

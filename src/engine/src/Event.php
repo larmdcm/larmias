@@ -46,6 +46,9 @@ class Event
     public const ON_RECEIVE = 'receive';
 
     /** @var string */
+    public const ON_PACKET = 'packet';
+
+    /** @var string */
     public const ON_REQUEST = 'request';
 
     /** @var string */

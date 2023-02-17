@@ -76,7 +76,9 @@ class Kernel implements KernelInterface
     {
         $class = match ($workerConfig->getType()) {
             WorkerType::TCP_SERVER => $this->driver->getTcpServerClass(),
+            WorkerType::UPD_SERVER => $this->driver->getUdpServerClass(),
             WorkerType::HTTP_SERVER => $this->driver->getHttpServerClass(),
+            WorkerType::WEBSOCKET_SERVER => $this->driver->getWebSocketServerClass(),
             WorkerType::WORKER_PROCESS => $this->driver->getProcessClass(),
             default => null,
         };

@@ -24,7 +24,17 @@ interface DriverInterface
     /**
      * @return string
      */
+    public function getUdpServerClass(): string;
+
+    /**
+     * @return string
+     */
     public function getHttpServerClass(): string;
+
+    /**
+     * @return string
+     */
+    public function getWebSocketServerClass(): string;
 
     /**
      * @return string

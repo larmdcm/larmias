@@ -21,4 +21,11 @@ interface ConnectionInterface
      * @return bool
      */
     public function close(mixed $data): bool;
+
+    /**
+     * 获取原生连接对象
+     *
+     * @return object
+     */
+    public function getRawConnection(): object;
 }

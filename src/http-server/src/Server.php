@@ -33,6 +33,11 @@ use function Larmias\Utils\format_exception;
 
 class Server implements OnRequestInterface
 {
+    /**
+     * @param ContainerInterface $container
+     * @param EventDispatcherInterface $eventDispatcher
+     * @param ResponseEmitter $responseEmitter
+     */
     public function __construct(
         protected ContainerInterface       $container,
         protected EventDispatcherInterface $eventDispatcher,
@@ -104,7 +109,7 @@ class Server implements OnRequestInterface
         /** @var HttpRouteMiddleware $middleware */
         $middleware = $this->container->make(HttpRouteMiddleware::class, [], true);
         return $middleware->import($option['middleware'])->pipeline()->send($request)->then(function (RequestInterface $request) use ($dispatched) {
-            return $this->warpResult($dispatched->dispatcher->run($request->all()));
+            return $this->warpResultToResponse($dispatched->dispatcher->run($request->all()));
         });
     }
 
@@ -114,7 +119,7 @@ class Server implements OnRequestInterface
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
-    protected function warpResult(mixed $result): PsrResponseInterface
+    protected function warpResultToResponse(mixed $result): PsrResponseInterface
     {
         if ($result instanceof PsrResponseInterface) {
             return $result;

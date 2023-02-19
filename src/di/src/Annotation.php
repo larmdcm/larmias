@@ -53,8 +53,8 @@ class Annotation implements AnnotationInterface
 
     protected function handle(): void
     {
-        foreach ((array)$this->config['handlers'] as $annotation => $handler) {
-            $this->addHandler($annotation, $handler);
+        foreach ((array)$this->config['handlers'] as $handlerItem) {
+            $this->addHandler($handlerItem['annotation'], $handlerItem['handle']);
         }
 
         $items = AnnotationCollector::all();

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Larmias\Engine\Bootstrap;
 
 use Larmias\Contracts\StdoutLoggerInterface;
-use Larmias\Engine\Contracts\WorkerInterface;
+use Larmias\Engine\Contracts\KernelInterface;
 use Larmias\Contracts\ContainerInterface;
 use Larmias\Engine\Events\BeforeStart;
 use Psr\Container\ContainerExceptionInterface;
@@ -43,15 +43,15 @@ class BeforeStartCallback
     }
 
     /**
-     * @param WorkerInterface $worker
+     * @param KernelInterface $kernel
      * @return void
      */
-    public function onBeforeStart(WorkerInterface $worker): void
+    public function onBeforeStart(KernelInterface $kernel): void
     {
-        $this->eventDispatcher && $this->eventDispatcher->dispatch(new BeforeStart($worker));
+        $this->eventDispatcher && $this->eventDispatcher->dispatch(new BeforeStart($kernel));
         if ($this->logger) {
-            $this->logger->writeln('<info>[INFO]Larmias start...</info>');
-            $this->logger->writeln('<info>[INFO]' . $this->getLogo() . '</info>');
+            $this->logger->info('Larmias start...');
+            $this->logger->info($this->getLogo());
         }
     }
 

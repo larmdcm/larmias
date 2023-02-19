@@ -8,20 +8,45 @@ use ReflectionProperty;
 
 class ReflectUtil
 {
-    public static function setProperty(ReflectionProperty $refProperty,object $object,mixed $value): void
+    /**
+     * @param ReflectionProperty $refProperty
+     * @param object $object
+     * @param mixed $value
+     * @return void
+     */
+    public static function setProperty(ReflectionProperty $refProperty, object $object, mixed $value): void
     {
         if (!$refProperty->isPublic()) {
             $refProperty->setAccessible(true);
         }
-        $refProperty->setValue($object,$value);
+        $refProperty->setValue($object, $value);
     }
 
-    public static function getProperty(ReflectionProperty $refProperty,object $object): mixed
+    /**
+     * @param ReflectionProperty $refProperty
+     * @param object $object
+     * @return mixed
+     */
+    public static function getProperty(ReflectionProperty $refProperty, object $object): mixed
     {
         if (!$refProperty->isPublic()) {
             $refProperty->setAccessible(true);
         }
         return $refProperty->getValue($object);
+    }
+
+    /**
+     * @param string|object $object
+     * @param string|null $method
+     * @return string
+     * @throws \ReflectionException
+     */
+    public static function getDocComment(string|object $object, ?string $method = null): string
+    {
+        if ($method) {
+            return ReflectionManager::reflectMethod($object, $method)->getDocComment();
+        }
+        return ReflectionManager::reflectClass($object)->getDocComment();
     }
 
     /**
@@ -38,13 +63,13 @@ class ReflectUtil
         $classes = [];
         $tokens = \token_get_all(file_get_contents($file));
         $count = \count($tokens);
-        $tNamespace = [\T_NAME_QUALIFIED,\T_STRING];
+        $tNamespace = [\T_NAME_QUALIFIED, \T_STRING];
         $namespace = '';
 
         for ($i = 2; $i < $count; $i++) {
             if ($tokens[$i - 2][0] === \T_NAMESPACE && $tokens[$i - 1][0] === \T_WHITESPACE) {
                 $namespace = '';
-                if (!\in_array($tokens[$i][0],$tNamespace)) {
+                if (!\in_array($tokens[$i][0], $tNamespace)) {
                     continue;
                 }
                 $tempNamespace = $tokens[$i][1] ?? '';
@@ -52,7 +77,7 @@ class ReflectUtil
                     if ($tokens[$j] === '{' || $tokens[$j] === ';') {
                         break;
                     }
-                    if (\in_array($tokens[$j][0],$tNamespace)) {
+                    if (\in_array($tokens[$j][0], $tNamespace)) {
                         $tempNamespace .= '\\' . $tokens[$j][1];
                     }
                 }

@@ -27,9 +27,9 @@ function println(string|Stringable $format = null, ...$args): void
  * @param bool $trace
  * @return string
  */
-function format_exception(Throwable $e,bool $trace = true): string
+function format_exception(Throwable $e, bool $trace = true): string
 {
-    $message = $e->getFile() . '('. $e->getLine() .')' . ':' . $e->getMessage();
+    $message = $e->getFile() . '(' . $e->getLine() . ')' . ':' . $e->getMessage();
     if ($trace) {
         $message = $message . PHP_EOL . $e->getTraceAsString();
     }
@@ -238,4 +238,16 @@ function data_set(mixed &$target, string|array $key, mixed $value, bool $overwri
     }
 
     return $target;
+}
+
+/**
+ * 获取类名(不包含命名空间)
+ *
+ * @param mixed $class
+ * @return string
+ */
+function class_basename(mixed $class): string
+{
+    $class = is_object($class) ? get_class($class) : $class;
+    return basename(str_replace('\\', '/', $class));
 }

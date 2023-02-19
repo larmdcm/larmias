@@ -154,7 +154,7 @@ class EloquentDriver extends RepositoryDriver
     public function get(mixed $condition = [], string|array $column = '*'): Collection
     {
         return $this->onceQuery(function (QueryRelateInterface $query) use ($condition, $column) {
-            return new Collection($query->field($column)->where($condition)->getQuery()->select());
+            return new Collection($query->field($column)->where($condition)->getQuery()->select()->all());
         });
     }
 
@@ -170,9 +170,8 @@ class EloquentDriver extends RepositoryDriver
     public function columnWhere(mixed $condition = [], ?string $column = null, ?string $key = null): Collection
     {
         $column = $column ?: $this->getPrimaryKey();
-        return $this->onceQuery(function (QueryRelateInterface $query) use ($condition, $column, $key) {
-            return new Collection($query->where($condition)->getQuery()->column($column, $key ?: ''));
-        });
+        $collect = new Collection($this->get($condition, $key ? '*' : $column));
+        return $collect->column($column, $key);
     }
 
     /**
@@ -201,7 +200,7 @@ class EloquentDriver extends RepositoryDriver
     public function paginate(mixed $condition = [], string|array $column = '*', array $options = []): mixed
     {
         return $this->onceQuery(function (QueryRelateInterface $query) use ($condition, $column, $options) {
-            /** @var \think\db\Query */
+            /** @var Query */
             $thinkQuery = $query->field($column)->where($condition)->getQuery();
             return $thinkQuery->paginate($options, $options['simple'] ?? false);
         });
@@ -320,7 +319,7 @@ class EloquentDriver extends RepositoryDriver
     public function decrement(mixed $condition, string $column, float $amount = 1, array $extra = []): int
     {
         return $this->onceQuery(function (QueryRelateInterface $query) use ($condition, $column, $amount, $extra) {
-            /** @var \think\db\Query */
+            /** @var Query */
             $thinkQuery = $query->where($condition)->getQuery();
             return $thinkQuery->dec($column, $amount)->update($extra);
         });

@@ -93,7 +93,8 @@
       "Larmias\\Snowflake\\": "src/snowflake/src/",
       "Larmias\\Task\\": "src/task/src/",
       "Larmias\\Auth\\": "src/auth/src/",
-      "Larmias\\Encryption\\": "src/encryption/src/"
+      "Larmias\\Encryption\\": "src/encryption/src/",
+      "Larmias\\Enum\\": "src/enum/src/"
     }
   }
 }

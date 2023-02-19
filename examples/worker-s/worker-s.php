@@ -16,12 +16,12 @@ $worker->setConfig([
 ]);
 
 $worker->on('worker',function (ProcessWorker $processWorker) use ($worker) {
-    println($processWorker->getWorkerId());
-    $worker->task(function () {
-        println("异步任务执行了2");
-        sleep(3);
-    });
-    sleep(1);
+//    println($processWorker->getWorkerId());
+//    $worker->task(function () {
+//        println("异步任务执行了2");
+//        sleep(3);
+//    });
+//    sleep(1);
 });
 
 $httpServer = new Server("http://0.0.0.0:9863");
@@ -31,8 +31,8 @@ $httpServer->setConfig([
 ]);
 
 $httpServer->on('request',function (Request $request,Response $response) {
-    $response->write("<h1>Hello,World!</h1>");
-    $response->end();
+    // $response->write("<h1>Hello,World!</h1>");
+    $response->end('<h1>Hello,World!</h1>');
 });
 
 Manager::runAll();

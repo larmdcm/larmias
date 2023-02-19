@@ -10,7 +10,7 @@ use RuntimeException;
 
 class Response
 {
-    /** @var int  */
+    /** @var int */
     public const SEND_MAX_FILE_SIZE = 2097152;
 
     /**
@@ -116,7 +116,7 @@ class Response
 
     /**
      * Response __construct.
-     * 
+     *
      * @param TcpConnection $connection
      */
     public function __construct(TcpConnection $connection)
@@ -131,7 +131,7 @@ class Response
      * @param mixed $value
      * @return self
      */
-    public function header(string $name,$value): self
+    public function header(string $name, $value): self
     {
         $this->headers[$name] = $value;
         return $this;
@@ -143,7 +143,7 @@ class Response
      */
     public function withHeaders(array $headers): self
     {
-        $this->headers = \array_merge_recursive($this->headers,$headers);
+        $this->headers = \array_merge_recursive($this->headers, $headers);
         return $this;
     }
 
@@ -171,7 +171,7 @@ class Response
      * @param mixed $default
      * @return mixed
      */
-    public function getHeader(string $name,mixed $default = null): mixed
+    public function getHeader(string $name, mixed $default = null): mixed
     {
         return $this->headers[$name] ?? $default;
     }
@@ -187,14 +187,14 @@ class Response
     /**
      * 设置响应状态码
      *
-     * @param integer     $statusCode
+     * @param integer $statusCode
      * @param string|null $reason
      * @return self
      */
-    public function status(int $statusCode,?string $reason = null): self
+    public function status(int $statusCode, ?string $reason = null): self
     {
         $this->statusCode = $statusCode;
-        $this->reason     = $reason;
+        $this->reason = $reason;
         return $this;
     }
 
@@ -218,7 +218,7 @@ class Response
 
     /**
      * 分块传输数据
-     * 
+     *
      * @param string $data
      * @return self
      */
@@ -227,7 +227,7 @@ class Response
         if (!$this->isSendChunk) {
             $this->isSendChunk = true;
             if (!$this->hasHeader('Transfer-Encoding')) {
-                $this->header('Transfer-Encoding','chunked');
+                $this->header('Transfer-Encoding', 'chunked');
             }
             $content = $this->content($data);
         } else {
@@ -236,48 +236,48 @@ class Response
         $this->connection->send($content);
         return $this;
     }
-    
+
     /**
      * 发送文件.
      *
      * @param string $file
-     * @param int    $offset
-     * @param int    $length
+     * @param int $offset
+     * @param int $length
      * @return void
      */
-    public function sendFile(string $file,int $offset = 0,int $length = 0): void
+    public function sendFile(string $file, int $offset = 0, int $length = 0): void
     {
         if (!\is_file($file) || !\is_readable($file)) {
             $this->status(404)->end('<h3>404 Not Found</h3>');
             return;
         }
-        
-        $fileInfo  = \pathinfo($file);
+
+        $fileInfo = \pathinfo($file);
         $extension = $fileInfo['extension'] ?? '';
-        $basename  = $fileInfo['basename'] ?? 'unknown';
+        $basename = $fileInfo['basename'] ?? 'unknown';
 
         $mimeType = MimeType::fromExtension($extension);
-        
+
         if (!$this->hasHeader('Content-Type')) {
-            $this->header('Content-Type',$mimeType ?: 'application/octet-stream');
+            $this->header('Content-Type', $mimeType ?: 'application/octet-stream');
         }
-        
+
         if (!$this->hasHeader('Content-Disposition') && !$mimeType) {
-            $this->header('Content-Disposition','attachment; filename="'. $basename .'"');
+            $this->header('Content-Disposition', 'attachment; filename="' . $basename . '"');
         }
 
         if (!$this->hasHeader('Last-Modified')) {
             $mtime = \filemtime($file);
             if ($mtime) {
-                $this->header('Last-Modified',\gmdate('D, d M Y H:i:s', $mtime) . ' GMT');
+                $this->header('Last-Modified', \gmdate('D, d M Y H:i:s', $mtime) . ' GMT');
             }
         }
 
         $fileSize = (int)\filesize($file);
-        $bodyLen  = $length > 0 ? $length : $fileSize - $offset;
+        $bodyLen = $length > 0 ? $length : $fileSize - $offset;
         $this->withHeaders([
             'Content-Length' => $bodyLen,
-            'Accept-Ranges'  => 'bytes',
+            'Accept-Ranges' => 'bytes',
         ]);
         if ($offset || $length) {
             $offsetEnd = $offset + $bodyLen - 1;
@@ -291,7 +291,7 @@ class Response
 
     /**
      * 结束请求.
-     * 
+     *
      * @param string $data
      * @return void
      */
@@ -309,10 +309,6 @@ class Response
 
         $this->isSendEnd = true;
         $this->connection->send($content);
-
-        if ($this->isCloseConnection()) {
-            $this->connection->close();
-        }
     }
 
     /**
@@ -322,13 +318,14 @@ class Response
     {
         $bodyLen = \strlen($body);
         $headers = $this->headers;
-        $header  = \sprintf("HTTP/%s %d %s\r\n",$this->version,$this->statusCode,$this->reason ?: static::$phrases[$this->statusCode]);
-        
+        $header = \sprintf("HTTP/%s %d %s\r\n", $this->version, $this->statusCode, $this->reason ?: static::$phrases[$this->statusCode]);
+
         if (!isset($headers['Server'])) {
             $headers['Server'] = 'worker-s/' . Manager::VERSION;
         }
+
         if (!isset($headers['Connection'])) {
-            $headers['Connection'] = $this->connection->request->header('connection','close');
+            $headers['Connection'] = $this->connection->request->header('Connection', 'keep-alive');
         }
 
         if (!isset($headers['Content-Type'])) {
@@ -352,19 +349,11 @@ class Response
         if ($headers['Content-Type'] === 'text/event-stream') {
             return $header . $body;
         }
-                 
+
         if (isset($headers['Transfer-Encoding'])) {
             return "$header\r\n" . \dechex($bodyLen) . "\r\n{$body}\r\n";
         }
-        
-        return $header . "\r\n" . $body;
-    }
 
-    /**
-     * @return boolean
-     */
-    protected function isCloseConnection(): bool
-    {
-        return strtolower($this->connection->request->header('connection','close')) === 'close';
+        return $header . "\r\n" . $body;
     }
 }

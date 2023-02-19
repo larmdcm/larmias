@@ -60,11 +60,9 @@ class Kernel implements KernelInterface
     {
         $workers = $this->engineConfig->getWorkers();
         foreach ($workers as $workerConfig) {
-            $worker = $this->addWorker($workerConfig);
-            if ($worker->hasListen(Event::ON_BEFORE_START)) {
-                $worker->trigger(Event::ON_BEFORE_START, [$worker]);
-            }
+            $this->addWorker($workerConfig);
         }
+        $this->container->invoke([BeforeStartCallback::class, 'onBeforeStart'], [$this]);
         $this->driver->run($this);
     }
 

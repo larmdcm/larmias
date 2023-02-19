@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Larmias\Engine\Events;
 
-use Larmias\Engine\Contracts\WorkerInterface;
+use Larmias\Engine\Contracts\KernelInterface;
 
 class BeforeStart
 {
     /**
-     * @param WorkerInterface $kernel
+     * @param KernelInterface $kernel
      */
-    public function __construct(public WorkerInterface $kernel)
+    public function __construct(public KernelInterface $kernel)
     {
     }
 }

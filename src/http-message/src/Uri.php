@@ -585,7 +585,7 @@ class Uri implements UriInterface
      *
      * @return null|int
      */
-    public function getDefaultPort()
+    public function getDefaultPort(): ?int
     {
         return self::$defaultPorts[$this->getScheme()] ?? null;
     }

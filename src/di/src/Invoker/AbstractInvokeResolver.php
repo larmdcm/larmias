@@ -18,6 +18,11 @@ abstract class AbstractInvokeResolver
      */
     public array $annotations = [];
 
+    /**
+     * @param array $args
+     * @param Closure $process
+     * @return mixed
+     */
     public function process(array $args, Closure $process): mixed
     {
         return $process($args);

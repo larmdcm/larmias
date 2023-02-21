@@ -9,6 +9,9 @@ use TypeError;
 
 class ApplicationContext
 {
+    /**
+     * @var ContainerInterface|null
+     */
     protected static ?ContainerInterface $container = null;
 
     /**

@@ -16,8 +16,15 @@ use Larmias\Contracts\EventLoopInterface;
  */
 class EventLoop
 {
+    /**
+     * @var EventLoopInterface|null
+     */
     protected static ?EventLoopInterface $eventLoop = null;
 
+    /**
+     * @param EventLoopInterface $eventLoop
+     * @return void
+     */
     public static function init(EventLoopInterface $eventLoop): void
     {
         static::$eventLoop = $eventLoop;

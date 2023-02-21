@@ -28,7 +28,7 @@ abstract class Driver implements LockerInterface
     {
         $this->config = \array_merge($this->config, $config);
 
-        if (method_exists($this, 'initialize')) {
+        if (\method_exists($this, 'initialize')) {
             $this->container->invoke([$this, 'initialize']);
         }
     }

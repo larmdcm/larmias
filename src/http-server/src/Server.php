@@ -8,8 +8,8 @@ use Larmias\Contracts\Http\OnRequestInterface;
 use Larmias\Contracts\Http\RequestInterface as HttpRequestInterface;
 use Larmias\Contracts\Http\ResponseInterface as HttpResponseInterface;
 use Larmias\Http\Message\ServerRequest;
-use Larmias\HttpServer\Events\HttpRequestEnd;
 use Larmias\HttpServer\Events\HttpRequestStart;
+use Larmias\HttpServer\Events\HttpRequestEnd;
 use Larmias\HttpServer\Exceptions\Handler\ExceptionHandler;
 use Larmias\HttpServer\Message\Request;
 use Larmias\HttpServer\Message\Response;
@@ -96,7 +96,7 @@ class Server implements OnRequestInterface
             return $this->dispatchRoute($request);
         });
     }
-
+    
     /**
      * @param RequestInterface $request
      * @return PsrResponseInterface

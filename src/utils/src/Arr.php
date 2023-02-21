@@ -273,11 +273,11 @@ class Arr
      * Get an item from an array using "dot" notation.
      *
      * @param array|ArrayAccess $array
-     * @param string $key
+     * @param string|int $key
      * @param mixed $default
      * @return mixed
      */
-    public static function get(array|ArrayAccess $array, string $key, mixed $default = null): mixed
+    public static function get(array|ArrayAccess $array, string|int $key, mixed $default = null): mixed
     {
         if (!static::accessible($array)) {
             return value($default);

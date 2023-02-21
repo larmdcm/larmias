@@ -178,6 +178,14 @@ namespace Larmias\Contracts\Redis;
  * @method bool pfMerge($destkey, array $sourcekeys)
  * @method mixed rawCommand($command, $arguments)
  * @method int getMode()
+ * @method int xAck($stream, $group, $messages)
+ * @method string xAdd($key, $id, $messages, $maxLen = 0, $isApproximate = false)
+ * @method mixed xGroup($operation, $key, $group, $msgId = '', $mkStream = false)
+ * @method array xReadGroup($group, $consumer, $streams, $count = null, $block = null)
+ * @method int xDel($key, $ids)
+ * @method mixed xInfo($operation, $stream, $group)
+ * @method int xClaim($key, $group, $consumer, $minIdleTime, $ids, $options = [])
+ * @method array xPending($stream, $group, $start = null, $end = null, $count = null, $consumer = null)
  */
 interface ConnectionInterface
 {

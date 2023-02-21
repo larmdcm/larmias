@@ -9,7 +9,7 @@ use Throwable;
 interface ExceptionReportHandlerInterface
 {
     /**
-     * @param \Throwable $e
+     * @param Throwable $e
      */
     public function report(Throwable $e): void;
 }

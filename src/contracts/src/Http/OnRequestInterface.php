@@ -10,9 +10,9 @@ interface OnRequestInterface
     public const ON_REQUEST = 'onRequest';
 
     /**
-     * @param RequestInterface $serverRequest
-     * @param ResponseInterface $serverResponse
+     * @param RequestInterface $request
+     * @param ResponseInterface $response
      * @return void
      */
-    public function onRequest(RequestInterface $serverRequest, ResponseInterface $serverResponse): void;
+    public function onRequest(RequestInterface $request, ResponseInterface $response): void;
 }

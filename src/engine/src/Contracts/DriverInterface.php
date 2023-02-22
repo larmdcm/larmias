@@ -51,4 +51,9 @@ interface DriverInterface
      */
     public function getTimerClass(): string;
 
+    /**
+     * @return string
+     */
+    public function getContextClass(): string;
+
 }

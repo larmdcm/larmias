@@ -7,9 +7,9 @@ namespace Larmias\Contracts;
 interface LockerFactoryInterface
 {
     /**
-     * @param string $key
+     * @param string $name
      * @param int $ttl
      * @return LockerInterface
      */
-    public function create(string $key, int $ttl): LockerInterface;
+    public function create(string $name, int $ttl): LockerInterface;
 }

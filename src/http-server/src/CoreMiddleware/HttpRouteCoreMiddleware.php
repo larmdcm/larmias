@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Larmias\HttpServer\Middleware;
+namespace Larmias\HttpServer\CoreMiddleware;
 
-class HttpRouteMiddleware extends Middleware
+class HttpRouteCoreMiddleware extends CoreMiddleware
 {
     /**
      * @var string|null

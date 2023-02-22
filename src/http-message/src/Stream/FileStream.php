@@ -99,7 +99,7 @@ class FileStream implements StreamInterface, Stringable, FileInterface
 
     public function getContents(): string
     {
-        return $this->getPathname();
+        return $this->getFilename();
     }
 
     public function getMetadata($key = null)
@@ -107,7 +107,7 @@ class FileStream implements StreamInterface, Stringable, FileInterface
         // TODO: Implement getMetadata() method.
     }
 
-    public function getPathname(): string
+    public function getFilename(): string
     {
         return $this->file->getPathname();
     }

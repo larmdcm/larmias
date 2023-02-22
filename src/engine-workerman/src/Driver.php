@@ -86,4 +86,12 @@ class Driver implements DriverInterface
     {
         return Timer::class;
     }
+
+    /**
+     * @return string
+     */
+    public function getContextClass(): string
+    {
+        return Context::class;
+    }
 }

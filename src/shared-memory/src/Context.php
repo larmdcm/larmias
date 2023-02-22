@@ -18,12 +18,12 @@ class Context
 
     public static function getStoreSelect(): string
     {
-        return static::getData(self::KEY_STORE_SELECT,'default');
+        return static::getData(self::KEY_STORE_SELECT, 'default');
     }
 
     public static function setStoreSelect(string $select): void
     {
-        static::setData(self::KEY_STORE_SELECT,$select);
+        static::setData(self::KEY_STORE_SELECT, $select);
     }
 
     public static function getConnection(): ConnectionInterface
@@ -34,7 +34,7 @@ class Context
     public static function setConnection(ConnectionInterface $connection): void
     {
         static::$connection = $connection;
-        static::setId($connection->getId());
+        static::$id = $connection->getId();
     }
 
     public static function setData(string $name, mixed $value): void
@@ -51,6 +51,11 @@ class Context
         $id = static::getId();
         $data = static::$data[$id] ?? [];
         return $data[$name] ?? $default;
+    }
+
+    public static function clear(int $id): void
+    {
+        unset(static::$data[$id]);
     }
 
     public static function setId(int $id): void

@@ -6,10 +6,16 @@ namespace Larmias\Engine\WorkerMan\Http;
 
 use Larmias\Contracts\Http\ResponseInterface;
 use Workerman\Connection\TcpConnection;
+use Workerman\Protocols\Http\Chunk;
 use Workerman\Protocols\Http\Response as WorkerResponse;
 
 class Response implements ResponseInterface
 {
+    /**
+     * @var bool
+     */
+    protected bool $isSendChunk = false;
+
     /**
      * @param TcpConnection $connection
      * @param WorkerResponse|null $response
@@ -77,9 +83,17 @@ class Response implements ResponseInterface
         return $this;
     }
 
-    public function write(string $data): ResponseInterface
+    public function write(string $data): bool
     {
-        return $this;
+        if ($this->isSendChunk) {
+            $this->connection->send(new Chunk($data));
+        } else {
+            $this->response->withHeader('Transfer-Encoding', 'chunked');
+            $this->response->withBody($data);
+            $this->connection->send($this->response);
+        }
+        $this->isSendChunk = true;
+        return true;
     }
 
     public function sendFile(string $file, int $offset = 0, int $length = 0): void
@@ -90,6 +104,10 @@ class Response implements ResponseInterface
 
     public function end(string $data = ''): void
     {
+        if ($this->isSendChunk) {
+            $this->connection->send(new Chunk($data));
+            return;
+        }
         if (!empty($data)) {
             $this->response->withBody($data);
         }

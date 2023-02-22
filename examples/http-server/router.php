@@ -110,3 +110,9 @@ Router::get('/file', function (ResponseInterface $response) {
 Router::get('/download', function (ResponseInterface $response) {
     return $response->download('./upload/a.jpg');
 });
+
+Router::get('/write', function (ResponseInterface $response) {
+    $response->write('哈哈哈');
+    $response->write('123');
+    return '';
+});

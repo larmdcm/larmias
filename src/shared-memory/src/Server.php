@@ -96,6 +96,7 @@ class Server
         try {
             $this->triggerCommand(__FUNCTION__, [$connection]);
             ConnectionManager::remove($connection);
+            Context::clear($connection->getId());
             $this->logger->trace('#' . $connection->getId() . " Closed", 'info');
         } catch (Throwable $e) {
             $this->handleException($connection, $e);

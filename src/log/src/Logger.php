@@ -218,7 +218,7 @@ class Logger implements LoggerInterface
 
     /**
      * @param string|null $name
-     * @return \Larmias\Log\Channel
+     * @return Channel
      */
     public function channel(?string $name = null): Channel
     {

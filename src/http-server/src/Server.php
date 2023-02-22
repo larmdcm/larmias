@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\HttpServer;
 
+use Larmias\Contracts\ContextInterface;
 use Larmias\Contracts\Http\OnRequestInterface;
 use Larmias\Contracts\Http\RequestInterface as HttpRequestInterface;
 use Larmias\Contracts\Http\ResponseInterface as HttpResponseInterface;
@@ -13,12 +14,10 @@ use Larmias\HttpServer\Events\HttpRequestEnd;
 use Larmias\HttpServer\Exceptions\Handler\ExceptionHandler;
 use Larmias\HttpServer\Message\Request;
 use Larmias\HttpServer\Message\Response;
-use Larmias\HttpServer\Middleware\HttpMiddleware;
-use Larmias\HttpServer\Middleware\HttpRouteMiddleware;
-use Psr\Container\ContainerExceptionInterface;
-use Psr\Container\NotFoundExceptionInterface;
+use Larmias\HttpServer\CoreMiddleware\HttpCoreMiddleware;
+use Larmias\HttpServer\CoreMiddleware\HttpRouteCoreMiddleware;
 use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
-use Larmias\Http\Message\Response as PsrResponse;
+use Larmias\Http\Message\ServerResponse as PsrResponse;
 use Larmias\HttpServer\Contracts\ExceptionHandlerInterface;
 use Larmias\HttpServer\Contracts\RequestInterface;
 use Larmias\HttpServer\Contracts\ResponseInterface;
@@ -41,34 +40,76 @@ class Server implements OnRequestInterface
     public function __construct(
         protected ContainerInterface       $container,
         protected EventDispatcherInterface $eventDispatcher,
-        protected ResponseEmitter          $responseEmitter)
+        protected ResponseEmitter          $responseEmitter,
+        protected HttpCoreMiddleware       $httpCoreMiddleware,
+        protected ContextInterface         $context
+    )
     {
     }
 
     /**
-     * @param HttpRequestInterface $serverRequest
-     * @param HttpResponseInterface $serverResponse
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
+     * @param HttpRequestInterface $request
+     * @param HttpResponseInterface $response
      */
-    public function onRequest(HttpRequestInterface $serverRequest, HttpResponseInterface $serverResponse): void
+    public function onRequest(HttpRequestInterface $request, HttpResponseInterface $response): void
     {
-        $request = $this->makeRequest($serverRequest, $serverResponse);
-        $this->eventDispatcher->dispatch(new HttpRequestStart($request));
+        $psrRequest = $this->makeRequest($request, $response);
+        $this->eventDispatcher->dispatch(new HttpRequestStart($psrRequest));
         try {
-            $response = $this->runWithRequest($request);
+            $psrResponse = $this->runWithRequest($psrRequest);
         } catch (Throwable $e) {
             try {
-                $response = $this->getExceptionResponse($request, $e);
+                $psrResponse = $this->getExceptionResponse($psrRequest, $e);
             } catch (Throwable $exception) {
                 println(format_exception($exception));
             }
         } finally {
-            if (isset($response)) {
-                $this->eventDispatcher->dispatch(new HttpRequestEnd($request, $response));
-                $this->responseEmitter->emit($response, $serverResponse);
+            if (isset($psrResponse)) {
+                $this->eventDispatcher->dispatch(new HttpRequestEnd($psrRequest, $psrResponse));
+                $this->responseEmitter->emit($psrResponse, $response, $psrRequest->getMethod() !== 'HEAD');
             }
         }
+    }
+
+    /**
+     * @param RequestInterface $request
+     * @return PsrResponseInterface
+     */
+    protected function runWithRequest(RequestInterface $request): PsrResponseInterface
+    {
+        return $this->httpCoreMiddleware->dispatch($request, function (RequestInterface $request) {
+            return $this->dispatchRouter($request);
+        });
+    }
+
+    /**
+     * @param RequestInterface $request
+     * @return PsrResponseInterface
+     */
+    protected function dispatchRouter(RequestInterface $request): PsrResponseInterface
+    {
+        $dispatched = Router::dispatch($request->getMethod(), $request->getPathInfo());
+        $this->context->set(ServerRequestInterface::class, $request->withAttribute(Dispatched::class, $dispatched));
+        $option = $dispatched->rule->getOption();
+        /** @var HttpRouteCoreMiddleware $coreMiddleware */
+        $coreMiddleware = $this->container->make(HttpRouteCoreMiddleware::class, [], true);
+        return $coreMiddleware->import($option['middleware'])->dispatch($request, function (RequestInterface $request) use ($dispatched) {
+            return $this->warpResultToResponse($dispatched->dispatcher->run($request->all()));
+        });
+    }
+
+    /**
+     * @param mixed $result
+     * @return PsrResponseInterface
+     */
+    protected function warpResultToResponse(mixed $result): PsrResponseInterface
+    {
+        if ($result instanceof PsrResponseInterface) {
+            return $result;
+        }
+        /** @var ResponseInterface $response */
+        $response = $this->context->get(ResponseInterface::class);
+        return \is_scalar($result) || $result instanceof \Stringable ? $response->html((string)$result) : $response->json($result);
     }
 
     /**
@@ -85,65 +126,18 @@ class Server implements OnRequestInterface
     }
 
     /**
-     * @param RequestInterface $request
-     * @return PsrResponseInterface
-     */
-    protected function runWithRequest(RequestInterface $request): PsrResponseInterface
-    {
-        /** @var HttpMiddleware $middleware */
-        $middleware = $this->container->make(HttpMiddleware::class);
-        return $middleware->pipeline()->send($request)->then(function (RequestInterface $request) {
-            return $this->dispatchRoute($request);
-        });
-    }
-    
-    /**
-     * @param RequestInterface $request
-     * @return PsrResponseInterface
-     */
-    protected function dispatchRoute(RequestInterface $request): PsrResponseInterface
-    {
-        $dispatched = Router::dispatch($request->getMethod(), $request->getPathInfo());
-        $this->container->instance(ServerRequestInterface::class, $request->withAttribute(Dispatched::class, $dispatched));
-        $option = $dispatched->rule->getOption();
-        /** @var HttpRouteMiddleware $middleware */
-        $middleware = $this->container->make(HttpRouteMiddleware::class, [], true);
-        return $middleware->import($option['middleware'])->pipeline()->send($request)->then(function (RequestInterface $request) use ($dispatched) {
-            return $this->warpResultToResponse($dispatched->dispatcher->run($request->all()));
-        });
-    }
-
-    /**
-     * @param mixed $result
-     * @return PsrResponseInterface
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
-     */
-    protected function warpResultToResponse(mixed $result): PsrResponseInterface
-    {
-        if ($result instanceof PsrResponseInterface) {
-            return $result;
-        }
-        /** @var ResponseInterface $response */
-        $response = $this->container->get(ResponseInterface::class);
-        return \is_scalar($result) || $result instanceof \Stringable ? $response->html((string)$result) : $response->json($result);
-    }
-
-    /**
      * @param HttpRequestInterface $httpRequest
-     * @param HttpResponseInterface $httpResponse
+     * @param HttpResponseInterface $response
      * @return RequestInterface
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
      */
-    protected function makeRequest(HttpRequestInterface $httpRequest, HttpResponseInterface $httpResponse): RequestInterface
+    protected function makeRequest(HttpRequestInterface $httpRequest, HttpResponseInterface $response): RequestInterface
     {
-        $this->container->instance(HttpRequestInterface::class, $httpRequest);
-        $this->container->instance(HttpResponseInterface::class, $httpResponse);
-        $this->container->instance(ServerRequestInterface::class, ServerRequest::loadFromRequest($httpRequest));
-        $this->container->instance(PsrResponseInterface::class, new PsrResponse());
-        $this->container->instance(RequestInterface::class, new Request($this->container));
-        $this->container->instance(ResponseInterface::class, new Response($this->container));
-        return $this->container->get(RequestInterface::class);
+        $psrResponse = new PsrResponse();
+        $psrResponse->setRawResponse($response);
+        $this->context->set(ServerRequestInterface::class, ServerRequest::loadFromRequest($httpRequest));
+        $this->context->set(PsrResponseInterface::class, $psrResponse);
+        $this->context->set(RequestInterface::class, new Request($this->context));
+        $this->context->set(ResponseInterface::class, new Response($this->context));
+        return $this->context->get(RequestInterface::class);
     }
 }

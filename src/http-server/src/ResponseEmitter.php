@@ -20,7 +20,7 @@ class ResponseEmitter implements ResponseEmitterInterface
             ->status($response->getStatusCode(), $response->getReasonPhrase());
 
         if ($content instanceof FileInterface) {
-            $serverResponse->sendFile($content->getPathname());
+            $serverResponse->sendFile($content->getFilename());
             return;
         }
 

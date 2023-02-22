@@ -10,7 +10,7 @@ use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
 interface ResponseInterface
 {
     /**
-     * @param array|object $data
+     * @param array|object|string $data
      * @param int $code
      * @param array $headers
      * @return PsrResponseInterface
@@ -45,6 +45,19 @@ interface ResponseInterface
      * @return PsrResponseInterface
      */
     public function download(string $file, string $name = ''): PsrResponseInterface;
+
+    /**
+     * @param string $url
+     * @param int $status
+     * @return PsrResponseInterface
+     */
+    public function redirect(string $url, int $status = 302): PsrResponseInterface;
+
+    /**
+     * @param string $data
+     * @return bool
+     */
+    public function write(string $data): bool;
 
     /**
      * @param Cookie $cookie

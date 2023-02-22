@@ -6,11 +6,11 @@ namespace Larmias\Middleware;
 
 use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\ConfigInterface;
-use Larmias\Contracts\MiddlewareInterface;
+use Larmias\Contracts\CoreMiddlewareInterface;
 use Larmias\Contracts\PipelineInterface;
 use Closure;
 
-class Middleware implements MiddlewareInterface
+class CoreMiddleware implements CoreMiddlewareInterface
 {
     /**
      * @var array
@@ -112,7 +112,17 @@ class Middleware implements MiddlewareInterface
         if ($aliasMiddleware) {
             $middleware = $aliasMiddleware;
         }
-        return [[$middleware, $this->getProcess()], $args];
+        return [[$middleware, $this->getProcessName()], $args];
+    }
+
+    /**
+     * @param mixed $passable
+     * @param Closure $closure
+     * @return mixed
+     */
+    public function dispatch(mixed $passable, \Closure $closure): mixed
+    {
+        return $this->pipeline()->send($passable)->then($closure);
     }
 
     /**
@@ -120,7 +130,7 @@ class Middleware implements MiddlewareInterface
      *
      * @return PipelineInterface
      */
-    public function pipeline(): PipelineInterface
+    protected function pipeline(): PipelineInterface
     {
         return $this->makePipeline()->through(\array_map(function ($middleware) {
             return function ($request, $next) use ($middleware) {
@@ -136,7 +146,7 @@ class Middleware implements MiddlewareInterface
     /**
      * @return PipelineInterface
      */
-    public function makePipeline(): PipelineInterface
+    protected function makePipeline(): PipelineInterface
     {
         /** @var PipelineInterface $pipeline */
         $pipeline = $this->container->make(PipelineInterface::class, [], true);
@@ -147,7 +157,7 @@ class Middleware implements MiddlewareInterface
      * @param \Closure $handler
      * @return mixed
      */
-    public function warpHandler(Closure $handler): mixed
+    protected function warpHandler(Closure $handler): mixed
     {
         return $handler;
     }
@@ -155,7 +165,7 @@ class Middleware implements MiddlewareInterface
     /**
      * @return string
      */
-    public function getProcess(): string
+    protected function getProcessName(): string
     {
         return 'process';
     }

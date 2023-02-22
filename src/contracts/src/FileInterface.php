@@ -6,5 +6,5 @@ namespace Larmias\Contracts;
 
 interface FileInterface
 {
-    public function getPathname(): string;
+    public function getFilename(): string;
 }

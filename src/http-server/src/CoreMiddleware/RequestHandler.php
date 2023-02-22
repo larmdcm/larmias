@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Larmias\HttpServer\Middleware;
+namespace Larmias\HttpServer\CoreMiddleware;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;

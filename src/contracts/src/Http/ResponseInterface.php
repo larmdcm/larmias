@@ -85,9 +85,9 @@ interface ResponseInterface
      * 分块传输数据
      *
      * @param string $data
-     * @return ResponseInterface
+     * @return bool
      */
-    public function write(string $data): ResponseInterface;
+    public function write(string $data): bool;
 
     /**
      * 发送文件.

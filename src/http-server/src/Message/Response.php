@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Larmias\HttpServer\Message;
 
-use Larmias\Contracts\ContainerInterface;
+use Larmias\Contracts\ContextInterface;
+use Larmias\Http\Message\Contracts\Chunkable;
 use Larmias\Http\Message\Cookie;
 use Larmias\Http\Message\Exceptions\FileException;
 use Larmias\Http\Message\Stream;
@@ -19,10 +20,10 @@ use Larmias\Http\Message\Stream\FileStream;
 class Response implements PsrResponseInterface, ResponseInterface
 {
     /**
-     * @param ContainerInterface $container
+     * @param ContextInterface $context
      * @param PsrResponseInterface|null $response
      */
-    public function __construct(protected ContainerInterface $container, protected ?PsrResponseInterface $response = null)
+    public function __construct(protected ContextInterface $context, protected ?PsrResponseInterface $response = null)
     {
     }
 
@@ -110,12 +111,35 @@ class Response implements PsrResponseInterface, ResponseInterface
             ->withBody(new FileStream($file));
     }
 
+    /**
+     * @param string $url
+     * @param int $status
+     * @return PsrResponseInterface
+     */
+    public function redirect(string $url, int $status = 302): PsrResponseInterface
+    {
+        return $this->getResponse()->withStatus($status)->withAddedHeader('Location', $url);
+    }
+
+    /**
+     * @param string $data
+     * @return bool
+     */
+    public function write(string $data): bool
+    {
+        $response = $this->getResponse();
+        if ($response instanceof Chunkable) {
+            return $response->write($data);
+        }
+        return false;
+    }
+
     protected function getResponse(): PsrResponseInterface
     {
         if ($this->response instanceof PsrResponseInterface) {
             return $this->response;
         }
-        return $this->container->get(PsrResponseInterface::class);
+        return $this->context->get(PsrResponseInterface::class);
     }
 
     protected function call(string $name, array $arguments): static
@@ -124,7 +148,7 @@ class Response implements PsrResponseInterface, ResponseInterface
         if (!\method_exists($response, $name)) {
             throw new BadMethodCallException(sprintf('Call to undefined method %s::%s()', get_class($this), $name));
         }
-        return new static($this->container, $response->{$name}(...$arguments));
+        return new static($this->context, $response->{$name}(...$arguments));
     }
 
     /**

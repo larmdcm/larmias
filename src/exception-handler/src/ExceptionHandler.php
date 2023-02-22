@@ -20,8 +20,9 @@ abstract class ExceptionHandler implements ExceptionReportHandlerInterface
      * ExceptionHandler constructor.
      *
      * @param ContainerInterface $container
+     * @param LoggerInterface|null $logger
      */
-    public function __construct(protected ContainerInterface $container)
+    public function __construct(protected ContainerInterface $container, protected ?LoggerInterface $logger = null)
     {
     }
 
@@ -37,11 +38,7 @@ abstract class ExceptionHandler implements ExceptionReportHandlerInterface
             return;
         }
         try {
-            if ($this->container->has(LoggerInterface::class)) {
-                /** @var LoggerInterface $logger */
-                $logger = $this->container->get(LoggerInterface::class);
-                $logger->error($e->getMessage(), ['exception' => $e->getTraceAsString()]);
-            }
+            $this->logger?->error($e->getMessage(), ['exception' => $e->getTraceAsString()]);
         } catch (Throwable $e) {
         }
     }

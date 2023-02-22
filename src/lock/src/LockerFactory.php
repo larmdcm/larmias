@@ -18,15 +18,15 @@ class LockerFactory implements LockerFactoryInterface
     }
 
     /**
-     * @param string $key
+     * @param string $name
      * @param int $ttl
      * @return LockerInterface
      */
-    public function create(string $key, int $ttl): LockerInterface
+    public function create(string $name, int $ttl): LockerInterface
     {
-        $lockKey = new Key($key, $ttl);
+        $key = new Key($name, $ttl);
         /** @var LockerInterface $locker */
-        $locker = $this->container->make(LockerInterface::class, ['key' => $lockKey], true);
+        $locker = $this->container->make(LockerInterface::class, ['key' => $key], true);
         return $locker;
     }
 }

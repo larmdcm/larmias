@@ -73,7 +73,7 @@ class Parameter
     /**
      * @param array $vars
      * @return array
-     * @throws \ReflectionException
+     * @throws \ReflectionException|\Throwable
      */
     protected function bindParams(ReflectionFunctionAbstract $reflect, array $vars = []): array
     {
@@ -93,7 +93,7 @@ class Parameter
             /** @var \ReflectionNamedType $reflectionType */
             $reflectionType = $param->getType();
 
-            if ($reflectionType && $reflectionType->isBuiltin() === false) {
+            if ($reflectionType && \method_exists($reflectionType, 'isBuiltin') && $reflectionType->isBuiltin() === false) {
                 $args[] = $this->getObjectParam($reflectionType->getName(), $vars, $param);
             } elseif ($type == 1 && !empty($vars)) {
                 $args[] = array_shift($vars);

@@ -4,25 +4,24 @@ declare(strict_types=1);
 
 namespace Larmias\HttpServer\Message;
 
-use Larmias\Contracts\ContainerInterface;
+use Larmias\Contracts\ContextInterface;
 use Larmias\HttpServer\Contracts\RequestInterface;
 use Larmias\Http\Message\UploadedFile;
 use Larmias\Routing\Dispatched;
 use Larmias\Utils\Arr;
-use Psr\Container\ContainerExceptionInterface;
-use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
 use SplFileInfo;
 use function Larmias\Utils\data_get;
+use function Larmias\Utils\value;
 
 class Request implements RequestInterface
 {
     /**
-     * @param ContainerInterface $container
+     * @param ContextInterface $context
      */
-    public function __construct(protected ContainerInterface $container)
+    public function __construct(protected ContextInterface $context)
     {
     }
 
@@ -32,7 +31,7 @@ class Request implements RequestInterface
      */
     public function __get(string $name): mixed
     {
-        return $this->getAttribute($name);
+        return $this->context->get(__CLASS__ . '.properties.' . $name);
     }
 
     /**
@@ -41,7 +40,7 @@ class Request implements RequestInterface
      */
     public function __set(string $name, mixed $value)
     {
-        $this->withAttribute($name, $value);
+        $this->context->set(__CLASS__ . '.properties.' . $name, value($value));
     }
 
     /**
@@ -313,20 +312,16 @@ class Request implements RequestInterface
 
     /**
      * @return ServerRequestInterface
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
      */
     protected function getRequest(): ServerRequestInterface
     {
-        return $this->container->get(ServerRequestInterface::class);
+        return $this->context->get(ServerRequestInterface::class);
     }
 
     /**
      * @param string $name
      * @param array $arguments
      * @return mixed
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
      */
     protected function call(string $name, array $arguments): mixed
     {

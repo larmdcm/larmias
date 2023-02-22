@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Larmias\HttpServer\Middleware;
+namespace Larmias\HttpServer\CoreMiddleware;
 
 use Closure;
-use Larmias\Middleware\Middleware as BaseMiddleware;
+use Larmias\Middleware\CoreMiddleware as BaseCoreMiddleware;
 
-class Middleware extends BaseMiddleware
+class CoreMiddleware extends BaseCoreMiddleware
 {
     /**
      * @param Closure $handler

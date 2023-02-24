@@ -36,12 +36,16 @@ class Server implements OnRequestInterface
      * @param ContainerInterface $container
      * @param EventDispatcherInterface $eventDispatcher
      * @param ResponseEmitter $responseEmitter
+     * @param HttpCoreMiddleware $httpCoreMiddleware
+     * @param HttpRouteCoreMiddleware $httpRouteCoreMiddleware
+     * @param ContextInterface $context
      */
     public function __construct(
         protected ContainerInterface       $container,
         protected EventDispatcherInterface $eventDispatcher,
         protected ResponseEmitter          $responseEmitter,
         protected HttpCoreMiddleware       $httpCoreMiddleware,
+        protected HttpRouteCoreMiddleware  $httpRouteCoreMiddleware,
         protected ContextInterface         $context
     )
     {
@@ -91,9 +95,7 @@ class Server implements OnRequestInterface
         $dispatched = Router::dispatch($request->getMethod(), $request->getPathInfo());
         $this->context->set(ServerRequestInterface::class, $request->withAttribute(Dispatched::class, $dispatched));
         $option = $dispatched->rule->getOption();
-        /** @var HttpRouteCoreMiddleware $coreMiddleware */
-        $coreMiddleware = $this->container->make(HttpRouteCoreMiddleware::class, [], true);
-        return $coreMiddleware->import($option['middleware'])->dispatch($request, function (RequestInterface $request) use ($dispatched) {
+        return $this->httpRouteCoreMiddleware->set($option['middleware'])->dispatch($request, function (RequestInterface $request) use ($dispatched) {
             return $this->warpResultToResponse($dispatched->dispatcher->run($request->all()));
         });
     }

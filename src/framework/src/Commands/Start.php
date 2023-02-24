@@ -59,14 +59,16 @@ class Start extends Command
      */
     public function handle(): void
     {
-        $configFile = $this->app->getConfigPath() . 'worker.php';
-
-        if (!\is_file($configFile)) {
-            throw new RuntimeException(sprintf('%s The worker configuration file does not exist.', $configFile));
+        if (\method_exists($this->app, 'loadFileConfig')) {
+            $config = $this->app->loadFileConfig('worker');
+        } else {
+            $configFile = $this->app->getConfigPath() . 'worker.php';
+            if (!\is_file($configFile)) {
+                throw new RuntimeException(sprintf('%s The worker configuration file does not exist.', $configFile));
+            }
+            $config = require $configFile;
         }
 
-        $this->kernel->setConfig(EngineConfig::build(require $configFile));
-
-        $this->kernel->run();
+        $this->kernel->setConfig(EngineConfig::build($config))->run();
     }
 }

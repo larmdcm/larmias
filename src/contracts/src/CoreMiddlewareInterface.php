@@ -15,6 +15,14 @@ interface CoreMiddlewareInterface
     public function import(array $middleware): CoreMiddlewareInterface;
 
     /**
+     * 设置中间件
+     *
+     * @param array $middleware
+     * @return CoreMiddlewareInterface
+     */
+    public function set(array $middleware): CoreMiddlewareInterface;
+
+    /**
      * 添加中间件到尾部
      *
      * @param string|\Closure $middleware

@@ -6,7 +6,7 @@ namespace Larmias\Crontab\Process;
 
 use Larmias\Contracts\ConfigInterface;
 use Larmias\Crontab\Contracts\SchedulerInterface;
-use Larmias\Engine\Timer;
+use Larmias\Contracts\TimerInterface;
 
 class CrontabProcess
 {
@@ -22,8 +22,9 @@ class CrontabProcess
     /**
      * @param ConfigInterface $config
      * @param SchedulerInterface $scheduler
+     * @param TimerInterface $timer
      */
-    public function __construct(ConfigInterface $config, protected SchedulerInterface $scheduler)
+    public function __construct(ConfigInterface $config, protected SchedulerInterface $scheduler, protected TimerInterface $timer)
     {
         $this->config = \array_merge($this->config, $config->get('crontab', []));
         if (!empty($this->config['crontab'])) {
@@ -39,7 +40,7 @@ class CrontabProcess
         if (!$this->config['enable']) {
             return;
         }
-        Timer::tick($this->config['tick_interval'], function () {
+        $this->timer->tick($this->config['tick_interval'], function () {
             $this->scheduler->run();
         });
     }

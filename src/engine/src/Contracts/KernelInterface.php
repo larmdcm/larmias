@@ -21,8 +21,8 @@ interface KernelInterface
     public function getConfig(): EngineConfig;
 
     /**
-     * @param \Larmias\Engine\WorkerConfig $workerConfig
-     * @return \Larmias\Engine\Contracts\WorkerInterface
+     * @param WorkerConfig $workerConfig
+     * @return WorkerInterface
      */
     public function addWorker(WorkerConfig $workerConfig): WorkerInterface;
 

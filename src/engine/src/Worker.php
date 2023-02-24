@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Larmias\Engine;
 
 use Larmias\Contracts\ContextInterface;
+use Larmias\Contracts\EventLoopInterface;
+use Larmias\Contracts\SignalInterface;
+use Larmias\Contracts\TimerInterface;
 use Larmias\Engine\Bootstrap\WorkerStartCallback;
 use Larmias\Engine\Contracts\KernelInterface;
 use Larmias\Engine\Contracts\WorkerInterface;
@@ -63,12 +66,19 @@ class Worker implements WorkerInterface
      */
     public function start(int $workerId): void
     {
-        $this->container->bind(ContextInterface::class, $this->kernel->getDriver()->getContextClass());
-        EventLoop::init($this->container->get($this->kernel->getDriver()->getEventLoopClass()));
-        Timer::init($this->container->get($this->kernel->getDriver()->getTimerClass()));
+        \mt_srand();
+        $this->container->bind([
+            EventLoopInterface::class => $this->kernel->getDriver()->getEventLoopClass(),
+            TimerInterface::class => $this->kernel->getDriver()->getTimerClass(),
+            SignalInterface::class => $this->kernel->getDriver()->getSignalClass(),
+            ContextInterface::class => $this->kernel->getDriver()->getContextClass(),
+            WorkerInterface::class => $this,
+        ]);
+        EventLoop::init($this->container->get(EventLoopInterface::class));
+        Timer::init($this->container->get(TimerInterface::class));
+        Signal::init($this->container->get(SignalInterface::class));
         Context::init($this->container->get(ContextInterface::class));
         $this->setWorkerId($workerId);
-        $this->container->bind(WorkerInterface::class, $this);
         $this->trigger(static::ON_WORKER_START, [$this]);
     }
 

@@ -115,6 +115,8 @@ return [
                     \Larmias\Crontab\Contracts\ParserInterface::class => \Larmias\Crontab\Parser::class,
                     \Larmias\Crontab\Contracts\SchedulerInterface::class => \Larmias\Crontab\Scheduler::class,
                     \Larmias\Crontab\Contracts\ExecutorInterface::class => \Larmias\Crontab\Executor\TaskWorkerExecutor::class,
+                    \Larmias\Contracts\ThrottleInterface::class => \Larmias\Throttle\Throttle::class,
+                    \Psr\SimpleCache\CacheInterface::class => \Larmias\Cache\Cache::class,
                 ]);
                 $container->get(\Larmias\SharedMemory\Contracts\CommandExecutorInterface::class)->addCommand(
                     \Larmias\Task\Command\TaskCommand::COMMAND_NAME, \Larmias\Task\Command\TaskCommand::class,

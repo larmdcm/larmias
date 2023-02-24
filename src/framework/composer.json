@@ -19,7 +19,7 @@
     "psr/event-dispatcher": "^1.0",
     "larmias/contracts": "^1.0",
     "larmias/di": "^1.0",
-    "larmias/console": "^1.0",
+    "larmias/command": "^1.0",
     "larmias/engine": "^1.0",
     "larmias/utils": "^1.0"
   },

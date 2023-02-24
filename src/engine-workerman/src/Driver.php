@@ -90,6 +90,14 @@ class Driver implements DriverInterface
     /**
      * @return string
      */
+    public function getSignalClass(): string
+    {
+        return Signal::class;
+    }
+
+    /**
+     * @return string
+     */
     public function getContextClass(): string
     {
         return Context::class;

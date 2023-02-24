@@ -116,3 +116,7 @@ Router::get('/write', function (ResponseInterface $response) {
     $response->write('123');
     return '';
 });
+
+Router::get('/rateLimit', function (ResponseInterface $response) {
+    return 'ok';
+})->middleware(\Larmias\Throttle\Middleware\ThrottleMiddleware::class);

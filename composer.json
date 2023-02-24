@@ -95,7 +95,9 @@
       "Larmias\\Auth\\": "src/auth/src/",
       "Larmias\\Encryption\\": "src/encryption/src/",
       "Larmias\\Enum\\": "src/enum/src/",
-      "Larmias\\AsyncQueue\\": "src/async-queue/src/"
+      "Larmias\\AsyncQueue\\": "src/async-queue/src/",
+      "Larmias\\Throttle\\": "src/throttle/src/",
+      "Larmias\\Process\\": "src/process/src/"
     }
   }
 }

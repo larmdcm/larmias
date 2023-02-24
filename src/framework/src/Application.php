@@ -13,10 +13,13 @@ use Larmias\Contracts\ServiceProviderInterface;
 use Larmias\Contracts\StdoutLoggerInterface;
 use Larmias\Di\Container;
 use Larmias\Engine\Contracts\KernelInterface;
+use Larmias\Engine\Event;
 use Larmias\Engine\Kernel;
+use Larmias\Engine\WorkerType;
 use Larmias\Event\EventDispatcherFactory;
 use Larmias\Event\ListenerProviderFactory;
 use Larmias\Command\Application as ConsoleApplication;
+use Larmias\Framework\Contracts\ServiceDiscoverInterface;
 use Larmias\Framework\Logger\StdoutLogger;
 use Psr\Container\ContainerInterface as PsrContainerInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
@@ -55,6 +58,21 @@ class Application extends Container implements ApplicationInterface
     protected ConfigInterface $config;
 
     /**
+     * @var array
+     */
+    protected array $discoverConfig = [];
+
+    /**
+     * @var ServiceDiscoverInterface
+     */
+    protected ServiceDiscoverInterface $serviceDiscover;
+
+    /**
+     * @var bool
+     */
+    protected bool $isInit = false;
+
+    /**
      * Application constructor.
      *
      * @param string $rootPath
@@ -66,7 +84,6 @@ class Application extends Container implements ApplicationInterface
         $this->rootPath = \rtrim($rootPath ?: dirname(realpath($rootPath))) . DIRECTORY_SEPARATOR;
         $this->configPath = $this->rootPath . 'config' . DIRECTORY_SEPARATOR;
         $this->runtimePath = $this->rootPath . 'runtime' . DIRECTORY_SEPARATOR;
-
         static::setInstance($this);
         $this->bind([
             self::class => $this,
@@ -76,6 +93,7 @@ class Application extends Container implements ApplicationInterface
             KernelInterface::class => Kernel::class,
             ConsoleInterface::class => ConsoleApplication::class,
             StdoutLoggerInterface::class => StdoutLogger::class,
+            ServiceDiscoverInterface::class => ServiceDiscover::class,
             ListenerProviderInterface::class => function () {
                 return ListenerProviderFactory::make($this, $this->loadFileConfig('listeners', false));
             },
@@ -83,6 +101,9 @@ class Application extends Container implements ApplicationInterface
                 return EventDispatcherFactory::make($this);
             },
         ]);
+        /** @var ServiceDiscoverInterface $serviceDiscover */
+        $serviceDiscover = $this->make(ServiceDiscoverInterface::class);
+        $this->serviceDiscover = $serviceDiscover;
     }
 
     /**
@@ -93,12 +114,16 @@ class Application extends Container implements ApplicationInterface
      */
     public function initialize(): void
     {
+        if ($this->isInit) {
+            return;
+        }
         $this->bind($this->loadFileConfig('dependencies'));
         $this->loadEnv();
         $this->loadConfig();
         \date_default_timezone_set($this->config->get('app.default_timezone', 'Asia/Shanghai'));
         $this->bind($this->config->get('dependencies', []));
         $this->boot();
+        $this->isInit = true;
     }
 
     /**
@@ -192,13 +217,16 @@ class Application extends Container implements ApplicationInterface
      */
     public function run(): void
     {
-        /** @var ConsoleInterface $console */
-        $console = $this->get(ConsoleInterface::class);
-        $commands = $this->loadFileConfig('commands');
-        foreach ($commands as $command) {
-            $console->addCommand($command);
-        }
-        $console->run();
+        $this->serviceDiscover->discover(function () {
+            $this->discoverConfig = $this->serviceDiscover->services();
+            /** @var ConsoleInterface $console */
+            $console = $this->get(ConsoleInterface::class);
+            $commands = $this->loadFileConfig('commands');
+            foreach ($commands as $command) {
+                $console->addCommand($command);
+            }
+            $console->run();
+        });
     }
 
     /**
@@ -305,6 +333,29 @@ class Application extends Container implements ApplicationInterface
             if ($extension === 'php') {
                 $config = \array_merge($config, require $file);
             }
+        }
+        switch ($name) {
+            case 'providers':
+            case 'commands':
+                $config = isset($this->discoverConfig[$name]) ?
+                    \array_merge(\array_column($this->discoverConfig[$name], 'class'), $config) : $config;
+                break;
+            case 'worker':
+                $processConfig = $this->discoverConfig[ServiceDiscoverInterface::SERVICE_PROCESS] ?? [];
+                if (!empty($processConfig)) {
+                    foreach ($processConfig as $item) {
+                        $config['workers'][] = [
+                            'name' => $item['args']['name'],
+                            'type' => WorkerType::WORKER_PROCESS,
+                            'settings' => ['worker_num' => $item['args']['count']],
+                            'callbacks' => [
+                                Event::ON_WORKER_START => [$item['class'], 'onStart'],
+                                Event::ON_WORKER => [$item['class'], 'handle'],
+                            ],
+                        ];
+                    }
+                }
+                break;
         }
         return $config;
     }

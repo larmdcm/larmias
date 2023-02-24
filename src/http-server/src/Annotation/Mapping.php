@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace Larmias\HttpServer\Annotation;
 
-use Larmias\Di\Annotation\AbstractAnnotation;
-
-abstract class Mapping extends AbstractAnnotation
+abstract class Mapping
 {
-    public function __construct(public array $methods = [],public string $path = '',public array $options = [])
+    public function __construct(public array $methods = [], public string $path = '', public array $options = [])
     {
     }
 }

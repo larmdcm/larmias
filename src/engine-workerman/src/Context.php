@@ -20,7 +20,7 @@ class Context implements ContextInterface
      */
     public function get(string $id, mixed $default = null): mixed
     {
-        return $this->context[$id] ?? null;
+        return $this->context[$id] ?? $default;
     }
 
     /**

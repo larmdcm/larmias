@@ -23,24 +23,19 @@ class CoreMiddleware implements CoreMiddlewareInterface
     protected ?string $type = null;
 
     /**
+     * @var array
+     */
+    protected array $globalMiddleware = [];
+
+    /**
      * Middleware __construct
      *
      * @param ContainerInterface $container
      */
     public function __construct(protected ContainerInterface $container, protected ConfigInterface $config)
     {
-        $this->initialize();
-    }
-
-    /**
-     * 初始化
-     *
-     * @return void
-     */
-    protected function initialize(): void
-    {
         if ($this->type !== null) {
-            $this->import((array)$this->config->get('middleware.' . $this->type, []));
+            $this->import($this->globalMiddleware = (array)$this->config->get('middleware.' . $this->type, []));
         }
     }
 
@@ -48,9 +43,9 @@ class CoreMiddleware implements CoreMiddlewareInterface
      * 导入中间件
      *
      * @param array $middleware
-     * @return self
+     * @return CoreMiddlewareInterface
      */
-    public function import(array $middleware): self
+    public function import(array $middleware): CoreMiddlewareInterface
     {
         foreach ($middleware as $item) {
             $this->push($item);
@@ -59,12 +54,36 @@ class CoreMiddleware implements CoreMiddlewareInterface
     }
 
     /**
+     * 设置中间件
+     *
+     * @param array $middleware
+     * @return CoreMiddlewareInterface
+     */
+    public function set(array $middleware): CoreMiddlewareInterface
+    {
+        if (empty($middleware)) {
+            return $this;
+        }
+
+        $list = empty($this->globalMiddleware) ? $middleware : \array_merge($this->globalMiddleware, $middleware);
+        $queue = [];
+        foreach ($list as $item) {
+            $middleware = $this->build($item);
+            if (!empty($middleware)) {
+                $queue[] = $middleware;
+            }
+        }
+        $this->queue = $queue;
+        return $this;
+    }
+
+    /**
      * 添加中间件到尾部
      *
      * @param string|Closure $middleware
-     * @return self
+     * @return CoreMiddlewareInterface
      */
-    public function push(string|Closure $middleware): self
+    public function push(string|Closure $middleware): CoreMiddlewareInterface
     {
         $middleware = $this->build($middleware);
         if (!empty($middleware)) {
@@ -77,9 +96,9 @@ class CoreMiddleware implements CoreMiddlewareInterface
      * 添加中间件到首部
      *
      * @param string|Closure $middleware
-     * @return self
+     * @return CoreMiddlewareInterface
      */
-    public function unshift(string|Closure $middleware): self
+    public function unshift(string|Closure $middleware): CoreMiddlewareInterface
     {
         $middleware = $this->build($middleware);
         if (!empty($middleware)) {

@@ -4,8 +4,6 @@ use Larmias\Contracts\Http\OnRequestInterface;
 use Larmias\Engine\WorkerType;
 use Larmias\Engine\Event;
 use Larmias\HttpServer\Server as HttpServer;
-use Larmias\Contracts\ConfigInterface;
-use Larmias\Config\Config;
 use Larmias\HttpServer\Routing\Router;
 use Larmias\Contracts\PipelineInterface;
 use Larmias\Pipeline\Pipeline;
@@ -23,7 +21,7 @@ return [
             'host' => '0.0.0.0',
             'port' => 9863,
             'settings' => [
-                'worker_num' => 2,
+                'worker_num' => \Larmias\Engine\get_cpu_num() * 2,
             ],
             'callbacks' => [
                 Event::ON_REQUEST => [HttpServer::class, OnRequestInterface::ON_REQUEST]
@@ -31,23 +29,24 @@ return [
         ],
     ],
     'settings' => [
+        'reuse_port' => true,
     ],
     'callbacks' => [
         Event::ON_WORKER_START => [
             function (\Larmias\Engine\Contracts\WorkerInterface $worker) {
                 $container = require '../di/container.php';
-                // $container->bind(ConfigInterface::class, Config::class);
                 $container->bind(PipelineInterface::class, Pipeline::class);
                 $container->bind(ListenerProviderInterface::class, ListenerProviderFactory::make($container, []));
                 $container->bind(EventDispatcherInterface::class, EventDispatcherFactory::make($container));
-//                foreach (glob(__DIR__ . '/config/*.php') as $file) {
-//                    $container->make(ConfigInterface::class)->load($file);
-//                }
                 Router::init($container->make(\Larmias\Routing\Router::class));
                 Router::get('/', function (\Larmias\HttpServer\Contracts\ResponseInterface $response) {
-                    return $response->raw('Hello,World!');
-                });
-                // require __DIR__ . '/router.php';
+                    return 'Hello,World!';
+                })->middleware([
+                    function (\Psr\Http\Message\ServerRequestInterface $request, \Psr\Http\Server\RequestHandlerInterface $handler) {
+                        echo "middleware" . PHP_EOL;
+                        return $handler->handle($request);
+                    }
+                ]);
             }
         ]
     ],

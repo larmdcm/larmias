@@ -242,7 +242,7 @@ class Response implements PsrResponseInterface, ResponseInterface
     {
         $response = $this->getResponse();
         if (!\method_exists($response, $name)) {
-            throw new BadMethodCallException(sprintf('Call to undefined method %s::%s()', get_class($this), $name));
+            throw new BadMethodCallException(\sprintf('Call to undefined method %s::%s()', \get_class($this), $name));
         }
         return $response->{$name}(...$arguments);
     }

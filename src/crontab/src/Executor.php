@@ -9,15 +9,16 @@ use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\LockerFactoryInterface;
 use Larmias\Crontab\Contracts\ExecutorInterface;
 use Closure;
-use Larmias\Engine\Timer;
+use Larmias\Contracts\TimerInterface;
 
 abstract class Executor implements ExecutorInterface
 {
     /**
      * @param ContainerInterface $container
      * @param LockerFactoryInterface $lockerFactory
+     * @param TimerInterface $timer
      */
-    public function __construct(protected ContainerInterface $container, protected LockerFactoryInterface $lockerFactory)
+    public function __construct(protected ContainerInterface $container, protected LockerFactoryInterface $lockerFactory, protected TimerInterface $timer)
     {
         if (\method_exists($this, 'initialize')) {
             $this->container->invoke([$this, 'initialize']);
@@ -83,7 +84,7 @@ abstract class Executor implements ExecutorInterface
     protected function runCallback(Crontab $crontab): void
     {
         $diff = $crontab->getExecuteTime()->diffInRealSeconds(new Carbon());
-        Timer::after($diff > 0 ? $diff * 1000 : 1, function () use ($crontab) {
+        $this->timer->after($diff > 0 ? $diff * 1000 : 1, function () use ($crontab) {
             $callback = $this->getCallback($crontab);
             if ($crontab->isSingleton()) {
                 $callback = $this->runInSingleton($crontab, $callback);

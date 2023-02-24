@@ -54,6 +54,10 @@ interface DriverInterface
     /**
      * @return string
      */
-    public function getContextClass(): string;
+    public function getSignalClass(): string;
 
+    /**
+     * @return string
+     */
+    public function getContextClass(): string;
 }

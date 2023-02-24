@@ -1,11 +1,10 @@
 {
-  "name": "larmias/async-queue",
-  "description": "A async queue component for larmias.",
+  "name": "larmias/process",
+  "description": "A process component for larmias.",
   "type": "library",
   "keywords": [
     "larmias",
-    "async",
-    "queue"
+    "process"
   ],
   "homepage": "https://larmias.com/",
   "license": "Apache-2.0",
@@ -21,12 +20,7 @@
   },
   "autoload": {
     "psr-4": {
-      "Larmias\\AsyncQueue\\": "src/"
-    }
-  },
-  "extra": {
-    "larmias": {
-      "providers": "Larmias\\AsyncQueue\\Providers\\QueueServiceProvider"
+      "Larmias\\Process\\": "src/"
     }
   }
 }

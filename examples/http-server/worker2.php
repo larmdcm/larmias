@@ -43,7 +43,6 @@ return [
                     return 'Hello,World!';
                 })->middleware([
                     function (\Psr\Http\Message\ServerRequestInterface $request, \Psr\Http\Server\RequestHandlerInterface $handler) {
-                        echo "middleware" . PHP_EOL;
                         return $handler->handle($request);
                     }
                 ]);

@@ -19,7 +19,7 @@ class Throttle implements ThrottleInterface
     protected array $config = [
         // 限流算法驱动
         'driver' => CounterSlider::class,
-        // 缓存键前缀，防止键与其他应用冲突
+        // 键前缀
         'prefix' => 'throttle:',
     ];
 

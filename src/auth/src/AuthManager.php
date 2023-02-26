@@ -63,7 +63,7 @@ class AuthManager
      */
     protected function createGuard(array $config): GuardInterface
     {
-        $repository = $this->container->make($config['repository'], [], true);
+        $repository = $this->container->make($config['repository']);
         $authentication = $this->container->make($config['authentication'], ['repository' => $repository, 'config' => ['name' => $config['name']]], true);
         /** @var GuardInterface $guard */
         $guard = $this->container->make($config['driver'], ['repository' => $repository, 'authentication' => $authentication], true);

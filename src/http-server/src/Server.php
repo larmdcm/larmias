@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\HttpServer;
 
+use Larmias\Contracts\ConfigInterface;
 use Larmias\Contracts\ContextInterface;
 use Larmias\Contracts\Http\OnRequestInterface;
 use Larmias\Contracts\Http\RequestInterface as HttpRequestInterface;
@@ -37,16 +38,16 @@ class Server implements OnRequestInterface
      * @param EventDispatcherInterface $eventDispatcher
      * @param ResponseEmitter $responseEmitter
      * @param HttpCoreMiddleware $httpCoreMiddleware
-     * @param HttpRouteCoreMiddleware $httpRouteCoreMiddleware
      * @param ContextInterface $context
+     * @param ConfigInterface $config
      */
     public function __construct(
         protected ContainerInterface       $container,
         protected EventDispatcherInterface $eventDispatcher,
         protected ResponseEmitter          $responseEmitter,
         protected HttpCoreMiddleware       $httpCoreMiddleware,
-        protected HttpRouteCoreMiddleware  $httpRouteCoreMiddleware,
-        protected ContextInterface         $context
+        protected ContextInterface         $context,
+        protected ConfigInterface          $config
     )
     {
     }
@@ -95,7 +96,8 @@ class Server implements OnRequestInterface
         $dispatched = Router::dispatch($request->getMethod(), $request->getPathInfo());
         $this->context->set(ServerRequestInterface::class, $request->withAttribute(Dispatched::class, $dispatched));
         $option = $dispatched->rule->getOption();
-        return $this->httpRouteCoreMiddleware->set($option['middleware'])->dispatch($request, function (RequestInterface $request) use ($dispatched) {
+        $httpRouteCoreMiddleware = $this->container->make(HttpRouteCoreMiddleware::class, [], true);
+        return $httpRouteCoreMiddleware->import($option['middleware'])->dispatch($request, function (RequestInterface $request) use ($dispatched) {
             return $this->warpResultToResponse($dispatched->dispatcher->run($request->all()));
         });
     }
@@ -122,7 +124,8 @@ class Server implements OnRequestInterface
     protected function getExceptionResponse(RequestInterface $request, Throwable $e): PsrResponseInterface
     {
         /** @var ExceptionHandlerInterface $handler */
-        $handler = $this->container->make(ExceptionHandler::class);
+        $class = $this->config->get('exceptions.handler.http', ExceptionHandler::class);
+        $handler = $this->container->make($class);
         $handler->report($e);
         return $handler->render($request, $e);
     }

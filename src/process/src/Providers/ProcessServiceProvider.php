@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Process\Annotation;
+namespace Larmias\Process\Providers;
 
 use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\ServiceProviderInterface;

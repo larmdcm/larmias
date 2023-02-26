@@ -13,6 +13,7 @@ use JsonSerializable;
 use Larmias\Utils\Contracts\Arrayable;
 use Larmias\Utils\Contracts\Jsonable;
 use Traversable;
+use stdClass;
 
 /**
  * Most of the methods in this file come from illuminate/support,

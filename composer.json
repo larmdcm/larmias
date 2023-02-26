@@ -97,7 +97,8 @@
       "Larmias\\Enum\\": "src/enum/src/",
       "Larmias\\AsyncQueue\\": "src/async-queue/src/",
       "Larmias\\Throttle\\": "src/throttle/src/",
-      "Larmias\\Process\\": "src/process/src/"
+      "Larmias\\Process\\": "src/process/src/",
+      "Larmias\\Timer\\": "src/timer/src/"
     }
   }
 }

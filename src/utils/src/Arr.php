@@ -203,10 +203,10 @@ class Arr
      * Flatten a multi-dimensional array into a single level.
      *
      * @param array $array
-     * @param int $depth
+     * @param  $depth
      * @return array
      */
-    public static function flatten(array $array, int $depth = INF): array
+    public static function flatten(array $array, $depth = INF): array
     {
         $result = [];
 
@@ -419,7 +419,7 @@ class Arr
      * @param string|array|null $key
      * @return array
      */
-    protected static function explodePluckParameters(string|array $value, string|array $key): array
+    protected static function explodePluckParameters(string|array $value, string|array|null $key): array
     {
         $value = is_string($value) ? explode('.', $value) : $value;
 

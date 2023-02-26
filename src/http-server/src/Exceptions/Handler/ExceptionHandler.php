@@ -6,7 +6,6 @@ namespace Larmias\HttpServer\Exceptions\Handler;
 
 use Larmias\Contracts\SessionInterface;
 use Larmias\ExceptionHandler\ExceptionHandler as BaseExceptionHandler;
-
 use Larmias\ExceptionHandler\Render\HtmlRender;
 use Larmias\ExceptionHandler\Render\JsonRender;
 use Larmias\HttpServer\Contracts\ExceptionHandlerInterface;

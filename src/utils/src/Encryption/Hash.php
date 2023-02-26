@@ -23,7 +23,7 @@ class Hash
      */
     public static function make(string $password, string|int|null $algo = \PASSWORD_DEFAULT, array $options = []): static
     {
-        return new static($password);
+        return new static($password, $algo, $options);
     }
 
     /**

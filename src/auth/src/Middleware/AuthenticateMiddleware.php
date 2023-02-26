@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Larmias\Auth\Middleware;
 
 use Larmias\Auth\AuthManager;
-use Larmias\Auth\Exceptions\AuthenticationException;
 use Larmias\Auth\Facade\Auth;
 use Larmias\Contracts\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -30,10 +29,6 @@ class AuthenticateMiddleware implements MiddlewareInterface
      */
     public function __construct(protected ContainerInterface $container)
     {
-        /** @var AuthManager $authManager */
-        $authManager = $this->container->make(AuthManager::class, [], true);
-        $this->authManager = $authManager;
-        Auth::setAuthManager($authManager);
     }
 
     /**
@@ -43,6 +38,10 @@ class AuthenticateMiddleware implements MiddlewareInterface
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
+        /** @var AuthManager $authManager */
+        $authManager = $this->container->make(AuthManager::class, [], true);
+        $this->authManager = $authManager;
+        Auth::setAuthManager($authManager);
         $this->authenticate($request, $this->guards);
         return $handler->handle($request);
     }
@@ -59,20 +58,8 @@ class AuthenticateMiddleware implements MiddlewareInterface
             if ($guard->guest()) {
                 if ($identity = $guard->getAuthentication()->authenticate($request)) {
                     $guard->login($identity);
-                } else {
-                    $this->unauthenticated($request, $name);
                 }
             }
         }
-    }
-
-    /**
-     * @param ServerRequestInterface $request
-     * @param string|null $name
-     * @return void
-     */
-    protected function unauthenticated(ServerRequestInterface $request, ?string $name = null): void
-    {
-        throw new AuthenticationException('Unauthenticated.', $name);
     }
 }

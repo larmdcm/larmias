@@ -61,11 +61,7 @@ class CoreMiddleware implements CoreMiddlewareInterface
      */
     public function set(array $middleware): CoreMiddlewareInterface
     {
-        if (empty($middleware)) {
-            return $this;
-        }
-
-        $list = empty($this->globalMiddleware) ? $middleware : \array_merge($this->globalMiddleware, $middleware);
+        $list = \array_merge($this->globalMiddleware, $middleware);
         $queue = [];
         foreach ($list as $item) {
             $middleware = $this->build($item);

@@ -42,14 +42,16 @@ class ServiceDiscover implements ServiceDiscoverInterface
      */
     public function discover(\Closure $callback): void
     {
-        $pid = \pcntl_fork();
-        if ($pid === -1) {
-            throw new \RuntimeException('fork process error.');
-        } else if ($pid === 0) {
-            $this->handle();
-            exit(0);
+        if (\extension_loaded('pcntl')) {
+            $pid = \pcntl_fork();
+            if ($pid === -1) {
+                throw new \RuntimeException('fork process error.');
+            } else if ($pid === 0) {
+                $this->handle();
+                exit(0);
+            }
+            \pcntl_wait($status, \WUNTRACED);
         }
-        \pcntl_wait($status, \WUNTRACED);
         $callback();
     }
 

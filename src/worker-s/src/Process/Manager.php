@@ -10,7 +10,6 @@ use Larmias\WorkerS\Support\Helper;
 use Larmias\WorkerS\Process\Worker\{Process, Worker,WorkerKeeper};
 use Larmias\WorkerS\Process\Exceptions\ProcessException;
 use Larmias\WorkerS\Support\Arr;
-
 use Throwable;
 
 class Manager

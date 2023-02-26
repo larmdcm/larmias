@@ -7,8 +7,8 @@ namespace Larmias\Engine;
 use Larmias\Contracts\TimerInterface;
 
 /**
- * @method static int tick(float $duration,callable $func,array $args = [])
- * @method static int after(float $duration,callable $func,array $args = [])
+ * @method static int tick(float $duration, callable $func, array $args = [])
+ * @method static int after(float $duration, callable $func, array $args = [])
  * @method static bool del(int $timerId)
  * @method static bool clear()
  */
@@ -27,6 +27,11 @@ class Timer
     protected static TimerInterface $timer;
 
     /**
+     * @var bool
+     */
+    protected static bool $isInit = false;
+
+    /**
      * 初始化
      *
      * @param TimerInterface $timer
@@ -35,6 +40,23 @@ class Timer
     public static function init(TimerInterface $timer): void
     {
         static::$timer = $timer;
+        static::$isInit = true;
+    }
+
+    /**
+     * @return bool
+     */
+    public static function isInit(): bool
+    {
+        return static::$isInit;
+    }
+
+    /**
+     * @return TimerInterface
+     */
+    public static function getTimer(): TimerInterface
+    {
+        return static::$timer;
     }
 
     /**
@@ -42,8 +64,8 @@ class Timer
      * @param array $arguments
      * @return mixed
      */
-    public static function __callStatic(string $name,array $arguments): mixed
+    public static function __callStatic(string $name, array $arguments): mixed
     {
-        return \call_user_func_array([static::$timer,$name],$arguments);
+        return \call_user_func_array([static::$timer, $name], $arguments);
     }
 }

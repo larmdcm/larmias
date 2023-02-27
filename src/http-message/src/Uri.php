@@ -678,7 +678,7 @@ class Uri implements UriInterface
      */
     protected function filterPath(string $path): string
     {
-        return preg_replace_callback(
+        return \preg_replace_callback(
             '/(?:[^' . self::$charUnreserved . self::$charSubDelims . '%:@\/]++|%(?![A-Fa-f0-9]{2}))/',
             [$this, 'rawurlencodeMatchZero'],
             $path
@@ -696,7 +696,7 @@ class Uri implements UriInterface
      */
     protected function filterQueryAndFragment(string $str): string
     {
-        return preg_replace_callback(
+        return \preg_replace_callback(
             '/(?:[^' . self::$charUnreserved . self::$charSubDelims . '%:@\/\?]++|%(?![A-Fa-f0-9]{2}))/',
             [$this, 'rawurlencodeMatchZero'],
             $str
@@ -709,7 +709,7 @@ class Uri implements UriInterface
      */
     protected function rawurlencodeMatchZero(array $match): string
     {
-        return rawurlencode($match[0]);
+        return \rawurlencode($match[0]);
     }
 
     /**
@@ -722,7 +722,7 @@ class Uri implements UriInterface
         }
 
         if ($this->getAuthority() === '') {
-            if (str_starts_with($this->path, '//')) {
+            if (\str_starts_with($this->path, '//')) {
                 throw new InvalidArgumentException('The path of a URI without an authority must not start with two slashes "//"');
             }
             if ($this->scheme === '' && \strpos(explode('/', $this->path, 2)[0], ':') !== false) {

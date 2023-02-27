@@ -96,8 +96,9 @@ class Server implements OnRequestInterface
         $dispatched = Router::dispatch($request->getMethod(), $request->getPathInfo());
         $this->context->set(ServerRequestInterface::class, $request->withAttribute(Dispatched::class, $dispatched));
         $option = $dispatched->rule->getOption();
-        $httpRouteCoreMiddleware = $this->container->make(HttpRouteCoreMiddleware::class, [], true);
-        return $httpRouteCoreMiddleware->import($option['middleware'])->dispatch($request, function (RequestInterface $request) use ($dispatched) {
+        /** @var HttpRouteCoreMiddleware $httpRouteCoreMiddleware */
+        $httpRouteCoreMiddleware = $this->container->make(HttpRouteCoreMiddleware::class);
+        return $httpRouteCoreMiddleware->set($option['middleware'])->dispatch($request, function (RequestInterface $request) use ($dispatched) {
             return $this->warpResultToResponse($dispatched->dispatcher->run($request->all()));
         });
     }

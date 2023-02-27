@@ -10,6 +10,9 @@ use Larmias\Contracts\ViewInterface;
 
 class View implements ViewInterface
 {
+    /**
+     * @var ViewInterface
+     */
     protected ViewInterface $driver;
 
     /**

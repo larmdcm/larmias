@@ -13,9 +13,12 @@ use Larmias\Di\Contracts\AnnotationInterface;
 
 class AnnotationServiceProvider implements ServiceProviderInterface
 {
+    /**
+     * @param ContainerInterface $container
+     * @param ConfigInterface    $config
+     */
     public function __construct(protected ContainerInterface $container, protected ConfigInterface $config)
     {
-
     }
 
     /**

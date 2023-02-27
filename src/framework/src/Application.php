@@ -67,20 +67,20 @@ class Application implements ApplicationInterface
     protected ConfigInterface $config;
 
     /**
-     * @var array
-     */
-    protected array $discoverConfig = [];
-
-    /**
      * @var ServiceDiscoverInterface
      */
     protected ServiceDiscoverInterface $serviceDiscover;
 
     /**
+     * @var array
+     */
+    protected array $discoverConfig = [];
+
+    /**
      * @var bool
      */
     protected bool $isInit = false;
-
+    
     /**
      * @param ContainerInterface $container
      * @param string $rootPath

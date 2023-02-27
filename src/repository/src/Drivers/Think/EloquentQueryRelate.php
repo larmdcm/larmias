@@ -36,7 +36,7 @@ class EloquentQueryRelate extends QueryRelate
      */
     public function fieldRaw(string $expression, array $bind = []): QueryRelateInterface
     {
-        $this->query->field(new Raw($expression, $bind));
+        $this->query->field(new Raw($expression));
         return $this;
     }
 
@@ -316,7 +316,7 @@ class EloquentQueryRelate extends QueryRelate
      *
      * @param mixed $query
      * @param bool $unionAll
-     * @return $this
+     * @return QueryRelateInterface
      */
     public function union(mixed $query, bool $unionAll = false): QueryRelateInterface
     {
@@ -353,13 +353,13 @@ class EloquentQueryRelate extends QueryRelate
      * 指定callable查询
      *
      * @param callable $callable
-     * @return $this
+     * @return QueryRelateInterface
      */
     public function callable(callable $callable): QueryRelateInterface
     {
         $result = \call_user_func($callable, $this->query);
         if ($result instanceof Query) {
-            $this->query = $query;
+            $this->query = $result;
         }
         return $this;
     }

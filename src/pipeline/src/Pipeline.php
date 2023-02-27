@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Larmias\Pipeline;
 
-use Closure;
 use Larmias\Contracts\PipelineInterface;
 use Throwable;
+use Closure;
 
 class Pipeline implements PipelineInterface
 {
@@ -23,7 +23,7 @@ class Pipeline implements PipelineInterface
     /**
      * @var callable
      */
-    protected $exceptionHandler;
+    protected $exceptionHandler = null;
 
     /**
      * 初始数据

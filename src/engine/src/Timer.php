@@ -7,22 +7,13 @@ namespace Larmias\Engine;
 use Larmias\Contracts\TimerInterface;
 
 /**
- * @method static int tick(float $duration, callable $func, array $args = [])
- * @method static int after(float $duration, callable $func, array $args = [])
+ * @method static int tick(int $duration, callable $func, array $args = [])
+ * @method static int after(int $duration, callable $func, array $args = [])
  * @method static bool del(int $timerId)
  * @method static bool clear()
  */
 class Timer
 {
-    /** @var int */
-    public const MILLISECOND = 1;
-    /** @var int */
-    public const SECOND = 1000 * self::MILLISECOND;
-    /** @var int */
-    public const MINUTE = 60 * self::SECOND;
-    /** @var int */
-    public const HOUR = 60 * self::MINUTE;
-
     /** @var TimerInterface */
     protected static TimerInterface $timer;
 

@@ -18,14 +18,24 @@ use ReflectionProperty;
 
 class Annotation implements AnnotationInterface
 {
+    /**
+     * @var array|array[]
+     */
     protected array $config = [
         'include_path' => [],
         'exclude_path' => [],
         'handlers' => [],
     ];
 
+    /**
+     * @var array
+     */
     protected array $handler = [];
 
+    /**
+     * @param ContainerInterface $container
+     * @param array $config
+     */
     public function __construct(protected ContainerInterface $container, array $config = [])
     {
         $this->config = \array_merge($this->config, $config);
@@ -51,6 +61,9 @@ class Annotation implements AnnotationInterface
         $this->handle();
     }
 
+    /**
+     * @return void
+     */
     protected function handle(): void
     {
         foreach ((array)$this->config['handlers'] as $handlerItem) {
@@ -99,12 +112,20 @@ class Annotation implements AnnotationInterface
         }
     }
 
+    /**
+     * @param ReflectionClass $refClass
+     * @return void
+     */
     protected function parseClassAnnotation(ReflectionClass $refClass): void
     {
         $annotations = $this->getClassAnnotation($refClass);
         AnnotationCollector::collectClass($refClass->getName(), $annotations);
     }
 
+    /**
+     * @param ReflectionClass $refClass
+     * @return array
+     */
     protected function getClassAnnotation(ReflectionClass $refClass): array
     {
         $annotations = $this->buildAttribute($refClass->getAttributes());
@@ -116,11 +137,22 @@ class Annotation implements AnnotationInterface
         return $annotations;
     }
 
+    /**
+     * @param ReflectionClass $refClass
+     * @param ReflectionMethod $refMethod
+     * @return void
+     */
     protected function parseMethodAnnotation(ReflectionClass $refClass, ReflectionMethod $refMethod): void
     {
         AnnotationCollector::collectMethod($refClass->getName(), $refMethod->getName(), $this->buildAttribute($refMethod->getAttributes()));
     }
 
+    /**
+     * @param ReflectionClass $refClass
+     * @param ReflectionMethod $refMethod
+     * @param ReflectionParameter $refParameter
+     * @return void
+     */
     protected function parseMethodParameterAnnotation(ReflectionClass $refClass, ReflectionMethod $refMethod, ReflectionParameter $refParameter): void
     {
         AnnotationCollector::collectMethodParam($refClass->getName(), $refMethod->getName(), $refParameter->getName(), $this->buildAttribute($refParameter->getAttributes()));
@@ -150,11 +182,20 @@ class Annotation implements AnnotationInterface
         return $annotations;
     }
 
+    /**
+     * @param array $annotations
+     * @param array $parentAnnotations
+     * @return array
+     */
     protected function handleAnnotationExtend(array $annotations, array $parentAnnotations): array
     {
         return \array_merge($parentAnnotations, $annotations);
     }
 
+    /**
+     * @param array $attributes
+     * @return array
+     */
     protected function buildAttribute(array $attributes): array
     {
         $annotations = [];
@@ -168,6 +209,11 @@ class Annotation implements AnnotationInterface
         return $annotations;
     }
 
+    /**
+     * @param string|array $annotations
+     * @param string $handler
+     * @return $this
+     */
     public function addHandler(string|array $annotations, string $handler): self
     {
         foreach ((array)$annotations as $item) {

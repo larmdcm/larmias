@@ -4,13 +4,20 @@ declare(strict_types=1);
 
 namespace Larmias\Contracts;
 
-interface ApplicationInterface extends ContainerInterface
+interface ApplicationInterface
 {
     /**
      * @return void
      */
     public function initialize(): void;
-    
+
+    /**
+     * @param string $provider
+     * @param bool $force
+     * @return ApplicationInterface
+     */
+    public function register(string $provider, bool $force = false): ApplicationInterface;
+
     /**
      * @param string $provider
      * @return ServiceProviderInterface|null
@@ -22,7 +29,12 @@ interface ApplicationInterface extends ContainerInterface
      */
     public function run(): void;
 
-     /**
+    /**
+     * @return ContainerInterface
+     */
+    public function getContainer(): ContainerInterface;
+
+    /**
      * Get the value of rootPath
      *
      * @return string

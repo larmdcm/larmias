@@ -11,7 +11,6 @@ use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\DotEnvInterface;
 use Larmias\Contracts\ServiceProviderInterface;
 use Larmias\Contracts\StdoutLoggerInterface;
-use Larmias\Di\Container;
 use Larmias\Engine\Contracts\KernelInterface;
 use Larmias\Engine\Event;
 use Larmias\Engine\Kernel;
@@ -21,11 +20,21 @@ use Larmias\Event\ListenerProviderFactory;
 use Larmias\Command\Application as ConsoleApplication;
 use Larmias\Framework\Contracts\ServiceDiscoverInterface;
 use Larmias\Framework\Logger\StdoutLogger;
-use Psr\Container\ContainerInterface as PsrContainerInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\EventDispatcher\ListenerProviderInterface;
+use function rtrim;
+use function dirname;
+use function date_default_timezone_set;
+use function is_file;
+use function is_dir;
+use function glob;
+use function array_keys;
+use function array_merge;
+use function array_column;
+use function pathinfo;
+use function is_object;
 
-class Application extends Container implements ApplicationInterface
+class Application implements ApplicationInterface
 {
     /**
      * @var string
@@ -73,55 +82,43 @@ class Application extends Container implements ApplicationInterface
     protected bool $isInit = false;
 
     /**
-     * Application constructor.
-     *
+     * @param ContainerInterface $container
      * @param string $rootPath
-     * @throws \Throwable
      */
-    public function __construct(string $rootPath = '')
+    public function __construct(protected ContainerInterface $container, string $rootPath = '')
     {
-        parent::__construct();
-        $this->rootPath = \rtrim($rootPath ?: dirname(realpath($rootPath))) . DIRECTORY_SEPARATOR;
+        $this->rootPath = rtrim($rootPath ?: dirname(realpath($rootPath))) . DIRECTORY_SEPARATOR;
         $this->configPath = $this->rootPath . 'config' . DIRECTORY_SEPARATOR;
         $this->runtimePath = $this->rootPath . 'runtime' . DIRECTORY_SEPARATOR;
-        static::setInstance($this);
-        $this->bind([
-            self::class => $this,
-            ContainerInterface::class => $this,
-            PsrContainerInterface::class => $this,
-            ApplicationInterface::class => $this,
+        $this->container->bind([
             KernelInterface::class => Kernel::class,
             ConsoleInterface::class => ConsoleApplication::class,
             StdoutLoggerInterface::class => StdoutLogger::class,
             ServiceDiscoverInterface::class => ServiceDiscover::class,
             ListenerProviderInterface::class => function () {
-                return ListenerProviderFactory::make($this, $this->loadFileConfig('listeners', false));
+                return ListenerProviderFactory::make($this->container, $this->loadFileConfig('listeners', false));
             },
             EventDispatcherInterface::class => function () {
-                return EventDispatcherFactory::make($this);
+                return EventDispatcherFactory::make($this->container);
             },
         ]);
-        /** @var ServiceDiscoverInterface $serviceDiscover */
-        $serviceDiscover = $this->make(ServiceDiscoverInterface::class);
-        $this->serviceDiscover = $serviceDiscover;
     }
 
     /**
      * 初始化
      *
      * @return void
-     * @throws \ReflectionException
      */
     public function initialize(): void
     {
         if ($this->isInit) {
             return;
         }
-        $this->bind($this->loadFileConfig('dependencies'));
+        $this->container->bind($this->loadFileConfig('dependencies'));
         $this->loadEnv();
         $this->loadConfig();
-        \date_default_timezone_set($this->config->get('app.default_timezone', 'Asia/Shanghai'));
-        $this->bind($this->config->get('dependencies', []));
+        date_default_timezone_set($this->config->get('app.default_timezone', 'Asia/Shanghai'));
+        $this->container->bind($this->config->get('dependencies', []));
         $this->boot();
         $this->isInit = true;
     }
@@ -130,14 +127,13 @@ class Application extends Container implements ApplicationInterface
      * 加载环境变量配置
      *
      * @return void
-     * @throws \ReflectionException
      */
     protected function loadEnv(): void
     {
         $file = $this->getRootPath() . '.env';
-        if (\is_file($file)) {
+        if (is_file($file)) {
             /** @var DotEnvInterface $dotenv */
-            $dotenv = $this->make(DotEnvInterface::class);
+            $dotenv = $this->container->make(DotEnvInterface::class);
             $dotenv->load($file);
         }
     }
@@ -146,18 +142,17 @@ class Application extends Container implements ApplicationInterface
      * 加载配置
      *
      * @return void
-     * @throws \ReflectionException
      */
     protected function loadConfig(): void
     {
         $configPath = $this->getConfigPath();
-        if (!\is_dir($configPath)) {
+        if (!is_dir($configPath)) {
             return;
         }
         /** @var ConfigInterface $config */
-        $config = $this->get(ConfigInterface::class);
+        $config = $this->container->get(ConfigInterface::class);
         $this->config = $config;
-        foreach (\glob($configPath . '*' . '.' . $this->configExt) as $filename) {
+        foreach (glob($configPath . '*' . '.' . $this->configExt) as $filename) {
             $this->config->load($filename);
         }
     }
@@ -167,12 +162,12 @@ class Application extends Container implements ApplicationInterface
      */
     protected function boot(): void
     {
-        $bootProviders = \array_merge($this->loadFileConfig('providers', false), $this->config->get('providers', []));
+        $bootProviders = array_merge($this->loadFileConfig('providers', false), $this->config->get('providers', []));
         foreach ($bootProviders as $provider) {
             $this->register($provider);
         }
 
-        $providers = \array_keys($this->providers);
+        $providers = array_keys($this->providers);
 
         foreach ($providers as $provider) {
             $this->getServiceProvider($provider)->register();
@@ -188,7 +183,7 @@ class Application extends Container implements ApplicationInterface
      * @param bool $force
      * @return ApplicationInterface
      */
-    protected function register(string $provider, bool $force = false): ApplicationInterface
+    public function register(string $provider, bool $force = false): ApplicationInterface
     {
         if (isset($this->providers[$provider]) && !$force) {
             return $this;
@@ -206,8 +201,8 @@ class Application extends Container implements ApplicationInterface
         if (!isset($this->providers[$provider])) {
             return null;
         }
-        if (!\is_object($this->providers[$provider])) {
-            $this->providers[$provider] = $this->get($this->providers[$provider]);
+        if (!is_object($this->providers[$provider])) {
+            $this->providers[$provider] = $this->container->get($this->providers[$provider]);
         }
         return $this->providers[$provider];
     }
@@ -217,16 +212,25 @@ class Application extends Container implements ApplicationInterface
      */
     public function run(): void
     {
+        $this->serviceDiscover = $this->container->get(ServiceDiscoverInterface::class);
         $this->serviceDiscover->discover(function () {
             $this->discoverConfig = $this->serviceDiscover->services();
             /** @var ConsoleInterface $console */
-            $console = $this->get(ConsoleInterface::class);
+            $console = $this->container->get(ConsoleInterface::class);
             $commands = $this->loadFileConfig('commands');
             foreach ($commands as $command) {
                 $console->addCommand($command);
             }
             $console->run();
         });
+    }
+
+    /**
+     * @return ContainerInterface
+     */
+    public function getContainer(): ContainerInterface
+    {
+        return $this->container;
     }
 
     /**
@@ -326,19 +330,19 @@ class Application extends Container implements ApplicationInterface
         }
         $config = [];
         foreach ($files as $file) {
-            if (!\is_file($file)) {
+            if (!is_file($file)) {
                 continue;
             }
-            $extension = \pathinfo($file, PATHINFO_EXTENSION);
+            $extension = pathinfo($file, PATHINFO_EXTENSION);
             if ($extension === 'php') {
-                $config = \array_merge($config, require $file);
+                $config = array_merge($config, require $file);
             }
         }
         switch ($name) {
             case 'providers':
             case 'commands':
                 $config = isset($this->discoverConfig[$name]) ?
-                    \array_merge(\array_column($this->discoverConfig[$name], 'class'), $config) : $config;
+                    array_merge(array_column($this->discoverConfig[$name], 'class'), $config) : $config;
                 break;
             case 'worker':
                 $processConfig = $this->discoverConfig[ServiceDiscoverInterface::SERVICE_PROCESS] ?? [];

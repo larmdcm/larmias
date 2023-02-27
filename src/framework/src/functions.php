@@ -6,9 +6,9 @@ namespace Larmias\Framework;
 
 use Larmias\Contracts\DotEnvInterface;
 use Larmias\Contracts\StdoutLoggerInterface;
-use Larmias\Di\Container;
 use Larmias\Contracts\ApplicationInterface;
 use Larmias\Contracts\ConfigInterface;
+use Larmias\Utils\ApplicationContext;
 
 /**
  * make
@@ -20,7 +20,7 @@ use Larmias\Contracts\ConfigInterface;
  */
 function make(string $abstract, array $params = [], bool $newInstance = false): object
 {
-    return Container::getInstance()->make($abstract, $params, $newInstance);
+    return ApplicationContext::getContainer()->make($abstract, $params, $newInstance);
 }
 
 /**

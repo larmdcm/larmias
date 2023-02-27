@@ -5,190 +5,64 @@ declare(strict_types=1);
 namespace Larmias\Timer;
 
 use Larmias\Contracts\TimerInterface;
-use InvalidArgumentException;
-use Throwable;
+use Larmias\Timer\Drivers\Alarm;
+use Larmias\Timer\Drivers\Swoole;
 
-class Timer implements TimerInterface
+/**
+ * @method static int tick(int $duration, callable $func, array $args = [])
+ * @method static int after(int $duration, callable $func, array $args = [])
+ * @method static bool del(int $timerId)
+ * @method static bool clear()
+ */
+class Timer
 {
-    /**
-     * 定时器id
-     *
-     * @var integer
-     */
-    protected int $timerId = 0;
+    /** @var TimerInterface|null */
+    protected static ?TimerInterface $timer = null;
 
     /**
-     * @var TimerInterface|null
+     * @var bool
      */
-    protected static ?TimerInterface $instance = null;
-
-    /**
-     * @var array
-     */
-    protected array $tasks = [];
-
-    /**
-     * @var array
-     */
-    protected array $taskStatus = [];
-
-    /**
-     * Timer __construct
-     */
-    public function __construct()
-    {
-        $this->init();
-    }
-
-    /**
-     * 获取单例对象
-     *
-     * @return TimerInterface
-     */
-    public static function getInstance(): TimerInterface
-    {
-        if (is_null(static::$instance)) {
-            static::$instance = new static();
-        }
-        return static::$instance;
-    }
+    protected static bool $isInit = false;
 
     /**
      * 初始化
      *
+     * @param TimerInterface $timer
      * @return void
      */
-    public function init(): void
+    public static function init(TimerInterface $timer): void
     {
-        if (\function_exists('pcntl_signal')) {
-            \pcntl_signal(\SIGALRM, [$this, 'signalHandle'], false);
-        }
+        static::$timer = $timer;
+        static::$isInit = true;
     }
 
     /**
-     * 定时器间隔触发
-     *
-     * @param int $duration
-     * @param callable $func
-     * @param array $args
-     * @return integer
+     * @return bool
      */
-    public function tick(int $duration, callable $func, array $args = []): int
+    public static function isInit(): bool
     {
-        return $this->add($duration, $func, $args, true);
+        return static::$isInit;
     }
 
     /**
-     * 定时器延时触发 只会触发一次
-     *
-     * @param int $duration
-     * @param callable $func
-     * @param array $args
-     * @return integer
+     * @return TimerInterface
      */
-    public function after(int $duration, callable $func, array $args = []): int
+    public static function getTimer(): TimerInterface
     {
-        return $this->add($duration, $func, $args, false);
+        $timer = static::$timer;
+        if ($timer === null) {
+            $timer = \extension_loaded('swoole') ? Swoole::getInstance() : Alarm::getInstance();
+        }
+        return $timer;
     }
 
     /**
-     * 清空指定定时器
-     *
-     * @param int $timerId
-     * @return boolean
+     * @param string $name
+     * @param array $arguments
+     * @return mixed
      */
-    public function del(int $timerId): bool
+    public static function __callStatic(string $name, array $arguments): mixed
     {
-        foreach ($this->tasks as $runTime => $tasks) {
-            if (isset($tasks[$timerId])) {
-                unset($this->tasks[$runTime][$timerId]);
-            }
-        }
-        if (isset($this->taskStatus[$timerId])) {
-            unset($this->taskStatus[$timerId]);
-        }
-        return true;
-    }
-
-    /**
-     * 清空全部定时器
-     *
-     * @return boolean
-     */
-    public function clear(): bool
-    {
-        $this->tasks = $this->taskStatus = [];
-        \pcntl_alarm(0);
-        return true;
-    }
-
-    /**
-     * @return void
-     * @throws Throwable
-     */
-    protected function signalHandle(): void
-    {
-        \pcntl_alarm(1);
-        $this->interval();
-    }
-
-    /**
-     * 添加一个定时器
-     *
-     * @param int $time
-     * @param callable $func
-     * @param array $args
-     * @param boolean $persistent
-     *
-     * @return int
-     * @throws InvalidArgumentException
-     */
-    protected function add(int $time, callable $func, array $args, bool $persistent = true): int
-    {
-        if ($time <= 0) {
-            throw new InvalidArgumentException("timer interval time must be greater than 0");
-        }
-        if (empty($this->tasks)) {
-            \pcntl_alarm(1);
-        }
-        $this->timerId = $this->timerId === \PHP_INT_MAX ? 1 : ++$this->timerId;
-        $runTime = \time() + $time;
-        if (!isset($this->tasks[$runTime])) {
-            $this->tasks[$runTime] = [];
-        }
-        $this->tasks[$runTime][$this->timerId] = [$func, $args, $persistent, $time];
-        $this->taskStatus[$this->timerId] = true;
-        return $this->timerId;
-    }
-
-    /**
-     * @return void
-     * @throws Throwable
-     */
-    protected function interval(): void
-    {
-        if (empty($this->tasks)) {
-            \pcntl_alarm(0);
-            return;
-        }
-
-        $timeNow = \time();
-        foreach ($this->tasks as $runTime => $tasks) {
-            if ($timeNow < $runTime) {
-                continue;
-            }
-            foreach ($tasks as $timerId => $task) {
-                [$func, $args, $persistent, $time] = $task;
-                $func($args, $timerId);
-                if ($persistent && isset($this->taskStatus[$timerId])) {
-                    $newRuntime = \time() + $time;
-                    if (!isset($this->tasks[$newRuntime])) {
-                        $this->tasks[$newRuntime] = [];
-                    }
-                    $this->tasks[$newRuntime][$timerId] = $task;
-                }
-            }
-            unset($this->tasks[$runTime]);
-        }
+        return \call_user_func_array([static::getTimer(), $name], $arguments);
     }
 }

@@ -8,8 +8,16 @@ use Larmias\Utils\Arr;
 
 class AnnotationCollector
 {
+    /**
+     * @var array
+     */
     public static array $container = [];
 
+    /**
+     * @param string $class
+     * @param array $annotations
+     * @return void
+     */
     public static function collectClass(string $class, array $annotations): void
     {
         foreach ($annotations as $annotation => $value) {
@@ -17,6 +25,12 @@ class AnnotationCollector
         }
     }
 
+    /**
+     * @param string $class
+     * @param string $method
+     * @param array $annotations
+     * @return void
+     */
     public static function collectMethod(string $class, string $method, array $annotations): void
     {
         foreach ($annotations as $annotation => $value) {
@@ -24,6 +38,13 @@ class AnnotationCollector
         }
     }
 
+    /**
+     * @param string $class
+     * @param string $method
+     * @param string $param
+     * @param array $annotations
+     * @return void
+     */
     public static function collectMethodParam(string $class, string $method, string $param, array $annotations): void
     {
         foreach ($annotations as $annotation => $value) {
@@ -31,6 +52,12 @@ class AnnotationCollector
         }
     }
 
+    /**
+     * @param string $class
+     * @param string $property
+     * @param array $annotations
+     * @return void
+     */
     public static function collectProperty(string $class, string $property, array $annotations): void
     {
         foreach ($annotations as $annotation => $value) {
@@ -38,16 +65,27 @@ class AnnotationCollector
         }
     }
 
+    /**
+     * @param string|null $key
+     * @return mixed
+     */
     public static function get(?string $key = null): mixed
     {
         return $key ? Arr::get(static::$container, $key) : static::$container;
     }
 
+    /**
+     * @param string|array $key
+     * @return bool
+     */
     public static function has(string|array $key): bool
     {
         return Arr::has(static::$container, $key);
     }
 
+    /**
+     * @return array
+     */
     public static function all(): array
     {
         $result = [];
@@ -81,6 +119,10 @@ class AnnotationCollector
         return $result;
     }
 
+    /**
+     * @param string|null $key
+     * @return void
+     */
     public static function clear(?string $key = null): void
     {
         if ($key) {
@@ -90,6 +132,9 @@ class AnnotationCollector
         }
     }
 
+    /**
+     * @return array
+     */
     public static function getContainer(): array
     {
         return static::$container;

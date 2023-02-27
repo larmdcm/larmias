@@ -7,7 +7,6 @@ namespace Larmias\Di;
 use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\ContextInterface;
 use Larmias\Di\Annotation\Scope;
-use Larmias\Utils\ApplicationContext;
 use Psr\Container\ContainerInterface as PsrContainerInterface;
 use Closure;
 use Larmias\Utils\Reflection\Invoker;
@@ -94,7 +93,6 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
     public static function setInstance(ContainerInterface $container = null): void
     {
         static::$instance = $container;
-        ApplicationContext::setContainer(static::$instance);
     }
 
     /**
@@ -176,10 +174,10 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
      * 绑定类、闭包、实例、接口实现到容器
      *
      * @param string|array $abstract
-     * @param mixed $concrete
-     * @return void
+     * @param mixed|null $concrete
+     * @return ContainerInterface
      */
-    public function bind(string|array $abstract, mixed $concrete = null): void
+    public function bind(string|array $abstract, mixed $concrete = null): ContainerInterface
     {
         if (!$concrete) {
             $concrete = $abstract;
@@ -199,6 +197,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
                 $this->bindings[$abstract] = $concrete;
             }
         }
+        return $this;
     }
 
     /**

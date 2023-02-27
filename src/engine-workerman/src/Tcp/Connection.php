@@ -11,7 +11,6 @@ class Connection implements ConnectionInterface
 {
     public function __construct(protected TcpConnection $connection)
     {
-
     }
 
     public function getId(): int

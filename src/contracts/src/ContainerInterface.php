@@ -23,10 +23,10 @@ interface ContainerInterface extends PsrContainerInterface
      * 绑定类、闭包、实例、接口实现到容器
      *
      * @param string|array $abstract
-     * @param mixed $concrete
-     * @return void
+     * @param mixed|null $concrete
+     * @return ContainerInterface
      */
-    public function bind(string|array $abstract, $concrete = null): void;
+    public function bind(string|array $abstract, mixed $concrete = null): ContainerInterface;
 
     /**
      * 绑定一个类实例到容器

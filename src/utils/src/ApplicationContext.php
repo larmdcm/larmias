@@ -22,9 +22,10 @@ class ApplicationContext
         return static::$container;
     }
 
-    public static function setContainer(ContainerInterface $container): void
+    public static function setContainer(ContainerInterface $container): ContainerInterface
     {
         static::$container = $container;
+        return static::$container;
     }
 
     public static function hasContainer(): bool

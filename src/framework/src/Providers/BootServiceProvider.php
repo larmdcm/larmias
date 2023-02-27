@@ -28,14 +28,14 @@ class BootServiceProvider extends ServiceProvider
     protected function listeners(): void
     {
         $listeners = config('listeners', []);
-        $provider = $this->app->get(ListenerProviderInterface::class);
+        $provider = $this->app->getContainer()->get(ListenerProviderInterface::class);
         foreach ($listeners as $listener => $priority) {
             if (is_int($listener)) {
                 $listener = $priority;
                 $priority = 1;
             }
             if (is_string($listener)) {
-                ListenerProviderFactory::register($provider, $this->app, $listener, $priority);
+                ListenerProviderFactory::register($provider, $this->app->getContainer(), $listener, $priority);
             }
         }
     }

@@ -27,7 +27,9 @@ abstract class Guard implements GuardInterface
      * @param IdentityRepositoryInterface $repository
      * @param AuthenticationInterface $authentication
      */
-    public function __construct(protected ContainerInterface $container, protected IdentityRepositoryInterface $repository, protected AuthenticationInterface $authentication)
+    public function __construct(protected ContainerInterface          $container,
+                                protected IdentityRepositoryInterface $repository,
+                                protected AuthenticationInterface     $authentication)
     {
         if (\method_exists($this, 'initialize')) {
             $this->container->invoke([$this, 'initialize']);

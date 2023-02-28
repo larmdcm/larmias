@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Framework\Contracts;
+namespace Larmias\Contracts;
 
 interface ServiceDiscoverInterface
 {
@@ -39,4 +39,18 @@ interface ServiceDiscoverInterface
      * @return array
      */
     public function services(): array;
+
+    /**
+     * @param string $process
+     * @param string $name
+     * @param int $count
+     * @return void
+     */
+    public function addProcess(string $process, string $name, int $count = 1): void;
+
+    /**
+     * @param string|array $commands
+     * @return void
+     */
+    public function commands(string|array $commands): void;
 }

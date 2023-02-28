@@ -18,7 +18,7 @@ use Larmias\Engine\WorkerType;
 use Larmias\Event\EventDispatcherFactory;
 use Larmias\Event\ListenerProviderFactory;
 use Larmias\Command\Application as ConsoleApplication;
-use Larmias\Framework\Contracts\ServiceDiscoverInterface;
+use Larmias\Contracts\ServiceDiscoverInterface;
 use Larmias\Framework\Logger\StdoutLogger;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\EventDispatcher\ListenerProviderInterface;
@@ -80,7 +80,7 @@ class Application implements ApplicationInterface
      * @var bool
      */
     protected bool $isInit = false;
-    
+
     /**
      * @param ContainerInterface $container
      * @param string $rootPath
@@ -90,7 +90,7 @@ class Application implements ApplicationInterface
         $this->rootPath = rtrim($rootPath ?: dirname(realpath($rootPath))) . DIRECTORY_SEPARATOR;
         $this->configPath = $this->rootPath . 'config' . DIRECTORY_SEPARATOR;
         $this->runtimePath = $this->rootPath . 'runtime' . DIRECTORY_SEPARATOR;
-        $this->container->bind([
+        $this->container->bindIf([
             KernelInterface::class => Kernel::class,
             ConsoleInterface::class => ConsoleApplication::class,
             StdoutLoggerInterface::class => StdoutLogger::class,
@@ -114,11 +114,11 @@ class Application implements ApplicationInterface
         if ($this->isInit) {
             return;
         }
-        $this->container->bind($this->loadFileConfig('dependencies'));
+        $this->container->bindIf($this->loadFileConfig('dependencies'));
         $this->loadEnv();
         $this->loadConfig();
         date_default_timezone_set($this->config->get('app.default_timezone', 'Asia/Shanghai'));
-        $this->container->bind($this->config->get('dependencies', []));
+        $this->container->bindIf($this->config->get('dependencies', []));
         $this->boot();
         $this->isInit = true;
     }

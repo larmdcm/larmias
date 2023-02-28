@@ -7,6 +7,7 @@ namespace Larmias\Engine\WorkerMan;
 use Larmias\Engine\Worker as BaseWorker;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
+use Workerman\Connection\TcpConnection;
 use Throwable;
 use function Larmias\Utils\format_exception;
 
@@ -49,6 +50,14 @@ class EngineWorker extends BaseWorker
 
         if (!empty($config['eventLoop'])) {
             Worker::$eventLoopClass = $config['eventLoop'];
+        }
+
+        if (!empty($config['defaultMaxSendBufferSize'])) {
+            TcpConnection::$defaultMaxSendBufferSize = $config['defaultMaxSendBufferSize'];
+        }
+
+        if (!empty($config['defaultMaxPackageSize'])) {
+            TcpConnection::$defaultMaxPackageSize = $config['defaultMaxPackageSize'];
         }
 
         return $this->workerBind($worker, $this);

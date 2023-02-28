@@ -22,13 +22,30 @@ class Driver implements DriverInterface
     }
 
     /**
+     * @param bool $force
      * @return void
      */
-    public function reload(): void
+    public function stop(bool $force): void
     {
-        if (extension_loaded('posix') && extension_loaded('pcntl')) {
-            \posix_kill(\posix_getppid(), \SIGUSR1);
-        }
+        Worker::command(__FUNCTION__, $force);
+    }
+
+    /**
+     * @param bool $force
+     * @return void
+     */
+    public function restart(bool $force): void
+    {
+        Worker::command(__FUNCTION__, $force);
+    }
+
+    /**
+     * @param bool $force
+     * @return void
+     */
+    public function reload(bool $force = true): void
+    {
+        Worker::command(__FUNCTION__, $force);
     }
 
     /**

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Larmias\Framework;
 
 use Larmias\Contracts\ApplicationInterface;
-use Larmias\Framework\Contracts\ServiceDiscoverInterface;
+use Larmias\Contracts\ServiceDiscoverInterface;
 use function class_exists;
 
 class ServiceDiscover implements ServiceDiscoverInterface
@@ -80,6 +80,28 @@ class ServiceDiscover implements ServiceDiscoverInterface
             $this->services = \array_merge(require $file, $this->services);
         }
         return $this->services;
+    }
+
+    /**
+     * @param string $process
+     * @param string $name
+     * @param int $count
+     * @return void
+     */
+    public function addProcess(string $process, string $name, int $count = 1): void
+    {
+        $this->register(ServiceDiscoverInterface::SERVICE_PROCESS, $process, ['name' => $name, 'count' => $count]);
+    }
+
+    /**
+     * @param string|array $commands
+     * @return void
+     */
+    public function commands(string|array $commands): void
+    {
+        foreach ((array)$commands as $command) {
+            $this->register(ServiceDiscoverInterface::SERVICE_COMMAND, $command);
+        }
     }
 
     /**

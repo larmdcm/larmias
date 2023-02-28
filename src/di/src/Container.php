@@ -175,29 +175,41 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
      *
      * @param string|array $abstract
      * @param mixed|null $concrete
+     * @param bool $force
      * @return ContainerInterface
      */
-    public function bind(string|array $abstract, mixed $concrete = null): ContainerInterface
+    public function bind(string|array $abstract, mixed $concrete = null, bool $force = true): ContainerInterface
     {
         if (!$concrete) {
             $concrete = $abstract;
         }
         if (is_array($abstract)) {
             foreach ($abstract as $key => $value) {
-                $this->bind($key, $value);
+                $this->bind($key, $value, $force);
             }
-        } else if ($concrete instanceof Closure) {
-            $abstract = $this->getAlias($abstract);
-            $this->bindings[$abstract] = $concrete;
-        } else if (is_object($concrete)) {
-            $this->instance($abstract, $concrete);
+        } else if (is_object($concrete) && !($concrete instanceof Closure)) {
+            $this->instance($abstract, $concrete, $force);
         } else {
             $abstract = $this->getAlias($abstract);
-            if ($abstract != $concrete) {
-                $this->bindings[$abstract] = $concrete;
+            if ($concrete instanceof Closure || $abstract !== $concrete) {
+                if (!isset($this->bindings[$abstract]) || $force) {
+                    $this->bindings[$abstract] = $concrete;
+                }
             }
         }
         return $this;
+    }
+
+    /**
+     * 不存在则绑定类、闭包、实例、接口实现到容器
+     *
+     * @param array|string $abstract
+     * @param mixed|null $concrete
+     * @return ContainerInterface
+     */
+    public function bindIf(array|string $abstract, mixed $concrete = null): ContainerInterface
+    {
+        return $this->bind($abstract, $concrete, false);
     }
 
     /**
@@ -205,12 +217,15 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
      *
      * @param string $abstract
      * @param object $instance
+     * @param bool $force
      * @return object
      */
-    public function instance(string $abstract, object $instance): object
+    public function instance(string $abstract, object $instance, bool $force = true): object
     {
         $abstract = $this->getAlias($abstract);
-        $this->instances[$abstract] = $instance;
+        if (!isset($this->instances[$abstract]) || $force) {
+            $this->instances[$abstract] = $instance;
+        }
         return $instance;
     }
 

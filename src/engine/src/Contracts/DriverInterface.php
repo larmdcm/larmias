@@ -12,9 +12,22 @@ interface DriverInterface
     public function run(KernelInterface $kernel): void;
 
     /**
+     * @param bool $force
      * @return void
      */
-    public function reload(): void;
+    public function stop(bool $force = true): void;
+
+    /**
+     * @param bool $force
+     * @return void
+     */
+    public function restart(bool $force = true): void;
+
+    /**
+     * @param bool $force
+     * @return void
+     */
+    public function reload(bool $force = true): void;
 
     /**
      * @return string

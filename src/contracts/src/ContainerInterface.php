@@ -24,18 +24,29 @@ interface ContainerInterface extends PsrContainerInterface
      *
      * @param string|array $abstract
      * @param mixed|null $concrete
+     * @param bool $force
      * @return ContainerInterface
      */
-    public function bind(string|array $abstract, mixed $concrete = null): ContainerInterface;
+    public function bind(string|array $abstract, mixed $concrete = null, bool $force = true): ContainerInterface;
+
+    /**
+     * 不存在则绑定类、闭包、实例、接口实现到容器
+     *
+     * @param string|array $abstract
+     * @param mixed|null $concrete
+     * @return ContainerInterface
+     */
+    public function bindIf(string|array $abstract, mixed $concrete = null): ContainerInterface;
 
     /**
      * 绑定一个类实例到容器
      *
      * @param string $abstract
      * @param object $instance
+     * @param bool $force
      * @return object
      */
-    public function instance(string $abstract, object $instance): object;
+    public function instance(string $abstract, object $instance, bool $force = true): object;
 
     /**
      * 获取类别名的真实类名

@@ -17,14 +17,14 @@ class Server extends BaseServer
     protected string $protocol = 'udp';
 
     /**
-     * @param UdpConnection $workerConnection
+     * @param UdpConnection $udpConnection
      * @param mixed $data
      * @return void
      */
-    public function onMessage(UdpConnection $workerConnection, mixed $data): void
+    public function onMessage(UdpConnection $udpConnection, mixed $data): void
     {
         try {
-            $connection = new Connection($workerConnection);
+            $connection = new Connection($udpConnection);
             $this->trigger(Event::ON_PACKET, [$connection, $data]);
         } catch (Throwable $e) {
             $this->exceptionHandler($e);

@@ -16,30 +16,43 @@ class Server extends BaseServer
      */
     protected string $protocol = 'tcp';
 
-    public function onConnect(TcpConnection $workerConnection): void
+    /**
+     * @param TcpConnection $tcpConnection
+     * @return void
+     */
+    public function onConnect(TcpConnection $tcpConnection): void
     {
         try {
-            $connection = new Connection($workerConnection);
+            $connection = new Connection($tcpConnection);
             $this->trigger(Event::ON_CONNECT, [$connection]);
         } catch (Throwable $e) {
             $this->exceptionHandler($e);
         }
     }
 
-    public function onMessage(TcpConnection $workerConnection, mixed $data): void
+    /**
+     * @param TcpConnection $tcpConnection
+     * @param mixed $data
+     * @return void
+     */
+    public function onMessage(TcpConnection $tcpConnection, mixed $data): void
     {
         try {
-            $connection = new Connection($workerConnection);
+            $connection = new Connection($tcpConnection);
             $this->trigger(Event::ON_RECEIVE, [$connection, $data]);
         } catch (Throwable $e) {
             $this->exceptionHandler($e);
         }
     }
 
-    public function onClose(TcpConnection $workerConnection): void
+    /**
+     * @param TcpConnection $tcpConnection
+     * @return void
+     */
+    public function onClose(TcpConnection $tcpConnection): void
     {
         try {
-            $connection = new Connection($workerConnection);
+            $connection = new Connection($tcpConnection);
             $this->trigger(Event::ON_CLOSE, [$connection]);
         } catch (Throwable $e) {
             $this->exceptionHandler($e);

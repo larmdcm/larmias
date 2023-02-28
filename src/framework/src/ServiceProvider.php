@@ -6,7 +6,7 @@ namespace Larmias\Framework;
 
 use Larmias\Contracts\ApplicationInterface;
 use Larmias\Contracts\ServiceProviderInterface;
-use Larmias\Framework\Contracts\ServiceDiscoverInterface;
+use Larmias\Contracts\ServiceDiscoverInterface;
 
 abstract class ServiceProvider implements ServiceProviderInterface
 {
@@ -40,7 +40,7 @@ abstract class ServiceProvider implements ServiceProviderInterface
      */
     public function addProcess(string $process, string $name, int $count = 1): void
     {
-        $this->serviceDiscover->register(ServiceDiscoverInterface::SERVICE_PROCESS, $process, ['name' => $name, 'count' => $count]);
+        $this->serviceDiscover->addProcess($process, $name, $count);
     }
 
     /**
@@ -49,8 +49,6 @@ abstract class ServiceProvider implements ServiceProviderInterface
      */
     public function commands(string|array $commands): void
     {
-        foreach ((array)$commands as $command) {
-            $this->serviceDiscover->register(ServiceDiscoverInterface::SERVICE_COMMAND, $command);
-        }
+        $this->serviceDiscover->commands($commands);
     }
 }

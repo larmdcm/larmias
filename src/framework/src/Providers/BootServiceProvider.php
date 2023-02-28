@@ -7,8 +7,9 @@ namespace Larmias\Framework\Providers;
 use Larmias\Event\ListenerProviderFactory;
 use Larmias\Framework\ServiceProvider;
 use Psr\EventDispatcher\ListenerProviderInterface;
-
 use function Larmias\Framework\config;
+use function is_int;
+use function is_string;
 
 class BootServiceProvider extends ServiceProvider
 {

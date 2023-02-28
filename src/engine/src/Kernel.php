@@ -31,7 +31,7 @@ class Kernel implements KernelInterface
     protected array $workers = [];
 
     /**
-     * Server constructor.
+     * Kernel constructor.
      *
      * @param ContainerInterface $container
      */
@@ -100,5 +100,32 @@ class Kernel implements KernelInterface
     public function getDriver(): DriverInterface
     {
         return $this->driver;
+    }
+
+    /**
+     * @param bool $force
+     * @return void
+     */
+    public function stop(bool $force = true): void
+    {
+        $this->getDriver()->stop($force);
+    }
+
+    /**
+     * @param bool $force
+     * @return void
+     */
+    public function restart(bool $force = true): void
+    {
+        $this->getDriver()->restart(true);
+    }
+
+    /**
+     * @param bool $force
+     * @return void
+     */
+    public function reload(bool $force = true): void
+    {
+        $this->getDriver()->reload($force);
     }
 }

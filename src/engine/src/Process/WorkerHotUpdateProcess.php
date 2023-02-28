@@ -42,7 +42,7 @@ class WorkerHotUpdateProcess
     public function handle(WorkerInterface $worker): void
     {
         $this->watcher->watch(function (string $path, int $event) use ($worker) {
-            $worker->getKernel()->getDriver()->reload();
+            $worker->getKernel()->reload();
         });
     }
 }

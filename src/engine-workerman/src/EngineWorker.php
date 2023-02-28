@@ -48,8 +48,24 @@ class EngineWorker extends BaseWorker
             }
         }
 
-        if (!empty($config['eventLoop'])) {
-            Worker::$eventLoopClass = $config['eventLoop'];
+        if (isset($config['daemonize'])) {
+            Worker::$daemonize = $config['daemonize'];
+        }
+
+        if (!empty($config['eventLoopClass'])) {
+            Worker::$eventLoopClass = $config['eventLoopClass'];
+        }
+
+        if (!empty($config['stdoutFile'])) {
+            Worker::$stdoutFile = $config['stdoutFile'];
+        }
+
+        if (!empty($config['pidFile'])) {
+            Worker::$pidFile = $config['pidFile'];
+        }
+
+        if (!empty($config['logFile'])) {
+            Worker::$logFile = $config['logFile'];
         }
 
         if (!empty($config['defaultMaxSendBufferSize'])) {

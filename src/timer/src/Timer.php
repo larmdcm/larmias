@@ -7,6 +7,7 @@ namespace Larmias\Timer;
 use Larmias\Contracts\TimerInterface;
 use Larmias\Timer\Drivers\Alarm;
 use Larmias\Timer\Drivers\Swoole;
+use Larmias\Timer\Drivers\NoSupport;
 
 /**
  * @method static int tick(int $duration, callable $func, array $args = [])
@@ -51,7 +52,13 @@ class Timer
     {
         $timer = static::$timer;
         if ($timer === null) {
-            $timer = \extension_loaded('swoole') ? Swoole::getInstance() : Alarm::getInstance();
+            if (\extension_loaded('swoole')) {
+                $timer = Swoole::getInstance();
+            } else if (\extension_loaded('pcntl')) {
+                $timer = Alarm::getInstance();
+            } else {
+                $timer = NoSupport::getInstance();
+            }
         }
         return $timer;
     }

@@ -25,7 +25,7 @@ class Driver implements DriverInterface
      * @param bool $force
      * @return void
      */
-    public function stop(bool $force): void
+    public function stop(bool $force = true): void
     {
         Worker::command(__FUNCTION__, $force);
     }
@@ -34,7 +34,7 @@ class Driver implements DriverInterface
      * @param bool $force
      * @return void
      */
-    public function restart(bool $force): void
+    public function restart(bool $force = true): void
     {
         Worker::command(__FUNCTION__, $force);
     }

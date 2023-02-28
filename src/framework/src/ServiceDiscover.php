@@ -51,6 +51,8 @@ class ServiceDiscover implements ServiceDiscoverInterface
                 exit(0);
             }
             \pcntl_wait($status, \WUNTRACED);
+        } else {
+            $this->handle();
         }
         $callback();
     }

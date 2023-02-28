@@ -35,4 +35,22 @@ interface KernelInterface
      * @return void
      */
     public function run(): void;
+
+    /**
+     * @param bool $force
+     * @return void
+     */
+    public function stop(bool $force = true): void;
+
+    /**
+     * @param bool $force
+     * @return void
+     */
+    public function restart(bool $force = true): void;
+
+    /**
+     * @param bool $force
+     * @return void
+     */
+    public function reload(bool $force = true): void;
 }

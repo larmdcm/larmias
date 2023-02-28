@@ -6,17 +6,17 @@ namespace Larmias\Framework\Commands;
 
 use Symfony\Component\Console\Input\InputOption;
 
-class Stop extends Worker
+class Reload extends Worker
 {
     /**
      * @var string
      */
-    protected string $name = 'stop';
+    protected string $name = 'reload';
 
     /**
      * @var string
      */
-    protected string $description = 'Stop larmias workers.';
+    protected string $description = 'Reload larmias workers.';
 
     /**
      * @return void
@@ -24,7 +24,7 @@ class Stop extends Worker
     public function configure(): void
     {
         parent::configure();
-        $this->addOption('force', 'f', InputOption::VALUE_OPTIONAL, 'force stop worker', true);
+        $this->addOption('force', 'f', InputOption::VALUE_OPTIONAL, 'force reload worker', true);
     }
 
     /**
@@ -32,6 +32,6 @@ class Stop extends Worker
      */
     protected function handle(): void
     {
-        $this->kernel->stop($this->input->getOption('force'));
+        $this->kernel->reload($this->input->getOption('force'));
     }
 }

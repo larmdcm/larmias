@@ -25,6 +25,16 @@ abstract class Worker extends Command
     protected string $description = '';
 
     /**
+     * @var InputInterface
+     */
+    protected InputInterface $input;
+
+    /**
+     * @var OutputInterface
+     */
+    protected OutputInterface $output;
+
+    /**
      * @param ApplicationInterface $app
      * @param KernelInterface $kernel
      */
@@ -49,6 +59,8 @@ abstract class Worker extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $this->input = $input;
+        $this->output = $output;
         $this->makeKernel();
         $this->handle();
         return self::SUCCESS;

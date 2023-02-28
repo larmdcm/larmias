@@ -46,7 +46,7 @@ class Worker extends WorkerManWorker
         if (!$masterPid) {
             return;
         }
-        $startFile = $GLOBAL['argv'][0];
+        $startFile = $GLOBALS['argv'][0];
         switch ($command) {
             case 'stop':
             case 'restart':
@@ -60,13 +60,13 @@ class Worker extends WorkerManWorker
                     static::log("Workerman[$startFile] is stopping ...");
                 }
                 // Send stop signal to master process.
-                $masterPid && \posix_kill($masterPid, $sig);
+                \posix_kill($masterPid, $sig);
                 // Timeout.
                 $timeout = static::$stopTimeout + 3;
                 $startTime = \time();
                 // Check master process is still alive?
                 while (1) {
-                    $master_is_alive = $masterPid && \posix_kill((int)$masterPid, 0);
+                    $master_is_alive = \posix_kill((int)$masterPid, 0);
                     if ($master_is_alive) {
                         // Timeout?
                         if (!static::$_gracefulStop && \time() - $startTime >= $timeout) {

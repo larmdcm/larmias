@@ -33,9 +33,7 @@ class HttpServiceProvider implements ServiceProviderInterface
         $router = $this->container->make(BaseRouter::class);
         Router::init($router);
 
-        if (!$this->container->has(RouteAnnotationHandlerInterface::class)) {
-            $this->container->bind(RouteAnnotationHandlerInterface::class, RouteAnnotationHandler::class);
-        }
+        $this->container->bindIf(RouteAnnotationHandlerInterface::class, RouteAnnotationHandler::class);
 
         AnnotationManager::addHandler([
             Controller::class,

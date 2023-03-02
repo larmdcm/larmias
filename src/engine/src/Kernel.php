@@ -117,7 +117,7 @@ class Kernel implements KernelInterface
      */
     public function restart(bool $force = true): void
     {
-        $this->getDriver()->restart(true);
+        $this->getDriver()->restart($force);
     }
 
     /**

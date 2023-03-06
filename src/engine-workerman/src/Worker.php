@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Larmias\Engine\WorkerMan;
 
-use Workerman\Worker as WorkerManWorker;
+use Workerman\Worker as BaseWorkerManWorker;
 
-class Worker extends WorkerManWorker
+class Worker extends BaseWorkerManWorker
 {
     /**
      * @return void

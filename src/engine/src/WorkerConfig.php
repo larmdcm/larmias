@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Larmias\Engine;
 
-class WorkerConfig
+use Larmias\Engine\Contracts\WorkerConfigInterface;
+
+class WorkerConfig implements WorkerConfigInterface
 {
     /** @var string  */
     protected string $name;

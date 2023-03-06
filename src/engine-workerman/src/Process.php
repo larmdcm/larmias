@@ -21,8 +21,7 @@ class Process extends EngineWorker
     public function initialize(): void
     {
         parent::initialize();
-        $config = $this->getSettings();
-        $this->worker = $this->makeWorker($config);
+        $this->worker = $this->makeWorker($this->getMakeWorkerConfig());
     }
 
     /**
@@ -42,5 +41,13 @@ class Process extends EngineWorker
         } catch (Throwable $e) {
             $this->exceptionHandler($e);
         }
+    }
+
+    /**
+     * @return array
+     */
+    protected function getMakeWorkerConfig(): array
+    {
+        return $this->getSettings();
     }
 }

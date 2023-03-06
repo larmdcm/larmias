@@ -5,6 +5,7 @@
   "keywords": [
     "php",
     "workerman",
+    "swoole",
     "larmias",
     "psr",
     "framework"
@@ -44,6 +45,7 @@
     "symfony/console": "^6.0"
   },
   "require-dev": {
+    "swoole/ide-helper": "^4.5"
   },
   "autoload": {
     "files": [
@@ -65,6 +67,7 @@
       "Larmias\\Engine\\": "src/engine/src/",
       "Larmias\\Engine\\WorkerS\\": "src/engine-workers/src/",
       "Larmias\\Engine\\WorkerMan\\": "src/engine-workerman/src/",
+      "Larmias\\Engine\\Swoole\\": "src/engine-swoole/src/",
       "Larmias\\SharedMemory\\": "src/shared-memory/src/",
       "Larmias\\Http\\Message\\": "src/http-message/src/",
       "Larmias\\HttpServer\\": "src/http-server/src/",

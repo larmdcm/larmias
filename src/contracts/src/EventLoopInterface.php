@@ -11,10 +11,9 @@ interface EventLoopInterface
      *
      * @param resource $stream
      * @param callable $func
-     * @param array $args
      * @return bool
      */
-    public function onReadable($stream, callable $func, array $args = []): bool;
+    public function onReadable($stream, callable $func): bool;
 
     /**
      * 移除读事件
@@ -29,10 +28,9 @@ interface EventLoopInterface
      *
      * @param resource $stream
      * @param callable $func
-     * @param array $args
      * @return bool
      */
-    public function onWritable($stream, callable $func, array $args = []): bool;
+    public function onWritable($stream, callable $func): bool;
 
     /**
      * 移除写事件

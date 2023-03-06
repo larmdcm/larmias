@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Larmias\Engine;
 
+use Larmias\Engine\Contracts\EngineConfigInterface;
 use RuntimeException;
 
-class EngineConfig
+class EngineConfig implements EngineConfigInterface
 {
     /** @var string */
     protected string $driver;

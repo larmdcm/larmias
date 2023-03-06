@@ -9,9 +9,9 @@ use Workerman\Events\EventInterface;
 
 class EventLoop implements EventLoopInterface
 {
-    public function onReadable($stream, callable $func, array $args = []): bool
+    public function onReadable($stream, callable $func): bool
     {
-        Worker::getEventLoop()->add($stream, EventInterface::EV_READ, $func, $args);
+        Worker::getEventLoop()->add($stream, EventInterface::EV_READ, $func);
         return true;
     }
 
@@ -21,9 +21,9 @@ class EventLoop implements EventLoopInterface
         return true;
     }
 
-    public function onWritable($stream, callable $func, array $args = []): bool
+    public function onWritable($stream, callable $func): bool
     {
-        Worker::getEventLoop()->add($stream, EventInterface::EV_WRITE, $func, $args);
+        Worker::getEventLoop()->add($stream, EventInterface::EV_WRITE, $func);
         return true;
     }
 

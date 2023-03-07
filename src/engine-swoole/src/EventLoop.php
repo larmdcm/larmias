@@ -24,7 +24,7 @@ class EventLoop implements EventLoopInterface
     /**
      * {@inheritdoc}
      */
-    public function onReadable($stream, callable $func, array $args = []): bool
+    public function onReadable($stream, callable $func): bool
     {
         $fd = (int)$stream;
         if (!isset($this->readEvents[$fd]) && !isset($this->writeEvents[$fd])) {
@@ -61,7 +61,7 @@ class EventLoop implements EventLoopInterface
     /**
      * {@inheritdoc}
      */
-    public function onWritable($stream, callable $func, array $args = []): bool
+    public function onWritable($stream, callable $func): bool
     {
         $fd = (int)$stream;
         if (!isset($this->readEvents[$fd]) && !isset($this->writeEvents[$fd])) {

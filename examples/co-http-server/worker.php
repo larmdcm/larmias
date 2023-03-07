@@ -13,7 +13,6 @@ use Psr\EventDispatcher\ListenerProviderInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Larmias\Event\ListenerProviderFactory;
 use Larmias\Event\EventDispatcherFactory;
-use Larmias\SharedMemory\Server as SharedMemoryServer;
 
 return [
     'driver' => \Larmias\Engine\Swoole\Driver::class,

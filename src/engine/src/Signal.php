@@ -33,6 +33,9 @@ class Signal
      */
     public static function __callStatic(string $name, array $arguments): mixed
     {
+        if (static::$signal === null) {
+            throw new \RuntimeException("not support: Signal");
+        }
         return \call_user_func_array([static::$signal, $name], $arguments);
     }
 }

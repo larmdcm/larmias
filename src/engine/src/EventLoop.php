@@ -37,6 +37,10 @@ class EventLoop
      */
     public static function __callStatic(string $name, array $arguments): mixed
     {
+        if (static::$eventLoop === null) {
+            throw new \RuntimeException("not support: EventLoop");
+        }
+
         return call_user_func_array([static::$eventLoop, $name], $arguments);
     }
 }

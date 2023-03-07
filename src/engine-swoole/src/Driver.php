@@ -6,71 +6,99 @@ namespace Larmias\Engine\Swoole;
 
 use Larmias\Engine\Contracts\DriverInterface;
 use Larmias\Engine\Contracts\KernelInterface;
+use Larmias\Engine\Swoole\Contracts\ServerInterface;
+use Larmias\Engine\Swoole\Http\Server as HttpServer;
 
 class Driver implements DriverInterface
 {
+    /**
+     * @param KernelInterface $kernel
+     * @return void
+     */
     public function run(KernelInterface $kernel): void
     {
-        // TODO: Implement run() method.
+        $manager = new Manager();
+        foreach ($kernel->getWorkers() as $worker) {
+            $manager->addWorker($worker instanceof ServerInterface ? [$worker, 'initServer'] : [$worker, 'initProcess'],
+                $worker->getSettings('worker_num', 1),
+                $worker->getWorkerConfig()->getName()
+            );
+        }
+        $manager->start();
     }
 
+    /**
+     * @param bool $force
+     * @return void
+     */
     public function stop(bool $force = true): void
     {
         // TODO: Implement stop() method.
     }
 
+    /**
+     * @param bool $force
+     * @return void
+     */
     public function restart(bool $force = true): void
     {
         // TODO: Implement restart() method.
     }
 
+    /**
+     * @param bool $force
+     * @return void
+     */
     public function reload(bool $force = true): void
     {
         // TODO: Implement reload() method.
     }
 
-    public function getTcpServerClass(): string
+    public function getTcpServerClass(): ?string
     {
-        return '';
+        return null;
     }
 
-    public function getUdpServerClass(): string
+    public function getUdpServerClass(): ?string
     {
-        return '';
+        return null;
     }
 
-    public function getHttpServerClass(): string
+    /**
+     * @return string|null
+     */
+    public function getHttpServerClass(): ?string
     {
-        return '';
+        return HttpServer::class;
     }
 
-    public function getWebSocketServerClass(): string
+    public function getWebSocketServerClass(): ?string
     {
-        return '';
+        return null;
     }
 
-    public function getProcessClass(): string
+    public function getProcessClass(): ?string
     {
-        return '';
+        return null;
     }
 
-    public function getEventLoopClass(): string
+    public function getEventLoopClass(): ?string
     {
-        return '';
+        return null;
     }
 
-    public function getTimerClass(): string
+    public function getTimerClass(): ?string
     {
-        return '';
+        return null;
     }
 
-    public function getSignalClass(): string
+    public function getSignalClass(): ?string
     {
-        return '';
+        return null;
     }
 
-    public function getContextClass(): string
+    public function getContextClass(): ?string
     {
-        return '';
+        return null;
     }
 }

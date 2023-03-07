@@ -16,15 +16,20 @@ interface KernelInterface
     public function setConfig(EngineConfig $engineConfig): KernelInterface;
 
     /**
-     * @return EngineConfig
+     * @return EngineConfigInterface
      */
-    public function getConfig(): EngineConfig;
+    public function getConfig(): EngineConfigInterface;
 
     /**
      * @param WorkerConfig $workerConfig
      * @return WorkerInterface
      */
     public function addWorker(WorkerConfig $workerConfig): WorkerInterface;
+
+    /**
+     * @return WorkerInterface[]
+     */
+    public function getWorkers(): array;
 
     /**
      * @return DriverInterface

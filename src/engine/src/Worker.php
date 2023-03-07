@@ -9,7 +9,9 @@ use Larmias\Contracts\EventLoopInterface;
 use Larmias\Contracts\SignalInterface;
 use Larmias\Contracts\TimerInterface;
 use Larmias\Engine\Bootstrap\WorkerStartCallback;
+use Larmias\Engine\Contracts\EngineConfigInterface;
 use Larmias\Engine\Contracts\KernelInterface;
+use Larmias\Engine\Contracts\WorkerConfigInterface;
 use Larmias\Engine\Contracts\WorkerInterface;
 use Larmias\Contracts\ContainerInterface;
 use Psr\Container\ContainerExceptionInterface;
@@ -34,18 +36,18 @@ class Worker implements WorkerInterface
     protected int $workerId;
 
     /**
-     * @var EngineConfig
+     * @var EngineConfigInterface
      */
-    protected EngineConfig $engineConfig;
+    protected EngineConfigInterface $engineConfig;
 
     /**
      * Server constructor.
      *
      * @param ContainerInterface $container
      * @param KernelInterface $kernel
-     * @param WorkerConfig $workerConfig
+     * @param WorkerConfigInterface $workerConfig
      */
-    public function __construct(protected ContainerInterface $container, protected KernelInterface $kernel, protected WorkerConfig $workerConfig)
+    public function __construct(protected ContainerInterface $container, protected KernelInterface $kernel, protected WorkerConfigInterface $workerConfig)
     {
         $this->engineConfig = $this->kernel->getConfig();
         $this->initialize();
@@ -67,19 +69,38 @@ class Worker implements WorkerInterface
     public function start(int $workerId): void
     {
         \mt_srand();
-        $this->container->bind([
+        $this->bind();
+        $this->setWorkerId($workerId);
+        $this->trigger(static::ON_WORKER_START, [$this]);
+    }
+
+    /**
+     * @return void
+     */
+    protected function bind(): void
+    {
+        $binds = [
             EventLoopInterface::class => $this->kernel->getDriver()->getEventLoopClass(),
             TimerInterface::class => $this->kernel->getDriver()->getTimerClass(),
             SignalInterface::class => $this->kernel->getDriver()->getSignalClass(),
             ContextInterface::class => $this->kernel->getDriver()->getContextClass(),
             WorkerInterface::class => $this,
-        ]);
-        EventLoop::init($this->container->get(EventLoopInterface::class));
-        Timer::init($this->container->get(TimerInterface::class));
-        Signal::init($this->container->get(SignalInterface::class));
-        Context::init($this->container->get(ContextInterface::class));
-        $this->setWorkerId($workerId);
-        $this->trigger(static::ON_WORKER_START, [$this]);
+        ];
+
+        $init = [
+            EventLoop::class => EventLoopInterface::class,
+            Timer::class => TimerInterface::class,
+            Signal::class => SignalInterface::class,
+            Context::class => ContextInterface::class,
+        ];
+
+        $this->container->bind(\array_filter($binds, fn($value) => !empty($value)));
+
+        foreach ($init as $name => $value) {
+            if ($this->container->has($value)) {
+                \call_user_func([$name, 'init'], $this->container->get($value));
+            }
+        }
     }
 
     /**
@@ -160,17 +181,17 @@ class Worker implements WorkerInterface
     }
 
     /**
-     * @return EngineConfig
+     * @return EngineConfigInterface
      */
-    public function getEngineConfig(): EngineConfig
+    public function getEngineConfig(): EngineConfigInterface
     {
         return $this->engineConfig;
     }
 
     /**
-     * @return WorkerConfig
+     * @return WorkerConfigInterface
      */
-    public function getWorkerConfig(): WorkerConfig
+    public function getWorkerConfig(): WorkerConfigInterface
     {
         return $this->workerConfig;
     }

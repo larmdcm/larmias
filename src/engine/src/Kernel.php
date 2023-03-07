@@ -6,6 +6,7 @@ namespace Larmias\Engine;
 
 use Larmias\Engine\Bootstrap\BeforeStartCallback;
 use Larmias\Engine\Contracts\DriverInterface;
+use Larmias\Engine\Contracts\EngineConfigInterface;
 use Larmias\Engine\Contracts\KernelInterface;
 use Larmias\Engine\Contracts\WorkerInterface;
 use Larmias\Contracts\ContainerInterface;
@@ -16,9 +17,9 @@ use RuntimeException;
 class Kernel implements KernelInterface
 {
     /**
-     * @var EngineConfig
+     * @var EngineConfigInterface
      */
-    protected EngineConfig $engineConfig;
+    protected EngineConfigInterface $engineConfig;
 
     /**
      * @var DriverInterface
@@ -40,12 +41,12 @@ class Kernel implements KernelInterface
     }
 
     /**
-     * @param EngineConfig $engineConfig
+     * @param EngineConfigInterface $engineConfig
      * @return self
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
-    public function setConfig(EngineConfig $engineConfig): self
+    public function setConfig(EngineConfigInterface $engineConfig): self
     {
         $this->engineConfig = $engineConfig;
         $this->driver = $this->container->get($this->engineConfig->getDriver());
@@ -81,15 +82,23 @@ class Kernel implements KernelInterface
             default => null,
         };
         if (!$class || !\class_exists($class)) {
-            throw new RuntimeException('driver class not set.');
+            throw new RuntimeException('not support: ' . WorkerType::getName($workerConfig->getType()));
         }
         return $this->workers[$workerConfig->getName()] = new $class($this->container, $this, $workerConfig);
     }
 
     /**
-     * @return EngineConfig
+     * @return WorkerInterface[]
      */
-    public function getConfig(): EngineConfig
+    public function getWorkers(): array
+    {
+        return $this->workers;
+    }
+
+    /**
+     * @return EngineConfigInterface
+     */
+    public function getConfig(): EngineConfigInterface
     {
         return $this->engineConfig;
     }

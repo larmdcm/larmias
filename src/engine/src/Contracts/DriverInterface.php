@@ -30,47 +30,47 @@ interface DriverInterface
     public function reload(bool $force = true): void;
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getTcpServerClass(): string;
+    public function getTcpServerClass(): ?string;
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getUdpServerClass(): string;
+    public function getUdpServerClass(): ?string;
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getHttpServerClass(): string;
+    public function getHttpServerClass(): ?string;
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getWebSocketServerClass(): string;
+    public function getWebSocketServerClass(): ?string;
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getProcessClass(): string;
+    public function getProcessClass(): ?string;
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getEventLoopClass(): string;
+    public function getEventLoopClass(): ?string;
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getTimerClass(): string;
+    public function getTimerClass(): ?string;
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getSignalClass(): string;
+    public function getSignalClass(): ?string;
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getContextClass(): string;
+    public function getContextClass(): ?string;
 }

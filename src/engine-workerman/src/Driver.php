@@ -49,73 +49,73 @@ class Driver implements DriverInterface
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getTcpServerClass(): string
+    public function getTcpServerClass(): ?string
     {
         return TcpServer::class;
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getUdpServerClass(): string
+    public function getUdpServerClass(): ?string
     {
         return UdpServer::class;
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getHttpServerClass(): string
+    public function getHttpServerClass(): ?string
     {
         return HttpServer::class;
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getWebSocketServerClass(): string
+    public function getWebSocketServerClass(): ?string
     {
         return WebSocketServer::class;
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getProcessClass(): string
+    public function getProcessClass(): ?string
     {
         return Process::class;
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getEventLoopClass(): string
+    public function getEventLoopClass(): ?string
     {
         return EventLoop::class;
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getTimerClass(): string
+    public function getTimerClass(): ?string
     {
         return Timer::class;
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getSignalClass(): string
+    public function getSignalClass(): ?string
     {
         return Signal::class;
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getContextClass(): string
+    public function getContextClass(): ?string
     {
         return Context::class;
     }

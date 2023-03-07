@@ -36,6 +36,9 @@ class Context
      */
     public static function __callStatic(string $name, array $arguments): mixed
     {
+        if (static::$context === null) {
+            throw new \RuntimeException("not support: Context");
+        }
         return call_user_func_array([static::$context, $name], $arguments);
     }
 }

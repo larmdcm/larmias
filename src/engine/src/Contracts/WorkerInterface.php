@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Larmias\Engine\Contracts;
 
-use Larmias\Engine\EngineConfig;
-use Larmias\Engine\WorkerConfig;
 use Larmias\Contracts\ContainerInterface;
 
 interface WorkerInterface
@@ -51,12 +49,12 @@ interface WorkerInterface
     public function getSettings(string $name, mixed $default = null): mixed;
 
     /**
-     * @return EngineConfig
+     * @return EngineConfigInterface
      */
-    public function getEngineConfig(): EngineConfig;
+    public function getEngineConfig(): EngineConfigInterface;
 
     /**
-     * @return WorkerConfig
+     * @return WorkerConfigInterface
      */
-    public function getWorkerConfig(): WorkerConfig;
+    public function getWorkerConfig(): WorkerConfigInterface;
 }

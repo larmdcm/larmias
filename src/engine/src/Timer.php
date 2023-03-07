@@ -15,7 +15,7 @@ use Larmias\Contracts\TimerInterface;
 class Timer
 {
     /** @var TimerInterface */
-    protected static TimerInterface $timer;
+    protected static ?TimerInterface $timer = null;
 
     /**
      * @var bool
@@ -57,6 +57,9 @@ class Timer
      */
     public static function __callStatic(string $name, array $arguments): mixed
     {
+        if (static::$timer === null) {
+            throw new \RuntimeException("not support: Timer");
+        }
         return \call_user_func_array([static::$timer, $name], $arguments);
     }
 }

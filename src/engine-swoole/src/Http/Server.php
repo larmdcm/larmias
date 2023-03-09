@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Larmias\Engine\Swoole\Http;
 
-use Larmias\Engine\Swoole\Coroutine;
 use Larmias\Engine\Swoole\Server as BaseServer;
 use Swoole\Coroutine\Http\Server as HttpServer;
 use Swoole\Http\Request;
@@ -28,9 +27,7 @@ class Server extends BaseServer
         );
 
         $this->server->handle('/', function (Request $request, Response $response) {
-            Coroutine::create(function () use ($request, $response) {
-                $response->end('hello,world!');
-            });
+            
         });
 
         $this->server->start();

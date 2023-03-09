@@ -79,7 +79,7 @@ class Worker implements WorkerInterface
      */
     protected function bind(): void
     {
-        $binds = [
+        $bind = [
             EventLoopInterface::class => $this->kernel->getDriver()->getEventLoopClass(),
             TimerInterface::class => $this->kernel->getDriver()->getTimerClass(),
             SignalInterface::class => $this->kernel->getDriver()->getSignalClass(),
@@ -94,7 +94,7 @@ class Worker implements WorkerInterface
             Context::class => ContextInterface::class,
         ];
 
-        $this->container->bind(\array_filter($binds, fn($value) => !empty($value)));
+        $this->container->bind(\array_filter($bind, fn($value) => !empty($value)));
 
         foreach ($init as $name => $value) {
             if ($this->container->has($value)) {

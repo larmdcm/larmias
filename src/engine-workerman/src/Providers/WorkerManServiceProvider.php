@@ -8,7 +8,7 @@ use Larmias\Contracts\ServiceDiscoverInterface;
 use Larmias\Contracts\ServiceProviderInterface;
 use Larmias\Engine\WorkerMan\Commands\Status;
 
-class EngineWorkerManServiceProvider implements ServiceProviderInterface
+class WorkerManServiceProvider implements ServiceProviderInterface
 {
     /**
      * @param ServiceDiscoverInterface $serviceDiscover

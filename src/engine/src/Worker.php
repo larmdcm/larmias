@@ -17,6 +17,8 @@ use Larmias\Contracts\ContainerInterface;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use function Larmias\Utils\data_get;
+use function extension_loaded;
+use function mt_srand;
 
 class Worker implements WorkerInterface
 {
@@ -68,7 +70,7 @@ class Worker implements WorkerInterface
      */
     public function start(int $workerId): void
     {
-        \mt_srand();
+        $this->clearCache();
         $this->bind();
         $this->setWorkerId($workerId);
         $this->trigger(static::ON_WORKER_START, [$this]);
@@ -100,6 +102,20 @@ class Worker implements WorkerInterface
             if ($this->container->has($value)) {
                 \call_user_func([$name, 'init'], $this->container->get($value));
             }
+        }
+    }
+
+    /**
+     * @return void
+     */
+    protected function clearCache(): void
+    {
+        mt_srand();
+        if (extension_loaded('apc')) {
+            \apc_clear_cache();
+        }
+        if (extension_loaded('Zend OPcache')) {
+            \opcache_reset();
         }
     }
 

@@ -6,7 +6,7 @@ namespace Larmias\Engine\WorkerMan;
 
 use function sprintf;
 
-class Server extends Process
+class Server extends EngineWorker
 {
     /**
      * @var string

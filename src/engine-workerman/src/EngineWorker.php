@@ -5,23 +5,53 @@ declare(strict_types=1);
 namespace Larmias\Engine\WorkerMan;
 
 use Larmias\Engine\Worker as BaseWorker;
-use Psr\Container\ContainerExceptionInterface;
-use Psr\Container\NotFoundExceptionInterface;
 use Workerman\Connection\TcpConnection;
+use Larmias\Engine\Timer;
+use Larmias\Engine\Event;
 use Throwable;
 use function Larmias\Utils\format_exception;
 
 class EngineWorker extends BaseWorker
 {
     /**
+     * @var Worker
+     */
+    protected Worker $worker;
+
+    /**
+     * @return void
+     */
+    public function initialize(): void
+    {
+        parent::initialize();
+        $this->worker = $this->makeWorker($this->getMakeWorkerConfig());
+    }
+
+    /**
      * @param Worker $worker
      * @return void
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
      */
     public function onWorkerStart(Worker $worker): void
     {
-        $this->start($worker->id);
+        try {
+            $this->start($worker->id);
+            if ($this->hasListen(Event::ON_WORKER)) {
+                $processTickInterval = $this->getSettings('process_tick_interval', 1);
+                Timer::tick($processTickInterval, function () {
+                    $this->trigger(Event::ON_WORKER, [$this]);
+                });
+            }
+        } catch (Throwable $e) {
+            $this->exceptionHandler($e);
+        }
+    }
+
+    /**
+     * @return array
+     */
+    protected function getMakeWorkerConfig(): array
+    {
+        return $this->getSettings();
     }
 
     /**

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\Engine\Swoole;
 
+use Larmias\Engine\Swoole\Contracts\WorkerInterface;
 use Swoole\Process\Pool;
 use Swoole\Constant;
 use Swoole\Runtime;
@@ -13,22 +14,20 @@ use const SWOOLE_IPC_UNIXSOCK;
 class Manager
 {
     /**
-     * @param array $workers
+     * @param WorkerInterface[] $workers
      */
     public function __construct(protected array $workers = [])
     {
     }
 
     /**
-     * @param callable $callback
-     * @param int $workerNum
-     * @param string|null $name
+     * @param WorkerInterface $worker
      * @return self
      */
-    public function addWorker(callable $callback, int $workerNum = 1, ?string $name = null): self
+    public function addWorker(WorkerInterface $worker): self
     {
-        for ($i = 0; $i < $workerNum; $i++) {
-            $this->workers[] = ['callback' => $callback, 'name' => $name];
+        for ($i = 0; $i < $worker->getNum(); $i++) {
+            $this->workers[] = $worker;
         }
         return $this;
     }
@@ -42,7 +41,8 @@ class Manager
         $pool->on(Constant::EVENT_WORKER_START, function (Pool $pool, int $workerId) {
             Runtime::enableCoroutine();
             $worker = $this->workers[$workerId];
-            $worker['callback']();
+            $worker->workerStart($workerId);
+            $worker->process();
         });
         $pool->start();
     }

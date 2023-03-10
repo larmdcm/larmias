@@ -6,8 +6,10 @@ namespace Larmias\Engine\Swoole;
 
 use Larmias\Engine\Contracts\DriverInterface;
 use Larmias\Engine\Contracts\KernelInterface;
-use Larmias\Engine\Swoole\Contracts\ServerInterface;
 use Larmias\Engine\Swoole\Http\Server as HttpServer;
+use Larmias\Engine\Swoole\Contracts\WorkerInterface;
+use function get_class;
+use RuntimeException;
 
 class Driver implements DriverInterface
 {
@@ -19,10 +21,10 @@ class Driver implements DriverInterface
     {
         $manager = new Manager();
         foreach ($kernel->getWorkers() as $worker) {
-            $manager->addWorker($worker instanceof ServerInterface ? [$worker, 'initServer'] : [$worker, 'initProcess'],
-                $worker->getSettings('worker_num', 1),
-                $worker->getWorkerConfig()->getName()
-            );
+            if (!($worker instanceof WorkerInterface)) {
+                throw new RuntimeException(get_class($worker) . ' worker not instanceof ' . WorkerInterface::class);
+            }
+            $manager->addWorker($worker);
         }
         $manager->start();
     }
@@ -89,12 +91,12 @@ class Driver implements DriverInterface
 
     public function getTimerClass(): ?string
     {
-        return null;
+        return Timer::class;
     }
 
     public function getSignalClass(): ?string
     {
-        return null;
+        return Signal::class;
     }
 
     public function getContextClass(): ?string

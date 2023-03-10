@@ -9,6 +9,13 @@ use ArrayObject;
 interface CoroutineInterface
 {
     /**
+     * @param callable $callable
+     * @param ...$params
+     * @return CoroutineInterface
+     */
+    public static function create(callable $callable, ...$params): CoroutineInterface;
+
+    /**
      * @param ...$params
      * @return CoroutineInterface
      */

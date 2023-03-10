@@ -119,4 +119,12 @@ class Driver implements DriverInterface
     {
         return Context::class;
     }
+
+    /**
+     * @return string|null
+     */
+    public function getCoroutineClass(): ?string
+    {
+        return null;
+    }
 }

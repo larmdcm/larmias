@@ -6,6 +6,7 @@ namespace Larmias\Engine\Swoole\Http;
 
 use Larmias\Contracts\Http\ResponseInterface;
 use Swoole\Http\Response as SwooleResponse;
+use function is_array;
 
 class Response implements ResponseInterface
 {
@@ -31,7 +32,13 @@ class Response implements ResponseInterface
     public function withHeaders(array $headers): ResponseInterface
     {
         foreach ($headers as $name => $value) {
-            $this->header($name, $value);
+            if (is_array($value)) {
+                foreach ($value as $item) {
+                    $this->header($name, $item);
+                }
+            } else {
+                $this->header($name, $value);
+            }
         }
         return $this;
     }

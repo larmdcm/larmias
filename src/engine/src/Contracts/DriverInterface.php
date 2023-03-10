@@ -73,4 +73,9 @@ interface DriverInterface
      * @return string|null
      */
     public function getContextClass(): ?string;
+
+    /**
+     * @return string|null
+     */
+    public function getCoroutineClass(): ?string;
 }

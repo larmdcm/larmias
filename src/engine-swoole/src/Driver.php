@@ -8,22 +8,28 @@ use Larmias\Engine\Contracts\DriverInterface;
 use Larmias\Engine\Contracts\KernelInterface;
 use Larmias\Engine\Swoole\Http\Server as HttpServer;
 use Larmias\Engine\Swoole\Contracts\WorkerInterface;
-use function get_class;
+use Swoole\Process as SwooleProcess;
 use RuntimeException;
+use const SIGUSR1;
+use const SIGTERM;
+use function function_exists;
+use function Larmias\Utils\throw_unless;
+use function get_class;
 
 class Driver implements DriverInterface
 {
     /**
      * @param KernelInterface $kernel
      * @return void
+     * @throws \Throwable
      */
     public function run(KernelInterface $kernel): void
     {
         $manager = new Manager();
         foreach ($kernel->getWorkers() as $worker) {
-            if (!($worker instanceof WorkerInterface)) {
-                throw new RuntimeException(get_class($worker) . ' worker not instanceof ' . WorkerInterface::class);
-            }
+            throw_unless($worker instanceof WorkerInterface, RuntimeException::class,
+                get_class($worker) . ' worker not instanceof ' . WorkerInterface::class);
+            /** @var WorkerInterface $worker */
             $manager->addWorker($worker);
         }
         $manager->start();
@@ -35,7 +41,9 @@ class Driver implements DriverInterface
      */
     public function stop(bool $force = true): void
     {
-        // TODO: Implement stop() method.
+        if (function_exists('posix_getppid')) {
+            SwooleProcess::kill(posix_getppid(), SIGTERM);
+        }
     }
 
     /**
@@ -44,7 +52,7 @@ class Driver implements DriverInterface
      */
     public function restart(bool $force = true): void
     {
-        // TODO: Implement restart() method.
+        $this->stop();
     }
 
     /**
@@ -53,14 +61,22 @@ class Driver implements DriverInterface
      */
     public function reload(bool $force = true): void
     {
-        // TODO: Implement reload() method.
+        if (function_exists('posix_getppid')) {
+            SwooleProcess::kill(posix_getppid(), SIGUSR1);
+        }
     }
 
+    /**
+     * @return string|null
+     */
     public function getTcpServerClass(): ?string
     {
         return null;
     }
 
+    /**
+     * @return string|null
+     */
     public function getUdpServerClass(): ?string
     {
         return null;
@@ -74,33 +90,59 @@ class Driver implements DriverInterface
         return HttpServer::class;
     }
 
+    /**
+     * @return string|null
+     */
     public function getWebSocketServerClass(): ?string
     {
         return null;
     }
 
+    /**
+     * @return string|null
+     */
     public function getProcessClass(): ?string
     {
-        return null;
+        return Process::class;
     }
 
+    /**
+     * @return string|null
+     */
     public function getEventLoopClass(): ?string
     {
-        return null;
+        return EventLoop::class;
     }
 
+    /**
+     * @return string|null
+     */
     public function getTimerClass(): ?string
     {
         return Timer::class;
     }
 
+    /**
+     * @return string|null
+     */
     public function getSignalClass(): ?string
     {
         return Signal::class;
     }
 
+    /**
+     * @return string|null
+     */
     public function getContextClass(): ?string
     {
-        return null;
+        return Context::class;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getCoroutineClass(): ?string
+    {
+        return Coroutine::class;
     }
 }

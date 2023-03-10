@@ -53,7 +53,7 @@ function is_empty(mixed $value): bool
  *
  * @param mixed $condition
  * @param Throwable|string $exception
- * @param array ...$parameters
+ * @param  ...$parameters
  * @return void
  *
  * @throws Throwable
@@ -70,7 +70,7 @@ function throw_if(mixed $condition, Throwable|string $exception, ...$parameters)
  *
  * @param mixed $condition
  * @param Throwable|string $exception
- * @param array ...$parameters
+ * @param  ...$parameters
  * @return void
  * @throws Throwable
  */

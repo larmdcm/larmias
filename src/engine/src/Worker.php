@@ -98,11 +98,14 @@ class Worker implements WorkerInterface
 
         $this->container->bind(\array_filter($bind, fn($value) => !empty($value)));
 
+        Coroutine::init($this->kernel->getDriver()->getCoroutineClass());
+
         foreach ($init as $name => $value) {
             if ($this->container->has($value)) {
                 \call_user_func([$name, 'init'], $this->container->get($value));
             }
         }
+
     }
 
     /**

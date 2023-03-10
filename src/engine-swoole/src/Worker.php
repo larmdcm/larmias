@@ -6,14 +6,13 @@ namespace Larmias\Engine\Swoole;
 
 use Larmias\Engine\Swoole\Contracts\WorkerInterface;
 use Larmias\Engine\Worker as BaseWorker;
-use Swoole\Process;
+use Swoole\Process as SwooleProcess;
 use Throwable;
 use function Larmias\Utils\format_exception;
 use function Larmias\Utils\println;
-use function getmypid;
 use const SIGTERM;
 
-class Worker extends BaseWorker implements WorkerInterface
+abstract class Worker extends BaseWorker implements WorkerInterface
 {
     /**
      * @param int $workerId
@@ -26,13 +25,6 @@ class Worker extends BaseWorker implements WorkerInterface
         } catch (Throwable $e) {
             $this->exceptionHandler($e);
         }
-    }
-
-    /**
-     * @return void
-     */
-    public function process(): void
-    {
     }
 
     /**
@@ -58,6 +50,8 @@ class Worker extends BaseWorker implements WorkerInterface
     public function exceptionHandler(Throwable $e): void
     {
         println(format_exception($e));
-        Process::kill(getmypid(), SIGTERM);
+        if (function_exists('posix_getppid')) {
+            SwooleProcess::kill(posix_getppid(), SIGTERM);
+        }
     }
 }

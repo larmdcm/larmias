@@ -13,7 +13,6 @@ use RuntimeException;
 use const SIGUSR1;
 use const SIGTERM;
 use function function_exists;
-use function Larmias\Utils\throw_unless;
 use function get_class;
 
 class Driver implements DriverInterface
@@ -27,9 +26,9 @@ class Driver implements DriverInterface
     {
         $manager = new Manager();
         foreach ($kernel->getWorkers() as $worker) {
-            throw_unless($worker instanceof WorkerInterface, RuntimeException::class,
-                get_class($worker) . ' worker not instanceof ' . WorkerInterface::class);
-            /** @var WorkerInterface $worker */
+            if (!($worker instanceof WorkerInterface)) {
+                throw new RuntimeException(get_class($worker) . ' worker not instanceof ' . WorkerInterface::class);
+            }
             $manager->addWorker($worker);
         }
         $manager->start();
@@ -144,5 +143,13 @@ class Driver implements DriverInterface
     public function getCoroutineClass(): ?string
     {
         return Coroutine::class;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getChannelClass(): ?string
+    {
+        return Channel::class;
     }
 }

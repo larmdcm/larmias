@@ -14,6 +14,7 @@ use Larmias\Engine\Contracts\KernelInterface;
 use Larmias\Engine\Contracts\WorkerConfigInterface;
 use Larmias\Engine\Contracts\WorkerInterface;
 use Larmias\Contracts\ContainerInterface;
+use Larmias\Engine\Coroutine\Channel;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use function Larmias\Utils\data_get;
@@ -99,13 +100,13 @@ class Worker implements WorkerInterface
         $this->container->bind(\array_filter($bind, fn($value) => !empty($value)));
 
         Coroutine::init($this->kernel->getDriver()->getCoroutineClass());
+        Channel::init($this->kernel->getDriver()->getChannelClass());
 
         foreach ($init as $name => $value) {
             if ($this->container->has($value)) {
                 \call_user_func([$name, 'init'], $this->container->get($value));
             }
         }
-
     }
 
     /**

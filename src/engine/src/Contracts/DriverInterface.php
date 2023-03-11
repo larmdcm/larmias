@@ -78,4 +78,9 @@ interface DriverInterface
      * @return string|null
      */
     public function getCoroutineClass(): ?string;
+
+    /**
+     * @return string|null
+     */
+    public function getChannelClass(): ?string;
 }

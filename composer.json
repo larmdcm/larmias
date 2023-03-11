@@ -101,7 +101,8 @@
       "Larmias\\AsyncQueue\\": "src/async-queue/src/",
       "Larmias\\Throttle\\": "src/throttle/src/",
       "Larmias\\Process\\": "src/process/src/",
-      "Larmias\\Timer\\": "src/timer/src/"
+      "Larmias\\Timer\\": "src/timer/src/",
+      "Larmias\\Pool\\": "src/pool/src/"
     }
   }
 }

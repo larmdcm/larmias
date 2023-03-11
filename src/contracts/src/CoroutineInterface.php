@@ -33,6 +33,24 @@ interface CoroutineInterface
 
     /**
      * @param int|null $id
+     * @return int
+     */
+    public static function pid(?int $id = null): int;
+
+    /**
+     * @param array $config
+     * @return void
+     */
+    public static function set(array $config): void;
+
+    /**
+     * @param callable $callable
+     * @return void
+     */
+    public static function defer(callable $callable): void;
+
+    /**
+     * @param int|null $id
      * @return ArrayObject|null
      */
     public static function getContextFor(?int $id = null): ?ArrayObject;

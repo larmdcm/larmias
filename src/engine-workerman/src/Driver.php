@@ -127,4 +127,12 @@ class Driver implements DriverInterface
     {
         return null;
     }
+
+    /**
+     * @return string|null
+     */
+    public function getChannelClass(): ?string
+    {
+        return null;
+    }
 }

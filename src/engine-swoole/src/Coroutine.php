@@ -8,6 +8,8 @@ use Larmias\Contracts\CoroutineInterface;
 use Swoole\Coroutine as SwooleCoroutine;
 use ArrayObject;
 use RuntimeException;
+use function sprintf;
+use function max;
 
 class Coroutine implements CoroutineInterface
 {
@@ -68,6 +70,44 @@ class Coroutine implements CoroutineInterface
     public static function id(): int
     {
         return SwooleCoroutine::getCid();
+    }
+
+    /**
+     * @param int|null $id
+     * @return int
+     */
+    public static function pid(?int $id = null): int
+    {
+        if ($id) {
+            $cid = SwooleCoroutine::getPcid($id);
+            if ($cid === false) {
+                throw new RuntimeException(sprintf('Coroutine #%d has been destroyed.', $id));
+            }
+        } else {
+            $cid = SwooleCoroutine::getPcid();
+        }
+        if ($cid === false) {
+            throw new RuntimeException('Non-Coroutine environment don\'t has parent coroutine id.');
+        }
+        return max(0, $cid);
+    }
+
+    /**
+     * @param array $config
+     * @return void
+     */
+    public static function set(array $config): void
+    {
+        SwooleCoroutine::set($config);
+    }
+
+    /**
+     * @param callable $callable
+     * @return void
+     */
+    public static function defer(callable $callable): void
+    {
+        SwooleCoroutine::defer($callable);
     }
 
     /**

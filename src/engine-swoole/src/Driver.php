@@ -8,6 +8,7 @@ use Larmias\Engine\Contracts\DriverInterface;
 use Larmias\Engine\Contracts\KernelInterface;
 use Larmias\Engine\Swoole\Http\Server as HttpServer;
 use Larmias\Engine\Swoole\Contracts\WorkerInterface;
+use Larmias\Engine\Swoole\Coroutine\Channel;
 use Swoole\Process as SwooleProcess;
 use RuntimeException;
 use const SIGUSR1;

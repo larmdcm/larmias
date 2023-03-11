@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Engine\Swoole;
+namespace Larmias\Engine\Swoole\Coroutine;
 
 use Larmias\Contracts\Coroutine\ChannelInterface;
 use Swoole\Coroutine\Channel as SwooleChannel;
@@ -19,19 +19,19 @@ class Channel extends SwooleChannel implements ChannelInterface
 
     /**
      * @param mixed $data
-     * @param float $timeout
+     * @param float|null $timeout
      * @return bool
      */
-    public function push(mixed $data, float $timeout = -1): bool
+    public function push(mixed $data, $timeout = null)
     {
         return parent::push($data, $timeout);
     }
 
     /**
-     * @param float $timeout
+     * @param float|null $timeout
      * @return mixed
      */
-    public function pop(float $timeout = -1): mixed
+    public function pop($timeout = null)
     {
         return parent::pop($timeout);
     }

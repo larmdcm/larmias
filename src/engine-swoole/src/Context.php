@@ -81,6 +81,10 @@ class Context implements ContextInterface
      */
     public function destroy(string $id, ?int $cid = null): void
     {
-        unset($this->context[$id]);
+        if (Coroutine::id() > 0) {
+            $this->set($id, null, $cid);
+        } else {
+            unset($this->context[$id]);
+        }
     }
 }

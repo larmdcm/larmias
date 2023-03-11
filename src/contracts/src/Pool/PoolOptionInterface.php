@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Pool\Contracts;
+namespace Larmias\Contracts\Pool;
 
 interface PoolOptionInterface
 {
@@ -45,16 +45,6 @@ interface PoolOptionInterface
      * @param float $maxIdleTime
      */
     public function setMaxIdleTime(float $maxIdleTime): void;
-
-    /**
-     * @return float
-     */
-    public function getConnectTimeout(): float;
-
-    /**
-     * @param float $connectTimeout
-     */
-    public function setConnectTimeout(float $connectTimeout): void;
 
     /**
      * @return float

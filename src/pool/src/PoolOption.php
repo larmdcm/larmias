@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\Pool;
 
-use Larmias\Pool\Contracts\PoolOptionInterface;
+use Larmias\Contracts\Pool\PoolOptionInterface;
 
 class PoolOption implements PoolOptionInterface
 {
@@ -13,13 +13,14 @@ class PoolOption implements PoolOptionInterface
      * @param int $maxActive 最大活跃数
      * @param float $maxLifetime 最大可复用时间
      * @param float $maxIdleTime 最大空闲时间
-     * @param float $connectTimeout 连接超时时间
      * @param float $waitTimeout 获取等待超时时间
      */
     public function __construct(
-        protected int   $minActive = 1, protected int $maxActive = 10,
-        protected float $maxLifetime = -1, protected float $maxIdleTime = 60.0,
-        protected float $connectTimeout = 10.0, protected float $waitTimeout = 3.0
+        protected int   $minActive = 1,
+        protected int   $maxActive = 10,
+        protected float $maxLifetime = -1,
+        protected float $maxIdleTime = 60.0,
+        protected float $waitTimeout = 3.0
     )
     {
     }
@@ -86,22 +87,6 @@ class PoolOption implements PoolOptionInterface
     public function setMaxIdleTime(float $maxIdleTime): void
     {
         $this->maxIdleTime = $maxIdleTime;
-    }
-
-    /**
-     * @return float
-     */
-    public function getConnectTimeout(): float
-    {
-        return $this->connectTimeout;
-    }
-
-    /**
-     * @param float $connectTimeout
-     */
-    public function setConnectTimeout(float $connectTimeout): void
-    {
-        $this->connectTimeout = $connectTimeout;
     }
 
     /**

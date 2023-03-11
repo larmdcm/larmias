@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace Larmias\Engine;
 
+use ArrayObject;
+use RuntimeException;
 use Larmias\Contracts\CoroutineInterface;
 use function call_user_func_array;
+use function call_user_func;
 
 /**
- * @method static CoroutineInterface create(callable $callable, ...$params)
  * @method static int pid(?int $id = null)
  * @method static void set(array $config)
- * @method static void defer(callable $callable)
  * @method static \ArrayObject|null getContextFor(?int $id = null)
  */
 class Coroutine
@@ -31,11 +32,81 @@ class Coroutine
     }
 
     /**
+     * @param callable $callable
+     * @param ...$params
+     * @return CoroutineInterface
+     */
+    public static function create(callable $callable, ...$params): CoroutineInterface
+    {
+        return static::isSupport() ? call_user_func([static::$coClass, __FUNCTION__], $callable, ...$params) : new class($callable) implements CoroutineInterface {
+            /**
+             * @var callable
+             */
+            protected $callback;
+
+            public function __construct(callable $callback)
+            {
+                $this->callback = $callback;
+            }
+
+            public static function create(callable $callable, ...$params): CoroutineInterface
+            {
+                throw new RuntimeException('Not supported.');
+            }
+
+            public function execute(...$params): CoroutineInterface
+            {
+                call_user_func_array($this->callback, $params);
+                return $this;
+            }
+
+            public function getId(): int
+            {
+                return 0;
+            }
+
+            public static function id(): int
+            {
+                throw new RuntimeException('Not supported.');
+            }
+
+            public static function pid(?int $id = null): int
+            {
+                throw new RuntimeException('Not supported.');
+            }
+
+            public static function set(array $config): void
+            {
+                throw new RuntimeException('Not supported.');
+            }
+
+            public static function defer(callable $callable): void
+            {
+                throw new RuntimeException('Not supported.');
+            }
+
+            public static function getContextFor(?int $id = null): ?ArrayObject
+            {
+                throw new RuntimeException('Not supported.');
+            }
+        };
+    }
+
+    /**
      * @return int
      */
     public static function id(): int
     {
-        return static::isSupport() ? \call_user_func([static::$coClass, __FUNCTION__]) : 0;
+        return static::isSupport() ? call_user_func([static::$coClass, __FUNCTION__]) : 0;
+    }
+
+    /**
+     * @param callable $callable
+     * @return void
+     */
+    public static function defer(callable $callable): void
+    {
+        static::isSupport() ? call_user_func([static::$coClass, __FUNCTION__], $callable) : $callable();
     }
 
     /**

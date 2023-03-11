@@ -1,8 +1,13 @@
 <?php
 
-require '../bootstrap.php';
+use function Swoole\Coroutine\run;
 
-/** @var \Larmias\Redis\Redis $redis */
-$redis = require './redisHandler.php';
+run(function () {
+    require '../bootstrap.php';
 
-var_dump($redis->get('redis'));
+    /** @var \Larmias\Redis\Redis $redis */
+    $redis = require './redisHandler.php';
+
+    $redis->set('redis', 1);
+    var_dump($redis->get('redis'));
+});

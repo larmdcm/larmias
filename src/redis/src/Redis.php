@@ -8,28 +8,37 @@ use Larmias\Contracts\Redis\ConnectionInterface;
 use Larmias\Contracts\Redis\RedisFactoryInterface;
 
 /**
- * @mixin Connection
+ * @mixin ConnectionInterface
  */
 class Redis
 {
+    /**
+     * @var string
+     */
     protected string $name = 'default';
 
+    /**
+     * @param RedisFactoryInterface $factory
+     */
     public function __construct(protected RedisFactoryInterface $factory)
     {
     }
 
+    /**
+     * @return ConnectionInterface
+     */
     public function getConnection(): ConnectionInterface
     {
         return $this->factory->get($this->name);
     }
 
-    public function __call(string $name, array $arguments)
+    /**
+     * @param string $name
+     * @param array $arguments
+     * @return mixed
+     */
+    public function __call(string $name, array $arguments): mixed
     {
-        try {
-            $result = $this->getConnection()->{$name}(...$arguments);
-        } catch (\Throwable $e) {
-            throw $e;
-        }
-        return $result;
+        return $this->getConnection()->{$name}(...$arguments);
     }
 }

@@ -33,7 +33,7 @@ class Redis extends Driver
         } else {
             /** @var RedisFactoryInterface $factory */
             $factory = $this->container->get(RedisFactoryInterface::class);
-            $this->handler = $factory->get('cache');
+            $this->handler = $factory->get();
         }
     }
 

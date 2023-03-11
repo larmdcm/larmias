@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Larmias\Pool;
 
 use Larmias\Contracts\Coroutine\ChannelInterface;
-use Larmias\Pool\Contracts\ConnectionInterface;
+use Larmias\Contracts\Pool\ConnectionInterface;
 use Larmias\Engine\Coroutine\Channel as EngineChannel;
 use Larmias\Engine\Coroutine;
 use SplQueue;
@@ -25,7 +25,7 @@ class Channel
     /**
      * @param int $size
      */
-    public function __construct(int $size)
+    public function __construct(protected int $size)
     {
         $this->queue = new SplQueue();
         if ($this->isCoroutine()) {
@@ -40,7 +40,7 @@ class Channel
     public function push(ConnectionInterface $connection): bool
     {
         if ($this->channel) {
-            return $this->channel->push($connection);
+            return $this->channel->push($connection, 0.001);
         }
         $this->queue->push($connection);
         return true;
@@ -69,7 +69,7 @@ class Channel
      */
     public function isFull(): bool
     {
-        return $this->channel && $this->channel->isFull();
+        return $this->channel ? $this->channel->isFull() : $this->queue->count() >= $this->size;
     }
 
     /**
@@ -78,6 +78,16 @@ class Channel
     public function length(): int
     {
         return $this->channel ? $this->channel->length() : $this->queue->count();
+    }
+
+    /**
+     * @return bool
+     */
+    public function close(): bool
+    {
+        $this->channel?->close();
+        $this->queue = null;
+        return true;
     }
 
     /**

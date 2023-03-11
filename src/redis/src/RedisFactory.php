@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Larmias\Redis;
 
 use Larmias\Contracts\ConfigInterface;
+use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\Redis\ConnectionInterface;
 use Larmias\Contracts\Redis\RedisFactoryInterface;
 
@@ -13,18 +14,27 @@ class RedisFactory implements RedisFactoryInterface
     /**
      * @var ConnectionInterface[]
      */
-    protected array $connections = [];
+    protected array $proxies = [];
 
-    public function __construct(protected ConfigInterface $config)
+    /**
+     * @param ContainerInterface $container
+     * @param ConfigInterface $config
+     */
+    public function __construct(protected ContainerInterface $container, protected ConfigInterface $config)
     {
     }
 
+    /**
+     * @param string $name
+     * @return ConnectionInterface
+     */
     public function get(string $name = 'default'): ConnectionInterface
     {
-        if (!isset($this->connections[$name])) {
+        if (!isset($this->proxies[$name])) {
             $config = $this->config->get('redis.' . $name, []);
-            $this->connections[$name] = new Connection($config);
+            $config['name'] = $name;
+            $this->proxies[$name] = new RedisProxy($this->container, $config);
         }
-        return $this->connections[$name];
+        return $this->proxies[$name];
     }
 }

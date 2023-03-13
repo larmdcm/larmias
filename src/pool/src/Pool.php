@@ -8,8 +8,8 @@ use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\Pool\ConnectionInterface;
 use Larmias\Contracts\Pool\PoolInterface;
 use Larmias\Contracts\Pool\PoolOptionInterface;
-use Larmias\Engine\Timer;
 use Larmias\Engine\Coroutine;
+use Larmias\Engine\Timer;
 use RuntimeException;
 use Throwable;
 use function time;
@@ -47,6 +47,11 @@ abstract class Pool implements PoolInterface
      * @var array
      */
     protected array $options = [
+        'min_active' => 1,
+        'max_active' => 10,
+        'wait_timeout' => 3.0,
+        'max_idle_time' => 60.0,
+        'max_lifetime' => 0.0,
         'heartbeat' => 0.0,
         'close_on_destruct' => false,
     ];
@@ -171,11 +176,11 @@ abstract class Pool implements PoolInterface
     protected function initPoolOption(): void
     {
         $this->poolOption = new PoolOption(
-            $options['min_active'] ?? 1,
-            $options['max_active'] ?? 10,
-            $options['max_lifetime'] ?? 0.0,
-            $options['max_idle_time'] ?? 60.0,
-            $options['wait_timeout'] ?? 3.0,
+            $options['min_active'],
+            $options['max_active'],
+            $options['max_lifetime',
+            $options['max_idle_time'],
+            $options['wait_timeout'],
         );
     }
 

@@ -51,9 +51,9 @@ class WorkerStartCallback
     public function onWorkerStart(WorkerInterface $worker): void
     {
         $workerId = $worker->getWorkerId();
-        $this->logger && $this->logger->info("{$worker->getWorkerConfig()->getName()} Worker#{$workerId} started.");
+        $this->logger?->info("{$worker->getWorkerConfig()->getName()} Worker#{$workerId} started.");
         $this->eventDispatcher && $this->eventDispatcher->dispatch(new WorkerStart($workerId));
         $worker->trigger(Event::ON_WORKER_START, [$worker]);
-        $this->eventDispatcher && $this->eventDispatcher->dispatch(new AfterWorkerStart($workerId));
+        $this->eventDispatcher?->dispatch(new AfterWorkerStart($workerId));
     }
 }

@@ -19,7 +19,12 @@ use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use function Larmias\Utils\data_get;
 use function extension_loaded;
+use function is_array;
 use function mt_srand;
+use function is_callable;
+use function array_merge;
+use function call_user_func;
+use function call_user_func_array;
 
 class Worker implements WorkerInterface
 {
@@ -71,9 +76,9 @@ class Worker implements WorkerInterface
      */
     public function start(int $workerId): void
     {
-        $this->clearCache();
-        $this->bind();
         $this->setWorkerId($workerId);
+        $this->reset();
+        $this->bind();
         $this->trigger(static::ON_WORKER_START, [$this]);
     }
 
@@ -104,7 +109,7 @@ class Worker implements WorkerInterface
 
         foreach ($init as $name => $value) {
             if ($this->container->has($value)) {
-                \call_user_func([$name, 'init'], $this->container->get($value));
+                call_user_func([$name, 'init'], $this->container->get($value));
             }
         }
     }
@@ -112,7 +117,7 @@ class Worker implements WorkerInterface
     /**
      * @return void
      */
-    protected function clearCache(): void
+    protected function reset(): void
     {
         mt_srand();
         if (extension_loaded('apc')) {
@@ -144,14 +149,15 @@ class Worker implements WorkerInterface
         if (!$this->hasListen($event)) {
             return;
         }
+
         $callbacks = $this->callbacks[$event];
 
         foreach ($callbacks as $callback) {
-            if (\is_callable($callback)) {
+            if (is_callable($callback)) {
                 $this->container->invoke($callback, $args);
             } else {
                 $object = $this->container->get($callback[0]);
-                \call_user_func_array([$object, $callback[1]], $args);
+                call_user_func_array([$object, $callback[1]], $args);
             }
         }
     }
@@ -179,7 +185,7 @@ class Worker implements WorkerInterface
      */
     public function getSettings(string $name = null, mixed $default = null): mixed
     {
-        $config = \array_merge($this->workerConfig->getSettings(), $this->engineConfig->getSettings());
+        $config = array_merge($this->workerConfig->getSettings(), $this->engineConfig->getSettings());
         return $name ? data_get($config, $name, $default) : $config;
     }
 
@@ -235,7 +241,7 @@ class Worker implements WorkerInterface
         $queueMap = [];
         foreach ($args as $argItem) {
             foreach ($argItem as $name => $callable) {
-                $isQueue = \is_array($callable) && (\is_array($callable[0]) || \is_callable($callable[0]));
+                $isQueue = is_array($callable) && (is_array($callable[0]) || is_callable($callable[0]));
                 $existsQueue = isset($queueMap[$name]);
                 if (empty($callbacks[$name])) {
                     $callbacks[$name] = $isQueue ? $callable : [$callable];

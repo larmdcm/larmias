@@ -13,9 +13,9 @@ class RedisPool extends Pool
     /**
      * @param ContainerInterface $container
      * @param array $options
-     * @param array $connectConfig
+     * @param array $config
      */
-    public function __construct(ContainerInterface $container, array $options = [], protected array $connectConfig = [])
+    public function __construct(ContainerInterface $container, array $options = [], protected array $config = [])
     {
         parent::__construct($container, $options);
     }
@@ -25,6 +25,6 @@ class RedisPool extends Pool
      */
     public function createConnection(): ConnectionInterface
     {
-        return new RedisConnection($this->connectConfig);
+        return new RedisConnection($this->config);
     }
 }

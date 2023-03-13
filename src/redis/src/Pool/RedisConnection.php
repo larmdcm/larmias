@@ -87,8 +87,8 @@ class RedisConnection extends BaseConnection implements ConnectionInterface
 
         $db = (int)$this->config['db'];
         if ($db > 0) {
-            $this->setDatabase($db);
             $redis->select($db);
+            $this->setDatabase($db);
         }
 
         $this->redis = $redis;

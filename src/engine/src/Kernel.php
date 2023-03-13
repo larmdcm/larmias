@@ -13,6 +13,7 @@ use Larmias\Contracts\ContainerInterface;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use RuntimeException;
+use function class_exists;
 
 class Kernel implements KernelInterface
 {
@@ -81,7 +82,7 @@ class Kernel implements KernelInterface
             WorkerType::WORKER_PROCESS => $this->driver->getProcessClass(),
             default => null,
         };
-        if (!$class || !\class_exists($class)) {
+        if (!$class || !class_exists($class)) {
             throw new RuntimeException('not support: ' . WorkerType::getName($workerConfig->getType()));
         }
         return $this->workers[$workerConfig->getName()] = new $class($this->container, $this, $workerConfig);

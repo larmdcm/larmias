@@ -163,6 +163,7 @@ class Application implements ApplicationInterface
     protected function boot(): void
     {
         $bootProviders = array_merge($this->loadFileConfig('providers', false), $this->config->get('providers', []));
+        
         foreach ($bootProviders as $provider) {
             $this->register($provider);
         }

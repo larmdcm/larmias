@@ -10,6 +10,8 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use function max;
+use function md5;
 
 class ThrottleMiddleware implements MiddlewareInterface
 {
@@ -49,7 +51,7 @@ class ThrottleMiddleware implements MiddlewareInterface
         if ($this->showRateLimit && 200 <= $response->getStatusCode() && 300 > $response->getStatusCode()) {
             $allowInfo = $this->throttle->getAllowInfo();
             $response = $response->withHeader('X-Rate-Limit-Limit', $allowInfo['max_requests'])
-                ->withHeader('X-Rate-Limit-Remaining', \max($allowInfo['remaining'], 0))
+                ->withHeader('X-Rate-Limit-Remaining', max($allowInfo['remaining'], 0))
                 ->withHeader('X-Rate-Limit-Reset', $allowInfo['now_time'] + $allowInfo['expire']);
         }
         return $response;
@@ -80,7 +82,7 @@ class ThrottleMiddleware implements MiddlewareInterface
      */
     protected function getKey(ServerRequestInterface $request): string
     {
-        return \md5($request->getUri()->getPath());
+        return md5($request->getUri()->getPath());
     }
 
     /**

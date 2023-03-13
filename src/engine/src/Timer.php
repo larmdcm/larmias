@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Larmias\Engine;
 
 use Larmias\Contracts\TimerInterface;
+use RuntimeException;
+use function call_user_func_array;
 
 /**
  * @method static int tick(int $duration, callable $func, array $args = [])
@@ -58,8 +60,8 @@ class Timer
     public static function __callStatic(string $name, array $arguments): mixed
     {
         if (static::$timer === null) {
-            throw new \RuntimeException("not support: Timer");
+            throw new RuntimeException("not support: Timer");
         }
-        return \call_user_func_array([static::$timer, $name], $arguments);
+        return call_user_func_array([static::$timer, $name], $arguments);
     }
 }

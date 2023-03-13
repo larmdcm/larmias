@@ -86,7 +86,6 @@ class Channel
     public function close(): bool
     {
         $this->channel?->close();
-        $this->queue = null;
         return true;
     }
 

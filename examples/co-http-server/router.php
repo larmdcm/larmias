@@ -6,7 +6,7 @@ use Larmias\HttpServer\Contracts\ResponseInterface;
 use Larmias\Contracts\ViewInterface;
 
 Router::get('/', function (RequestInterface $request, ResponseInterface $response) {
-    return $response->raw('Hello,World1!');
+    return $response->raw('Hello,World!');
 });
 
 Router::get('/param/{id:\d+}', function (ResponseInterface $response, $id = 0) {

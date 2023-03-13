@@ -7,6 +7,7 @@ namespace Larmias\Engine\Contracts;
 interface DriverInterface
 {
     /**
+     * @param KernelInterface $kernel
      * @return void
      */
     public function run(KernelInterface $kernel): void;

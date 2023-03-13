@@ -9,7 +9,7 @@ class ProcessManager
     /**
      * @var bool
      */
-    protected static bool $running = false;
+    protected static bool $running = true;
 
     /**
      * @param bool $running

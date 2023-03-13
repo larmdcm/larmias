@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Larmias\Engine\Swoole;
 
-use Larmias\Engine\Event;
 use Larmias\Engine\ProcessManager;
+use Larmias\Engine\Event;
 use function usleep;
+use Swoole\Process as SwooleProcess;
 
 class Process extends Worker
 {
@@ -18,7 +19,7 @@ class Process extends Worker
         while (ProcessManager::isRunning()) {
             try {
                 $this->trigger(Event::ON_WORKER, [$this]);
-                usleep(1000);
+                usleep(100);
             } catch (\Throwable $e) {
                 $this->exceptionHandler($e);
             }

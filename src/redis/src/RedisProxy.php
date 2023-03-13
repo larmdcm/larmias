@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Larmias\Redis;
 
+use Larmias\Contracts\Redis\ConnectionInterface;
 use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\ContextInterface;
-use Larmias\Contracts\Redis\ConnectionInterface;
 use Larmias\Redis\Pool\RedisConnection;
 use Larmias\Redis\Pool\RedisPool;
 use Larmias\Engine\Coroutine;
@@ -61,8 +61,8 @@ class RedisProxy implements ConnectionInterface
         } finally {
             if (!$hasContextConnection) {
                 if ($this->shouldUseSameConnection($name)) {
-                    if ($name === 'select' && $db = $arguments[0]) {
-                        $connection->setDatabase((int)$db);
+                    if ($name === 'select' && isset($arguments[0])) {
+                        $connection->setDatabase((int)$arguments[0]);
                     }
                     $this->context->set($contextKey, $connection);
                     Coroutine::defer(function () use ($contextKey, $connection) {

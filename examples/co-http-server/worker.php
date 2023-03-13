@@ -34,7 +34,7 @@ return [
             'type' => WorkerType::WORKER_PROCESS,
             'settings' => [
                 'worker_num' => 1,
-                'watch' => [
+                'watcher' => [
                     'enabled' => true,
                     'includes' => [
                         __DIR__ . '/router.php',
@@ -57,6 +57,7 @@ return [
                 $container->bind(PipelineInterface::class, Pipeline::class);
                 $container->bind(ListenerProviderInterface::class, ListenerProviderFactory::make($container, []));
                 $container->bind(EventDispatcherInterface::class, EventDispatcherFactory::make($container));
+                $container->bind(\Larmias\Contracts\FileWatcherInterface::class, \Larmias\FileWatcher\Drivers\Scan::class);
                 $container->bind(\Larmias\Contracts\ViewInterface::class, \Larmias\View\View::class);
                 foreach (glob(__DIR__ . '/config/*.php') as $file) {
                     $container->make(ConfigInterface::class)->load($file);

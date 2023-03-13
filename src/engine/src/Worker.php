@@ -26,7 +26,7 @@ use function array_merge;
 use function call_user_func;
 use function call_user_func_array;
 
-class Worker implements WorkerInterface
+abstract class Worker implements WorkerInterface
 {
     /**
      * @var string

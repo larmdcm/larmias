@@ -120,10 +120,7 @@ abstract class Pool implements PoolInterface
             Timer::del($this->heartbeatId);
         }
         Coroutine::create(function () {
-            while (true) {
-                if ($this->channel->isEmpty()) {
-                    break;
-                }
+            while (!$this->channel->isEmpty()) {
                 $connection = $this->channel->pop();
                 if ($connection) {
                     $this->disConnection($connection);
@@ -176,11 +173,11 @@ abstract class Pool implements PoolInterface
     protected function initPoolOption(): void
     {
         $this->poolOption = new PoolOption(
-            $options['min_active'],
-            $options['max_active'],
-            $options['max_lifetime',
-            $options['max_idle_time'],
-            $options['wait_timeout'],
+            $this->options['min_active'],
+            $this->options['max_active'],
+            $this->options['max_lifetime'],
+            $this->options['max_idle_time'],
+            $this->options['wait_timeout'],
         );
     }
 

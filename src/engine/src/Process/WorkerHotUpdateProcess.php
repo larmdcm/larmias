@@ -4,35 +4,35 @@ declare(strict_types=1);
 
 namespace Larmias\Engine\Process;
 
-use Larmias\Engine\Contracts\WatcherInterface;
+use Larmias\Contracts\ContainerInterface;
+use Larmias\Contracts\FileWatcherInterface;
 use Larmias\Engine\Contracts\WorkerInterface;
-use Psr\Container\ContainerExceptionInterface;
-use Psr\Container\NotFoundExceptionInterface;
 
 class WorkerHotUpdateProcess
 {
     /**
-     * @var WatcherInterface
+     * @var FileWatcherInterface
      */
-    protected WatcherInterface $watcher;
+    protected FileWatcherInterface $watcher;
+
+    /**
+     * @var bool
+     */
+    protected bool $enabled = false;
 
     /**
      * @param WorkerInterface $worker
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
      */
-    public function __construct(protected WorkerInterface $worker)
+    public function __construct(protected ContainerInterface $container, protected WorkerInterface $worker)
     {
-        $watch = $worker->getSettings('watch', []);
-        $enabled = $watch['enabled'] ?? false;
-        if (!$enabled) {
+        $config = $this->worker->getSettings('watcher', []);
+        $this->enabled = $config['enabled'] ?? false;
+        if (!$this->enabled) {
             return;
         }
-        /** @var WatcherInterface $watcher */
-        $watcher = $worker->getContainer()->get($watch['driver'] ?? \Larmias\Engine\Watcher\Scan::class);
-        $this->watcher = $watcher->include($watch['includes'] ?? [])
-            ->exclude($watch['excludes'] ?? [])
-            ->excludeExt($watch['excludeExts'] ?? []);
+        /** @var FileWatcherInterface $watcher */
+        $watcher = $this->container->make(FileWatcherInterface::class, ['config' => $config], true);
+        $this->watcher = $watcher;
     }
 
     /**
@@ -41,6 +41,9 @@ class WorkerHotUpdateProcess
      */
     public function handle(WorkerInterface $worker): void
     {
+        if (!$this->enabled) {
+            return;
+        }
         $this->watcher->watch(function (string $path, int $event) use ($worker) {
             $worker->getKernel()->reload();
         });

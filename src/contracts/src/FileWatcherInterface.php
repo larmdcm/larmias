@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Engine\Contracts;
+namespace Larmias\Contracts;
 
-interface WatcherInterface
+interface FileWatcherInterface
 {
     /**
      * @var int
@@ -23,21 +23,15 @@ interface WatcherInterface
 
     /**
      * @param string|array $path
-     * @return WatcherInterface
+     * @return FileWatcherInterface
      */
-    public function include(string|array $path): WatcherInterface;
+    public function include(string|array $path): FileWatcherInterface;
 
     /**
      * @param string|array $path
-     * @return WatcherInterface
+     * @return FileWatcherInterface
      */
-    public function exclude(string|array $path): WatcherInterface;
-
-    /**
-     * @param string|array $ext
-     * @return WatcherInterface
-     */
-    public function excludeExt(string|array $ext): WatcherInterface;
+    public function exclude(string|array $path): FileWatcherInterface;
 
     /**
      * @param callable $callback

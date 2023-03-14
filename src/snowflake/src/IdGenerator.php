@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace Larmias\Snowflake;
 
-use Godruoyi\Snowflake\Snowflake;
 use Larmias\Contracts\ConfigInterface;
 use Larmias\Contracts\ContainerInterface;
 use Larmias\Snowflake\Contracts\IdGeneratorInterface;
 use Larmias\Snowflake\Sequence\RedisSequenceResolver;
-use Godruoyi\Snowflake\SequenceResolver;
+use Larmias\Snowflake\Contracts\SequenceResolverInterface;
 use Closure;
 
 class IdGenerator implements IdGeneratorInterface
@@ -45,9 +44,9 @@ class IdGenerator implements IdGeneratorInterface
     protected Snowflake $snowflake;
 
     /**
-     * @var SequenceResolver
+     * @var SequenceResolverInterface
      */
-    protected SequenceResolver $sequenceResolver;
+    protected SequenceResolverInterface $sequenceResolver;
 
     /**
      * IdGenerator constructor.
@@ -61,7 +60,7 @@ class IdGenerator implements IdGeneratorInterface
         $this->datacenterId = (int)$this->getConfig('datacenter_id');
         $this->workerId = (int)$this->getConfig('worker_id');
         $this->startTimestamp = (int)$this->getConfig('start_timestamp');
-        /** @var SequenceResolver $sequenceResolver */
+        /** @var SequenceResolverInterface $sequenceResolver */
         $sequenceResolver = $this->container->make($this->getConfig('sequence'), [], true);
         $this->sequenceResolver = $sequenceResolver;
         $this->newSnowflake();
@@ -86,18 +85,18 @@ class IdGenerator implements IdGeneratorInterface
     }
 
     /**
-     * @return SequenceResolver
+     * @return SequenceResolverInterface
      */
-    public function getSequenceResolver(): SequenceResolver
+    public function getSequenceResolver(): SequenceResolverInterface
     {
         return $this->sequenceResolver;
     }
 
     /**
-     * @param SequenceResolver $sequenceResolver
+     * @param SequenceResolverInterface $sequenceResolver
      * @return self
      */
-    public function setSequenceResolver(SequenceResolver $sequenceResolver): self
+    public function setSequenceResolver(SequenceResolverInterface $sequenceResolver): self
     {
         $this->sequenceResolver = $sequenceResolver;
         $this->snowflake->setSequenceResolver($sequenceResolver);
@@ -140,7 +139,7 @@ class IdGenerator implements IdGeneratorInterface
     public function setWorkerId(int $workerId): self
     {
         $this->workerId = $workerId;
-        $this->newSnowflake();
+        $this->snowflake->setWorkerId($workerId);
         return $this;
     }
 
@@ -160,7 +159,7 @@ class IdGenerator implements IdGeneratorInterface
     public function setDatacenterId(int $datacenterId): self
     {
         $this->datacenterId = $datacenterId;
-        $this->newSnowflake();
+        $this->snowflake->setDatacenterId($datacenterId);
         return $this;
     }
 

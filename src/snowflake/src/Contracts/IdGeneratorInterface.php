@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Larmias\Snowflake\Contracts;
 
 use Larmias\Contracts\IdGeneratorInterface as BaseIdGeneratorInterface;
-use Godruoyi\Snowflake\SequenceResolver;
 
 interface IdGeneratorInterface extends BaseIdGeneratorInterface
 {
@@ -17,15 +16,15 @@ interface IdGeneratorInterface extends BaseIdGeneratorInterface
     public function parseId(string $id, bool $transform = false): array;
 
     /**
-     * @return SequenceResolver
+     * @return SequenceResolverInterface
      */
-    public function getSequenceResolver(): SequenceResolver;
+    public function getSequenceResolver(): SequenceResolverInterface;
 
     /**
-     * @param SequenceResolver $sequenceResolver
+     * @param SequenceResolverInterface $sequenceResolver
      * @return IdGeneratorInterface
      */
-    public function setSequenceResolver(SequenceResolver $sequenceResolver): IdGeneratorInterface;
+    public function setSequenceResolver(SequenceResolverInterface $sequenceResolver): IdGeneratorInterface;
 
     /**
      * @return int

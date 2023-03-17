@@ -90,7 +90,7 @@ abstract class PDOConnection implements ConnectionInterface
      */
     public function close(): bool
     {
-        $this->pdo = null;
+        unset($this->pdo);
         return true;
     }
 }

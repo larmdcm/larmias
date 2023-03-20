@@ -6,7 +6,9 @@ namespace Larmias\Redis\Pool;
 
 use Larmias\Contracts\Redis\ConnectionInterface;
 use Larmias\Pool\Connection as BaseConnection;
+use RuntimeException;
 use Redis;
+use function array_merge;
 
 class RedisConnection extends BaseConnection implements ConnectionInterface
 {
@@ -37,7 +39,7 @@ class RedisConnection extends BaseConnection implements ConnectionInterface
      */
     public function __construct(array $config = [])
     {
-        $this->config = \array_merge($this->config, $config);
+        $this->config = array_merge($this->config, $config);
     }
 
     /**
@@ -149,7 +151,7 @@ class RedisConnection extends BaseConnection implements ConnectionInterface
     {
         $redis = new Redis();
         if (!$redis->connect($host, $port, $timeout)) {
-            throw new \RuntimeException('Connection reconnect failed.');
+            throw new RuntimeException('Connection reconnect failed.');
         }
         return $redis;
     }

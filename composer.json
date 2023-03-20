@@ -27,6 +27,7 @@
     "ext-redis": "*",
     "ext-curl": "*",
     "ext-openssl": "*",
+    "ext-pdo": "*",
     "psr/container": "^2.0",
     "psr/log": "^3.0",
     "psr/event-dispatcher": "^1.0",
@@ -43,11 +44,11 @@
     "godruoyi/php-snowflake": "^1.0",
     "nesbot/carbon": "^2.0",
     "symfony/console": "^6.0",
-    "symfony/finder": "^4.3.2|^5.1",
-    "ext-pdo": "*"
+    "symfony/finder": "^4.3.2|^5.1"
   },
   "require-dev": {
-    "swoole/ide-helper": "^4.5"
+    "swoole/ide-helper": "^4.5",
+    "phpunit/phpunit": "^9.6"
   },
   "autoload": {
     "files": [
@@ -106,7 +107,8 @@
       "Larmias\\Timer\\": "src/timer/src/",
       "Larmias\\Pool\\": "src/pool/src/",
       "Larmias\\FileWatcher\\": "src/file-watcher/src/",
-      "Larmias\\Database\\": "src/database/src/"
+      "Larmias\\Database\\": "src/database/src/",
+      "Larmias\\Tests\\": "tests/"
     }
   }
 }

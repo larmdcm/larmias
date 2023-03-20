@@ -31,7 +31,7 @@ class RedisProxy implements ConnectionInterface
     public function __construct(protected ContainerInterface $container, protected array $config = [])
     {
         $this->context = $this->container->get(ContextInterface::class);
-        $this->redisPool = new RedisPool($this->container, $this->config['pool'] ?? [], $this->config);
+        $this->redisPool = new RedisPool($this->config['pool'] ?? [], $this->config);
     }
 
     /**

@@ -29,7 +29,6 @@ abstract class PDOConnection implements ConnectionInterface
      * @var array
      */
     protected array $config = [
-        'type' => 'mysql',
         'host' => '127.0.0.1',
         'port' => 3306,
         'username' => '',
@@ -121,12 +120,8 @@ abstract class PDOConnection implements ConnectionInterface
             $prepare->execute();
 
             return $prepare;
-        } catch (Throwable $e) {
-            if ($e instanceof \PDOException) {
-                throw new PDOException($e);
-            } else {
-                throw $e;
-            }
+        } catch (\PDOException $e) {
+            throw new PDOException($e);
         }
     }
 
@@ -208,13 +203,11 @@ abstract class PDOConnection implements ConnectionInterface
     }
 
     /**
-     * @param array $config
      * @return bool
      */
-    public function connect(array $config = []): bool
+    public function connect(): bool
     {
-        $config = array_merge($this->config, $config);
-        $this->pdo = new PDO($this->parseDsn($config), $config['username'], $config['password'], $this->getOptions($config));
+        $this->pdo = new PDO($this->parseDsn($this->config), $this->config['username'], $this->config['password'], $this->getOptions($this->config));
         return true;
     }
 

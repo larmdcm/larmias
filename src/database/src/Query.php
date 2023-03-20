@@ -11,7 +11,6 @@ use Larmias\Database\Query\Expression;
 use Larmias\Database\Query\SqlGenerator;
 use Larmias\Utils\Collection;
 use function is_string;
-use function is_array;
 use function preg_match;
 use function explode;
 use function array_map;
@@ -114,6 +113,16 @@ class Query implements QueryInterface
         }
         $this->options['field'] = array_unique($field);
         return $this;
+    }
+
+    /**
+     * @param int $buildType
+     * @return string
+     */
+    public function buildSql(int $buildType = self::BUILD_SQL_SELECT): string
+    {
+        $sqlPrepare = $this->sqlGenerator->select();
+        return $this->connection->buildSql($sqlPrepare->getSql(), $sqlPrepare->getBinds());
     }
 
     /**

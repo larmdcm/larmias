@@ -19,6 +19,7 @@
   ],
   "require": {
     "php": ">=8.0.0",
+    "larmias/pool": "^1.0",
     "larmias/utils": "^1.0"
   },
   "autoload": {

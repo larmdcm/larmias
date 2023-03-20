@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Larmias\Pool;
 
-use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\Pool\ConnectionInterface;
 use Larmias\Contracts\Pool\PoolInterface;
 use Larmias\Contracts\Pool\PoolOptionInterface;
@@ -57,10 +56,9 @@ abstract class Pool implements PoolInterface
     ];
 
     /**
-     * @param ContainerInterface $container
      * @param array $options
      */
-    public function __construct(protected ContainerInterface $container, array $options = [])
+    public function __construct(array $options = [])
     {
         $this->options = array_merge($this->options, $options);
         $this->initPoolOption();

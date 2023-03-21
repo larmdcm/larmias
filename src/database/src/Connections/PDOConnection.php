@@ -4,23 +4,21 @@ declare(strict_types=1);
 
 namespace Larmias\Database\Connections;
 
-use Larmias\Database\Contracts\ConnectionInterface;
 use Larmias\Database\Exceptions\BindParamException;
 use Larmias\Database\Exceptions\PDOException;
-use Larmias\Contracts\Pool\ConnectionInterface as PoolConnectionInterface;
-use Larmias\Pool\Connection as BaseConnection;
 use PDO;
 use PDOStatement;
 use Throwable;
-use function array_merge;
 use function is_numeric;
 use function is_array;
 use function addcslashes;
 use function substr_replace;
 use function strpos;
 use function strlen;
+use function microtime;
+use function round;
 
-abstract class PDOConnection extends BaseConnection implements ConnectionInterface, PoolConnectionInterface
+abstract class PDOConnection extends Connection
 {
     /**
      * @var int
@@ -60,25 +58,6 @@ abstract class PDOConnection extends BaseConnection implements ConnectionInterfa
     ];
 
     /**
-     * @var string
-     */
-    protected string $lastSql = '';
-
-    /**
-     * @var array
-     */
-    protected array $lastBinds = [];
-
-
-    /**
-     * @param array $config
-     */
-    public function __construct(array $config = [])
-    {
-        $this->config = array_merge($this->config, $config);
-    }
-
-    /**
      * @param string $sql
      * @param array $binds
      * @return int
@@ -112,6 +91,7 @@ abstract class PDOConnection extends BaseConnection implements ConnectionInterfa
     public function execSql(string $sql, array $binds = []): PDOStatement
     {
         try {
+            $beginTime = microtime(true);
             $this->lastSql = $sql;
             $this->lastBinds = $binds;
             $prepare = $this->pdo->prepare($sql);
@@ -120,6 +100,8 @@ abstract class PDOConnection extends BaseConnection implements ConnectionInterfa
             }
 
             $prepare->execute();
+
+            $this->lastRunTime = round((microtime(true) - $beginTime) * 1000, 2);
 
             return $prepare;
         } catch (\PDOException $e) {
@@ -155,14 +137,6 @@ abstract class PDOConnection extends BaseConnection implements ConnectionInterfa
         }
 
         return $statement;
-    }
-
-    /**
-     * @return string
-     */
-    public function getLastSql(): string
-    {
-        return $this->buildSql($this->lastSql, $this->lastBinds);
     }
 
     /**
@@ -236,19 +210,5 @@ abstract class PDOConnection extends BaseConnection implements ConnectionInterfa
     {
         unset($this->pdo);
         return true;
-    }
-
-    /**
-     * 获取配置
-     * @param string|null $name
-     * @param mixed|null $default
-     * @return mixed
-     */
-    public function getConfig(?string $name = null, mixed $default = null): mixed
-    {
-        if ($name === null) {
-            return $this->config;
-        }
-        return $this->config[$name] ?? $default;
     }
 }

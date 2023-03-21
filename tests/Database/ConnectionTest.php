@@ -14,7 +14,7 @@ class ConnectionTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->manager = new Manager();
+        $this->manager = new Manager(require __DIR__ . '/database.php');
     }
 
     /**
@@ -24,31 +24,17 @@ class ConnectionTest extends TestCase
     public function testQuery(): void
     {
         $connection = $this->getConnection();
-        $connection->query("select * from page");
-        $this->assertTrue(true);
+        $list = $connection->query("select * from t_user where id = ?", [1]);
+        $this->assertNotEmpty($list);
+        $this->assertSame($list[0]['id'], 1);
     }
+
 
     /**
      * @return ConnectionInterface
      */
     protected function getConnection(): ConnectionInterface
     {
-        $connection = new MysqlConnection([
-            'type' => 'mysql',
-            'host' => '127.0.0.1',
-            'port' => 3306,
-            'username' => '',
-            'password' => '',
-            'database' => '',
-            'charset' => 'utf8mb4',
-            'dsn' => '',
-            'socket' => '',
-            'options' => [],
-            'prefix' => '',
-        ]);
-
-        $connection->connect();
-
-        return $connection;
+        return $this->manager->createConnection();
     }
 }

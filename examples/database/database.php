@@ -15,10 +15,10 @@ return [
         'options' => [],
         'prefix' => 't_',
         'pool' => [
-            'min_active' => 1,
-            'max_active' => 10,
+            'min_active' => 10,
+            'max_active' => 20,
             'wait_timeout' => 3.0,
-            'heartbeat' => 0.0,
+            'heartbeat' => 30.0,
             'max_idle_time' => 60.0,
             'max_lifetime' => 0.0,
         ]

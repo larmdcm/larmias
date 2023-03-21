@@ -58,4 +58,10 @@ interface ConnectionInterface
      * @return string
      */
     public function getLastSql(): string;
+
+    /**
+     * 获取sql最后执行时间
+     * @return float
+     */
+    public function getLastRunTime(): float;
 }

@@ -43,7 +43,9 @@ class RedisProxy implements ConnectionInterface
         if ($hasContextConnection) {
             return $this->context->get($this->getContextKey());
         }
-        return $this->redisPool->get();
+        /** @var RedisConnection $connection */
+        $connection = $this->redisPool->get();
+        return $connection;
     }
 
     /**

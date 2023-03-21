@@ -7,6 +7,8 @@ namespace Larmias\Database\Connections;
 use Larmias\Database\Contracts\ConnectionInterface;
 use Larmias\Database\Exceptions\BindParamException;
 use Larmias\Database\Exceptions\PDOException;
+use Larmias\Contracts\Pool\ConnectionInterface as PoolConnectionInterface;
+use Larmias\Pool\Connection as BaseConnection;
 use PDO;
 use PDOStatement;
 use Throwable;
@@ -18,7 +20,7 @@ use function substr_replace;
 use function strpos;
 use function strlen;
 
-abstract class PDOConnection implements ConnectionInterface
+abstract class PDOConnection extends BaseConnection implements ConnectionInterface, PoolConnectionInterface
 {
     /**
      * @var int
@@ -217,6 +219,14 @@ abstract class PDOConnection implements ConnectionInterface
     public function isConnected(): bool
     {
         return isset($this->pdo);
+    }
+
+    /**
+     * @return bool
+     */
+    public function reset(): bool
+    {
+        return true;
     }
 
     /**

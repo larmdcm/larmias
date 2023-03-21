@@ -9,8 +9,13 @@ use Larmias\Pool\Pool;
 
 class DbPool extends Pool
 {
+    public function __construct(array $options = [])
+    {
+        parent::__construct($options);
+    }
+
     public function createConnection(): ConnectionInterface
     {
-        // TODO: Implement createConnection() method.
+
     }
 }

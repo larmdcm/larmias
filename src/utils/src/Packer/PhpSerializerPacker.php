@@ -8,11 +8,19 @@ use Larmias\Contracts\PackerInterface;
 
 class PhpSerializerPacker implements PackerInterface
 {
+    /**
+     * @param mixed $data
+     * @return string
+     */
     public function pack(mixed $data): string
     {
         return \serialize($data);
     }
 
+    /**
+     * @param string $data
+     * @return mixed
+     */
     public function unpack(string $data): mixed
     {
         return \unserialize($data);

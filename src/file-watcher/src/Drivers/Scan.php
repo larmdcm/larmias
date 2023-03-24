@@ -49,7 +49,7 @@ class Scan extends Driver
             $files = $this->getFiles();
             $this->checkFiles($this->files, $files, $callback);
             $this->checkFiles($files, $this->files, function (string $path, int $event) use ($callback) {
-                if ($event === self::EVENT_ADD) {
+                if ($event === self::EVENT_CREATE) {
                     $callback($path, self::EVENT_DELETE);
                 }
             });
@@ -90,7 +90,7 @@ class Scan extends Driver
     {
         foreach ($newFiles as $path => $hash) {
             if (!isset($files[$path])) {
-                $callback($path, self::EVENT_ADD);
+                $callback($path, self::EVENT_CREATE);
             } else if ($files[$path] !== $hash) {
                 $callback($path, self::EVENT_UPDATE);
             }

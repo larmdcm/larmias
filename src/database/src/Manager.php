@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace Larmias\Database;
 
+use Larmias\Database\Contracts\BuilderInterface;
 use Larmias\Database\Contracts\ConnectionInterface;
 use Larmias\Database\Contracts\QueryInterface;
 use Larmias\Database\Pool\DbProxy;
+use Larmias\Database\Query\Builder\MysqlBuilder;
 use RuntimeException;
 use function Larmias\Utils\data_get;
+use function class_exists;
 use function array_merge;
 
 class Manager
@@ -37,14 +40,23 @@ class Manager
      */
     public function query(?string $name = null): QueryInterface
     {
-        return new Query($this->createConnection($name));
+        $connection = $this->connection($name);
+        $queryClass = $connection->getConfig('query', Query::class);
+        if (!class_exists($queryClass)) {
+            throw new RuntimeException('query class not exists:' . $queryClass);
+        }
+        /** @var QueryInterface $query */
+        $query = new $queryClass();
+        $query->setConnection($connection);
+        $query->setBuilder($this->newBuilder($connection));
+        return $query;
     }
 
     /**
      * @param string|null $name
      * @return ConnectionInterface
      */
-    public function createConnection(?string $name = null): ConnectionInterface
+    public function connection(?string $name = null): ConnectionInterface
     {
         $name = $name ?: 'default';
 
@@ -55,6 +67,26 @@ class Manager
             $this->proxies[$name] = new DbProxy($this->config[$name]);
         }
         return $this->proxies[$name];
+    }
+
+    /**
+     * @return BuilderInterface
+     */
+    public function newBuilder(ConnectionInterface $connection): BuilderInterface
+    {
+        $builderClass = $connection->getConfig('builder', '');
+        if (!$builderClass) {
+            $builderClass = match ($connection->getConfig('type')) {
+                'mysql' => MysqlBuilder::class,
+                default => '',
+            };
+        }
+
+        if (!$builderClass || !class_exists($builderClass)) {
+            throw new RuntimeException('builder class not exists:' . $builderClass);
+        }
+
+        return new $builderClass($connection);
     }
 
     /**

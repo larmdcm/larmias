@@ -9,7 +9,7 @@ interface FileWatcherInterface
     /**
      * @var int
      */
-    public const EVENT_ADD = 1;
+    public const EVENT_CREATE = 1;
 
     /**
      * @var int

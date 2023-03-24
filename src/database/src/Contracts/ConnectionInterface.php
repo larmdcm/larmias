@@ -63,5 +63,5 @@ interface ConnectionInterface
      * 获取sql最后执行时间
      * @return float
      */
-    public function getLastRunTime(): float;
+    public function getExecuteTime(): float;
 }

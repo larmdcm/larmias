@@ -34,5 +34,5 @@ interface CacheInterface extends BaseCacheInterface
      * @param mixed $ttl
      * @return mixed
      */
-    public function remember(string $key,mixed $value,mixed $ttl = null): mixed;
+    public function remember(string $key, mixed $value, mixed $ttl = null): mixed;
 }

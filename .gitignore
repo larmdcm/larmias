@@ -17,6 +17,7 @@ composer.lock
 *.exe
 *.o
 *.so
+.phpunit.result.cache
 
 # 压缩包 #
 ############

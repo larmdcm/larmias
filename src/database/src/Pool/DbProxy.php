@@ -97,7 +97,7 @@ class DbProxy implements ConnectionInterface
     /**
      * @return float
      */
-    public function getLastRunTime(): float
+    public function getExecuteTime(): float
     {
         return $this->call(__FUNCTION__, func_get_args());
     }

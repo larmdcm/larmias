@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Larmias\Database\Query;
 
-class SqlPrepare
+use Larmias\Database\Contracts\SqlPrepareInterface;
+
+class SqlPrepare implements SqlPrepareInterface
 {
     /**
      * @param string $sql

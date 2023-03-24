@@ -1,10 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Larmias\Database\Connections;
 
+use Larmias\Database\Contracts\BuilderInterface;
+use Larmias\Database\Contracts\QueryInterface;
+use Larmias\Database\Query;
+use Larmias\Database\Query\Builder\MysqlBuilder;
 use Larmias\Pool\Connection as PoolConnection;
 use Larmias\Database\Contracts\ConnectionInterface;
 use Larmias\Contracts\Pool\ConnectionInterface as PoolConnectionInterface;
+use RuntimeException;
 use function array_merge;
 
 abstract class Connection extends PoolConnection implements ConnectionInterface, PoolConnectionInterface
@@ -27,7 +34,7 @@ abstract class Connection extends PoolConnection implements ConnectionInterface,
     /**
      * @var float
      */
-    protected float $lastRunTime = 0.0;
+    protected float $executeTime = 0.0;
 
     /**
      * @param array $config
@@ -62,8 +69,8 @@ abstract class Connection extends PoolConnection implements ConnectionInterface,
     /**
      * @return float
      */
-    public function getLastRunTime(): float
+    public function getExecuteTime(): float
     {
-        return $this->lastRunTime;
+        return $this->executeTime;
     }
 }

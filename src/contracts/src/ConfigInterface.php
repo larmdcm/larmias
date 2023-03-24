@@ -9,16 +9,16 @@ interface ConfigInterface
     /**
      * 加载文件配置
      *
-     * @param string      $file
+     * @param string $file
      * @param string|null $key
      * @return array
      */
-    public function load(string $file,?string $key = null): array;
+    public function load(string $file, ?string $key = null): array;
 
     /**
      * 获取配置是否存在
      *
-     * @param  string $key
+     * @param string $key
      * @return boolean
      */
     public function has(string $key): bool;
@@ -26,11 +26,11 @@ interface ConfigInterface
     /**
      * 设置配置参数.
      *
-     * @param  string|array $key
-     * @param  mixed $value
+     * @param string|array $key
+     * @param mixed $value
      * @return array
      */
-    public function set(string|array $key,mixed $value = null): array;
+    public function set(string|array $key, mixed $value = null): array;
 
     /**
      * 获取配置参数
@@ -39,15 +39,16 @@ interface ConfigInterface
      * @param mixed $default
      * @return mixed
      */
-    public function get(?string $key = null,mixed $default = null): mixed;
+    public function get(?string $key = null, mixed $default = null): mixed;
+
     /**
      * 数组配置追加
      *
-     * @param  string $key
-     * @param  mixed $value
+     * @param string $key
+     * @param mixed $value
      * @return array
      */
-    public function push(string $key,mixed $value): array;
+    public function push(string $key, mixed $value): array;
 
     /**
      * 获取全部配置

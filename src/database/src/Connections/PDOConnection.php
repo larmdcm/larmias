@@ -65,7 +65,7 @@ abstract class PDOConnection extends Connection
      */
     public function execute(string $sql, array $binds = []): int
     {
-        $statement = $this->execSql($sql, $binds);
+        $statement = $this->executeStatement($sql, $binds);
         return $statement->rowCount();
     }
 
@@ -77,18 +77,18 @@ abstract class PDOConnection extends Connection
      */
     public function query(string $sql, array $binds = []): array
     {
-        $statement = $this->execSql($sql, $binds);
+        $statement = $this->executeStatement($sql, $binds);
         return $statement->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /**
-     * 执行sql
+     * 执行预处理
      * @param string $sql
      * @param array $binds
      * @return PDOStatement
      * @throws Throwable
      */
-    public function execSql(string $sql, array $binds = []): PDOStatement
+    public function executeStatement(string $sql, array $binds = []): PDOStatement
     {
         try {
             $beginTime = microtime(true);
@@ -101,7 +101,7 @@ abstract class PDOConnection extends Connection
 
             $prepare->execute();
 
-            $this->lastRunTime = round((microtime(true) - $beginTime) * 1000, 2);
+            $this->executeTime = round((microtime(true) - $beginTime) * 1000, 2);
 
             return $prepare;
         } catch (\PDOException $e) {
@@ -153,7 +153,7 @@ abstract class PDOConnection extends Connection
                 $value = $value[0] ?? '';
             }
             if ($type === self::PARAM_FLOAT || $type === PDO::PARAM_STR) {
-                $value = '\'' . addcslashes($value, "'") . '\'';
+                $value = '\'' . addcslashes((string)$value, "'") . '\'';
             }
             $sql = is_numeric($key) ?
                 substr_replace($sql, $value, strpos($sql, '?'), 1) :

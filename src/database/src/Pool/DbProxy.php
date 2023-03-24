@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\Database\Pool;
 
+use Larmias\Contracts\ContainerInterface;
 use Larmias\Database\Contracts\ConnectionInterface;
 use Larmias\Database\Connections\Connection;
 
@@ -17,9 +18,9 @@ class DbProxy implements ConnectionInterface
     /**
      * @param array $config
      */
-    public function __construct(protected array $config)
+    public function __construct(ContainerInterface $container, protected array $config)
     {
-        $this->pool = new DbPool($this->config['pool'] ?? [], $this->config);
+        $this->pool = new DbPool($container, $this->config['pool'] ?? [], $this->config);
     }
 
     /**

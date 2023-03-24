@@ -70,4 +70,12 @@ class Context implements ContextInterface
     {
         unset($this->context[$id]);
     }
+
+    /**
+     * @return bool
+     */
+    public function inCoroutine(): bool
+    {
+        return false;
+    }
 }

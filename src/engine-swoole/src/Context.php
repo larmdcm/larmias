@@ -21,7 +21,7 @@ class Context implements ContextInterface
      */
     public function get(string $id, mixed $default = null, ?int $cid = null): mixed
     {
-        if (Coroutine::id() > 0) {
+        if ($this->inCoroutine()) {
             return Coroutine::getContextFor($cid)[$id] ?? $default;
         }
 
@@ -36,7 +36,7 @@ class Context implements ContextInterface
      */
     public function set(string $id, mixed $value, ?int $cid = null): mixed
     {
-        if (Coroutine::id() > 0) {
+        if ($this->inCoroutine()) {
             Coroutine::getContextFor($cid)[$id] = $value;
         } else {
             $this->context[$id] = $value;
@@ -67,7 +67,7 @@ class Context implements ContextInterface
      */
     public function has(string $id, ?int $cid = null): bool
     {
-        if (Coroutine::id() > 0) {
+        if ($this->inCoroutine()) {
             return isset(Coroutine::getContextFor($cid)[$id]);
         }
 
@@ -81,10 +81,18 @@ class Context implements ContextInterface
      */
     public function destroy(string $id, ?int $cid = null): void
     {
-        if (Coroutine::id() > 0) {
+        if ($this->inCoroutine()) {
             $this->set($id, null, $cid);
         } else {
             unset($this->context[$id]);
         }
+    }
+
+    /**
+     * @return bool
+     */
+    public function inCoroutine(): bool
+    {
+        return Coroutine::id() > 0;
     }
 }

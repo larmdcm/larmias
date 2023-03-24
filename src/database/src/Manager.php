@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\Database;
 
+use Larmias\Contracts\ContainerInterface;
 use Larmias\Database\Contracts\BuilderInterface;
 use Larmias\Database\Contracts\ConnectionInterface;
 use Larmias\Database\Contracts\QueryInterface;
@@ -27,9 +28,10 @@ class Manager
     protected array $proxies = [];
 
     /**
+     * @param ContainerInterface $container
      * @param array $config
      */
-    public function __construct(array $config = [])
+    public function __construct(protected ContainerInterface $container, array $config = [])
     {
         $this->config = array_merge($this->config, $config);
     }
@@ -64,7 +66,7 @@ class Manager
             if (!isset($this->config[$name])) {
                 throw new RuntimeException('config not set:' . $name);
             }
-            $this->proxies[$name] = new DbProxy($this->config[$name]);
+            $this->proxies[$name] = new DbProxy($this->container, $this->config[$name]);
         }
         return $this->proxies[$name];
     }

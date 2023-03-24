@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Larmias\Pool;
 
+use Larmias\Contracts\ContextInterface;
+use Larmias\Contracts\Coroutine\ChannelFactoryInterface;
 use Larmias\Contracts\Coroutine\ChannelInterface;
 use Larmias\Contracts\Pool\ConnectionInterface;
-use Larmias\Engine\Coroutine\Channel as EngineChannel;
-use Larmias\Engine\Coroutine;
 use SplQueue;
 
 class Channel
@@ -18,18 +18,21 @@ class Channel
     protected ?ChannelInterface $channel = null;
 
     /**
-     * @var SplQueue
+     * @var SplQueue|null
      */
-    protected SplQueue $queue;
+    protected ?SplQueue $queue = null;
 
     /**
+     * @param ContextInterface $context
+     * @param ChannelFactoryInterface $channelFactory
      * @param int $size
      */
-    public function __construct(protected int $size)
+    public function __construct(protected ContextInterface $context, protected ChannelFactoryInterface $channelFactory, protected int $size)
     {
-        $this->queue = new SplQueue();
         if ($this->isCoroutine()) {
-            $this->channel = EngineChannel::create($size);
+            $this->channel = $this->channelFactory->create($this->size);
+        } else {
+            $this->queue = new SplQueue();
         }
     }
 
@@ -94,6 +97,6 @@ class Channel
      */
     protected function isCoroutine(): bool
     {
-        return Coroutine::id() > 0;
+        return $this->context->inCoroutine();
     }
 }

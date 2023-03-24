@@ -8,6 +8,7 @@ use Larmias\Database\Contracts\BuilderInterface;
 use Larmias\Database\Manager;
 use Larmias\Database\Query\Builder;
 use Larmias\Database\Query\Expression;
+use Larmias\Di\Container;
 use PHPUnit\Framework\TestCase;
 
 class BuilderTest extends TestCase
@@ -16,7 +17,7 @@ class BuilderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->manager = new Manager(require __DIR__ . '/database.php');
+        $this->manager = new Manager(Container::getInstance(), require __DIR__ . '/database.php');
     }
 
     /**

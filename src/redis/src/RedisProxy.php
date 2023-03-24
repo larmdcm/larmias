@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Larmias\Redis;
 
+use Larmias\Contracts\Coroutine\CoroutineFactoryInterface;
 use Larmias\Contracts\Redis\ConnectionInterface;
 use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\ContextInterface;
 use Larmias\Redis\Pool\RedisConnection;
 use Larmias\Redis\Pool\RedisPool;
-use Larmias\Engine\Coroutine;
 use function in_array;
 
 class RedisProxy implements ConnectionInterface
@@ -25,13 +25,18 @@ class RedisProxy implements ConnectionInterface
     protected ContextInterface $context;
 
     /**
+     * @var CoroutineFactoryInterface
+     */
+    protected CoroutineFactoryInterface $coroutineFactory;
+
+    /**
      * @param ContainerInterface $container
      * @param array $config
      */
     public function __construct(protected ContainerInterface $container, protected array $config = [])
     {
         $this->context = $this->container->get(ContextInterface::class);
-        $this->redisPool = new RedisPool($this->config['pool'] ?? [], $this->config);
+        $this->redisPool = new RedisPool($this->container, $this->config['pool'] ?? [], $this->config);
     }
 
     /**
@@ -67,7 +72,7 @@ class RedisProxy implements ConnectionInterface
                         $connection->setDatabase((int)$arguments[0]);
                     }
                     $this->context->set($contextKey, $connection);
-                    Coroutine::defer(function () use ($contextKey, $connection) {
+                    $this->coroutineFactory->defer(function () use ($contextKey, $connection) {
                         $this->context->destroy($contextKey);
                         $connection->release();
                     });

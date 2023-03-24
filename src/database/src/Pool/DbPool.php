@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\Database\Pool;
 
+use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\Pool\ConnectionInterface;
 use Larmias\Database\Connections\MysqlConnection;
 use Larmias\Pool\Pool;
@@ -17,9 +18,9 @@ class DbPool extends Pool
      * @param array $options
      * @param array $config
      */
-    public function __construct(array $options = [], protected array $config = [])
+    public function __construct(ContainerInterface $container, array $options = [], protected array $config = [])
     {
-        parent::__construct($options);
+        parent::__construct($container, $options);
     }
 
     /**

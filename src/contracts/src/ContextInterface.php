@@ -43,4 +43,9 @@ interface ContextInterface
      * @return void
      */
     public function destroy(string $id, ?int $cid = null): void;
+
+    /**
+     * @return bool
+     */
+    public function inCoroutine(): bool;
 }

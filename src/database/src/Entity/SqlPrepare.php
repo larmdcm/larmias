@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Database\Query;
+namespace Larmias\Database\Entity;
 
 use Larmias\Database\Contracts\SqlPrepareInterface;
 

@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace Larmias\Utils\Encryption;
 
+use function array_merge;
+use function password_hash;
+use function password_verify;
+
 class Hash
 {
     /**
@@ -12,7 +16,7 @@ class Hash
      */
     public function __construct(protected string $password, protected string|int|null $algo = \PASSWORD_DEFAULT, protected array $options = [])
     {
-        $this->options = \array_merge($this->options, $options);
+        $this->options = array_merge($this->options, $options);
     }
 
     /**
@@ -31,7 +35,7 @@ class Hash
      */
     public function get(): string
     {
-        return \password_hash($this->password, $this->algo, $this->options);
+        return password_hash($this->password, $this->algo, $this->options);
     }
 
     /**
@@ -40,6 +44,6 @@ class Hash
      */
     public function check(string $hash): bool
     {
-        return \password_verify($this->password, $hash);
+        return password_verify($this->password, $hash);
     }
 }

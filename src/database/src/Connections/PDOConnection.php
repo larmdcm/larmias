@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Larmias\Database\Connections;
 
+use Larmias\Database\Contracts\ExecuteResultInterface;
+use Larmias\Database\Entity\ExecuteResult;
 use Larmias\Database\Exceptions\BindParamException;
 use Larmias\Database\Exceptions\PDOException;
 use PDO;
@@ -17,6 +19,7 @@ use function strpos;
 use function strlen;
 use function microtime;
 use function round;
+use function str_starts_with;
 
 abstract class PDOConnection extends Connection
 {
@@ -60,25 +63,34 @@ abstract class PDOConnection extends Connection
     /**
      * @param string $sql
      * @param array $binds
-     * @return int
+     * @return ExecuteResultInterface
      * @throws Throwable
      */
-    public function execute(string $sql, array $binds = []): int
+    public function execute(string $sql, array $binds = []): ExecuteResultInterface
     {
         $statement = $this->executeStatement($sql, $binds);
-        return $statement->rowCount();
+        return new ExecuteResult(
+            executeSql: $this->executeSql,
+            executeTime: $this->executeTime,
+            rowCount: $statement->rowCount(),
+            insertId: $this->isInsertSql($sql) ? $this->getLastInsertId() : null,
+        );
     }
 
     /**
      * @param string $sql
      * @param array $binds
-     * @return array
+     * @return ExecuteResultInterface
      * @throws Throwable
      */
-    public function query(string $sql, array $binds = []): array
+    public function query(string $sql, array $binds = []): ExecuteResultInterface
     {
         $statement = $this->executeStatement($sql, $binds);
-        return $statement->fetchAll(PDO::FETCH_ASSOC);
+        return new ExecuteResult(
+            executeSql: $this->executeSql,
+            executeTime: $this->executeTime,
+            resultSet: $statement->fetchAll(PDO::FETCH_ASSOC),
+        );
     }
 
     /**
@@ -92,7 +104,7 @@ abstract class PDOConnection extends Connection
     {
         try {
             $beginTime = microtime(true);
-            $this->lastSql = $sql;
+            $this->executeSql = $sql;
             $this->lastBinds = $binds;
             $prepare = $this->pdo->prepare($sql);
             if (!empty($binds)) {
@@ -132,7 +144,7 @@ abstract class PDOConnection extends Connection
             if (!$result) {
                 throw new BindParamException(sprintf(
                     'Error occurred  when binding parameters type: %d,param:%s,value:%s', $type, $param, $value
-                ), $this->config, $this->getLastSql(), $binds);
+                ), $this->config, $this->executeSql, $binds);
             }
         }
 
@@ -168,6 +180,25 @@ abstract class PDOConnection extends Connection
      * @return string
      */
     abstract public function parseDsn(array $config): string;
+
+    /**
+     * @param string|null $name
+     * @return string|null
+     */
+    public function getLastInsertId(?string $name = null): ?string
+    {
+        $insertId = $this->pdo->lastInsertId($name);
+        return $insertId === false ? null : $insertId;
+    }
+
+    /**
+     * @param string $sql
+     * @return bool
+     */
+    public function isInsertSql(string $sql): bool
+    {
+        return str_starts_with($sql, 'INSERT') || str_starts_with($sql, 'REPLACE');
+    }
 
     /**
      * @param array $config
@@ -208,7 +239,7 @@ abstract class PDOConnection extends Connection
      */
     public function close(): bool
     {
-        unset($this->pdo);
+        $this->pdo = null;
         return true;
     }
 }

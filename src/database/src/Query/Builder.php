@@ -4,381 +4,405 @@ declare(strict_types=1);
 
 namespace Larmias\Database\Query;
 
-use Larmias\Database\Contracts\ConnectionInterface;
-use Larmias\Database\Contracts\ExpressionInterface;
-use Larmias\Database\Contracts\SqlPrepareInterface;
 use Larmias\Database\Contracts\BuilderInterface;
+use Larmias\Database\Contracts\ConnectionInterface;
+use Larmias\Database\Contracts\ExecuteResultInterface;
+use Larmias\Database\Contracts\ExpressionInterface;
 use Larmias\Database\Contracts\QueryInterface;
-use function sprintf;
-use function str_replace;
-use function implode;
-use function is_numeric;
-use function is_array;
-use function explode;
-use function strtoupper;
+use Larmias\Database\Entity\Expression;
+use Larmias\Database\Query\Concerns\WhereQuery;
+use Larmias\Utils\Collection;
 use function array_map;
+use function array_merge;
+use function array_unique;
+use function explode;
+use function implode;
+use function is_array;
+use function is_string;
+use function preg_match;
+use const SORT_REGULAR;
 
-abstract class Builder implements BuilderInterface
+class Builder implements QueryInterface
 {
-    /**
-     * @var string
-     */
-    protected string $selectSql = 'SELECT<FIELD> FROM <TABLE><JOIN><WHERE><GROUP><HAVING><ORDER><LIMIT>';
+    use WhereQuery;
 
     /**
      * @var array
      */
-    protected array $binds = [];
+    protected array $options = [
+        'data' => [],
+        'table' => '',
+        'alias' => [],
+        'field' => [],
+        'where' => [],
+        'join' => [],
+        'group' => [],
+        'order' => [],
+        'offset' => null,
+        'limit' => null,
+        'having' => '',
+    ];
 
     /**
-     * @param ConnectionInterface $connection
+     * @var ConnectionInterface
      */
-    public function __construct(protected ConnectionInterface $connection)
+    protected ConnectionInterface $connection;
+
+    /**
+     * @var BuilderInterface
+     */
+    protected BuilderInterface $builder;
+
+    /**
+     * @param array $data
+     * @return QueryInterface
+     */
+    public function data(array $data): QueryInterface
     {
+        $this->options['data'] = $data;
+        return $this;
     }
 
     /**
-     * @param mixed $value
-     * @return void
+     * 设置表名称
+     * @param string $name
+     * @return QueryInterface
      */
-    public function bind(mixed $value): void
+    public function table(string $name): QueryInterface
     {
-        if (is_array($value)) {
-            $this->binds = array_merge($this->binds, $value);
-        } else {
-            $this->binds[] = $value;
-        }
+        $this->options['table'] = $name;
+        return $this;
     }
 
     /**
-     * @param QueryInterface $query
-     * @return SqlPrepareInterface
-     */
-    public function select(QueryInterface $query): SqlPrepareInterface
-    {
-        $options = $query->getOptions();
-        $sql = str_replace(['<FIELD>', '<TABLE>', '<JOIN>', '<WHERE>', '<GROUP>', '<HAVING>', '<ORDER>', '<LIMIT>'], [
-            $this->parseField($options['field']),
-            $this->parseTable($options['table'], $options['alias']),
-            $this->parseJoin($options['join'], $options['alias']),
-            $this->parseWhere($options['where']),
-            $this->parseGroup($options['group']),
-            $this->parseHaving($options['having']),
-            $this->parseOrder($options['order']),
-            $this->parseLimit($options['limit'], $options['offset']),
-        ], $this->selectSql);
-        $sqlPrepare = new SqlPrepare($sql, $this->binds);
-        $this->binds = [];
-        return $sqlPrepare;
-    }
-
-    /**
-     * @param array $fields
      * @return string
      */
-    public function parseField(array $fields): string
+    public function getTable(): string
     {
-        $values = [];
-        foreach ($fields as $field) {
-            if ($field instanceof ExpressionInterface) {
-                $values[] = $this->escape($this->parseExpression($field));
-            } else {
-                if (!is_array($field)) {
-                    $field = explode(',', (string)$field);
-                }
-                foreach ($field as $key => $value) {
-                    if (!is_numeric($key)) {
-                        $values[] = $this->buildAlias($value, $key);
-                    } else {
-                        $values[] = $this->buildAlias($value);
-                    }
-                }
-            }
-        }
-
-        return empty($values) ? '*' : implode(',', $values);
+        return $this->options['table'];
     }
 
     /**
-     * @param string|array $table
-     * @param array $alias
-     * @return string
+     * 设置表别名
+     * @param string|array $name
+     * @return QueryInterface
      */
-    public function parseTable(string|array $table, array $alias = []): string
+    public function alias(string|array $name): QueryInterface
     {
-        if (is_array($table)) {
-            $values = [];
-            foreach ($table as $key => $val) {
-                if (is_numeric($key)) {
-                    $values[] = $this->parseTable((string)$val, $alias);
-                } else {
-                    $values[] = $this->buildAlias($key, $val);
-                }
-            }
-            return implode(',', $values);
+        if (is_string($name)) {
+            $name = [$this->getTable() => $name];
         }
-
-        return $this->buildAlias($table, $alias[$table] ?? '');
+        $this->options['alias'] = array_merge($this->options['alias'], $name);
+        return $this;
     }
 
     /**
-     * @param array $joins
-     * @param array $alias
-     * @return string
+     * @param string $name
+     * @return QueryInterface
      */
-    public function parseJoin(array $joins, array $alias = []): string
+    public function name(string $name): QueryInterface
     {
-        $values = [];
-        foreach ($joins as $join) {
-            [$table, $on, $type] = $join;
-            $table = $this->parseTable($table, $alias);
-            if (str_contains($on, '=')) {
-                $onSplit = explode('=', $on, 2);
-                $on = $this->escape($onSplit[0]) . ' = ' . $this->escape($onSplit[1]);
-            }
-            $values[] = $this->buildJoin($table, $on, $type);
-        }
-        return implode('', $values);
-    }
-
-    /**
-     * @param array $where
-     * @return string
-     */
-    public function parseWhere(array $where): string
-    {
-        $values = [];
-        foreach ($where as $logic => $wheres) {
-            foreach ($wheres as $whereItem) {
-                $condition = $this->parseWhereItem($whereItem);
-                $values[] = empty($values) ? $this->buildWhere($condition) : $this->buildWhereLogic($condition, $logic);
-            }
-        }
-        return implode('', $values);
-    }
-
-    /**
-     * @param array $groups
-     * @return string
-     */
-    public function parseGroup(array $groups): string
-    {
-        $values = [];
-        foreach ($groups as $group) {
-            if ($group instanceof ExpressionInterface) {
-                $values[] = $this->parseExpression($group);
-            } else if (is_array($group)) {
-                foreach ($group as $item) {
-                    $values[] = $this->escape($item);
-                }
-            } else {
-                $values[] = $this->escape((string)$group);
-            }
-        }
-
-        if (empty($values)) {
-            return '';
-        }
-
-        return $this->buildGroup(implode(',', $values));
-    }
-
-    /**
-     * @param array $orders
-     * @return string
-     */
-    public function parseOrder(array $orders): string
-    {
-        $values = [];
-
-        foreach ($orders as $order) {
-            if ($order instanceof ExpressionInterface) {
-                $values[] = $this->parseExpression($order);
-            } else if (is_array($order)) {
-                foreach ($order as $key => $value) {
-                    if (str_contains($key, ',')) {
-                        $key = implode(',', array_map(fn($item) => $this->escape($item), explode(',', $key)));
-                    }
-                    $values[] = $this->escape($key) . ' ' . $value;
-                }
-            } else {
-                $values[] = $order;
-            }
-        }
-
-        if (empty($values)) {
-            return '';
-        }
-
-        return $this->buildOrder(implode(',', $values));
-    }
-
-    /**
-     * @param array $having
-     * @return string
-     */
-    public function parseHaving(array $having): string
-    {
-        $values = [];
-        foreach ($having as $logic => $items) {
-            foreach ($items as $item) {
-                if ($item instanceof ExpressionInterface) {
-                    $value = $this->parseExpression($item);
-                } else {
-                    $value = (string)$item;
-                }
-                $values[] = empty($values) ? $this->buildHaving($value) : $this->buildHavingLogic($value, $logic);
-            }
-        }
-        return implode('', $values);
-    }
-
-    /**
-     * @param int|null $limit
-     * @param int|null $offset
-     * @return string
-     */
-    public function parseLimit(?int $limit, ?int $offset = null): string
-    {
-        if (!$limit && !$offset) {
-            return '';
-        }
-
-        return $this->buildLimit($limit, $offset);
-    }
-
-    /**
-     * @param array $where
-     * @return string
-     */
-    public function parseWhereItem(mixed $where): string
-    {
-        if ($where instanceof ExpressionInterface) {
-            $this->bind($where->getBinds());
-            return $where->getValue();
-        }
-
-        return $this->parseWhereOp($where);
-    }
-
-    /**
-     * @param array $where
-     * @return string
-     */
-    public function parseWhereOp(array $where): string
-    {
-        [$field, $op, $value] = $where;
-        $this->bind($value);
-        return sprintf('%s %s ?', $this->escape($field), $op);
-    }
-
-    /**
-     * @param ExpressionInterface $expression
-     * @return string
-     */
-    public function parseExpression(ExpressionInterface $expression): string
-    {
-        $this->bind($expression->getBinds());
-        return $expression->getValue();
+        return $this->table($this->connection->getConfig('prefix', '') . $name);
     }
 
     /**
      * @param string $field
-     * @param string $alias
-     * @return string
+     * @param array $binds
+     * @return QueryInterface
      */
-    public function buildAlias(string $field, string $alias = ''): string
+    public function fieldRaw(string $field, array $binds = []): QueryInterface
     {
-        if (empty($alias)) {
-            return $this->escape($field);
+        $this->options['field'][] = new Expression($field, $binds);
+        return $this;
+    }
+
+    /**
+     * @param string|array|ExpressionInterface $field
+     * @return QueryInterface
+     */
+    public function field(string|array|ExpressionInterface $field): QueryInterface
+    {
+        if ($field instanceof ExpressionInterface) {
+            $this->options['field'][] = $field;
+            return $this;
         }
 
-        return sprintf('%s %s', $this->escape($field), $this->escape($alias));
+        if (is_string($field)) {
+            if (preg_match('/[\<\'\"\(]/', $field)) {
+                return $this->fieldRaw($field);
+            }
+            $field = array_map('trim', explode(',', $field));
+        }
+
+        if (is_array($this->options['field'])) {
+            $field = array_merge($this->options['field'], $field);
+        }
+
+        $this->options['field'] = array_unique($field, SORT_REGULAR);
+        return $this;
     }
 
     /**
-     * @param string $condition
-     * @return string
-     */
-    public function buildWhere(string $condition = ''): string
-    {
-        return ' WHERE ' . $condition;
-    }
-
-    /**
-     * @param string $condition
-     * @param string $logic
-     * @return string
-     */
-    public function buildWhereLogic(string $condition = '', string $logic = 'AND'): string
-    {
-        return sprintf(' %s %s', $logic, $condition);
-    }
-
-    /**
-     * @param string $condition
-     * @return string
-     */
-    public function buildHaving(string $condition = ''): string
-    {
-        return ' Having ' . $condition;
-    }
-
-    /**
-     * @param string $condition
-     * @param string $logic
-     * @return string
-     */
-    public function buildHavingLogic(string $condition = '', string $logic = 'AND'): string
-    {
-        return sprintf(' %s %s', $logic, $condition);
-    }
-
-    /**
-     * @param string $table
-     * @param string $condition
+     * @param array|string $table
+     * @param mixed $condition
      * @param string $joinType
-     * @return string
+     * @return QueryInterface
      */
-    public function buildJoin(string $table, string $condition, string $joinType = 'INNER'): string
+    public function join(array|string $table, mixed $condition, string $joinType = 'INNER'): QueryInterface
     {
-        return sprintf(' %s JOIN %s ON %s', strtoupper($joinType), $table, $condition);
+        $this->options['join'][] = [$table, $condition, $joinType];
+        return $this;
     }
 
     /**
-     * @param string $value
-     * @return string
+     * @param array|string $field
+     * @return QueryInterface
      */
-    public function buildGroup(string $value): string
+    public function groupBy(array|string $field): QueryInterface
     {
-        return sprintf(' GROUP BY %s', $value);
+        if (is_string($field)) {
+            $field = explode(',', $field);
+        }
+        $this->options['group'][] = $field;
+        return $this;
     }
 
     /**
-     * @param string $value
-     * @return string
+     * @param string $expression
+     * @param array $binds
+     * @return QueryInterface
      */
-    public function buildOrder(string $value): string
+    public function groupByRaw(string $expression, array $binds = []): QueryInterface
     {
-        return sprintf(' ORDER BY %s', $value);
+        $this->options['group'][] = new Expression($expression, $binds);
+        return $this;
+    }
+
+    /**
+     * @param array|string $field
+     * @param string $order
+     * @return QueryInterface
+     */
+    public function orderBy(array|string $field, string $order = ''): QueryInterface
+    {
+        if (is_string($field)) {
+            if (empty($order)) {
+                $this->options['order'][] = $field;
+            } else {
+                $this->options['order'][] = [$field => $order];
+            }
+        } else {
+            if (empty($order)) {
+                $this->options['order'][] = $field;
+            } else {
+                $this->options['order'][] = [implode(',', $field) => $order];
+            }
+        }
+        return $this;
+    }
+
+    /**
+     * @param string $raw
+     * @param array $binds
+     * @return QueryInterface
+     */
+    public function orderByRaw(string $raw, array $binds = []): QueryInterface
+    {
+        $this->options['order'][] = new Expression($raw, $binds);
+        return $this;
+    }
+
+    /**
+     * @param string $having
+     * @param array $binds
+     * @return QueryInterface
+     */
+    public function having(string $having, array $binds = []): QueryInterface
+    {
+        $this->options['having']['AND'][] = new Expression($having, $binds);
+        return $this;
+    }
+
+    /**
+     * @param string $having
+     * @param array $binds
+     * @return QueryInterface
+     */
+    public function havingOr(string $having, array $binds = []): QueryInterface
+    {
+        $this->options['having']['OR'][] = new Expression($having, $binds);
+        return $this;
+    }
+
+    /**
+     * @param int $offset
+     * @return QueryInterface
+     */
+    public function offset(int $offset): QueryInterface
+    {
+        $this->options['offset'] = $offset;
+        return $this;
     }
 
     /**
      * @param int $limit
-     * @param int|null $offset
-     * @return string
+     * @return QueryInterface
      */
-    public function buildLimit(int $limit, ?int $offset = null): string
+    public function limit(int $limit): QueryInterface
     {
-        return ' LIMIT ' . ($offset ? ($offset . ',' . $limit) : $limit);
+        $this->options['limit'] = $limit;
+        return $this;
     }
 
     /**
-     * @param string $str
+     * @param int $buildType
      * @return string
      */
-    public function escape(string $str): string
+    public function buildSql(int $buildType = self::BUILD_SQL_SELECT): string
     {
-        return $str;
+        $sqlPrepare = $this->builder->select($this->getOptions());
+        return $this->connection->buildSql($sqlPrepare->getSql(), $sqlPrepare->getBinds());
+    }
+
+    /**
+     * @param string $buildMethod
+     * @param array|null $data
+     * @param mixed $condition
+     * @return ExecuteResultInterface
+     */
+    public function executeResult(string $buildMethod, ?array $data = null, mixed $condition = null): ExecuteResultInterface
+    {
+        if ($data !== null) {
+            $this->data($data);
+        }
+        if ($condition !== null) {
+            $this->where($condition);
+        }
+        $options = $this->getOptions();
+        $sqlPrepare = $this->builder->{$buildMethod}($options);
+        return $this->connection->execute($sqlPrepare->getSql(), $sqlPrepare->getBinds());
+    }
+
+    /**
+     * @param array|null $data
+     * @return int
+     */
+    public function insert(?array $data = null): int
+    {
+        return $this->executeResult(__FUNCTION__, $data)->getRowCount();
+    }
+
+    /**
+     * @param array|null $data
+     * @return string
+     */
+    public function insertGetId(?array $data = null): string
+    {
+        return $this->executeResult('insert', $data)->getInsertId();
+    }
+
+    /**
+     * @param array|null $data
+     * @return int
+     */
+    public function insertAll(?array $data = null): int
+    {
+        return $this->executeResult(__FUNCTION__, $data)->getRowCount();
+    }
+
+    /**
+     * @param array|null $data
+     * @param mixed $condition
+     * @return int
+     */
+    public function update(?array $data = null, mixed $condition = null): int
+    {
+        return $this->executeResult(__FUNCTION__, $data, $condition)->getRowCount();
+    }
+
+    /**
+     * @param mixed $condition
+     * @return int
+     */
+    public function delete(mixed $condition = null): int
+    {
+        return $this->executeResult(__FUNCTION__, condition: $condition)->getRowCount();
+    }
+
+    /**
+     * @return Collection
+     */
+    public function get(): Collection
+    {
+        $sqlPrepare = $this->builder->select($this->getOptions());
+        $items = $this->connection->query($sqlPrepare->getSql(), $sqlPrepare->getBinds())->getResultSet();
+        return Collection::make($items);
+    }
+
+    /**
+     * @return array
+     */
+    public function first(): array
+    {
+        if (!$this->options['limit']) {
+            $this->limit(1);
+        }
+
+        return current($this->get());
+    }
+
+    /**
+     * @return QueryInterface
+     */
+    public function newQuery(): QueryInterface
+    {
+        $query = new static();
+        $query->setConnection($this->connection);
+        $query->setBuilder($this->builder);
+        return $query;
+    }
+
+    /**
+     * @return array
+     */
+    public function getOptions(): array
+    {
+        return $this->options;
+    }
+
+    /**
+     * @return ConnectionInterface
+     */
+    public function getConnection(): ConnectionInterface
+    {
+        return $this->connection;
+    }
+
+    /**
+     * @param ConnectionInterface $connection
+     * @return QueryInterface
+     */
+    public function setConnection(ConnectionInterface $connection): QueryInterface
+    {
+        $this->connection = $connection;
+        return $this;
+    }
+
+    /**
+     * @return BuilderInterface
+     */
+    public function getBuilder(): BuilderInterface
+    {
+        return $this->builder;
+    }
+
+    /**
+     * @param BuilderInterface $builder
+     * @return QueryInterface
+     */
+    public function setBuilder(BuilderInterface $builder): QueryInterface
+    {
+        $this->builder = $builder;
+        return $this;
     }
 }

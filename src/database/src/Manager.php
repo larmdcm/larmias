@@ -5,15 +5,16 @@ declare(strict_types=1);
 namespace Larmias\Database;
 
 use Larmias\Contracts\ContainerInterface;
+use Larmias\Database\Builder\MysqlBuilder;
 use Larmias\Database\Contracts\BuilderInterface;
 use Larmias\Database\Contracts\ConnectionInterface;
 use Larmias\Database\Contracts\QueryInterface;
 use Larmias\Database\Pool\DbProxy;
-use Larmias\Database\Query\Builder\MysqlBuilder;
+use Larmias\Database\Query\Builder;
 use RuntimeException;
-use function Larmias\Utils\data_get;
-use function class_exists;
 use function array_merge;
+use function class_exists;
+use function Larmias\Utils\data_get;
 
 class Manager
 {
@@ -43,7 +44,7 @@ class Manager
     public function query(?string $name = null): QueryInterface
     {
         $connection = $this->connection($name);
-        $queryClass = $connection->getConfig('query', Query::class);
+        $queryClass = $connection->getConfig('query', Builder::class);
         if (!class_exists($queryClass)) {
             throw new RuntimeException('query class not exists:' . $queryClass);
         }

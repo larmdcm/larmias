@@ -22,20 +22,20 @@ interface ConnectionInterface
     public function close(): bool;
 
     /**
-     * 查询返回成功条数
+     * 查询
      * @param string $sql
      * @param array $binds
-     * @return int
+     * @return ExecuteResultInterface
      */
-    public function execute(string $sql, array $binds = []): int;
+    public function execute(string $sql, array $binds = []): ExecuteResultInterface;
 
     /**
-     * 查询返回结果集
+     * 查询结果集
      * @param string $sql
      * @param array $binds
-     * @return array
+     * @return ExecuteResultInterface
      */
-    public function query(string $sql, array $binds = []): array;
+    public function query(string $sql, array $binds = []): ExecuteResultInterface;
 
     /**
      * 构建sql
@@ -52,16 +52,4 @@ interface ConnectionInterface
      * @return mixed
      */
     public function getConfig(?string $name = null, mixed $default = null): mixed;
-
-    /**
-     * 获取最后执行sql
-     * @return string
-     */
-    public function getLastSql(): string;
-
-    /**
-     * 获取sql最后执行时间
-     * @return float
-     */
-    public function getExecuteTime(): float;
 }

@@ -14,22 +14,27 @@ interface QueryInterface
     /**
      * @var int
      */
-    public const BUILD_SQL_DELETE = 2;
+    public const BUILD_SQL_BATCH_INSERT = 2;
 
     /**
      * @var int
      */
-    public const BUILD_SQL_UPDATE = 3;
+    public const BUILD_SQL_DELETE = 3;
 
     /**
      * @var int
      */
-    public const BUILD_SQL_SELECT = 4;
+    public const BUILD_SQL_UPDATE = 4;
 
     /**
      * @var int
      */
-    public const BUILD_SQL_FIRST = 5;
+    public const BUILD_SQL_SELECT = 5;
+
+    /**
+     * @var int
+     */
+    public const BUILD_SQL_FIRST = 6;
 
     /**
      * 设置表名称

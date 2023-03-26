@@ -634,4 +634,15 @@ class Arr
 
         return is_array($value) ? $value : [$value];
     }
+
+    /**
+     * 判断是否为二维数组
+     *
+     * @param array $array
+     * @return bool
+     */
+    public static function isTwoDimension(array $array): bool
+    {
+        return count($array) != count($array, 1);
+    }
 }

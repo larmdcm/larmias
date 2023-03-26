@@ -12,7 +12,7 @@ interface ResponseEmitterInterface
      * @param PsrResponseInterface $response
      * @param ResponseInterface $serverResponse
      * @param bool $withContent
-     * @return mixed
+     * @return void
      */
-    public function emit(PsrResponseInterface $response, ResponseInterface $serverResponse, bool $withContent = true);
+    public function emit(PsrResponseInterface $response, ResponseInterface $serverResponse, bool $withContent = true): void;
 }

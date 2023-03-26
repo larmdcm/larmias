@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace Larmias\Tests\Database;
 
-use Larmias\Database\Contracts\BuilderInterface;
+use Larmias\Database\Builder\Builder;
+use Larmias\Database\Entity\Expression;
 use Larmias\Database\Manager;
-use Larmias\Database\Query\Builder;
-use Larmias\Database\Query\Expression;
 use Larmias\Di\Container;
 use PHPUnit\Framework\TestCase;
 

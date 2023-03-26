@@ -2,12 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Database\Query\Builder;
+namespace Larmias\Database\Builder;
 
-use Larmias\Database\Query\Builder;
-use function str_contains;
 use function explode;
 use function sprintf;
+use function str_contains;
 
 class MysqlBuilder extends Builder
 {

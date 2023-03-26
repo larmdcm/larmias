@@ -7,6 +7,10 @@ namespace Larmias\Config;
 use Larmias\Contracts\ConfigInterface;
 use Larmias\Utils\Arr;
 use ArrayAccess;
+use function is_array;
+use function pathinfo;
+use function parse_ini_file;
+use function json_decode;
 
 class Config implements ArrayAccess, ConfigInterface
 {
@@ -34,7 +38,7 @@ class Config implements ArrayAccess, ConfigInterface
      */
     public function load(string $file, ?string $key = null): array
     {
-        $info = \pathinfo($file);
+        $info = pathinfo($file);
         $config = [];
         switch ($info['extension']) {
             case 'php':
@@ -43,14 +47,14 @@ class Config implements ArrayAccess, ConfigInterface
             case 'yml':
             case 'yaml':
                 if (function_exists('yaml_parse_file')) {
-                    $config = \yaml_parse_file($file);
+                    $config = yaml_parse_file($file);
                 }
                 break;
             case 'ini':
-                $config = \parse_ini_file($file, true, INI_SCANNER_TYPED) ?: [];
+                $config = parse_ini_file($file, true, INI_SCANNER_TYPED) ?: [];
                 break;
             case 'json':
-                $config = \json_decode(file_get_contents($file), true);
+                $config = json_decode(file_get_contents($file), true);
                 break;
         }
         $key = $key ?: $info['filename'];
@@ -75,9 +79,9 @@ class Config implements ArrayAccess, ConfigInterface
      * @param mixed $value
      * @return array
      */
-    public function set(string|array $key,mixed $value = null): array
+    public function set(string|array $key, mixed $value = null): array
     {
-        if (\is_array($key)) {
+        if (is_array($key)) {
             foreach ($key as $itemKey => $itemValue) {
                 Arr::set($this->config, $itemKey, $itemValue);
             }
@@ -94,7 +98,7 @@ class Config implements ArrayAccess, ConfigInterface
      * @param mixed $default
      * @return mixed
      */
-    public function get(?string $key = null,mixed $default = null): mixed
+    public function get(?string $key = null, mixed $default = null): mixed
     {
         return Arr::get($this->config, $key, $default);
     }
@@ -106,7 +110,7 @@ class Config implements ArrayAccess, ConfigInterface
      * @param mixed $value
      * @return array
      */
-    public function push(string $key,mixed $value): array
+    public function push(string $key, mixed $value): array
     {
         $array = $this->get($key, []);
         $array[] = $value;
@@ -152,7 +156,7 @@ class Config implements ArrayAccess, ConfigInterface
      * @param mixed $value
      * @return void
      */
-    public function offsetSet(mixed $offset,mixed $value): void
+    public function offsetSet(mixed $offset, mixed $value): void
     {
         $this->set($offset, $value);
     }
@@ -165,6 +169,6 @@ class Config implements ArrayAccess, ConfigInterface
      */
     public function offsetUnset(mixed $offset): void
     {
-        $this->set($offset, null);
+        $this->set($offset);
     }
 }

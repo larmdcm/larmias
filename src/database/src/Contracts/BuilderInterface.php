@@ -7,8 +7,8 @@ namespace Larmias\Database\Contracts;
 interface BuilderInterface
 {
     /**
-     * @param QueryInterface $query
+     * @param array $options
      * @return SqlPrepareInterface
      */
-    public function select(QueryInterface $query): SqlPrepareInterface;
+    public function select(array $options): SqlPrepareInterface;
 }

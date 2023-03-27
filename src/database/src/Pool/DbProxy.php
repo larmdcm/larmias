@@ -7,6 +7,7 @@ namespace Larmias\Database\Pool;
 use Larmias\Contracts\ContainerInterface;
 use Larmias\Database\Contracts\ConnectionInterface;
 use Larmias\Database\Connections\Connection;
+use Larmias\Database\Contracts\ExecuteResultInterface;
 
 class DbProxy implements ConnectionInterface
 {
@@ -50,9 +51,9 @@ class DbProxy implements ConnectionInterface
     /**
      * @param string $sql
      * @param array $binds
-     * @return int
+     * @return ExecuteResultInterface
      */
-    public function execute(string $sql, array $binds = []): int
+    public function execute(string $sql, array $binds = []): ExecuteResultInterface
     {
         return $this->call(__FUNCTION__, func_get_args());
     }
@@ -60,9 +61,9 @@ class DbProxy implements ConnectionInterface
     /**
      * @param string $sql
      * @param array $binds
-     * @return array
+     * @return ExecuteResultInterface
      */
-    public function query(string $sql, array $binds = []): array
+    public function query(string $sql, array $binds = []): ExecuteResultInterface
     {
         return $this->call(__FUNCTION__, func_get_args());
     }
@@ -83,22 +84,6 @@ class DbProxy implements ConnectionInterface
      * @return mixed
      */
     public function getConfig(?string $name = null, mixed $default = null): mixed
-    {
-        return $this->call(__FUNCTION__, func_get_args());
-    }
-
-    /**
-     * @return string
-     */
-    public function getLastSql(): string
-    {
-        return $this->call(__FUNCTION__, func_get_args());
-    }
-
-    /**
-     * @return float
-     */
-    public function getExecuteTime(): float
     {
         return $this->call(__FUNCTION__, func_get_args());
     }

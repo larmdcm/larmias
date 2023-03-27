@@ -9,7 +9,7 @@ use Larmias\Database\Contracts\ConnectionInterface;
 use Larmias\Database\Contracts\ExpressionInterface;
 use Larmias\Database\Contracts\SqlPrepareInterface;
 use Larmias\Database\Entity\SqlPrepare;
-use Larmias\Database\Exceptions\SQLException;
+use Larmias\Database\Exceptions\QueryException;
 use function array_map;
 use function array_values;
 use function array_keys;
@@ -124,7 +124,7 @@ abstract class Builder implements BuilderInterface
     {
         $where = $this->parseWhere($options['where']);
         if (empty($where)) {
-            throw new SQLException('UPDATE 语句缺少更新条件');
+            throw new QueryException('UPDATE 语句缺少更新条件');
         }
         $sql = str_replace(['<TABLE>', '<SET>', '<JOIN>', '<WHERE>', '<ORDER>', 'LIMIT'], [
             $this->parseTable($options['table']),
@@ -145,7 +145,7 @@ abstract class Builder implements BuilderInterface
     {
         $where = $this->parseWhere($options['where']);
         if (empty($where)) {
-            throw new SQLException('DELETE 语句缺少更新条件');
+            throw new QueryException('DELETE 语句缺少更新条件');
         }
         $sql = str_replace(['<TABLE>', '<JOIN>', '<WHERE>', '<ORDER>', 'LIMIT'], [
             $this->parseTable($options['table']),

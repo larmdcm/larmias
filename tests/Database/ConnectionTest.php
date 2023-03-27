@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Larmias\Tests\Database;
 
 use Larmias\Database\Manager;
+use Larmias\Di\Container;
 use PHPUnit\Framework\TestCase;
 use Larmias\Database\Contracts\ConnectionInterface;
 
@@ -14,7 +15,7 @@ class ConnectionTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->manager = new Manager(require __DIR__ . '/database.php');
+        $this->manager = new Manager(Container::getInstance(), require __DIR__ . '/database.php');
     }
 
     /**
@@ -24,7 +25,7 @@ class ConnectionTest extends TestCase
     public function testQuery(): void
     {
         $connection = $this->getConnection();
-        $list = $connection->query("select * from t_user where id = ?", [1]);
+        $list = $connection->query("select * from t_user where id = ?", [1])->getResultSet();
         $this->assertNotEmpty($list);
         $this->assertSame($list[0]['id'], 1);
     }
@@ -35,6 +36,6 @@ class ConnectionTest extends TestCase
      */
     protected function getConnection(): ConnectionInterface
     {
-        return $this->manager->createConnection();
+        return $this->manager->connection();
     }
 }

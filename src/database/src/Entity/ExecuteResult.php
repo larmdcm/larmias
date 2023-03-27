@@ -14,8 +14,11 @@ class ExecuteResult implements ExecuteResultInterface
      * @param string|null $insertId
      */
     public function __construct(
-        protected string $executeSql = '', protected float $executeTime = 0.0, protected int $rowCount = 0,
-        protected array  $resultSet = [], protected ?string $insertId = null,
+        protected string $executeSql = '', 
+        protected float $executeTime = 0.0, 
+        protected int $rowCount = 0,
+        protected array  $resultSet = [], 
+        protected ?string $insertId = null,
     )
     {
 

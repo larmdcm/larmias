@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Larmias\Tests\Database;
 
 use Larmias\Database\Manager;
+use Larmias\Di\Container;
 use PHPUnit\Framework\TestCase;
 use Larmias\Database\Contracts\QueryInterface;
 
@@ -14,7 +15,7 @@ class QueryTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->manager = new Manager(require __DIR__ . '/database.php');
+        $this->manager = new Manager(Container::getInstance(), require __DIR__ . '/database.php');
     }
 
     /**

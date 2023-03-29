@@ -1,6 +1,9 @@
 <?php
 
 use Larmias\Di\Container;
+use Larmias\Contracts\ContainerInterface;
+
+date_default_timezone_set('PRC');
 
 $container = Container::getInstance();
 
@@ -14,4 +17,7 @@ $container->bind(\Larmias\Contracts\Coroutine\ChannelFactoryInterface::class, \L
 $container->bind(\Larmias\Contracts\TimerInterface::class, \Larmias\Engine\Timer::getTimer());
 
 
-return $container;
+function container(): ContainerInterface
+{
+    return Container::getInstance();
+}

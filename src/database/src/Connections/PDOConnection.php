@@ -69,8 +69,10 @@ abstract class PDOConnection extends Connection
     public function execute(string $sql, array $binds = []): ExecuteResultInterface
     {
         $statement = $this->executeStatement($sql, $binds);
+
         return new ExecuteResult(
             executeSql: $this->executeSql,
+            executeBinds: $this->executeBinds,
             executeTime: $this->executeTime,
             rowCount: $statement->rowCount(),
             insertId: $this->isInsertSql($sql) ? $this->getLastInsertId() : null,
@@ -88,6 +90,7 @@ abstract class PDOConnection extends Connection
         $statement = $this->executeStatement($sql, $binds);
         return new ExecuteResult(
             executeSql: $this->executeSql,
+            executeBinds: $this->executeBinds,
             executeTime: $this->executeTime,
             resultSet: $statement->fetchAll(PDO::FETCH_ASSOC),
         );
@@ -105,7 +108,7 @@ abstract class PDOConnection extends Connection
         try {
             $beginTime = microtime(true);
             $this->executeSql = $sql;
-            $this->lastBinds = $binds;
+            $this->executeBinds = $binds;
             $prepare = $this->pdo->prepare($sql);
             if (!empty($binds)) {
                 $prepare = $this->bindValue($prepare, $binds);
@@ -239,7 +242,7 @@ abstract class PDOConnection extends Connection
      */
     public function close(): bool
     {
-        $this->pdo = null;
+        unset($this->pdo);
         return true;
     }
 }

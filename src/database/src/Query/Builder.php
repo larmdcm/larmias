@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\Database\Query;
 
+use Larmias\Contracts\CollectionInterface;
 use Larmias\Database\Contracts\BuilderInterface;
 use Larmias\Database\Contracts\ConnectionInterface;
 use Larmias\Database\Contracts\ExecuteResultInterface;
@@ -40,7 +41,7 @@ class Builder implements QueryInterface
         'order' => [],
         'offset' => null,
         'limit' => null,
-        'having' => '',
+        'having' => [],
     ];
 
     /**
@@ -228,7 +229,7 @@ class Builder implements QueryInterface
      * @param array $binds
      * @return QueryInterface
      */
-    public function havingOr(string $having, array $binds = []): QueryInterface
+    public function orHaving(string $having, array $binds = []): QueryInterface
     {
         $this->options['having']['OR'][] = new Expression($having, $binds);
         return $this;
@@ -265,12 +266,12 @@ class Builder implements QueryInterface
     }
 
     /**
-     * @param string $buildMethod
+     * @param string $method
      * @param array|null $data
      * @param mixed $condition
      * @return ExecuteResultInterface
      */
-    public function executeResult(string $buildMethod, ?array $data = null, mixed $condition = null): ExecuteResultInterface
+    public function executeResult(string $method, ?array $data = null, mixed $condition = null): ExecuteResultInterface
     {
         if ($data !== null) {
             $this->data($data);
@@ -279,7 +280,7 @@ class Builder implements QueryInterface
             $this->where($condition);
         }
         $options = $this->getOptions();
-        $sqlPrepare = $this->builder->{$buildMethod}($options);
+        $sqlPrepare = $this->builder->{$method}($options);
         return $this->connection->execute($sqlPrepare->getSql(), $sqlPrepare->getBinds());
     }
 
@@ -330,9 +331,9 @@ class Builder implements QueryInterface
     }
 
     /**
-     * @return Collection
+     * @return CollectionInterface
      */
-    public function get(): Collection
+    public function get(): CollectionInterface
     {
         $sqlPrepare = $this->builder->select($this->getOptions());
         $items = $this->connection->query($sqlPrepare->getSql(), $sqlPrepare->getBinds())->getResultSet();
@@ -340,15 +341,14 @@ class Builder implements QueryInterface
     }
 
     /**
-     * @return array
+     * @return array|null
      */
-    public function first(): array
+    public function first(): ?array
     {
         if (!$this->options['limit']) {
             $this->limit(1);
         }
-
-        return current($this->get());
+        return $this->get()->first();
     }
 
     /**

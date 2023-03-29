@@ -24,7 +24,7 @@ abstract class Connection extends PoolConnection implements ConnectionInterface,
     /**
      * @var array
      */
-    protected array $lastBinds = [];
+    protected array $executeBinds = [];
 
     /**
      * @var float

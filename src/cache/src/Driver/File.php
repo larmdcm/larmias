@@ -90,7 +90,7 @@ class File extends Driver
             $key = $this->config['prefix'] . DIRECTORY_SEPARATOR . $key;
         }
 
-		return $this->getPath(). DIRECTORY_SEPARATOR . $key;
+		return $this->getPath() . DIRECTORY_SEPARATOR . $key;
 	}
 
 	protected function getPath(): string

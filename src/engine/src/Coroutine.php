@@ -129,7 +129,7 @@ class Coroutine
     public static function __callStatic(string $name, array $arguments): mixed
     {
         if (!static::isSupport()) {
-            throw new \RuntimeException("not support: Coroutine");
+            throw new RuntimeException("not support: Coroutine");
         }
 
         return call_user_func_array([static::$coClass, $name], $arguments);

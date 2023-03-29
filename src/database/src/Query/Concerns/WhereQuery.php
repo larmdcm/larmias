@@ -9,6 +9,7 @@ use Larmias\Database\Contracts\QueryInterface;
 use Larmias\Database\Contracts\ExpressionInterface;
 use Closure;
 use function strtoupper;
+use function is_array;
 
 /**
  * @mixin Builder
@@ -24,15 +25,39 @@ trait WhereQuery
      */
     public function where(mixed $field, mixed $op = null, mixed $value = null, string $logic = 'AND'): QueryInterface
     {
-        if ($field instanceof Closure) {
-            $condition = $this->parseWhereClosure($field);
+        if (is_array($field)) {
+            $conditions = $this->parseWhereArray($field);
+        } else if ($field instanceof Closure) {
+            $conditions = [$this->parseWhereClosure($field)];
+        } else if ($field instanceof ExpressionInterface) {
+            $conditions = [$field];
         } else {
-            $condition = $this->parseWhereOp($field, $op, $value);
+            $conditions = [$this->parseWhereOp($field, $op, $value)];
         }
 
-        $this->options['where'][strtoupper($logic)][] = $condition;
+        foreach ($conditions as $condition) {
+            $this->options['where'][strtoupper($logic)][] = $condition;
+        }
+
 
         return $this;
+    }
+
+    /**
+     * @param array $where
+     * @return array
+     */
+    protected function parseWhereArray(array $where): array
+    {
+        $conditions = [];
+        foreach ($where as $key => $value) {
+            if (is_array($value)) {
+                $conditions[] = $this->parseWhereOp(...$value);
+            } else {
+                $conditions[] = $this->parseWhereOp($key, $value);
+            }
+        }
+        return $conditions;
     }
 
     /**
@@ -43,10 +68,6 @@ trait WhereQuery
      */
     protected function parseWhereOp(mixed $field, mixed $op = null, mixed $value = null): mixed
     {
-        if ($field instanceof ExpressionInterface) {
-            return $field;
-        }
-
         if ($op === null) {
             $condition = $field;
         } else {

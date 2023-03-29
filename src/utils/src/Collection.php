@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\Utils;
 
+use Larmias\Contracts\CollectionInterface;
 use Larmias\Utils\Traits\Macroable;
 use ArrayAccess;
 use ArrayIterator;
@@ -14,6 +15,7 @@ use Larmias\Utils\Contracts\Arrayable;
 use Larmias\Utils\Contracts\Jsonable;
 use Traversable;
 use stdClass;
+use CachingIterator;
 
 /**
  * Most of the methods in this file come from illuminate/support,
@@ -26,7 +28,7 @@ use stdClass;
  * @implements Arrayable<TKey, TValue>
  * @implements IteratorAggregate<TKey, TValue>
  */
-class Collection implements ArrayAccess, Arrayable, Countable, IteratorAggregate, Jsonable, JsonSerializable
+class Collection implements CollectionInterface, ArrayAccess, Arrayable, Countable, IteratorAggregate, Jsonable, JsonSerializable
 {
     use Macroable;
 
@@ -111,7 +113,7 @@ class Collection implements ArrayAccess, Arrayable, Countable, IteratorAggregate
      *
      * @template TTimesValue
      *
-     * @param  (callable(int): TTimesValue)|null  $callback
+     * @param (callable(int): TTimesValue)|null $callback
      * @return static<int, TTimesValue>
      */
     public static function times(int $number, callable $callback = null): self
@@ -138,7 +140,7 @@ class Collection implements ArrayAccess, Arrayable, Countable, IteratorAggregate
     /**
      * Get the average value of a given key.
      *
-     * @param  (callable(TValue): float|int)|string|null  $callback
+     * @param (callable(TValue): float|int)|string|null $callback
      */
     public function avg($callback = null)
     {
@@ -146,7 +148,7 @@ class Collection implements ArrayAccess, Arrayable, Countable, IteratorAggregate
         $items = $this->map(function ($value) use ($callback) {
             return $callback($value);
         })->filter(function ($value) {
-            return ! is_null($value);
+            return !is_null($value);
         });
         if ($count = $items->count()) {
             return $items->sum() / $count;
@@ -156,7 +158,7 @@ class Collection implements ArrayAccess, Arrayable, Countable, IteratorAggregate
     /**
      * Alias for the "avg" method.
      *
-     * @param  (callable(TValue): float|int)|string|null  $callback
+     * @param (callable(TValue): float|int)|string|null $callback
      * @return null|float|int
      */
     public function average($callback = null)
@@ -172,13 +174,13 @@ class Collection implements ArrayAccess, Arrayable, Countable, IteratorAggregate
     public function median($key = null)
     {
         $values = (isset($key) ? $this->pluck($key) : $this)->filter(function ($item) {
-            return ! is_null($item);
+            return !is_null($item);
         })->sort()->values();
         $count = $values->count();
         if ($count == 0) {
             return;
         }
-        $middle = (int) ($count / 2);
+        $middle = (int)($count / 2);
         if ($count % 2) {
             return $values->get($middle);
         }
@@ -231,7 +233,7 @@ class Collection implements ArrayAccess, Arrayable, Countable, IteratorAggregate
      *
      * @param null|mixed $operator
      * @param null|mixed $value
-     * @param  (callable(TValue): bool)|TValue|string  $key
+     * @param (callable(TValue): bool)|TValue|string $key
      */
     public function contains($key, $operator = null, $value = null): bool
     {
@@ -259,7 +261,7 @@ class Collection implements ArrayAccess, Arrayable, Countable, IteratorAggregate
             });
         }
         if ($this->useAsCallable($key)) {
-            return ! is_null($this->first($key));
+            return !is_null($this->first($key));
         }
         return in_array($key, $this->items, true);
     }
@@ -288,7 +290,7 @@ class Collection implements ArrayAccess, Arrayable, Countable, IteratorAggregate
     {
         $params = (new static(func_get_args()));
         $params->push($this)->each(function ($item) {
-            if (! class_exists(VarDumper::class)) {
+            if (!class_exists(VarDumper::class)) {
                 throw new \RuntimeException('symfony/var-dumper package required, please require the package via "composer require symfony/var-dumper"');
             }
             VarDumper::dump($item);
@@ -381,7 +383,7 @@ class Collection implements ArrayAccess, Arrayable, Countable, IteratorAggregate
 
     /**
      * Execute a callback over each nested chunk of items.
-     * @param  callable(...mixed): mixed  $callback
+     * @param callable(...mixed): mixed  $callback
      * @return static<TKey, TValue>
      */
     public function eachSpread(callable $callback): self
@@ -395,7 +397,7 @@ class Collection implements ArrayAccess, Arrayable, Countable, IteratorAggregate
     /**
      * Determine if all items in the collection pass the given test.
      *
-     * @param  (callable(TValue, TKey): bool)|TValue|string  $key
+     * @param (callable(TValue, TKey): bool)|TValue|string $key
      * @param mixed $operator
      * @param mixed $value
      */
@@ -404,7 +406,7 @@ class Collection implements ArrayAccess, Arrayable, Countable, IteratorAggregate
         if (func_num_args() === 1) {
             $callback = $this->valueRetriever($key);
             foreach ($this->items as $k => $v) {
-                if (! $callback($v, $k)) {
+                if (!$callback($v, $k)) {
                     return false;
                 }
             }
@@ -423,7 +425,7 @@ class Collection implements ArrayAccess, Arrayable, Countable, IteratorAggregate
     {
         if ($keys instanceof self) {
             $keys = $keys->all();
-        } elseif (! is_array($keys)) {
+        } elseif (!is_array($keys)) {
             $keys = func_get_args();
         }
         return new static(Arr::except($this->items, $keys));
@@ -470,7 +472,7 @@ class Collection implements ArrayAccess, Arrayable, Countable, IteratorAggregate
      */
     public function unless(bool $value, callable $callback, callable $default = null): self
     {
-        return $this->when(! $value, $callback, $default);
+        return $this->when(!$value, $callback, $default);
     }
 
     /**
@@ -565,7 +567,7 @@ class Collection implements ArrayAccess, Arrayable, Countable, IteratorAggregate
      * @template TFirstDefault
      *
      * @param callable(TValue, TKey): bool|null $callback
-     * @param  TFirstDefault|callable(): TFirstDefault  $default
+     * @param TFirstDefault|callable(): TFirstDefault $default
      * @return TFirstDefault|TValue
      */
     public function first(callable $callback = null, $default = null)
@@ -614,7 +616,7 @@ class Collection implements ArrayAccess, Arrayable, Countable, IteratorAggregate
      */
     public function forget($keys): self
     {
-        foreach ((array) $keys as $key) {
+        foreach ((array)$keys as $key) {
             $this->offsetUnset($key);
         }
         return $this;
@@ -626,7 +628,7 @@ class Collection implements ArrayAccess, Arrayable, Countable, IteratorAggregate
      * @template TGetDefault
      *
      * @param TKey $key
-     * @param  TGetDefault|(\Closure(): TGetDefault)  $default
+     * @param TGetDefault|(\Closure(): TGetDefault) $default
      * @return TGetDefault|TValue
      */
     public function get($key, $default = null)
@@ -651,19 +653,19 @@ class Collection implements ArrayAccess, Arrayable, Countable, IteratorAggregate
         $results = [];
         foreach ($this->items as $key => $value) {
             $groupKeys = $groupBy($value, $key);
-            if (! is_array($groupKeys)) {
+            if (!is_array($groupKeys)) {
                 $groupKeys = [$groupKeys];
             }
             foreach ($groupKeys as $groupKey) {
-                $groupKey = is_bool($groupKey) ? (int) $groupKey : $groupKey;
-                if (! array_key_exists($groupKey, $results)) {
+                $groupKey = is_bool($groupKey) ? (int)$groupKey : $groupKey;
+                if (!array_key_exists($groupKey, $results)) {
                     $results[$groupKey] = new static();
                 }
                 $results[$groupKey]->offsetSet($preserveKeys ? $key : null, $value);
             }
         }
         $result = new static($results);
-        if (! empty($nextGroups)) {
+        if (!empty($nextGroups)) {
             return $result->map->groupBy($nextGroups, $preserveKeys);
         }
         return $result;
@@ -672,7 +674,7 @@ class Collection implements ArrayAccess, Arrayable, Countable, IteratorAggregate
     /**
      * Key an associative array by a field or using a callback.
      *
-     * @param  (callable(TValue, TKey): array-key)|array|string  $keyBy
+     * @param (callable(TValue, TKey): array-key)|array|string $keyBy
      * @return static<TKey, array<TKey, TValue>>
      */
     public function keyBy($keyBy): self
@@ -682,7 +684,7 @@ class Collection implements ArrayAccess, Arrayable, Countable, IteratorAggregate
         foreach ($this->items as $key => $item) {
             $resolvedKey = $keyBy($item, $key);
             if (is_object($resolvedKey)) {
-                $resolvedKey = (string) $resolvedKey;
+                $resolvedKey = (string)$resolvedKey;
             }
             $results[$resolvedKey] = $item;
         }
@@ -697,7 +699,7 @@ class Collection implements ArrayAccess, Arrayable, Countable, IteratorAggregate
     {
         $keys = is_array($key) ? $key : func_get_args();
         foreach ($keys as $value) {
-            if (! $this->offsetExists($value)) {
+            if (!$this->offsetExists($value)) {
                 return false;
             }
         }
@@ -750,7 +752,7 @@ class Collection implements ArrayAccess, Arrayable, Countable, IteratorAggregate
      */
     public function isNotEmpty(): bool
     {
-        return ! $this->isEmpty();
+        return !$this->isEmpty();
     }
 
     /**
@@ -767,8 +769,8 @@ class Collection implements ArrayAccess, Arrayable, Countable, IteratorAggregate
      *
      * @template TLastDefault
      *
-     * @param  (callable(TValue, TKey): bool)|null  $callback
-     * @param  TLastDefault|(\Closure(): TLastDefault)  $default
+     * @param (callable(TValue, TKey): bool)|null $callback
+     * @param TLastDefault|(\Closure(): TLastDefault) $default
      * @return TLastDefault|TValue
      */
     public function last(callable $callback = null, $default = null)
@@ -835,7 +837,7 @@ class Collection implements ArrayAccess, Arrayable, Countable, IteratorAggregate
             $pair = $callback($item, $key);
             $key = key($pair);
             $value = reset($pair);
-            if (! isset($dictionary[$key])) {
+            if (!isset($dictionary[$key])) {
                 $dictionary[$key] = [];
             }
             $dictionary[$key][] = $value;
@@ -902,14 +904,14 @@ class Collection implements ArrayAccess, Arrayable, Countable, IteratorAggregate
     /**
      * Get the max value of a given key.
      *
-     * @param  (callable(TValue):mixed)|string|null  $callback
+     * @param (callable(TValue):mixed)|string|null $callback
      * @return TValue
      */
     public function max($callback = null)
     {
         $callback = $this->valueRetriever($callback);
         return $this->filter(function ($value) {
-            return ! is_null($value);
+            return !is_null($value);
         })->reduce(function ($result, $item) use ($callback) {
             $value = $callback($item);
             return is_null($result) || $value > $result ? $value : $result;
@@ -953,7 +955,7 @@ class Collection implements ArrayAccess, Arrayable, Countable, IteratorAggregate
     /**
      * Get the min value of a given key.
      *
-     * @param  (callable(TValue):mixed)|string|null  $callback
+     * @param (callable(TValue):mixed)|string|null $callback
      * @return TValue
      */
     public function min($callback = null)
@@ -962,7 +964,7 @@ class Collection implements ArrayAccess, Arrayable, Countable, IteratorAggregate
         return $this->map(function ($value) use ($callback) {
             return $callback($value);
         })->filter(function ($value) {
-            return ! is_null($value);
+            return !is_null($value);
         })->reduce(function ($result, $value) {
             return is_null($result) || $value < $result ? $value : $result;
         });
@@ -1016,7 +1018,7 @@ class Collection implements ArrayAccess, Arrayable, Countable, IteratorAggregate
     /**
      * Partition the collection into two arrays using the given callback or key.
      *
-     * @param  callable(TValue, TKey) bool)|TValue|string  $key
+     * @param callable(TValue, TKey) bool)|TValue|string  $key
      * @param null|string|TValue $operator
      * @param null|TValue $value
      * @return static<int, static<TKey, TValue>>
@@ -1026,7 +1028,7 @@ class Collection implements ArrayAccess, Arrayable, Countable, IteratorAggregate
         $partitions = [new static(), new static()];
         $callback = func_num_args() === 1 ? $this->valueRetriever($key) : $this->operatorForWhere(...func_get_args());
         foreach ($this->items as $key => $item) {
-            $partitions[(int) ! $callback($item, $key)][$key] = $item;
+            $partitions[(int)!$callback($item, $key)][$key] = $item;
         }
         return new static($partitions);
     }
@@ -1098,7 +1100,7 @@ class Collection implements ArrayAccess, Arrayable, Countable, IteratorAggregate
      * @template TPullDefault
      *
      * @param TKey $key
-     * @param  TPullDefault|(\Closure(): TPullDefault)  $default
+     * @param TPullDefault|(\Closure(): TPullDefault) $default
      * @return TPullDefault|TValue
      */
     public function pull($key, $default = null)
@@ -1122,8 +1124,8 @@ class Collection implements ArrayAccess, Arrayable, Countable, IteratorAggregate
     /**
      * Get one or a specified number of items randomly from the collection.
      *
-     * @throws \InvalidArgumentException
      * @return static<int, TValue>|TValue
+     * @throws \InvalidArgumentException
      */
     public function random(int $number = null)
     {
@@ -1158,7 +1160,7 @@ class Collection implements ArrayAccess, Arrayable, Countable, IteratorAggregate
     {
         if ($this->useAsCallable($callback)) {
             return $this->filter(function ($value, $key) use ($callback) {
-                return ! $callback($value, $key);
+                return !$callback($value, $key);
             });
         }
         return $this->filter(function ($item) use ($callback) {
@@ -1179,12 +1181,12 @@ class Collection implements ArrayAccess, Arrayable, Countable, IteratorAggregate
     /**
      * Search the collection for a given value and return the corresponding key if successful.
      *
-     * @param  TValue|(callable(TValue,TKey): bool)  $value
+     * @param TValue|(callable(TValue,TKey): bool) $value
      * @return bool|TKey
      */
     public function search($value, bool $strict = false)
     {
-        if (! $this->useAsCallable($value)) {
+        if (!$this->useAsCallable($value)) {
             return array_search($value, $this->items, $strict);
         }
         foreach ($this->items as $key => $item) {
@@ -1236,7 +1238,7 @@ class Collection implements ArrayAccess, Arrayable, Countable, IteratorAggregate
             return new static();
         }
         $groups = new static();
-        $groupSize = (int) floor($this->count() / $numberOfGroups);
+        $groupSize = (int)floor($this->count() / $numberOfGroups);
         $remain = $this->count() % $numberOfGroups;
         $start = 0;
         for ($i = 0; $i < $numberOfGroups; ++$i) {
@@ -1290,7 +1292,7 @@ class Collection implements ArrayAccess, Arrayable, Countable, IteratorAggregate
      */
     public function sortBy($callback, int $options = SORT_REGULAR, bool $descending = false): self
     {
-        if (is_array($callback) && ! is_callable($callback)) {
+        if (is_array($callback) && !is_callable($callback)) {
             return $this->sortByMany($callback);
         }
 
@@ -1315,7 +1317,7 @@ class Collection implements ArrayAccess, Arrayable, Countable, IteratorAggregate
     /**
      * Sort the collection in descending order using the given callback.
      *
-     * @param  (callable(TValue, TKey): mixed)|string  $callback
+     * @param (callable(TValue, TKey): mixed)|string $callback
      * @return static<TKey, TValue>
      */
     public function sortByDesc($callback, int $options = SORT_REGULAR): self
@@ -1362,7 +1364,7 @@ class Collection implements ArrayAccess, Arrayable, Countable, IteratorAggregate
     /**
      * Get the sum of the given values.
      *
-     * @param  (callable(TValue): mixed)|string|null  $callback
+     * @param (callable(TValue): mixed)|string|null $callback
      * @return mixed
      */
     public function sum($callback = null)
@@ -1416,7 +1418,7 @@ class Collection implements ArrayAccess, Arrayable, Countable, IteratorAggregate
     /**
      * Return only unique items from the collection array.
      *
-     * @param  (callable(TValue, TKey): bool)|string|null  $key
+     * @param (callable(TValue, TKey): bool)|string|null $key
      * @return static<TKey, TValue>
      */
     public function unique($key = null, bool $strict = false): self
@@ -1434,7 +1436,7 @@ class Collection implements ArrayAccess, Arrayable, Countable, IteratorAggregate
     /**
      * Return only unique items from the collection array using strict comparison.
      *
-     * @param  (callable(TValue, TKey): bool)|string|null  $key
+     * @param (callable(TValue, TKey): bool)|string|null $key
      * @return static<TKey, TValue>
      */
     public function uniqueStrict($key = null): self
@@ -1633,12 +1635,12 @@ class Collection implements ArrayAccess, Arrayable, Countable, IteratorAggregate
 
                 $result = 0;
 
-                if (! is_string($prop) && is_callable($prop)) {
+                if (!is_string($prop) && is_callable($prop)) {
                     $result = $prop($a, $b);
                 } else {
                     $values = [data_get($a, $prop), data_get($b, $prop)];
 
-                    if (! $ascending) {
+                    if (!$ascending) {
                         $values = array_reverse($values);
                     }
 
@@ -1709,7 +1711,7 @@ class Collection implements ArrayAccess, Arrayable, Countable, IteratorAggregate
      */
     protected function useAsCallable($value): bool
     {
-        return ! is_string($value) && is_callable($value);
+        return !is_string($value) && is_callable($value);
     }
 
     /**
@@ -1751,6 +1753,6 @@ class Collection implements ArrayAccess, Arrayable, Countable, IteratorAggregate
         if ($items instanceof Traversable) {
             return iterator_to_array($items);
         }
-        return (array) $items;
+        return (array)$items;
     }
 }

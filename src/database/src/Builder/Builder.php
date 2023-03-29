@@ -10,6 +10,7 @@ use Larmias\Database\Contracts\ExpressionInterface;
 use Larmias\Database\Contracts\SqlPrepareInterface;
 use Larmias\Database\Entity\SqlPrepare;
 use Larmias\Database\Exceptions\QueryException;
+use Closure;
 use function array_map;
 use function array_values;
 use function array_keys;
@@ -30,7 +31,7 @@ abstract class Builder implements BuilderInterface
     /**
      * @var string
      */
-    protected string $selectSql = 'SELECT<FIELD> FROM <TABLE><JOIN><WHERE><GROUP><HAVING><ORDER><LIMIT>';
+    protected string $selectSql = 'SELECT <FIELD> FROM <TABLE><JOIN><WHERE><GROUP><HAVING><ORDER><LIMIT>';
 
     /**
      * @var string
@@ -105,13 +106,13 @@ abstract class Builder implements BuilderInterface
         $sqlValues = [];
         foreach ($data as $item) {
             $values = array_values($item);
-            $sqlValues[] = sprintf('(%s),', rtrim(str_repeat("?,", count($values)), ','));
+            $sqlValues[] = sprintf('(%s)', rtrim(str_repeat("?,", count($values)), ','));
             $this->bind($values);
         }
         $sql = str_replace(['<TABLE>', '<FIELD>', '<DATA>'], [
             $this->parseTable($options['table']),
             implode(',', array_map(fn($field) => $this->escape($field), $fields)),
-            implode('', $sqlValues)
+            implode(',', $sqlValues)
         ], $this->insertAllSql);
         return $this->createSqlPrepare($sql);
     }
@@ -122,18 +123,24 @@ abstract class Builder implements BuilderInterface
      */
     public function update(array $options): SqlPrepareInterface
     {
+        $data = $options['data'];
+        $fields = array_keys($data);
+        $this->bind(array_values($data));
+
         $where = $this->parseWhere($options['where']);
         if (empty($where)) {
             throw new QueryException('UPDATE 语句缺少更新条件');
         }
-        $sql = str_replace(['<TABLE>', '<SET>', '<JOIN>', '<WHERE>', '<ORDER>', 'LIMIT'], [
+
+        $sql = str_replace(['<TABLE>', '<SET>', '<JOIN>', '<WHERE>', '<ORDER>', '<LIMIT>'], [
             $this->parseTable($options['table']),
-            implode(',', array_map(fn($value, $field) => $this->escape($field) . ' = ' . $value, $options['data'])),
+            implode(',', array_map(fn($field) => $this->escape($field) . ' = ?', $fields)),
             $this->parseJoin($options['join'], $options['alias']),
             $where,
             $this->parseOrder($options['order']),
             $this->parseLimit($options['limit']),
         ], $this->updateSql);
+
         return $this->createSqlPrepare($sql);
     }
 
@@ -147,7 +154,7 @@ abstract class Builder implements BuilderInterface
         if (empty($where)) {
             throw new QueryException('DELETE 语句缺少更新条件');
         }
-        $sql = str_replace(['<TABLE>', '<JOIN>', '<WHERE>', '<ORDER>', 'LIMIT'], [
+        $sql = str_replace(['<TABLE>', '<JOIN>', '<WHERE>', '<ORDER>', '<LIMIT>'], [
             $this->parseTable($options['table']),
             $this->parseJoin($options['join'], $options['alias']),
             $where,
@@ -258,15 +265,20 @@ abstract class Builder implements BuilderInterface
 
     /**
      * @param array $where
+     * @param bool $firstLogic
      * @return string
      */
-    public function parseWhere(array $where): string
+    public function parseWhere(array $where, bool $firstLogic = true): string
     {
         $values = [];
         foreach ($where as $logic => $wheres) {
             foreach ($wheres as $whereItem) {
                 $condition = $this->parseWhereItem($whereItem);
-                $values[] = empty($values) ? $this->buildWhere($condition) : $this->buildWhereLogic($condition, $logic);
+                if ($firstLogic) {
+                    $values[] = empty($values) ? $this->buildWhere($condition) : $this->buildWhereLogic($condition, $logic);
+                } else {
+                    $values[] = $this->buildWhereLogic($condition, empty($values) ? '' : $logic);
+                }
             }
         }
         return implode('', $values);
@@ -373,6 +385,10 @@ abstract class Builder implements BuilderInterface
             return $where->getValue();
         }
 
+        if ($where instanceof Closure) {
+            return '( ' . $this->parseWhere($where(), false) . ' )';
+        }
+
         return $this->parseWhereOp($where);
     }
 
@@ -427,7 +443,7 @@ abstract class Builder implements BuilderInterface
      */
     public function buildWhereLogic(string $condition = '', string $logic = 'AND'): string
     {
-        return sprintf(' %s %s', $logic, $condition);
+        return sprintf('%s%s%s', empty($logic) ? '' : ' ', empty($logic) ? '' : $logic . ' ', $condition);
     }
 
     /**

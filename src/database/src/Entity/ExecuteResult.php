@@ -8,16 +8,18 @@ class ExecuteResult implements ExecuteResultInterface
 {
     /**
      * @param string $executeSql
+     * @param array $executeBinds
      * @param float $executeTime
      * @param int $rowCount
      * @param array $resultSet
      * @param string|null $insertId
      */
     public function __construct(
-        protected string $executeSql = '', 
-        protected float $executeTime = 0.0, 
-        protected int $rowCount = 0,
-        protected array  $resultSet = [], 
+        protected string  $executeSql = '',
+        protected array   $executeBinds = [],
+        protected float   $executeTime = 0.0,
+        protected int     $rowCount = 0,
+        protected array   $resultSet = [],
         protected ?string $insertId = null,
     )
     {
@@ -30,6 +32,14 @@ class ExecuteResult implements ExecuteResultInterface
     public function getExecuteSql(): string
     {
         return $this->executeSql;
+    }
+
+    /**
+     * @return array
+     */
+    public function getExecuteBinds(): array
+    {
+        return $this->executeBinds;
     }
 
     /**

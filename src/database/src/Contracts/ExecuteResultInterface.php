@@ -12,6 +12,11 @@ interface ExecuteResultInterface
     public function getExecuteSql(): string;
 
     /**
+     * @return array
+     */
+    public function getExecuteBinds(): array;
+
+    /**
      * @return float
      */
     public function getExecuteTime(): float;

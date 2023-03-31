@@ -86,6 +86,14 @@ interface QueryInterface
     public function where(mixed $field, mixed $op = null, mixed $value = null, string $logic = 'AND'): QueryInterface;
 
     /**
+     * @param mixed $field
+     * @param mixed|null $op
+     * @param mixed|null $value
+     * @return QueryInterface
+     */
+    public function orWhere(mixed $field, mixed $op = null, mixed $value = null): QueryInterface;
+
+    /**
      * @param array|string $table
      * @param mixed $condition
      * @param string $joinType

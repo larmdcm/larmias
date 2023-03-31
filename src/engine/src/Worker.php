@@ -121,10 +121,10 @@ abstract class Worker implements WorkerInterface
     {
         mt_srand();
         if (extension_loaded('apc')) {
-            \apc_clear_cache();
+            apc_clear_cache();
         }
         if (extension_loaded('Zend OPcache')) {
-            \opcache_reset();
+            opcache_reset();
         }
     }
 

@@ -44,6 +44,17 @@ trait WhereQuery
     }
 
     /**
+     * @param mixed $field
+     * @param mixed|null $op
+     * @param mixed|null $value
+     * @return QueryInterface
+     */
+    public function orWhere(mixed $field, mixed $op = null, mixed $value = null): QueryInterface
+    {
+        return $this->where($field, $op, $value, 'OR');
+    }
+
+    /**
      * @param array $where
      * @return array
      */

@@ -67,6 +67,7 @@ class Manager
             if (!isset($this->config[$name])) {
                 throw new RuntimeException('config not set:' . $name);
             }
+            $this->config[$name]['name'] = $name;
             $this->proxies[$name] = new DbProxy($this->container, $this->config[$name]);
         }
         return $this->proxies[$name];

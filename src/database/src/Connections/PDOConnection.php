@@ -4,13 +4,16 @@ declare(strict_types=1);
 
 namespace Larmias\Database\Connections;
 
+use Larmias\Database\Connections\Transaction\PDOTransaction;
 use Larmias\Database\Contracts\ExecuteResultInterface;
+use Larmias\Database\Contracts\TransactionInterface;
 use Larmias\Database\Entity\ExecuteResult;
 use Larmias\Database\Exceptions\BindParamException;
 use Larmias\Database\Exceptions\PDOException;
 use PDO;
 use PDOStatement;
 use Throwable;
+use Closure;
 use function is_numeric;
 use function is_array;
 use function addcslashes;
@@ -59,6 +62,11 @@ abstract class PDOConnection extends Connection
         PDO::ATTR_STRINGIFY_FETCHES => false,
         PDO::ATTR_EMULATE_PREPARES => false,
     ];
+
+    /**
+     * @var TransactionInterface|null
+     */
+    protected ?TransactionInterface $transaction = null;
 
     /**
      * @param string $sql
@@ -204,6 +212,42 @@ abstract class PDOConnection extends Connection
     }
 
     /**
+     * @return TransactionInterface
+     */
+    public function beginTransaction(): TransactionInterface
+    {
+        if (!$this->transaction) {
+            $this->transaction = new PDOTransaction($this);
+        }
+        return $this->transaction->beginTransaction();
+    }
+
+    /**
+     * @param Closure $callback
+     * @return void
+     * @throws Throwable
+     */
+    public function transaction(Closure $callback): void
+    {
+        $ctx = $this->beginTransaction();
+        try {
+            $callback();
+            $ctx->commit();
+        } catch (Throwable $e) {
+            $ctx->rollback();
+            throw $e;
+        }
+    }
+
+    /**
+     * @return bool
+     */
+    public function inTransaction(): bool
+    {
+        return $this->pdo->inTransaction();
+    }
+
+    /**
      * @param array $config
      * @return array
      */
@@ -244,5 +288,21 @@ abstract class PDOConnection extends Connection
     {
         unset($this->pdo);
         return true;
+    }
+
+    /**
+     * @return void
+     */
+    public function releaseTransaction(): void
+    {
+        $this->transaction = null;
+    }
+
+    /**
+     * @return PDO
+     */
+    public function getPdo(): PDO
+    {
+        return $this->pdo;
     }
 }

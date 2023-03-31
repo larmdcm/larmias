@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Larmias\Database\Contracts;
 
+use Closure;
+
 interface ConnectionInterface
 {
     /**
@@ -20,6 +22,22 @@ interface ConnectionInterface
      * @return bool
      */
     public function close(): bool;
+
+    /**
+     * @return TransactionInterface
+     */
+    public function beginTransaction(): TransactionInterface;
+
+    /**
+     * @param Closure $callback
+     * @return void
+     */
+    public function transaction(Closure $callback): void;
+
+    /**
+     * @return bool
+     */
+    public function inTransaction(): bool;
 
     /**
      * 查询

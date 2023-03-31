@@ -37,8 +37,6 @@ class PDOTransaction implements TransactionInterface
         if (!$this->connection->getPdo()->commit()) {
             throw new TransactionException('Transaction commit failed');
         }
-
-        $this->connection->releaseTransaction();
     }
 
     /**
@@ -49,7 +47,5 @@ class PDOTransaction implements TransactionInterface
         if (!$this->connection->getPdo()->rollBack()) {
             throw new TransactionException('Transaction rollback failed');
         }
-
-        $this->connection->releaseTransaction();
     }
 }

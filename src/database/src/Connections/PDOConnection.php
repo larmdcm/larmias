@@ -289,15 +289,7 @@ abstract class PDOConnection extends Connection
         unset($this->pdo);
         return true;
     }
-
-    /**
-     * @return void
-     */
-    public function releaseTransaction(): void
-    {
-        $this->transaction = null;
-    }
-
+    
     /**
      * @return PDO
      */

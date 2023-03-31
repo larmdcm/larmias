@@ -69,7 +69,7 @@ class Transaction implements TransactionInterface
             throw new TransactionException('Transaction committed or rolled back');
         }
         $this->transCount--;
-        if ($this->transCount === 0 && $this->getConnection()->inTransaction()) {
+        if ($this->transCount === 0) {
             try {
                 $this->transaction->rollback();
             } finally {

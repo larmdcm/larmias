@@ -8,6 +8,7 @@
 .gitee
 composer.lock
 .phpunit
+.phpunit.result.cache
 # 编译文件 #
 ###################
 *.com

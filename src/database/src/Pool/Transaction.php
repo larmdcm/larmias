@@ -25,13 +25,12 @@ class Transaction implements TransactionInterface
      */
     public function __construct(protected DbProxy $dbProxy)
     {
-        $this->beginTransaction();
     }
 
     /**
-     * @return void
+     * @return TransactionInterface
      */
-    protected function beginTransaction(): void
+    public function beginTransaction(): TransactionInterface
     {
         $this->transCount++;
         if ($this->transCount === 1) {
@@ -40,6 +39,8 @@ class Transaction implements TransactionInterface
             }
             $this->transaction = $this->getConnection()->beginTransaction();
         }
+
+        return $this;
     }
 
     /**

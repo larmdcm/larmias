@@ -25,6 +25,7 @@ use function strtoupper;
 use function count;
 use function str_repeat;
 use function rtrim;
+use function is_string;
 
 abstract class Builder implements BuilderInterface
 {
@@ -380,6 +381,10 @@ abstract class Builder implements BuilderInterface
      */
     public function parseWhereItem(mixed $where): string
     {
+        if (is_string($where)) {
+            return $where;
+        }
+
         if ($where instanceof ExpressionInterface) {
             $this->bind($where->getBinds());
             return $where->getValue();
@@ -399,8 +404,85 @@ abstract class Builder implements BuilderInterface
     public function parseWhereOp(array $where): string
     {
         [$field, $op, $value] = $where;
+
+        $field = $this->escape($field);
+        $op = $this->optimizeOp($op, $value);
+
+        switch ($op) {
+            case 'NULL':
+                return $this->buildWhereNull($field);
+            case 'NOT NULL':
+                return $this->buildWhereNotNull($field);
+            case 'IN':
+            case 'NOT IN':
+                return $this->parseWhereIn($field, $value, $op);
+            case 'BETWEEN':
+            case 'NOT BETWEEN':
+                return $this->parseWereBetween($field, $value, $op);
+            default:
+                $this->bind($value);
+                return sprintf('%s %s ?', $this->escape($field), $op);
+        }
+    }
+
+    /**
+     * @param string $field
+     * @param mixed $value
+     * @param string $op
+     * @return string
+     */
+    protected function parseWhereIn(string $field, mixed $value, string $op = 'IN'): string
+    {
+        if (is_string($value)) {
+            $value = str_contains($value, ',') ? explode(',', $value) : [$value];
+        }
+
         $this->bind($value);
-        return sprintf('%s %s ?', $this->escape($field), $op);
+
+        return $this->buildWhereIn($field, rtrim(str_repeat('?,', count($value)), ','), $op);
+    }
+
+    /**
+     * @param string $field
+     * @param mixed $value
+     * @param string $op
+     * @return string
+     */
+    protected function parseWereBetween(string $field, mixed $value, string $op = 'BETWEEN'): string
+    {
+        if (is_string($value)) {
+            $value = str_contains($value, ',') ? explode(',', $value) : [$value];
+        }
+
+        $this->bind($value);
+
+        return $this->buildWhereBetween($field, ['?','?'], $op);
+    }
+
+    /**
+     * @param string|null $op
+     * @param mixed $value
+     * @return string
+     */
+    protected function optimizeOp(?string $op, mixed $value): string
+    {
+        if (!$op) {
+            $op = '=';
+        }
+
+        $op = trim(strtoupper($op));
+
+        switch ($op) {
+            case '=':
+                if ($value === null) {
+                    $op = 'NULL';
+                } else if (is_array($value)) {
+                    $op = 'IN';
+                }
+                break;
+        }
+
+        return $op;
     }
 
     /**
@@ -502,6 +584,79 @@ abstract class Builder implements BuilderInterface
     public function buildLimit(int $limit, ?int $offset = null): string
     {
         return ' LIMIT ' . ($offset ? ($offset . ',' . $limit) : $limit);
+    }
+
+    /**
+     * @param string $field
+     * @return string
+     */
+    public function buildWhereNull(string $field): string
+    {
+        return $field . ' IS NULL';
+    }
+
+    /**
+     * @param string $field
+     * @return string
+     */
+    public function buildWhereNotNull(string $field): string
+    {
+        return $field . ' IS NOT NULL';
+    }
+
+    /**
+     * @param string $field
+     * @param string $value
+     * @param string $op
+     * @return string
+     */
+    public function buildWhereIn(string $field, string $value, string $op = 'IN'): string
+    {
+        return sprintf('%s %s (%s)', $field, $op, $value);
+    }
+
+    /**
+     * @param string $field
+     * @param array $value
+     * @param string $op
+     * @return string
+     */
+    public function buildWhereBetween(string $field, array $value, string $op = 'BETWEEN'): string
+    {
+        return sprintf('%s %s %s AND %s', $field, $op, $value[0], $value[1]);
+    }
+
+    /**
+     * @param string $field
+     * @param string $value
+     * @param string $op
+     * @return string
+     */
+    public function buildWhereLike(string $field, string $value, string $op = 'LIKE'): string
+    {
+        return sprintf('%s %s %s', $field, $op, $value);
+    }
+
+    /**
+     * @param string $field
+     * @param string $value
+     * @param string $op
+     * @return string
+     */
+    public function buildWhereExists(string $field, string $value, string $op = 'EXISTS'): string
+    {
+        return sprintf('%s %s %s', $field, $op, $value);
+    }
+
+    /**
+     * @param string $field
+     * @param string $value
+     * @param string $op
+     * @return string
+     */
+    public function buildWhereColumn(string $field, string $op, string $value): string
+    {
+        return sprintf('(%s %s %s)', $field, $op, $value);
     }
 
     /**

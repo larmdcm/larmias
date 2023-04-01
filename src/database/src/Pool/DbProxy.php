@@ -103,9 +103,12 @@ class DbProxy implements ConnectionInterface
      */
     public function beginTransaction(): TransactionInterface
     {
-        return $this->context->remember($this->getTransactionContextKey(), function () {
+        /** @var Transaction $transaction */
+        $transaction = $this->context->remember($this->getTransactionContextKey(), function () {
             return new Transaction($this);
         });
+
+        return $transaction->beginTransaction();
     }
 
     /**
@@ -177,20 +180,18 @@ class DbProxy implements ConnectionInterface
     }
 
     /**
-     * @param string $name
      * @return string
      */
-    public function getContextKey(string $name = ''): string
+    public function getContextKey(): string
     {
-        return 'db.connections.' . $this->config['name'] . (empty($name) ? '' : '.' . $name);
+        return 'db.connections.' . $this->config['name'];
     }
 
     /**
-     * @param string $name
      * @return string
      */
     public function getTransactionContextKey(): string
     {
-        return $this->getContextKey('transaction');
+        return 'db.transactions.' . $this->config['name'];
     }
 }

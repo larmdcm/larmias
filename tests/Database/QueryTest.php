@@ -29,8 +29,23 @@ class QueryTest extends TestCase
                 $query->where('password', '<>', '');
             });
         })->buildSql();
+        $this->assertSame($result, "SELECT * FROM `t_user` WHERE `id` = '1' AND `username` = 'test' AND ( `status` = '1' AND `integral` > '1' AND ( `password` <> '' ) )");
+    }
+
+    /**
+     * @return void
+     */
+    public function testWhereMix(): void
+    {
+        $query = $this->getQuery()->table('t_user');
+        $result = $query->where('id = 1')->whereNull('info')->whereNotNull('update_time')
+            ->whereIn('id', [1, 2, 3])
+            ->whereNotIn('id', '4,5')
+            ->whereBetween('id', [1, 2])
+            ->whereNotBetween('id', [4, 5])
+            ->buildSql();
         var_dump($result);
-        $this->assertSame($result, '');
+        $this->assertSame($result, "");
     }
 
     /**

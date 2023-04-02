@@ -100,7 +100,7 @@ class Lexer
             case '}':
                 $token = Token::new(TokenType::RBRACE, $this->ch);
                 break;
-            case '0':
+            case "\0":
                 $token = Token::new(TokenType::EOF);
                 break;
             default:
@@ -136,7 +136,7 @@ class Lexer
     public function readChar(): void
     {
         if ($this->readPosition >= strlen($this->input)) {
-            $this->ch = '0';
+            $this->ch = "\0";
         } else {
             $this->ch = $this->input[$this->readPosition];
         }

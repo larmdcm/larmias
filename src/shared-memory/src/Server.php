@@ -12,7 +12,7 @@ use Larmias\SharedMemory\Contracts\CommandExecutorInterface;
 use Larmias\SharedMemory\Contracts\LoggerInterface;
 use Larmias\SharedMemory\Exceptions\AuthenticateException;
 use Larmias\SharedMemory\Message\Result;
-use Larmias\Engine\Contracts\WorkerInterface;
+use Larmias\Contracts\Worker\WorkerInterface;
 use Throwable;
 use function Larmias\Utils\format_exception;
 

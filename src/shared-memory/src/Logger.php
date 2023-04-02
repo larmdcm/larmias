@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\SharedMemory;
 
-use Larmias\Engine\Contracts\WorkerInterface;
+use Larmias\Contracts\Worker\WorkerInterface;
 use Larmias\SharedMemory\Contracts\LoggerInterface;
 use Psr\Log\LoggerInterface as PsrLoggerInterface;
 

@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace Larmias\Engine\Contracts;
 
 use Larmias\Contracts\ContainerInterface;
+use Larmias\Contracts\Worker\WorkerInterface as BaseWorkerInterface;
 
-interface WorkerInterface
+interface WorkerInterface extends BaseWorkerInterface
 {
     /**
      * @param int $workerId
@@ -27,11 +28,6 @@ interface WorkerInterface
     public function trigger(string $event, array $args = []): void;
 
     /**
-     * @return int
-     */
-    public function getWorkerId(): int;
-
-    /**
      * @return ContainerInterface
      */
     public function getContainer(): ContainerInterface;
@@ -40,13 +36,6 @@ interface WorkerInterface
      * @return KernelInterface
      */
     public function getKernel(): KernelInterface;
-
-    /**
-     * @param string $name
-     * @param mixed|null $default
-     * @return mixed
-     */
-    public function getSettings(string $name, mixed $default = null): mixed;
 
     /**
      * @return EngineConfigInterface

@@ -93,6 +93,7 @@ abstract class Worker implements WorkerInterface
             SignalInterface::class => $this->kernel->getDriver()->getSignalClass(),
             ContextInterface::class => $this->kernel->getDriver()->getContextClass(),
             WorkerInterface::class => $this,
+            \Larmias\Contracts\Worker\WorkerInterface::class => $this,
         ];
 
         $init = [

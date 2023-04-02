@@ -1,6 +1,6 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
 
 namespace Tests;
 
@@ -24,6 +24,71 @@ class ParserTest extends TestCase
         $program = $parser->parseProgram();
 
         var_dump($program);
+
+        $this->assertTrue(true);
+    }
+
+    /**
+     * @return void
+     */
+    public function testOperatorPrecedence(): void
+    {
+        $inputs = [
+            [
+                '-a * b',
+                '((-a) * b)',
+            ],
+            [
+                'a + b + c',
+                '((a + b) + c)',
+            ],
+            [
+                'true',
+                'true'
+            ],
+        ];
+
+        foreach ($inputs as $inputItem) {
+            $lexer = Lexer::new($inputItem[0]);
+            $parser = Parser::new($lexer);
+            $program = $parser->parseProgram();
+            $actual = $program->toString();
+            var_dump($actual);
+
+            $this->assertSame($actual, $inputItem[1]);
+        }
+
+        $this->assertTrue(true);
+    }
+
+    /**
+     * @return void
+     */
+    public function testFunction(): void
+    {
+        $inputs = [
+            [
+                'fn() {}',
+                ''
+            ],
+            [
+                'fn(x) {}',
+            ],
+            [
+                'fn(x,y,z) {}',
+            ],
+            [
+                'add(x,y)',
+            ]
+        ];
+
+        foreach ($inputs as $inputItem) {
+            $lexer = Lexer::new($inputItem[0]);
+            $parser = Parser::new($lexer);
+            $program = $parser->parseProgram();
+            $actual = $program->toString();
+            var_dump($actual);
+        }
 
         $this->assertTrue(true);
     }

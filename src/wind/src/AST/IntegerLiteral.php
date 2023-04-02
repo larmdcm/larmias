@@ -1,19 +1,20 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 
 namespace Larmias\Wind\AST;
 
 use Larmias\Wind\Lexer\Token;
 
-class Identifier implements ExpressionInterface
+class IntegerLiteral implements ExpressionInterface
 {
-    public function __construct(public Token $token, public string $value)
+    public function __construct(protected Token $token, public int $value)
     {
     }
 
     public function expressionNode(): void
     {
+        // TODO: Implement expressionNode() method.
     }
 
     public function tokenLiteral(): string
@@ -23,6 +24,6 @@ class Identifier implements ExpressionInterface
 
     public function toString(): string
     {
-        return $this->value;
+        return $this->token->getLiteral();
     }
 }

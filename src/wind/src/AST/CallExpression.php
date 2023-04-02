@@ -13,7 +13,7 @@ class CallExpression implements ExpressionInterface
      * @param ExpressionInterface|null $function
      * @param ExpressionInterface[] $arguments
      */
-    public function __construct(protected Token $token, protected ?ExpressionInterface $function = null, protected array $arguments = [])
+    public function __construct(protected Token $token, public ?ExpressionInterface $function = null, public array $arguments = [])
     {
     }
 

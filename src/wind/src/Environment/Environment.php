@@ -13,12 +13,16 @@ class Environment
      */
     protected array $store = [];
 
+    public function __construct(protected ?Environment $outer = null)
+    {
+    }
+
     /**
      * @return static
      */
-    public static function new(): static
+    public static function new(?Environment $outer = null): static
     {
-        return new static();
+        return new static($outer);
     }
 
     /**
@@ -27,6 +31,10 @@ class Environment
      */
     public function get(string $name): ?ObjectInterface
     {
+        if (!isset($this->store[$name]) && $this->outer !== null) {
+            return $this->outer->get($name);
+        }
+
         return $this->store[$name] ?? null;
     }
 

@@ -6,13 +6,9 @@ namespace Larmias\Wind\AST;
 
 use Larmias\Wind\Lexer\Token;
 
-class BlockStatement implements ExpressionInterface
+class IndexExpression implements ExpressionInterface
 {
-    /**
-     * @param Token $token
-     * @param StatementInterface[] $statements
-     */
-    public function __construct(protected Token $token, public array $statements = [])
+    public function __construct(protected Token $token, public ?ExpressionInterface $left = null, public ?ExpressionInterface $index = null)
     {
     }
 
@@ -28,11 +24,11 @@ class BlockStatement implements ExpressionInterface
 
     public function toString(): string
     {
-        $buffer = '';
-
-        foreach ($this->statements as $statement) {
-            $buffer .= $statement->toString();
-        }
+        $buffer = '(';
+        $buffer .= $this->left->toString();
+        $buffer .= '[';
+        $buffer .= $this->index->toString();
+        $buffer .= '])';
         return $buffer;
     }
 }

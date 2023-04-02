@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\Wind\Object;
 
-class Boolean implements ObjectInterface
+class Boolean implements ObjectInterface, Hashable
 {
     public function __construct(public bool $value)
     {
@@ -18,5 +18,10 @@ class Boolean implements ObjectInterface
     public function inspect(): string
     {
         return $this->value ? 'true' : 'false';
+    }
+
+    public function hashKey(): HashKey
+    {
+        return new HashKey($this->getType(), $this->value ? 1 : 0);
     }
 }

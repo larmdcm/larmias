@@ -4,14 +4,17 @@ declare (strict_types=1);
 
 namespace Larmias\Wind\Parser;
 
+use Larmias\Wind\AST\ArrayLiteral;
 use Larmias\Wind\AST\BlockStatement;
 use Larmias\Wind\AST\Boolean;
 use Larmias\Wind\AST\CallExpression;
 use Larmias\Wind\AST\ExpressionInterface;
 use Larmias\Wind\AST\ExpressionStatement;
 use Larmias\Wind\AST\FunctionLiteral;
+use Larmias\Wind\AST\HashLiteral;
 use Larmias\Wind\AST\Identifier;
 use Larmias\Wind\AST\IfExpression;
+use Larmias\Wind\AST\IndexExpression;
 use Larmias\Wind\AST\InfixExpression;
 use Larmias\Wind\AST\IntegerLiteral;
 use Larmias\Wind\AST\LetStatement;
@@ -19,6 +22,7 @@ use Larmias\Wind\AST\PrefixExpression;
 use Larmias\Wind\AST\Program;
 use Larmias\Wind\AST\ReturnStatement;
 use Larmias\Wind\AST\StatementInterface;
+use Larmias\Wind\AST\StringLiteral;
 use Larmias\Wind\Lexer\Lexer;
 use Larmias\Wind\Lexer\Token;
 use Larmias\Wind\Lexer\TokenType;
@@ -53,6 +57,8 @@ class Parser
     public const PREFIX = 6;
     // myFunction(X)
     public const CALL = 7;
+    // array index
+    public const INDEX = 8;
 
     /**
      * 优先级表
@@ -68,6 +74,7 @@ class Parser
         TokenType::SLASH => self::PRODUCT,
         TokenType::ASTERISK => self::PRODUCT,
         TokenType::LPAREN => self::CALL,
+        TokenType::LBRACKET => self::INDEX,
     ];
 
     public function __construct(protected Lexer $lexer)
@@ -84,6 +91,9 @@ class Parser
         $this->registerPrefix(TokenType::LPAREN, new PrefixParseFn([$this, 'parseGroupedExpression']));
         $this->registerPrefix(TokenType::IF, new PrefixParseFn([$this, 'parseIfExpression']));
         $this->registerPrefix(TokenType::FUNCTION, new PrefixParseFn([$this, 'parseFunctionLiteral']));
+        $this->registerPrefix(TokenType::STRING, new PrefixParseFn([$this, 'parseStringLiteral']));
+        $this->registerPrefix(TokenType::LBRACKET, new PrefixParseFn([$this, 'parseArrayLiteral']));
+        $this->registerPrefix(TokenType::LBRACE, new PrefixParseFn([$this, 'parseHashLiteral']));
 
         $this->registerInfix(TokenType::PLUS, new InfixParseFn([$this, 'parseInfixExpression']));
         $this->registerInfix(TokenType::MINUS, new InfixParseFn([$this, 'parseInfixExpression']));
@@ -94,6 +104,7 @@ class Parser
         $this->registerInfix(TokenType::LT, new InfixParseFn([$this, 'parseInfixExpression']));
         $this->registerInfix(TokenType::GT, new InfixParseFn([$this, 'parseInfixExpression']));
         $this->registerInfix(TokenType::LPAREN, new InfixParseFn([$this, 'parseCallExpression']));
+        $this->registerInfix(TokenType::LBRACKET, new InfixParseFn([$this, 'parseIndexExpression']));
     }
 
     public static function new(Lexer $lexer)
@@ -285,6 +296,72 @@ class Parser
         return $lit;
     }
 
+    public function parseStringLiteral(): ?ExpressionInterface
+    {
+        return new StringLiteral($this->curToken, $this->curToken->getLiteral());
+    }
+
+    public function parseArrayLiteral(): ?ExpressionInterface
+    {
+        $array = new ArrayLiteral($this->curToken);
+        $array->elements = $this->parseExpressionList(TokenType::RBRACKET);
+        return $array;
+    }
+
+    public function parseHashLiteral(): ?ExpressionInterface
+    {
+        $hash = new HashLiteral($this->curToken);
+
+        while (!$this->peekTokenIs(TokenType::RBRACE)) {
+            $this->nextToken();
+            $key = $this->parseExpression(self::LOWEST);
+
+            if (!$this->expectPeek(TokenType::COLON)) {
+                return null;
+            }
+            $this->nextToken();
+
+            $value = $this->parseExpression(self::LOWEST);
+            $hash->pairs[] = ['key' => $key, 'value' => $value];
+
+            if (!$this->peekTokenIs(TokenType::RBRACE) && !$this->peekTokenIs(TokenType::COMMA)) {
+                return null;
+            }
+        }
+
+        if (!$this->expectPeek(TokenType::RBRACE)) {
+            return null;
+        }
+
+        return $hash;
+    }
+
+    public function parseExpressionList(string $endToken): array
+    {
+        $list = [];
+
+        if ($this->peekTokenIs($endToken)) {
+            $this->nextToken();
+            return $list;
+        }
+
+        $this->nextToken();
+
+        $list[] = $this->parseExpression(self::LOWEST);
+
+        while ($this->peekTokenIs(TokenType::COMMA)) {
+            $this->nextToken();
+            $this->nextToken();
+            $list[] = $this->parseExpression(self::LOWEST);
+        }
+
+        if (!$this->expectPeek($endToken)) {
+            return [];
+        }
+
+        return $list;
+    }
+
     public function parseFunctionParameters(): array
     {
         $identifiers = [];
@@ -322,7 +399,19 @@ class Parser
 
     public function parseCallExpression(?ExpressionInterface $function): ?ExpressionInterface
     {
-        return new CallExpression($this->curToken, $function, $this->parseCallArguments());
+        return new CallExpression($this->curToken, $function, $this->parseExpressionList(TokenType::RPAREN));
+    }
+
+    public function parseIndexExpression(?ExpressionInterface $left): ?ExpressionInterface
+    {
+        $exp = new IndexExpression($this->curToken, $left);
+        $this->nextToken();
+        $exp->index = $this->parseExpression(self::LOWEST);
+
+        if (!$this->expectPeek(TokenType::RBRACKET)) {
+            return null;
+        }
+        return $exp;
     }
 
     public function parseCallArguments(): array

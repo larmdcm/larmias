@@ -103,6 +103,18 @@ class Lexer
             case "\0":
                 $token = Token::new(TokenType::EOF);
                 break;
+            case '"':
+                $token = Token::new(TokenType::STRING, $this->readString());
+                break;
+            case '[':
+                $token = Token::new(TokenType::LBRACKET, $this->ch);
+                break;
+            case ']':
+                $token = Token::new(TokenType::RBRACKET, $this->ch);
+                break;
+            case ':':
+                $token = Token::new(TokenType::COLON, $this->ch);
+                break;
             default:
                 if ($this->isLetter($this->ch)) {
                     $ident = $this->readIdentifier();
@@ -180,6 +192,22 @@ class Lexer
         $position = $this->position;
         while ($this->isDigit($this->ch)) {
             $this->readChar();
+        }
+
+        return substr($this->input, $position, $this->position - $position);
+    }
+
+    /**
+     * @return string
+     */
+    protected function readString(): string
+    {
+        $position = $this->position + 1;
+        while (true) {
+            $this->readChar();
+            if ($this->ch === '"' || $this->ch === "\0") {
+                break;
+            }
         }
 
         return substr($this->input, $position, $this->position - $position);

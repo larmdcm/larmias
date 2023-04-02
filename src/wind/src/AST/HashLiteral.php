@@ -6,14 +6,15 @@ namespace Larmias\Wind\AST;
 
 use Larmias\Wind\Lexer\Token;
 
-class BlockStatement implements ExpressionInterface
+class HashLiteral implements ExpressionInterface
 {
     /**
      * @param Token $token
-     * @param StatementInterface[] $statements
+     * @param array $pairs
      */
-    public function __construct(protected Token $token, public array $statements = [])
+    public function __construct(protected Token $token, public array $pairs = [])
     {
+
     }
 
     public function expressionNode(): void
@@ -28,11 +29,11 @@ class BlockStatement implements ExpressionInterface
 
     public function toString(): string
     {
-        $buffer = '';
+        $pairs = [];
 
-        foreach ($this->statements as $statement) {
-            $buffer .= $statement->toString();
+        foreach ($this->pairs as $map) {
+            $pairs[] = $map['key']->toString() . ':' . $map['value']->toString();
         }
-        return $buffer;
+        return '{' . implode(',', $pairs) . '}';
     }
 }

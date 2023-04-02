@@ -169,6 +169,26 @@ class TokenType
     public const RETURN = 'RETURN';
 
     /**
+     * @var string
+     */
+    public const STRING = 'STRING';
+
+    /**
+     * @var string
+     */
+    public const LBRACKET = "[";
+
+    /**
+     * @var string
+     */
+    public const RBRACKET = "]";
+
+    /**
+     * @var string
+     */
+    public const COLON = ":";
+
+    /**
      * @var array
      */
     protected static array $cache = [];

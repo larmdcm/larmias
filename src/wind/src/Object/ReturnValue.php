@@ -6,7 +6,7 @@ namespace Larmias\Wind\Object;
 
 class ReturnValue implements ObjectInterface
 {
-    public function __construct(protected ObjectInterface $value)
+    public function __construct(public ObjectInterface $value)
     {
     }
 

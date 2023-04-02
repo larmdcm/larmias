@@ -16,6 +16,16 @@ class ObjectType
 
     public const ERROR_OBJ = 'ERROR';
 
+    public const FUNCTION_OBJ = 'FUNCTION';
+
+    public const STRING_OBJ = 'STRING';
+
+    public const BUILTIN_OBJ = 'BUILTIN';
+
+    public const ARRAY_OBJ = 'ARRAY';
+
+    public const HASH_OBJ = 'HASH';
+
     public function __construct(protected string $value)
     {
     }

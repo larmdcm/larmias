@@ -45,8 +45,8 @@ class QueryTest extends TestCase
             ->whereNotBetween('id', [4, 5])
             ->whereLike('name', '%test%')
             ->whereNotLike('name', '%test%')
-            ->whereExists('id','test')
-            ->whereNotExists('id','test')
+            ->whereExists('id', 'test')
+            ->whereNotExists('id', 'test')
             ->whereColumn('create_time', '>', 'update_time')
             ->buildSql();
         var_dump($result);
@@ -160,6 +160,6 @@ class QueryTest extends TestCase
      */
     protected function getQuery(): QueryInterface
     {
-        return $this->manager->query();
+        return $this->manager->query($this->manager->connection());
     }
 }

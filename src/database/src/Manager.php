@@ -8,6 +8,7 @@ use Larmias\Contracts\ContainerInterface;
 use Larmias\Database\Builder\MysqlBuilder;
 use Larmias\Database\Contracts\BuilderInterface;
 use Larmias\Database\Contracts\ConnectionInterface;
+use Larmias\Database\Contracts\ManagerInterface;
 use Larmias\Database\Contracts\QueryInterface;
 use Larmias\Database\Pool\DbProxy;
 use Larmias\Database\Query\Builder;
@@ -16,7 +17,7 @@ use function array_merge;
 use function class_exists;
 use function Larmias\Utils\data_get;
 
-class Manager
+class Manager implements ManagerInterface
 {
     /**
      * @var array
@@ -39,24 +40,6 @@ class Manager
 
     /**
      * @param string|null $name
-     * @return QueryInterface
-     */
-    public function query(?string $name = null): QueryInterface
-    {
-        $connection = $this->connection($name);
-        $queryClass = $connection->getConfig('query', Builder::class);
-        if (!class_exists($queryClass)) {
-            throw new RuntimeException('query class not exists:' . $queryClass);
-        }
-        /** @var QueryInterface $query */
-        $query = new $queryClass();
-        $query->setConnection($connection);
-        $query->setBuilder($this->newBuilder($connection));
-        return $query;
-    }
-
-    /**
-     * @param string|null $name
      * @return ConnectionInterface
      */
     public function connection(?string $name = null): ConnectionInterface
@@ -71,6 +54,23 @@ class Manager
             $this->proxies[$name] = new DbProxy($this->container, $this->config[$name]);
         }
         return $this->proxies[$name];
+    }
+
+    /**
+     * @param ConnectionInterface $connection
+     * @return QueryInterface
+     */
+    public function query(ConnectionInterface $connection): QueryInterface
+    {
+        $queryClass = $connection->getConfig('query', Builder::class);
+        if (!class_exists($queryClass)) {
+            throw new RuntimeException('query class not exists:' . $queryClass);
+        }
+        /** @var QueryInterface $query */
+        $query = new $queryClass();
+        $query->setConnection($connection);
+        $query->setBuilder($this->newBuilder($connection));
+        return $query;
     }
 
     /**

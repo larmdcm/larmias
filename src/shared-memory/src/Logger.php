@@ -7,6 +7,7 @@ namespace Larmias\SharedMemory;
 use Larmias\Contracts\Worker\WorkerInterface;
 use Larmias\SharedMemory\Contracts\LoggerInterface;
 use Psr\Log\LoggerInterface as PsrLoggerInterface;
+use function Larmias\Utils\println;
 
 class Logger implements LoggerInterface
 {
@@ -27,7 +28,7 @@ class Logger implements LoggerInterface
     public function trace(\Stringable|string $message, string $level = 'debug', array $context = []): void
     {
         if ($this->worker->getSettings('console_output', true)) {
-            \Larmias\Utils\println($message);
+            println($message);
         }
 
         if ($this->worker->getSettings('log_record', false)) {

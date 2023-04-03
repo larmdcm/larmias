@@ -34,11 +34,6 @@ interface QueryInterface
     public const BUILD_SQL_SELECT = 5;
 
     /**
-     * @var int
-     */
-    public const BUILD_SQL_FIRST = 6;
-
-    /**
      * 设置表名称
      * @param string $name
      * @return QueryInterface
@@ -94,12 +89,120 @@ interface QueryInterface
     public function orWhere(mixed $field, mixed $op = null, mixed $value = null): QueryInterface;
 
     /**
+     * @param string $field
+     * @param string $logic
+     * @return QueryInterface
+     */
+    public function whereNull(string $field, string $logic = 'AND'): QueryInterface;
+
+    /**
+     * @param string $field
+     * @param string $logic
+     * @return QueryInterface
+     */
+    public function whereNotNull(string $field, string $logic = 'AND'): QueryInterface;
+
+    /**
+     * @param string $field
+     * @param mixed $value
+     * @param string $logic
+     * @return QueryInterface
+     */
+    public function whereIn(string $field, mixed $value, string $logic = 'AND'): QueryInterface;
+
+    /**
+     * @param string $field
+     * @param mixed $value
+     * @param string $logic
+     * @return QueryInterface
+     */
+    public function whereNotIn(string $field, mixed $value, string $logic = 'AND'): QueryInterface;
+
+    /**
+     * @param string $field
+     * @param mixed $value
+     * @param string $logic
+     * @return QueryInterface
+     */
+    public function whereBetween(string $field, mixed $value, string $logic = 'AND'): QueryInterface;
+
+    /**
+     * @param string $field
+     * @param mixed $value
+     * @param string $logic
+     * @return QueryInterface
+     */
+    public function whereNotBetween(string $field, mixed $value, string $logic = 'AND'): QueryInterface;
+
+    /**
+     * @param string $field
+     * @param mixed $value
+     * @param string $logic
+     * @return QueryInterface
+     */
+    public function whereLike(string $field, mixed $value, string $logic = 'AND'): QueryInterface;
+
+    /**
+     * @param string $field
+     * @param mixed $value
+     * @param string $logic
+     * @return QueryInterface
+     */
+    public function whereNotLike(string $field, mixed $value, string $logic = 'AND'): QueryInterface;
+
+    /**
+     * @param string $field
+     * @param mixed $value
+     * @param string $logic
+     * @return QueryInterface
+     */
+    public function whereExists(string $field, mixed $value, string $logic = 'AND'): QueryInterface;
+
+    /**
+     * @param string $field
+     * @param mixed $value
+     * @param string $logic
+     * @return QueryInterface
+     */
+    public function whereNotExists(string $field, mixed $value, string $logic = 'AND'): QueryInterface;
+
+    /**
+     * @param string $field
+     * @param string $op
+     * @param string|null $value
+     * @param string $logic
+     * @return QueryInterface
+     */
+    public function whereColumn(string $field, string $op, string $value = null, string $logic = 'AND'): QueryInterface;
+
+    /**
      * @param array|string $table
      * @param mixed $condition
      * @param string $joinType
      * @return QueryInterface
      */
     public function join(array|string $table, mixed $condition, string $joinType = 'INNER'): QueryInterface;
+
+    /**
+     * @param array|string $table
+     * @param mixed $condition
+     * @return QueryInterface
+     */
+    public function innerJoin(array|string $table, mixed $condition): QueryInterface;
+
+    /**
+     * @param array|string $table
+     * @param mixed $condition
+     * @return QueryInterface
+     */
+    public function leftJoin(array|string $table, mixed $condition): QueryInterface;
+
+    /**
+     * @param array|string $table
+     * @param mixed $condition
+     * @return QueryInterface
+     */
+    public function rightJoin(array|string $table, mixed $condition): QueryInterface;
 
     /**
      * @param array|string $field
@@ -155,6 +258,36 @@ interface QueryInterface
     public function limit(int $limit): QueryInterface;
 
     /**
+     * @param string $field
+     * @return int
+     */
+    public function count(string $field = '*'): int;
+
+    /**
+     * @param string $field
+     * @return float
+     */
+    public function sum(string $field): float;
+
+    /**
+     * @param string $field
+     * @return float
+     */
+    public function min(string $field): float;
+
+    /**
+     * @param string $field
+     * @return float
+     */
+    public function max(string $field): float;
+
+    /**
+     * @param string $field
+     * @return float
+     */
+    public function avg(string $field): float;
+
+    /**
      * @param int $buildType
      * @return string
      */
@@ -200,6 +333,31 @@ interface QueryInterface
      * @return array|null
      */
     public function first(): ?array;
+
+    /**
+     * @param string $name
+     * @param mixed|null $default
+     * @return mixed
+     */
+    public function value(string $name, mixed $default = null): mixed;
+
+    /**
+     * @param string $value
+     * @param string|null $key
+     * @return CollectionInterface
+     */
+    public function pluck(string $value, ?string $key = null): CollectionInterface;
+
+    /**
+     * @return TransactionInterface
+     */
+    public function beginTransaction(): TransactionInterface;
+
+    /**
+     * @param \Closure $callback
+     * @return void
+     */
+    public function transaction(\Closure $callback): void;
 
     /**
      * @return array

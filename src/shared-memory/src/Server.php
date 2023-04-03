@@ -6,7 +6,7 @@ namespace Larmias\SharedMemory;
 
 use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\Tcp\ConnectionInterface;
-use Larmias\Engine\Timer;
+use Larmias\Contracts\TimerInterface;
 use Larmias\SharedMemory\Contracts\AuthInterface;
 use Larmias\SharedMemory\Contracts\CommandExecutorInterface;
 use Larmias\SharedMemory\Contracts\LoggerInterface;
@@ -15,6 +15,8 @@ use Larmias\SharedMemory\Message\Result;
 use Larmias\Contracts\Worker\WorkerInterface;
 use Throwable;
 use function Larmias\Utils\format_exception;
+use function method_exists;
+use function call_user_func_array;
 
 class Server
 {
@@ -37,7 +39,8 @@ class Server
     public function __construct(
         protected ContainerInterface       $container,
         protected CommandExecutorInterface $executor,
-        protected AuthInterface            $auth
+        protected AuthInterface            $auth,
+        protected TimerInterface           $timer,
     )
     {
     }
@@ -53,7 +56,7 @@ class Server
         /** @var LoggerInterface $logger */
         $logger = $this->container->make(LoggerInterface::class);
         $this->logger = $logger;
-        Timer::tick($worker->getSettings('tick_interval', 1000), function () {
+        $this->timer->tick($worker->getSettings('tick_interval', 1000), function () {
             $this->triggerCommand('onTick', [$this->worker]);
         });
     }
@@ -111,8 +114,8 @@ class Server
     protected function triggerCommand(string $method, array $args = []): void
     {
         foreach ($this->executor->getCommands() as $command) {
-            if (\method_exists($command, $method)) {
-                \call_user_func_array([$command, $method], $args);
+            if (method_exists($command, $method)) {
+                call_user_func_array([$command, $method], $args);
             }
         }
     }

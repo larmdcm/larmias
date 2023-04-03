@@ -11,18 +11,32 @@ use Larmias\SharedMemory\Store\Map;
 
 class StoreManager
 {
+    /**
+     * @var array
+     */
     protected static array $stores = [];
 
+    /**
+     * @var array|string[]
+     */
     protected static array $container = [
         MapInterface::class => Map::class,
         ChannelInterface::class => Channel::class,
     ];
 
+    /**
+     * @param string $name
+     * @param string $class
+     * @return void
+     */
     public static function addContainer(string $name, string $class): void
     {
         static::$container[$name] = $class;
     }
 
+    /**
+     * @return MapInterface
+     */
     public static function map(): MapInterface
     {
         return static::getStore(__FUNCTION__, function () {
@@ -30,6 +44,9 @@ class StoreManager
         });
     }
 
+    /**
+     * @return ChannelInterface
+     */
     public static function channel(): ChannelInterface
     {
         return static::getStore(__FUNCTION__, function () {
@@ -37,6 +54,11 @@ class StoreManager
         });
     }
 
+    /**
+     * @param string $name
+     * @param callable $callback
+     * @return mixed
+     */
     public static function getStore(string $name, callable $callback): mixed
     {
         $select = Context::getStoreSelect();

@@ -39,14 +39,13 @@ class Rule
     protected array $option = [];
 
     /**
-     * Rule __construct
-     *
      * @param string $method
      * @param string $route
      * @param mixed $handler
+     * @param array $groupNumbers
      * @param array $option
      */
-    public function __construct(string $method, string $route, $handler, array $groupNumbers = [], array $option = [])
+    public function __construct(string $method, string $route, mixed $handler, array $groupNumbers = [], array $option = [])
     {
         $this->method = $method;
         $this->route = $route;

@@ -11,6 +11,9 @@ use Larmias\Database\Contracts\ExecuteResultInterface;
 use Larmias\Database\Contracts\ExpressionInterface;
 use Larmias\Database\Contracts\QueryInterface;
 use Larmias\Database\Entity\Expression;
+use Larmias\Database\Query\Concerns\AggregateQuery;
+use Larmias\Database\Query\Concerns\JoinQuery;
+use Larmias\Database\Query\Concerns\Transaction;
 use Larmias\Database\Query\Concerns\WhereQuery;
 use Larmias\Utils\Collection;
 use function array_map;
@@ -26,6 +29,9 @@ use const SORT_REGULAR;
 class Builder implements QueryInterface
 {
     use WhereQuery;
+    use JoinQuery;
+    use AggregateQuery;
+    use Transaction;
 
     /**
      * @var array
@@ -144,18 +150,6 @@ class Builder implements QueryInterface
     }
 
     /**
-     * @param array|string $table
-     * @param mixed $condition
-     * @param string $joinType
-     * @return QueryInterface
-     */
-    public function join(array|string $table, mixed $condition, string $joinType = 'INNER'): QueryInterface
-    {
-        $this->options['join'][] = [$table, $condition, $joinType];
-        return $this;
-    }
-
-    /**
      * @param array|string $field
      * @return QueryInterface
      */
@@ -261,7 +255,13 @@ class Builder implements QueryInterface
      */
     public function buildSql(int $buildType = self::BUILD_SQL_SELECT): string
     {
-        $sqlPrepare = $this->builder->select($this->getOptions());
+        $sqlPrepare = match ($buildType) {
+            self::BUILD_SQL_INSERT => $this->builder->insert($this->getOptions()),
+            self::BUILD_SQL_BATCH_INSERT => $this->builder->insertAll($this->getOptions()),
+            self::BUILD_SQL_UPDATE => $this->builder->update($this->getOptions()),
+            self::BUILD_SQL_DELETE => $this->builder->delete($this->getOptions()),
+            default => $this->builder->select($this->getOptions())
+        };
         return $this->connection->buildSql($sqlPrepare->getSql(), $sqlPrepare->getBinds());
     }
 
@@ -349,6 +349,27 @@ class Builder implements QueryInterface
             $this->limit(1);
         }
         return $this->get()->first();
+    }
+
+    /**
+     * @param string $name
+     * @param mixed|null $default
+     * @return mixed
+     */
+    public function value(string $name, mixed $default = null): mixed
+    {
+        $data = $this->first();
+        return $data ? $data[$name] ?? $default : $default;
+    }
+
+    /**
+     * @param string $value
+     * @param string|null $key
+     * @return CollectionInterface
+     */
+    public function pluck(string $value, ?string $key = null): CollectionInterface
+    {
+        return $this->get()->pluck($value, $key);
     }
 
     /**

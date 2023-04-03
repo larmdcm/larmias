@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Larmias\SharedMemory\Message;
 
 use Stringable;
+use function json_decode;
+use function json_encode;
 
 class Result implements Stringable
 {
@@ -33,7 +35,7 @@ class Result implements Stringable
      */
     public static function parse(string $raw): Result
     {
-        $data = \json_decode($raw, true);
+        $data = json_decode($raw, true);
 
         return new static($data['data'], $data['success']);
     }
@@ -54,7 +56,7 @@ class Result implements Stringable
      */
     public function toString(): string
     {
-        return \json_encode($this->toArray(), JSON_UNESCAPED_UNICODE);
+        return json_encode($this->toArray(), JSON_UNESCAPED_UNICODE);
     }
 
     /**

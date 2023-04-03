@@ -185,6 +185,17 @@ abstract class Builder implements BuilderInterface
     }
 
     /**
+     * @param string $type
+     * @param string $field
+     * @param string $name
+     * @return string
+     */
+    public function aggregate(string $type, string $field, string $name): string
+    {
+        return $this->buildAlias(sprintf('%s(%s)', strtoupper($type), $field), $name);
+    }
+
+    /**
      * @param string $sql
      * @return SqlPrepareInterface
      */
@@ -419,6 +430,14 @@ abstract class Builder implements BuilderInterface
             case 'BETWEEN':
             case 'NOT BETWEEN':
                 return $this->parseWereBetween($field, $value, $op);
+            case 'LIKE':
+            case 'NOT LIKE':
+                return $this->parseWhereLike($field, $value, $op);
+            case 'EXISTS':
+            case 'NOT EXISTS':
+                return $this->parseWhereExists($field, $value, $op);
+            case 'COLUMN':
+                return $this->parseWhereColumn($field, $value);
             default:
                 $this->bind($value);
                 return sprintf('%s %s ?', $this->escape($field), $op);
@@ -456,8 +475,42 @@ abstract class Builder implements BuilderInterface
 
         $this->bind($value);
 
-        return $this->buildWhereBetween($field, ['?','?'], $op);
+        return $this->buildWhereBetween($field, ['?', '?'], $op);
     }
+
+    /**
+     * @param string $field
+     * @param mixed $value
+     * @param string $op
+     * @return string
+     */
+    protected function parseWhereLike(string $field, mixed $value, string $op = 'LIKE'): string
+    {
+        $this->bind($value);
+        return $this->buildWhereLike($field, '?', $op);
+    }
+
+    /**
+     * @param string $field
+     * @param mixed $value
+     * @param string $op
+     * @return string
+     */
+    protected function parseWhereExists(string $field, mixed $value, string $op = 'EXISTS'): string
+    {
+        return $this->buildWhereExists($field, $value, $op);
+    }
+
+    /**
+     * @param string $field
+     * @param mixed $value
+     * @return string
+     */
+    protected function parseWhereColumn(string $field, mixed $value): string
+    {
+        return $this->buildWhereColumn($field, $value[0], $this->escape($value[1]));
+    }
+
 
     /**
      * @param string|null $op
@@ -645,7 +698,7 @@ abstract class Builder implements BuilderInterface
      */
     public function buildWhereExists(string $field, string $value, string $op = 'EXISTS'): string
     {
-        return sprintf('%s %s %s', $field, $op, $value);
+        return sprintf('%s %s ( %s )', $field, $op, $value);
     }
 
     /**

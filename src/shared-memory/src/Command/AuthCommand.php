@@ -8,6 +8,10 @@ use Larmias\SharedMemory\Contracts\AuthInterface;
 
 class AuthCommand extends Command
 {
+    /**
+     * @return string
+     * @throws \Throwable
+     */
     public function handle(): string
     {
         /** @var AuthInterface $auth */

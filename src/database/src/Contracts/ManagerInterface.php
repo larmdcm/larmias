@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Larmias\Database\Contracts;
 
+use Psr\EventDispatcher\EventDispatcherInterface;
+
 interface ManagerInterface
 {
     /**
@@ -17,4 +19,15 @@ interface ManagerInterface
      * @return QueryInterface
      */
     public function query(ConnectionInterface $connection): QueryInterface;
+
+    /**
+     * @return EventDispatcherInterface
+     */
+    public function getEventDispatcher(): EventDispatcherInterface;
+
+    /**
+     * @param EventDispatcherInterface $eventDispatcher
+     * @return void
+     */
+    public function setEventDispatcher(EventDispatcherInterface $eventDispatcher): void;
 }

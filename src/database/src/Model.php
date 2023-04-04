@@ -5,12 +5,24 @@ declare(strict_types=1);
 namespace Larmias\Database;
 
 use Larmias\Database\Contracts\ManagerInterface;
-use Closure;
 use Larmias\Database\Contracts\QueryInterface;
+use Larmias\Database\Model\Concerns\Attribute;
+use Larmias\Database\Model\Concerns\Conversion;
+use Larmias\Database\Model\Concerns\Timestamp;
+use Larmias\Utils\Contracts\Arrayable;
+use Larmias\Utils\Contracts\Jsonable;
+use Closure;
+use ArrayAccess;
+use Stringable;
+use JsonSerializable;
 use function Larmias\Utils\class_basename;
 
-abstract class Model
+abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, JsonSerializable
 {
+    use Attribute;
+    use Conversion;
+    use Timestamp;
+
     /**
      * 主键
      * @var string
@@ -42,7 +54,7 @@ abstract class Model
     /**
      * @var string|null
      */
-    protected ?string $connectName = null;
+    protected ?string $connection = null;
 
     /**
      * @var QueryInterface
@@ -58,8 +70,11 @@ abstract class Model
     /**
      * @param array $data
      */
-    public function __construct(protected array $data = [])
+    public function __construct(array $data = [])
     {
+        $this->data = $data;
+        $this->origin = $data;
+
         if ($this->name === null) {
             $this->name = class_basename(static::class);
         }
@@ -90,13 +105,9 @@ abstract class Model
      * @param array $data
      * @return static
      */
-    public static function newInstance(array $data = []): static
+    public static function new(array $data = []): static
     {
-        $model = new static($data);
-        if (isset($data[$model->getPrimaryKey()])) {
-            $model->setExists(true);
-        }
-        return $model;
+        return new static($data);
     }
 
     /**
@@ -116,49 +127,68 @@ abstract class Model
      */
     public function save(array $data = []): bool
     {
-        foreach ($data as $key => $value) {
-            $this->data[$key] = $value;
+        $this->setAttributes($data);
+
+        $this->checkTimeStampWrite();
+
+        return $this->isExists() ? $this->updateData() : $this->insertData();
+    }
+
+    /**
+     * @return bool
+     */
+    public function delete(): bool
+    {
+        if (!$this->isExists()) {
+            return false;
         }
 
-        return boolval($this->exists ? $this->updateData($this->data) : $this->insertData($this->data));
+        $result = $this->query()->delete($this->getWhere()) > 0;
+        if ($result) {
+            $this->setExists(false);
+        }
+
+        return $this->isExists();
     }
 
     /**
      * 新增数据
-     * @param array $data
-     * @return string
+     * @return bool
      */
-    protected function insertData(array $data): string
+    protected function insertData(): bool
     {
-        $id = $this->query()->insertGetId($data);
+        $id = $this->query()->insertGetId($this->data);
 
         if (!empty($id)) {
-            $data[$this->primaryKey] = $id;
+            $this->data[$this->getPrimaryKey()] = $id;
+            $this->setExists(true);
         }
 
-        $this->data = $data;
-
-        return $id;
+        return $this->isExists();
     }
 
     /**
      * 修改数据
-     * @param array $data
-     * @param array $condition
      * @return bool
      */
-    protected function updateData(array $data, array $condition = []): bool
+    protected function updateData(): bool
     {
-        $this->data = $data;
-        if (isset($data[$this->primaryKey])) {
-            $condition[$this->primaryKey] = $data[$this->primaryKey];
-            unset($data[$this->primaryKey]);
+        $data = $this->getChangeData();
+
+        return $this->query()->update($data, $this->getWhere()) > 0;
+    }
+
+    /**
+     * @return array
+     */
+    protected function getWhere(): array
+    {
+        $where = [];
+        $primaryKey = $this->getPrimaryKey();
+        if (isset($this->data[$primaryKey])) {
+            $where[$primaryKey] = $this->data[$primaryKey];
         }
-        $check = $this->query()->update($data, $condition) > 0;
-        if ($check) {
-            $this->data = $data;
-        }
-        return $check;
+        return $where;
     }
 
     /**
@@ -178,7 +208,7 @@ abstract class Model
      */
     public function newQuery(): QueryInterface
     {
-        $query = static::$manager->query(static::$manager->connection($this->connectName));
+        $query = static::$manager->query(static::$manager->connection($this->connection));
         $query->name($this->name);
         if ($this->table) {
             $query->table($this->table);
@@ -195,7 +225,7 @@ abstract class Model
     {
         $query = $this->query();
         $result = $query->{$name}(...$args);
-        return $result instanceof QueryInterface ? $this : $result;
+        return $result instanceof QueryInterface ? $this : $this->toResult($result);
     }
 
     /**
@@ -232,5 +262,67 @@ abstract class Model
     {
         $this->primaryKey = $primaryKey;
         return $this;
+    }
+
+    /**
+     * @param string $name
+     * @return mixed
+     */
+    public function __get(string $name): mixed
+    {
+        return $this->getAttribute($name);
+    }
+
+    /**
+     * @param string $name
+     * @param mixed $value
+     * @return void
+     */
+    public function __set(string $name, mixed $value): void
+    {
+        $this->setAttribute($name, $value);
+    }
+
+    /**
+     * @param string $name
+     * @return bool
+     */
+    public function __isset(string $name): bool
+    {
+        return $this->getAttribute($name) !== null;
+    }
+
+    /**
+     * @param string $name
+     * @return void
+     */
+    public function __unset(string $name): void
+    {
+        unset($this->data[$name]);
+    }
+
+    // ArrayAccess
+    #[\ReturnTypeWillChange]
+    public function offsetSet($offset, $value)
+    {
+        $this->setAttribute($offset, $value);
+    }
+
+    #[\ReturnTypeWillChange]
+    public function offsetExists($offset): bool
+    {
+        return $this->__isset($offset);
+    }
+
+    #[\ReturnTypeWillChange]
+    public function offsetUnset($offset)
+    {
+        $this->__unset($offset);
+    }
+
+    #[\ReturnTypeWillChange]
+    public function offsetGet($offset)
+    {
+        return $this->getAttribute($offset);
     }
 }

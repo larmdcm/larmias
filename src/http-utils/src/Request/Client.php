@@ -16,6 +16,10 @@ use Psr\Http\Message\UriInterface;
 use Larmias\Http\Utils\Request\Handler\RequestHandlerInterface;
 use Larmias\Http\Utils\Request\Handler\CurlRequestHandler;
 use Closure;
+use function array_merge;
+use function is_string;
+use function ltrim;
+use function str_contains;
 
 class Client implements ClientInterface
 {
@@ -42,7 +46,7 @@ class Client implements ClientInterface
      */
     public function __construct(array $options = [])
     {
-        $this->options = \array_merge($this->options, $options);
+        $this->options = array_merge($this->options, $options);
     }
 
     /**
@@ -136,7 +140,7 @@ class Client implements ClientInterface
         return function (RequestInterface $request, array $options = []) use ($handler): ResponseInterface {
             if ($handler === null) {
                 $handler = new CurlRequestHandler();
-            } else if (\is_string($handler)) {
+            } else if (is_string($handler)) {
                 $handler = new $handler();
             } else {
                 if ($handler instanceof Closure) {
@@ -155,7 +159,7 @@ class Client implements ClientInterface
      */
     protected function applyOptions(RequestInterface $request, array &$options = []): RequestInterface
     {
-        $options = \array_merge($this->options, $options);
+        $options = array_merge($this->options, $options);
         if (!empty($options['headers'])) {
             foreach ($options['headers'] as $name => $value) {
                 $request = $request->withHeader($name, $value);
@@ -163,14 +167,14 @@ class Client implements ClientInterface
         }
 
         if (!empty($options['base_uri'])) {
-            $uri = $options['base_uri'] . '/' . \ltrim((string)$request->getUri(), '/');
+            $uri = $options['base_uri'] . '/' . ltrim((string)$request->getUri(), '/');
             $request = $request->withUri(new Uri($uri));
         }
 
         if (!empty($options['query'])) {
             $queryString = Arr::query($options['query']);
             $uri = (string)$request->getUri();
-            $request = $request->withUri(new Uri($uri . (\str_contains($uri, '?') ? '&' : '?') . $queryString));
+            $request = $request->withUri(new Uri($uri . (str_contains($uri, '?') ? '&' : '?') . $queryString));
         }
 
         if (!empty($options['version'])) {

@@ -14,7 +14,7 @@ interface ExecuteResultInterface
     /**
      * @return array
      */
-    public function getExecuteBinds(): array;
+    public function getExecuteBindings(): array;
 
     /**
      * @return float

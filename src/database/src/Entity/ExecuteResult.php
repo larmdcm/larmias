@@ -8,7 +8,7 @@ class ExecuteResult implements ExecuteResultInterface
 {
     /**
      * @param string $executeSql
-     * @param array $executeBinds
+     * @param array $executeBindings
      * @param float $executeTime
      * @param int $rowCount
      * @param array $resultSet
@@ -16,7 +16,7 @@ class ExecuteResult implements ExecuteResultInterface
      */
     public function __construct(
         protected string  $executeSql = '',
-        protected array   $executeBinds = [],
+        protected array   $executeBindings = [],
         protected float   $executeTime = 0.0,
         protected int     $rowCount = 0,
         protected array   $resultSet = [],
@@ -37,9 +37,9 @@ class ExecuteResult implements ExecuteResultInterface
     /**
      * @return array
      */
-    public function getExecuteBinds(): array
+    public function getExecuteBindings(): array
     {
-        return $this->executeBinds;
+        return $this->executeBindings;
     }
 
     /**

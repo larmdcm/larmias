@@ -10,9 +10,9 @@ class Expression implements ExpressionInterface
 {
     /**
      * @param string $value
-     * @param array $binds
+     * @param array $bindings
      */
-    public function __construct(protected string $value, protected array $binds = [])
+    public function __construct(protected string $value, protected array $bindings = [])
     {
     }
 
@@ -36,17 +36,17 @@ class Expression implements ExpressionInterface
     /**
      * @return array
      */
-    public function getBinds(): array
+    public function getBindings(): array
     {
-        return $this->binds;
+        return $this->bindings;
     }
 
     /**
-     * @param array $binds
+     * @param array $bindings
      */
-    public function setBinds(array $binds): ExpressionInterface
+    public function setBindings(array $bindings): ExpressionInterface
     {
-        $this->binds = $binds;
+        $this->bindings = $bindings;
         return $this;
     }
 }

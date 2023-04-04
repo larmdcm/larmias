@@ -8,6 +8,8 @@ use Larmias\Contracts\Auth\AuthenticationInterface;
 use Larmias\Contracts\Auth\IdentityInterface;
 use Larmias\Contracts\Auth\IdentityRepositoryInterface;
 use Larmias\Contracts\ContainerInterface;
+use function array_merge;
+use function method_exists;
 
 abstract class Authentication implements AuthenticationInterface
 {
@@ -25,8 +27,8 @@ abstract class Authentication implements AuthenticationInterface
      */
     public function __construct(protected ContainerInterface $container, protected IdentityRepositoryInterface $repository, array $config = [])
     {
-        $this->config = \array_merge($this->config, $config);
-        if (\method_exists($this, 'initialize')) {
+        $this->config = array_merge($this->config, $config);
+        if (method_exists($this, 'initialize')) {
             $this->container->invoke([$this, 'initialize']);
         }
     }

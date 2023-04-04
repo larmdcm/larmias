@@ -7,6 +7,7 @@ namespace Larmias\Database\Connections;
 use Larmias\Contracts\Pool\ConnectionInterface as PoolConnectionInterface;
 use Larmias\Database\Contracts\ConnectionInterface;
 use Larmias\Pool\Connection as PoolConnection;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use function array_merge;
 
 abstract class Connection extends PoolConnection implements ConnectionInterface, PoolConnectionInterface
@@ -24,12 +25,17 @@ abstract class Connection extends PoolConnection implements ConnectionInterface,
     /**
      * @var array
      */
-    protected array $executeBinds = [];
+    protected array $executeBindings = [];
 
     /**
      * @var float
      */
     protected float $executeTime = 0.0;
+
+    /**
+     * @var EventDispatcherInterface
+     */
+    protected EventDispatcherInterface $eventDispatcher;
 
     /**
      * @param array $config
@@ -51,5 +57,22 @@ abstract class Connection extends PoolConnection implements ConnectionInterface,
             return $this->config;
         }
         return $this->config[$name] ?? $default;
+    }
+
+    /**
+     * @return EventDispatcherInterface
+     */
+    public function getEventDispatcher(): EventDispatcherInterface
+    {
+        return $this->eventDispatcher;
+    }
+
+    /**
+     * @param EventDispatcherInterface $eventDispatcher
+     * @return void
+     */
+    public function setEventDispatcher(EventDispatcherInterface $eventDispatcher): void
+    {
+        $this->eventDispatcher = $eventDispatcher;
     }
 }

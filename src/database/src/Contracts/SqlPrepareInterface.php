@@ -19,10 +19,10 @@ interface SqlPrepareInterface
     /**
      * @return array
      */
-    public function getBinds(): array;
+    public function getBindings(): array;
 
     /**
-     * @param array $binds
+     * @param array $bindings
      */
-    public function setBinds(array $binds): SqlPrepareInterface;
+    public function setBindings(array $bindings): SqlPrepareInterface;
 }

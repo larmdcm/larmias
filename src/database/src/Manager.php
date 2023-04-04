@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\Database;
 
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Larmias\Contracts\ContainerInterface;
 use Larmias\Database\Builder\MysqlBuilder;
 use Larmias\Database\Contracts\BuilderInterface;
@@ -30,6 +31,11 @@ class Manager implements ManagerInterface
     protected array $proxies = [];
 
     /**
+     * @var EventDispatcherInterface
+     */
+    protected EventDispatcherInterface $eventDispatcher;
+
+    /**
      * @param ContainerInterface $container
      * @param array $config
      */
@@ -41,6 +47,7 @@ class Manager implements ManagerInterface
     /**
      * @param string|null $name
      * @return ConnectionInterface
+     * @throws \Throwable
      */
     public function connection(?string $name = null): ConnectionInterface
     {
@@ -51,8 +58,11 @@ class Manager implements ManagerInterface
                 throw new RuntimeException('config not set:' . $name);
             }
             $this->config[$name]['name'] = $name;
-            $this->proxies[$name] = new DbProxy($this->container, $this->config[$name]);
+            $proxy = new DbProxy($this->container, $this->config[$name]);
+            $proxy->setEventDispatcher($this->getEventDispatcher());
+            $this->proxies[$name] = $proxy;
         }
+
         return $this->proxies[$name];
     }
 
@@ -91,6 +101,23 @@ class Manager implements ManagerInterface
         }
 
         return new $builderClass($connection);
+    }
+
+    /**
+     * @return EventDispatcherInterface
+     */
+    public function getEventDispatcher(): EventDispatcherInterface
+    {
+        return $this->eventDispatcher;
+    }
+
+    /**
+     * @param EventDispatcherInterface $eventDispatcher
+     * @return void
+     */
+    public function setEventDispatcher(EventDispatcherInterface $eventDispatcher): void
+    {
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**

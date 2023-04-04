@@ -1,0 +1,171 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Larmias\Database\Model\Concerns;
+
+use InvalidArgumentException;
+use Larmias\Utils\Str;
+use function array_udiff_assoc;
+use function is_object;
+use function method_exists;
+use function array_key_exists;
+use function is_numeric;
+use function strtotime;
+use function date;
+use function json_encode;
+use function serialize;
+use function str_contains;
+
+trait Attribute
+{
+    /**
+     * @var array
+     */
+    protected array $data = [];
+
+    /**
+     * @var array
+     */
+    protected array $origin = [];
+
+    /**
+     * @var array
+     */
+    protected array $cast = [];
+
+    /**
+     * @param string $name
+     * @param mixed $value
+     * @return void
+     */
+    public function setAttribute(string $name, mixed $value): void
+    {
+        $name = $this->getRealAttrName($name);
+        $method = 'set' . Str::studly($name) . 'Attr';
+
+        if (method_exists($this, $method)) {
+            $value = $this->{$method}($value, $name);
+        }
+
+        if (isset($this->cast[$name])) {
+            $value = $this->castValue($this->cast[$name], $value);
+        }
+
+        $this->data[$name] = $value;
+    }
+
+    /**
+     * @param array $data
+     * @return void
+     */
+    public function setAttributes(array $data): void
+    {
+        foreach ($data as $name => $value) {
+            $this->setAttribute($name, $value);
+        }
+    }
+
+    /**
+     * @param string $name
+     * @return mixed
+     */
+    public function getAttribute(string $name): mixed
+    {
+        $name = $this->getRealAttrName($name);
+        $method = 'get' . Str::studly($name) . 'Attr';
+
+        if (method_exists($this, $method)) {
+            $value = $this->{$method}($name);
+        } else {
+            if (!array_key_exists($name, $this->data)) {
+                throw new InvalidArgumentException('property not exists:' . static::class . '->' . $name);
+            }
+
+            $value = $this->data[$name];
+        }
+
+        if (isset($this->cast[$name])) {
+            $value = $this->castValue($this->cast[$name], $value);
+        }
+
+        return $value;
+    }
+
+    /**
+     * @param string $type
+     * @param mixed $value
+     * @return mixed
+     */
+    protected function castValue(string $type, mixed $value): mixed
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        switch ($type) {
+            case 'integer':
+                $value = (int)$value;
+                break;
+            case 'float':
+                $value = (float)$value;
+                break;
+            case 'boolean':
+                $value = (bool)$value;
+                break;
+            case 'timestamp':
+                if (!is_numeric($value)) {
+                    $value = strtotime($value);
+                }
+                break;
+            case 'datetime':
+                $value = is_numeric($value) ? $value : strtotime($value);
+                $value = date('Y-m-d H:i:s.u', $value);
+                break;
+            case 'object':
+                if (is_object($value)) {
+                    $value = json_encode($value, JSON_FORCE_OBJECT);
+                }
+                break;
+            case 'array':
+                $value = (array)$value;
+                break;
+            case 'json':
+                $option = !empty($param) ? (int)$param : JSON_UNESCAPED_UNICODE;
+                $value = json_encode($value, $option);
+                break;
+            case 'serialize':
+                $value = serialize($value);
+                break;
+            default:
+                if (is_object($value) && str_contains($type, '\\') && $value instanceof \Stringable) {
+                    $value = $value->__toString();
+                }
+        }
+
+        return $value;
+    }
+
+    /**
+     * @return array
+     */
+    protected function getChangeData(): array
+    {
+        return array_udiff_assoc($this->data, $this->origin, function ($a, $b) {
+            if ((empty($a) || empty($b)) && $a !== $b) {
+                return 1;
+            }
+
+            return is_object($a) || $a != $b ? 1 : 0;
+        });
+    }
+
+    /**
+     * @param string $name
+     * @return string
+     */
+    protected function getRealAttrName(string $name): string
+    {
+        return Str::camel($name);
+    }
+}

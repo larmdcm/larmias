@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Larmias\HttpServer\Providers;
 
 use Larmias\Contracts\ContainerInterface;
+use Larmias\Contracts\Http\ResponseEmitterInterface;
 use Larmias\Contracts\ServiceProviderInterface;
 use Larmias\Di\AnnotationManager;
 use Larmias\HttpServer\Annotation\Controller;
@@ -17,6 +18,7 @@ use Larmias\HttpServer\Annotation\PatchMapping;
 use Larmias\HttpServer\Annotation\PostMapping;
 use Larmias\HttpServer\Annotation\PutMapping;
 use Larmias\HttpServer\Annotation\RequestMapping;
+use Larmias\HttpServer\ResponseEmitter;
 use \Larmias\Routing\Router as BaseRouter;
 use Larmias\HttpServer\Routing\Router;
 
@@ -32,7 +34,10 @@ class HttpServiceProvider implements ServiceProviderInterface
         $router = $this->container->make(BaseRouter::class);
         Router::init($router);
 
-        $this->container->bindIf(RouteAnnotationHandlerInterface::class, RouteAnnotationHandler::class);
+        $this->container->bindIf([
+            RouteAnnotationHandlerInterface::class => RouteAnnotationHandler::class,
+            ResponseEmitterInterface::class => ResponseEmitter::class,
+        ]);
 
         AnnotationManager::addHandler([
             Controller::class,

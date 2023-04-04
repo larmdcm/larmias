@@ -7,6 +7,7 @@ namespace Larmias\Auth\Middleware;
 use Larmias\Auth\AuthManager;
 use Larmias\Auth\Facade\Auth;
 use Larmias\Contracts\ContainerInterface;
+use Larmias\Contracts\ContextInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -15,20 +16,17 @@ use Psr\Http\Server\RequestHandlerInterface;
 class AuthenticateMiddleware implements MiddlewareInterface
 {
     /**
-     * @var AuthManager
-     */
-    protected AuthManager $authManager;
-
-    /**
      * @var array|null[]
      */
     protected array $guards = [null];
 
     /**
      * @param ContainerInterface $container
+     * @param ContextInterface $context
      */
-    public function __construct(protected ContainerInterface $container)
+    public function __construct(protected ContainerInterface $container, protected ContextInterface $context)
     {
+        Auth::setContext($this->context);
     }
 
     /**
@@ -40,7 +38,6 @@ class AuthenticateMiddleware implements MiddlewareInterface
     {
         /** @var AuthManager $authManager */
         $authManager = $this->container->make(AuthManager::class, [], true);
-        $this->authManager = $authManager;
         Auth::setAuthManager($authManager);
         $this->authenticate($request, $this->guards);
         return $handler->handle($request);
@@ -54,7 +51,7 @@ class AuthenticateMiddleware implements MiddlewareInterface
     protected function authenticate(ServerRequestInterface $request, array $guards): void
     {
         foreach ($guards as $name) {
-            $guard = $this->authManager->guard($name);
+            $guard = Auth::guard($name);
             if ($guard->guest()) {
                 if ($identity = $guard->getAuthentication()->authenticate($request)) {
                     $guard->login($identity);

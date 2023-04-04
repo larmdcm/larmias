@@ -12,7 +12,7 @@ class BindParamException extends DBException
      * @param string $message
      * @param array $config
      * @param string $sql
-     * @param array $binds
+     * @param array $bindings
      * @param int $code
      * @param Throwable|null $previous
      */
@@ -20,7 +20,7 @@ class BindParamException extends DBException
         string          $message = "An exception occurred in the database.",
         array           $config = [],
         string          $sql = '',
-        protected array $binds = [],
+        protected array $bindings = [],
         int             $code = 10502,
         ?Throwable      $previous = null
     )
@@ -31,8 +31,8 @@ class BindParamException extends DBException
     /**
      * @return array
      */
-    public function getBinds(): array
+    public function getBindings(): array
     {
-        return $this->binds;
+        return $this->bindings;
     }
 }

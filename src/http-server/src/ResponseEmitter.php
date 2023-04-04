@@ -9,6 +9,7 @@ use Larmias\Contracts\Http\ResponseInterface;
 use Larmias\Utils\Helper;
 use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
 use Larmias\Contracts\Http\ResponseEmitterInterface;
+use function method_exists;
 
 class ResponseEmitter implements ResponseEmitterInterface
 {
@@ -24,7 +25,7 @@ class ResponseEmitter implements ResponseEmitterInterface
             return;
         }
 
-        if (\method_exists($response, 'getCookies')) {
+        if (method_exists($response, 'getCookies')) {
             foreach ($response->getCookies() as $paths) {
                 foreach ($paths ?? [] as $items) {
                     foreach ($items ?? [] as $cookie) {

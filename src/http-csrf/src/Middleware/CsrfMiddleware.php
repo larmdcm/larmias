@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Larmias\Http\CSRF\Middleware;
 
 use Larmias\Contracts\ConfigInterface;
+use Larmias\Contracts\ContainerInterface;
+use Larmias\Contracts\ContextInterface;
 use Larmias\Http\CSRF\Contracts\CsrfManagerInterface;
 use Larmias\Http\CSRF\Exceptions\TokenMismatchException;
 use Larmias\Http\Message\Cookie;
@@ -13,6 +15,13 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use function method_exists;
+use function array_merge;
+use function in_array;
+use function ltrim;
+use function hash_equals;
+use function time;
+use function strtolower;
 
 class CsrfMiddleware implements MiddlewareInterface
 {
@@ -22,11 +31,11 @@ class CsrfMiddleware implements MiddlewareInterface
     protected array $except = [];
 
     /**
-     * CsrfMiddleware constructor.
-     * @param CsrfManagerInterface $csrfManager
+     * @param ContainerInterface $container
+     * @param ContextInterface $context
      * @param ConfigInterface $config
      */
-    public function __construct(protected CsrfManagerInterface $csrfManager, protected ConfigInterface $config)
+    public function __construct(protected ContainerInterface $container, protected ContextInterface $context, protected ConfigInterface $config)
     {
     }
 
@@ -37,7 +46,7 @@ class CsrfMiddleware implements MiddlewareInterface
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $this->csrfManager->init();
+        $this->getCsrfManager()->init();
 
         if ($this->isReading($request) || $this->inExceptArray($request) || $this->tokensMatch($request)) {
             return $this->addCookieResponse($request, $handler->handle($request));
@@ -53,7 +62,7 @@ class CsrfMiddleware implements MiddlewareInterface
      */
     protected function isReading(ServerRequestInterface $request): bool
     {
-        return \in_array($request->getMethod(), ['HEAD', 'GET', 'OPTIONS'], true);
+        return in_array($request->getMethod(), ['HEAD', 'GET', 'OPTIONS'], true);
     }
 
     /**
@@ -65,7 +74,7 @@ class CsrfMiddleware implements MiddlewareInterface
         $fullUrl = (string)$request->getUri();
         $path = $request->getUri()->getPath();
         foreach ($this->except as $except) {
-            $except = '/' . \ltrim($except, '/');
+            $except = '/' . ltrim($except, '/');
             if (Str::is($except, $fullUrl) || Str::is($except, $path)) {
                 return true;
             }
@@ -79,23 +88,23 @@ class CsrfMiddleware implements MiddlewareInterface
      */
     protected function tokensMatch(ServerRequestInterface $request): bool
     {
-        if (\method_exists($request, 'input')) {
-            $token = $request->input($this->csrfManager->getTokenName());
+        if (method_exists($request, 'input')) {
+            $token = $request->input($this->getCsrfManager()->getTokenName());
         } else {
-            $inputData = \array_merge($request->getQueryParams(), (array)$request->getParsedBody());
-            $token = $inputData[$this->csrfManager->getTokenName()] ?? '';
+            $inputData = array_merge($request->getQueryParams(), (array)$request->getParsedBody());
+            $token = $inputData[$this->getCsrfManager()->getTokenName()] ?? '';
         }
 
         if (!$token) {
             $token = $request->getHeaderLine('X-CSRF-TOKEN');
         }
 
-        $sessionToken = $this->csrfManager->getToken();
+        $sessionToken = $this->getCsrfManager()->getToken();
         if (!$sessionToken || !$token) {
             return false;
         }
 
-        return \hash_equals($sessionToken, $token);
+        return hash_equals($sessionToken, $token);
     }
 
     /**
@@ -104,7 +113,7 @@ class CsrfMiddleware implements MiddlewareInterface
     protected function getCookieExpire(): int
     {
         $lifeTime = $this->config->get('session.cookie_lifetime', 0);
-        return $lifeTime > 0 ? \time() + $lifeTime : 0;
+        return $lifeTime > 0 ? time() + $lifeTime : 0;
     }
 
     /**
@@ -114,18 +123,28 @@ class CsrfMiddleware implements MiddlewareInterface
      */
     protected function addCookieResponse(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
-        $token = $this->csrfManager->getToken();
+        $token = $this->getCsrfManager()->getToken();
         if (!$token) {
             return $response;
         }
         $uri = $request->getUri();
         $path = '/';
-        $secure = \strtolower($uri->getScheme()) === 'https';
+        $secure = strtolower($uri->getScheme()) === 'https';
         $domain = $this->config->get('session.domain') ?: $uri->getHost();
         $cookie = new Cookie('XSRF-TOKEN', $token, $this->getCookieExpire(), $path, $domain, $secure);
-        if (!\method_exists($response, 'withCookie')) {
+        if (!method_exists($response, 'withCookie')) {
             return $response->withHeader('Set-Cookie', (string)$cookie);
         }
         return $response->withCookie($cookie);
+    }
+
+    /**
+     * @return CsrfManagerInterface
+     */
+    protected function getCsrfManager(): CsrfManagerInterface
+    {
+        return $this->context->remember(CsrfManagerInterface::class, function () {
+            return $this->container->make(CsrfManagerInterface::class, [], true);
+        });
     }
 }

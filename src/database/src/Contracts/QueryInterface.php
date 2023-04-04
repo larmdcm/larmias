@@ -60,10 +60,10 @@ interface QueryInterface
 
     /**
      * @param string $field
-     * @param array $binds
+     * @param array $bindings
      * @return QueryInterface
      */
-    public function fieldRaw(string $field, array $binds = []): QueryInterface;
+    public function fieldRaw(string $field, array $bindings = []): QueryInterface;
 
     /**
      * @param string|array|ExpressionInterface $field
@@ -212,10 +212,10 @@ interface QueryInterface
 
     /**
      * @param string $expression
-     * @param array $binds
+     * @param array $bindings
      * @return QueryInterface
      */
-    public function groupByRaw(string $expression, array $binds = []): QueryInterface;
+    public function groupByRaw(string $expression, array $bindings = []): QueryInterface;
 
     /**
      * @param array|string $field
@@ -226,24 +226,24 @@ interface QueryInterface
 
     /**
      * @param string $raw
-     * @param array $binds
+     * @param array $bindings
      * @return QueryInterface
      */
-    public function orderByRaw(string $raw, array $binds = []): QueryInterface;
+    public function orderByRaw(string $raw, array $bindings = []): QueryInterface;
 
     /**
      * @param string $having
-     * @param array $binds
+     * @param array $bindings
      * @return QueryInterface
      */
-    public function having(string $having, array $binds = []): QueryInterface;
+    public function having(string $having, array $bindings = []): QueryInterface;
 
     /**
      * @param string $having
-     * @param array $binds
+     * @param array $bindings
      * @return QueryInterface
      */
-    public function orHaving(string $having, array $binds = []): QueryInterface;
+    public function orHaving(string $having, array $bindings = []): QueryInterface;
 
     /**
      * @param int $offset

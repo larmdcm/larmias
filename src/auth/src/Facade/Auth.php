@@ -7,6 +7,7 @@ namespace Larmias\Auth\Facade;
 use Larmias\Auth\AuthManager;
 use Larmias\Contracts\Auth\GuardInterface;
 use Larmias\Contracts\Auth\IdentityInterface;
+use Larmias\Contracts\ContextInterface;
 
 /**
  * @method static bool attempt(array $params)
@@ -22,9 +23,18 @@ use Larmias\Contracts\Auth\IdentityInterface;
 class Auth
 {
     /**
-     * @var AuthManager
+     * @var ContextInterface
      */
-    protected static AuthManager $authManager;
+    protected static ContextInterface $context;
+
+    /**
+     * @param ContextInterface $context
+     * @return void
+     */
+    public static function setContext(ContextInterface $context): void
+    {
+        static::$context = $context;
+    }
 
     /**
      * @param AuthManager $authManager
@@ -32,7 +42,7 @@ class Auth
      */
     public static function setAuthManager(AuthManager $authManager): void
     {
-        static::$authManager = $authManager;
+        static::$context->set(static::getContextKey(), $authManager);
     }
 
     /**
@@ -41,7 +51,15 @@ class Auth
      */
     public static function guard(?string $name = null): GuardInterface
     {
-        return static::$authManager->guard($name);
+        return static::$context->get(static::getContextKey())->guard($name);
+    }
+
+    /**
+     * @return string
+     */
+    public static function getContextKey(): string
+    {
+        return 'auth.authManager';
     }
 
     /**

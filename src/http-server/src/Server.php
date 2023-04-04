@@ -8,6 +8,7 @@ use Larmias\Contracts\ConfigInterface;
 use Larmias\Contracts\ContextInterface;
 use Larmias\Contracts\Http\OnRequestInterface;
 use Larmias\Contracts\Http\RequestInterface as HttpRequestInterface;
+use Larmias\Contracts\Http\ResponseEmitterInterface;
 use Larmias\Contracts\Http\ResponseInterface as HttpResponseInterface;
 use Larmias\Http\Message\ServerRequest;
 use Larmias\HttpServer\Events\HttpRequestStart;
@@ -28,8 +29,10 @@ use Larmias\Routing\Dispatched;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Throwable;
+use Stringable;
 use function Larmias\Utils\println;
 use function Larmias\Utils\format_exception;
+use function is_scalar;
 
 class Server implements OnRequestInterface
 {
@@ -44,7 +47,7 @@ class Server implements OnRequestInterface
     public function __construct(
         protected ContainerInterface       $container,
         protected EventDispatcherInterface $eventDispatcher,
-        protected ResponseEmitter          $responseEmitter,
+        protected ResponseEmitterInterface $responseEmitter,
         protected HttpCoreMiddleware       $httpCoreMiddleware,
         protected ContextInterface         $context,
         protected ConfigInterface          $config
@@ -114,7 +117,7 @@ class Server implements OnRequestInterface
         }
         /** @var ResponseInterface $response */
         $response = $this->context->get(ResponseInterface::class);
-        return \is_scalar($result) || $result instanceof \Stringable ? $response->html((string)$result) : $response->json($result);
+        return is_scalar($result) || $result instanceof Stringable ? $response->html((string)$result) : $response->json($result);
     }
 
     /**

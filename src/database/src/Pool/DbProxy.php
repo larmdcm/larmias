@@ -10,6 +10,7 @@ use Larmias\Database\Contracts\ConnectionInterface;
 use Larmias\Database\Connections\Connection;
 use Larmias\Database\Contracts\ExecuteResultInterface;
 use Larmias\Database\Contracts\TransactionInterface;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Throwable;
 use Closure;
 
@@ -26,7 +27,14 @@ class DbProxy implements ConnectionInterface
     protected ContextInterface $context;
 
     /**
+     * @var EventDispatcherInterface
+     */
+    protected EventDispatcherInterface $eventDispatcher;
+
+    /**
+     * @param ContainerInterface $container
      * @param array $config
+     * @throws Throwable
      */
     public function __construct(ContainerInterface $container, protected array $config)
     {
@@ -60,30 +68,30 @@ class DbProxy implements ConnectionInterface
 
     /**
      * @param string $sql
-     * @param array $binds
+     * @param array $bindings
      * @return ExecuteResultInterface
      */
-    public function execute(string $sql, array $binds = []): ExecuteResultInterface
+    public function execute(string $sql, array $bindings = []): ExecuteResultInterface
     {
         return $this->call(__FUNCTION__, func_get_args());
     }
 
     /**
      * @param string $sql
-     * @param array $binds
+     * @param array $bindings
      * @return ExecuteResultInterface
      */
-    public function query(string $sql, array $binds = []): ExecuteResultInterface
+    public function query(string $sql, array $bindings = []): ExecuteResultInterface
     {
         return $this->call(__FUNCTION__, func_get_args());
     }
 
     /**
      * @param string $sql
-     * @param array $binds
+     * @param array $bindings
      * @return string
      */
-    public function buildSql(string $sql, array $binds = []): string
+    public function buildSql(string $sql, array $bindings = []): string
     {
         return $this->call(__FUNCTION__, func_get_args());
     }
@@ -176,6 +184,9 @@ class DbProxy implements ConnectionInterface
         if ($reuse) {
             $this->context->set($contextKey, $connection);
         }
+
+        $connection->setEventDispatcher($this->getEventDispatcher());
+
         return $connection;
     }
 
@@ -193,5 +204,22 @@ class DbProxy implements ConnectionInterface
     public function getTransactionContextKey(): string
     {
         return 'db.transactions.' . $this->config['name'];
+    }
+
+    /**
+     * @return EventDispatcherInterface
+     */
+    public function getEventDispatcher(): EventDispatcherInterface
+    {
+        return $this->eventDispatcher;
+    }
+
+    /**
+     * @param EventDispatcherInterface $eventDispatcher
+     * @return void
+     */
+    public function setEventDispatcher(EventDispatcherInterface $eventDispatcher): void
+    {
+        $this->eventDispatcher = $eventDispatcher;
     }
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Larmias\Database\Contracts;
 
 use Closure;
+use Psr\EventDispatcher\EventDispatcherInterface;
 
 interface ConnectionInterface
 {
@@ -42,26 +43,26 @@ interface ConnectionInterface
     /**
      * 查询
      * @param string $sql
-     * @param array $binds
+     * @param array $bindings
      * @return ExecuteResultInterface
      */
-    public function execute(string $sql, array $binds = []): ExecuteResultInterface;
+    public function execute(string $sql, array $bindings = []): ExecuteResultInterface;
 
     /**
      * 查询结果集
      * @param string $sql
-     * @param array $binds
+     * @param array $bindings
      * @return ExecuteResultInterface
      */
-    public function query(string $sql, array $binds = []): ExecuteResultInterface;
+    public function query(string $sql, array $bindings = []): ExecuteResultInterface;
 
     /**
      * 构建sql
      * @param string $sql
-     * @param array $binds
+     * @param array $bindings
      * @return string
      */
-    public function buildSql(string $sql, array $binds = []): string;
+    public function buildSql(string $sql, array $bindings = []): string;
 
     /**
      * 获取配置
@@ -70,4 +71,15 @@ interface ConnectionInterface
      * @return mixed
      */
     public function getConfig(?string $name = null, mixed $default = null): mixed;
+
+    /**
+     * @return EventDispatcherInterface
+     */
+    public function getEventDispatcher(): EventDispatcherInterface;
+
+    /**
+     * @param EventDispatcherInterface $eventDispatcher
+     * @return void
+     */
+    public function setEventDispatcher(EventDispatcherInterface $eventDispatcher): void;
 }

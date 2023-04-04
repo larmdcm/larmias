@@ -61,7 +61,6 @@ class Router implements RouterInterface
      */
     protected array $queue = [];
 
-
     /**
      * RouterAbstract __construct.
      *

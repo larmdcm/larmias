@@ -9,6 +9,7 @@ use Larmias\Contracts\Auth\GuardInterface;
 use Larmias\Contracts\Auth\IdentityInterface;
 use Larmias\Contracts\Auth\IdentityRepositoryInterface;
 use Larmias\Contracts\ContainerInterface;
+use function method_exists;
 
 abstract class Guard implements GuardInterface
 {
@@ -27,11 +28,13 @@ abstract class Guard implements GuardInterface
      * @param IdentityRepositoryInterface $repository
      * @param AuthenticationInterface $authentication
      */
-    public function __construct(protected ContainerInterface          $container,
-                                protected IdentityRepositoryInterface $repository,
-                                protected AuthenticationInterface     $authentication)
+    public function __construct(
+        protected ContainerInterface          $container,
+        protected IdentityRepositoryInterface $repository,
+        protected AuthenticationInterface     $authentication,
+    )
     {
-        if (\method_exists($this, 'initialize')) {
+        if (method_exists($this, 'initialize')) {
             $this->container->invoke([$this, 'initialize']);
         }
     }

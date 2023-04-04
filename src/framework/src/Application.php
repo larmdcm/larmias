@@ -189,7 +189,9 @@ class Application implements ApplicationInterface
         if (isset($this->providers[$provider]) && !$force) {
             return $this;
         }
+
         $this->providers[$provider] = $provider;
+        
         return $this;
     }
 
@@ -202,9 +204,11 @@ class Application implements ApplicationInterface
         if (!isset($this->providers[$provider])) {
             return null;
         }
+
         if (!is_object($this->providers[$provider])) {
             $this->providers[$provider] = $this->container->get($this->providers[$provider]);
         }
+        
         return $this->providers[$provider];
     }
 

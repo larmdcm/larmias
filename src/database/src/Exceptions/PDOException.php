@@ -15,6 +15,7 @@ class PDOException extends DBException
 
     /**
      * @param \PDOException $PDOException
+     * @param array $config
      * @param string $sql
      * @param int $code
      * @param Throwable|null $previous

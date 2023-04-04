@@ -10,9 +10,9 @@ class SqlPrepare implements SqlPrepareInterface
 {
     /**
      * @param string $sql
-     * @param array $binds
+     * @param array $bindings
      */
-    public function __construct(protected string $sql = '', protected array $binds = [])
+    public function __construct(protected string $sql = '', protected array $bindings = [])
     {
     }
 
@@ -36,17 +36,17 @@ class SqlPrepare implements SqlPrepareInterface
     /**
      * @return array
      */
-    public function getBinds(): array
+    public function getBindings(): array
     {
-        return $this->binds;
+        return $this->bindings;
     }
 
     /**
-     * @param array $binds
+     * @param array $bindings
      */
-    public function setBinds(array $binds): SqlPrepare
+    public function setBindings(array $bindings): SqlPrepare
     {
-        $this->binds = $binds;
+        $this->bindings = $bindings;
         return $this;
     }
 }

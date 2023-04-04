@@ -8,6 +8,7 @@ use Larmias\Database\Connections\Transaction\PDOTransaction;
 use Larmias\Database\Contracts\ExecuteResultInterface;
 use Larmias\Database\Contracts\TransactionInterface;
 use Larmias\Database\Entity\ExecuteResult;
+use Larmias\Database\Events\QueryExecuted;
 use Larmias\Database\Exceptions\BindParamException;
 use Larmias\Database\Exceptions\PDOException;
 use PDO;
@@ -70,17 +71,17 @@ abstract class PDOConnection extends Connection
 
     /**
      * @param string $sql
-     * @param array $binds
+     * @param array $bindings
      * @return ExecuteResultInterface
      * @throws Throwable
      */
-    public function execute(string $sql, array $binds = []): ExecuteResultInterface
+    public function execute(string $sql, array $bindings = []): ExecuteResultInterface
     {
-        $statement = $this->executeStatement($sql, $binds);
+        $statement = $this->executeStatement($sql, $bindings);
 
         return new ExecuteResult(
             executeSql: $this->executeSql,
-            executeBinds: $this->executeBinds,
+            executeBindings: $this->executeBindings,
             executeTime: $this->executeTime,
             rowCount: $statement->rowCount(),
             insertId: $this->isInsertSql($sql) ? $this->getLastInsertId() : null,
@@ -89,16 +90,16 @@ abstract class PDOConnection extends Connection
 
     /**
      * @param string $sql
-     * @param array $binds
+     * @param array $bindings
      * @return ExecuteResultInterface
      * @throws Throwable
      */
-    public function query(string $sql, array $binds = []): ExecuteResultInterface
+    public function query(string $sql, array $bindings = []): ExecuteResultInterface
     {
-        $statement = $this->executeStatement($sql, $binds);
+        $statement = $this->executeStatement($sql, $bindings);
         return new ExecuteResult(
             executeSql: $this->executeSql,
-            executeBinds: $this->executeBinds,
+            executeBindings: $this->executeBindings,
             executeTime: $this->executeTime,
             resultSet: $statement->fetchAll(PDO::FETCH_ASSOC),
         );
@@ -107,24 +108,26 @@ abstract class PDOConnection extends Connection
     /**
      * 执行预处理
      * @param string $sql
-     * @param array $binds
+     * @param array $bindings
      * @return PDOStatement
      * @throws Throwable
      */
-    public function executeStatement(string $sql, array $binds = []): PDOStatement
+    public function executeStatement(string $sql, array $bindings = []): PDOStatement
     {
         try {
             $beginTime = microtime(true);
             $this->executeSql = $sql;
-            $this->executeBinds = $binds;
+            $this->executeBindings = $bindings;
             $prepare = $this->pdo->prepare($sql);
-            if (!empty($binds)) {
-                $prepare = $this->bindValue($prepare, $binds);
+            if (!empty($bindings)) {
+                $prepare = $this->bindValue($prepare, $bindings);
             }
 
             $prepare->execute();
 
             $this->executeTime = round((microtime(true) - $beginTime) * 1000, 2);
+
+            $this->eventDispatcher->dispatch(new QueryExecuted($this->executeSql, $this->executeBindings, $this->executeTime));
 
             return $prepare;
         } catch (\PDOException $e) {
@@ -135,12 +138,12 @@ abstract class PDOConnection extends Connection
     /**
      * 绑定参数
      * @param PDOStatement $statement
-     * @param array $binds
+     * @param array $bindings
      * @return PDOStatement
      */
-    public function bindValue(PDOStatement $statement, array $binds = []): PDOStatement
+    public function bindValue(PDOStatement $statement, array $bindings = []): PDOStatement
     {
-        foreach ($binds as $key => $value) {
+        foreach ($bindings as $key => $value) {
             $param = is_numeric($key) ? $key + 1 : ':' . $key;
             $type = PDO::PARAM_STR;
             if (is_array($value)) {
@@ -155,7 +158,7 @@ abstract class PDOConnection extends Connection
             if (!$result) {
                 throw new BindParamException(sprintf(
                     'Error occurred  when binding parameters type: %d,param:%s,value:%s', $type, $param, $value
-                ), $this->config, $this->executeSql, $binds);
+                ), $this->config, $this->executeSql, $bindings);
             }
         }
 
@@ -164,12 +167,12 @@ abstract class PDOConnection extends Connection
 
     /**
      * @param string $sql
-     * @param array $binds
+     * @param array $bindings
      * @return string
      */
-    public function buildSql(string $sql, array $binds = []): string
+    public function buildSql(string $sql, array $bindings = []): string
     {
-        foreach ($binds as $key => $value) {
+        foreach ($bindings as $key => $value) {
             $type = PDO::PARAM_STR;
             if (is_array($value)) {
                 $type = $value[1] ?? PDO::PARAM_STR;
@@ -289,7 +292,7 @@ abstract class PDOConnection extends Connection
         unset($this->pdo);
         return true;
     }
-    
+
     /**
      * @return PDO
      */

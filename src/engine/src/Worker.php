@@ -25,6 +25,7 @@ use function is_callable;
 use function array_merge;
 use function call_user_func;
 use function call_user_func_array;
+use function array_filter;
 
 abstract class Worker implements WorkerInterface
 {
@@ -103,7 +104,7 @@ abstract class Worker implements WorkerInterface
             Context::class => ContextInterface::class,
         ];
 
-        $this->container->bind(\array_filter($bind, fn($value) => !empty($value)));
+        $this->container->bind(array_filter($bind, fn($value) => !empty($value)));
 
         Coroutine::init($this->kernel->getDriver()->getCoroutineClass());
         Channel::init($this->kernel->getDriver()->getChannelClass());

@@ -6,6 +6,8 @@ namespace Larmias\Cache\Driver;
 
 use Larmias\Contracts\Redis\ConnectionInterface;
 use Larmias\Contracts\Redis\RedisFactoryInterface;
+use function is_callable;
+use function is_null;
 
 /**
  * @property ConnectionInterface $handler
@@ -28,7 +30,7 @@ class Redis extends Driver
 
     public function initialize(): void
     {
-        if (\is_callable($this->config['handler'])) {
+        if (is_callable($this->config['handler'])) {
             $this->handler = $this->container->invoke($this->config['handler']);
         } else {
             /** @var RedisFactoryInterface $factory */
@@ -40,7 +42,7 @@ class Redis extends Driver
     public function get($key, $default = null): mixed
     {
         $value = $this->handler->get($key);
-        if ($value === false || \is_null($value)) {
+        if ($value === false || is_null($value)) {
             return $default;
         }
         return $this->packer->unpack($value);
@@ -48,7 +50,7 @@ class Redis extends Driver
 
     public function set($key, $value, $ttl = null): bool
     {
-        if (\is_null($ttl)) {
+        if (is_null($ttl)) {
             $ttl = $this->config['expire'];
         }
         $key = $this->getCacheKey($key);

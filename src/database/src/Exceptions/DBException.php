@@ -11,6 +11,7 @@ class DBException extends RuntimeException
 {
     /**
      * @param string $message
+     * @param array $config
      * @param string $sql
      * @param int $code
      * @param Throwable|null $previous

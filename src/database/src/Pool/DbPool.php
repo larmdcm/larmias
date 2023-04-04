@@ -15,6 +15,7 @@ use function class_exists;
 class DbPool extends Pool
 {
     /**
+     * @param ContainerInterface $container
      * @param array $options
      * @param array $config
      */

@@ -114,12 +114,12 @@ class Builder implements QueryInterface
 
     /**
      * @param string $field
-     * @param array $binds
+     * @param array $bindings
      * @return QueryInterface
      */
-    public function fieldRaw(string $field, array $binds = []): QueryInterface
+    public function fieldRaw(string $field, array $bindings = []): QueryInterface
     {
-        $this->options['field'][] = new Expression($field, $binds);
+        $this->options['field'][] = new Expression($field, $bindings);
         return $this;
     }
 
@@ -164,12 +164,12 @@ class Builder implements QueryInterface
 
     /**
      * @param string $expression
-     * @param array $binds
+     * @param array $bindings
      * @return QueryInterface
      */
-    public function groupByRaw(string $expression, array $binds = []): QueryInterface
+    public function groupByRaw(string $expression, array $bindings = []): QueryInterface
     {
-        $this->options['group'][] = new Expression($expression, $binds);
+        $this->options['group'][] = new Expression($expression, $bindings);
         return $this;
     }
 
@@ -198,34 +198,34 @@ class Builder implements QueryInterface
 
     /**
      * @param string $raw
-     * @param array $binds
+     * @param array $bindings
      * @return QueryInterface
      */
-    public function orderByRaw(string $raw, array $binds = []): QueryInterface
+    public function orderByRaw(string $raw, array $bindings = []): QueryInterface
     {
-        $this->options['order'][] = new Expression($raw, $binds);
+        $this->options['order'][] = new Expression($raw, $bindings);
         return $this;
     }
 
     /**
      * @param string $having
-     * @param array $binds
+     * @param array $bindings
      * @return QueryInterface
      */
-    public function having(string $having, array $binds = []): QueryInterface
+    public function having(string $having, array $bindings = []): QueryInterface
     {
-        $this->options['having']['AND'][] = new Expression($having, $binds);
+        $this->options['having']['AND'][] = new Expression($having, $bindings);
         return $this;
     }
 
     /**
      * @param string $having
-     * @param array $binds
+     * @param array $bindings
      * @return QueryInterface
      */
-    public function orHaving(string $having, array $binds = []): QueryInterface
+    public function orHaving(string $having, array $bindings = []): QueryInterface
     {
-        $this->options['having']['OR'][] = new Expression($having, $binds);
+        $this->options['having']['OR'][] = new Expression($having, $bindings);
         return $this;
     }
 
@@ -262,7 +262,7 @@ class Builder implements QueryInterface
             self::BUILD_SQL_DELETE => $this->builder->delete($this->getOptions()),
             default => $this->builder->select($this->getOptions())
         };
-        return $this->connection->buildSql($sqlPrepare->getSql(), $sqlPrepare->getBinds());
+        return $this->connection->buildSql($sqlPrepare->getSql(), $sqlPrepare->getBindings());
     }
 
     /**
@@ -281,7 +281,7 @@ class Builder implements QueryInterface
         }
         $options = $this->getOptions();
         $sqlPrepare = $this->builder->{$method}($options);
-        return $this->connection->execute($sqlPrepare->getSql(), $sqlPrepare->getBinds());
+        return $this->connection->execute($sqlPrepare->getSql(), $sqlPrepare->getBindings());
     }
 
     /**
@@ -336,7 +336,7 @@ class Builder implements QueryInterface
     public function get(): CollectionInterface
     {
         $sqlPrepare = $this->builder->select($this->getOptions());
-        $items = $this->connection->query($sqlPrepare->getSql(), $sqlPrepare->getBinds())->getResultSet();
+        $items = $this->connection->query($sqlPrepare->getSql(), $sqlPrepare->getBindings())->getResultSet();
         return Collection::make($items);
     }
 

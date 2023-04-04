@@ -57,7 +57,7 @@ abstract class Builder implements BuilderInterface
     /**
      * @var array
      */
-    protected array $binds = [];
+    protected array $bindings = [];
 
     /**
      * @param ConnectionInterface $connection
@@ -73,9 +73,9 @@ abstract class Builder implements BuilderInterface
     public function bind(mixed $value): void
     {
         if (is_array($value)) {
-            $this->binds = array_merge($this->binds, $value);
+            $this->bindings = array_merge($this->bindings, $value);
         } else {
-            $this->binds[] = $value;
+            $this->bindings[] = $value;
         }
     }
 
@@ -201,8 +201,8 @@ abstract class Builder implements BuilderInterface
      */
     public function createSqlPrepare(string $sql): SqlPrepareInterface
     {
-        $sqlPrepare = new SqlPrepare($sql, $this->binds);
-        $this->binds = [];
+        $sqlPrepare = new SqlPrepare($sql, $this->bindings);
+        $this->bindings = [];
         return $sqlPrepare;
     }
 
@@ -397,7 +397,7 @@ abstract class Builder implements BuilderInterface
         }
 
         if ($where instanceof ExpressionInterface) {
-            $this->bind($where->getBinds());
+            $this->bind($where->getBindings());
             return $where->getValue();
         }
 
@@ -544,7 +544,7 @@ abstract class Builder implements BuilderInterface
      */
     public function parseExpression(ExpressionInterface $expression): string
     {
-        $this->bind($expression->getBinds());
+        $this->bind($expression->getBindings());
         return $expression->getValue();
     }
 

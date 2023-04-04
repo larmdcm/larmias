@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Larmias\Auth;
 
 use Larmias\Auth\Authentication\SessionAuthentication;
+use Larmias\Auth\Authentication\TokenAuthentication;
 use Larmias\Auth\Guard\SessionGuard;
+use Larmias\Auth\Guard\TokenGuard;
 use Larmias\Contracts\Auth\GuardInterface;
 use Larmias\Contracts\ConfigInterface;
 use Larmias\Contracts\ContainerInterface;
@@ -22,7 +24,12 @@ class AuthManager
                 'driver' => SessionGuard::class,
                 'repository' => null,
                 'authentication' => SessionAuthentication::class
-            ]
+            ],
+            'api' => [
+                'driver' => TokenGuard::class,
+                'repository' => null,
+                'authentication' => TokenAuthentication::class
+            ],
         ]
     ];
 

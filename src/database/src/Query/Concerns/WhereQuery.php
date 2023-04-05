@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\Database\Query\Concerns;
 
+use Larmias\Database\Entity\Expression;
 use Larmias\Database\Query\Builder;
 use Larmias\Database\Contracts\QueryInterface;
 use Larmias\Database\Contracts\ExpressionInterface;
@@ -51,6 +52,16 @@ trait WhereQuery
     public function orWhere(mixed $field, mixed $op = null, mixed $value = null): QueryInterface
     {
         return $this->where($field, $op, $value, 'OR');
+    }
+
+    /**
+     * @param string $expression
+     * @param array $bindings
+     * @return QueryInterface
+     */
+    public function whereRaw(string $expression, array $bindings = []): QueryInterface
+    {
+        return $this->where(new Expression($expression, $bindings));
     }
 
     /**

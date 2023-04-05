@@ -124,20 +124,11 @@ abstract class Builder implements BuilderInterface
      */
     public function update(array $options): SqlPrepareInterface
     {
-        $data = $options['data'];
-        $fields = array_keys($data);
-        $this->bind(array_values($data));
-
-        $where = $this->parseWhere($options['where']);
-        if (empty($where)) {
-            throw new QueryException('UPDATE 语句缺少更新条件');
-        }
-
         $sql = str_replace(['<TABLE>', '<SET>', '<JOIN>', '<WHERE>', '<ORDER>', '<LIMIT>'], [
             $this->parseTable($options['table']),
-            implode(',', array_map(fn($field) => $this->escape($field) . ' = ?', $fields)),
+            $this->parseUpdateSet($options['data'], $options['incr']),
             $this->parseJoin($options['join'], $options['alias']),
-            $where,
+            $this->parseWhere($options['where']),
             $this->parseOrder($options['order']),
             $this->parseLimit($options['limit']),
         ], $this->updateSql);
@@ -151,14 +142,10 @@ abstract class Builder implements BuilderInterface
      */
     public function delete(array $options): SqlPrepareInterface
     {
-        $where = $this->parseWhere($options['where']);
-        if (empty($where)) {
-            throw new QueryException('DELETE 语句缺少更新条件');
-        }
         $sql = str_replace(['<TABLE>', '<JOIN>', '<WHERE>', '<ORDER>', '<LIMIT>'], [
             $this->parseTable($options['table']),
             $this->parseJoin($options['join'], $options['alias']),
-            $where,
+            $this->parseWhere($options['where']),
             $this->parseOrder($options['order']),
             $this->parseLimit($options['limit']),
         ], $this->deleteSql);
@@ -253,6 +240,28 @@ abstract class Builder implements BuilderInterface
         }
 
         return $this->buildAlias($table, $alias[$table] ?? '');
+    }
+
+    /**
+     * @param array $data
+     * @param array $incr
+     * @return string
+     */
+    public function parseUpdateSet(array $data, array $incr): string
+    {
+        $fields = array_keys($data);
+        $this->bind(array_values($data));
+        $set = array_map(fn($field) => $this->escape($field) . ' = ?', $fields);
+        foreach ($incr as $item) {
+            [$field, $value] = $item;
+            if ($value != 0) {
+                $field = $this->escape($field);
+                $set[] = sprintf('%s = %s %s ?', $field, $field, $value > 0 ? '+' : '-');
+                $this->bind(abs($value));
+            }
+        }
+
+        return implode(',', $set);
     }
 
     /**
@@ -416,6 +425,11 @@ abstract class Builder implements BuilderInterface
     {
         [$field, $op, $value] = $where;
 
+        if ($value === null) {
+            $value = $op;
+            $op = '=';
+        }
+
         $field = $this->escape($field);
         $op = $this->optimizeOp($op, $value);
 
@@ -440,7 +454,7 @@ abstract class Builder implements BuilderInterface
                 return $this->parseWhereColumn($field, $value);
             default:
                 $this->bind($value);
-                return sprintf('%s %s ?', $this->escape($field), $op);
+                return sprintf('%s %s ?', $field, $op);
         }
     }
 

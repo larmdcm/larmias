@@ -24,6 +24,7 @@ use function strlen;
 use function microtime;
 use function round;
 use function str_starts_with;
+use function number_format;
 
 abstract class PDOConnection extends Connection
 {
@@ -125,7 +126,7 @@ abstract class PDOConnection extends Connection
 
             $prepare->execute();
 
-            $this->executeTime = round((microtime(true) - $beginTime) * 1000, 2);
+            $this->executeTime = (float)number_format((microtime(true) - $beginTime), 6);
 
             $this->eventDispatcher->dispatch(new QueryExecuted($this->executeSql, $this->executeBindings, $this->executeTime));
 

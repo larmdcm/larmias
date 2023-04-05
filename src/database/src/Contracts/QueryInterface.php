@@ -89,6 +89,13 @@ interface QueryInterface
     public function orWhere(mixed $field, mixed $op = null, mixed $value = null): QueryInterface;
 
     /**
+     * @param string $expression
+     * @param array $bindings
+     * @return QueryInterface
+     */
+    public function whereRaw(string $expression, array $bindings = []): QueryInterface;
+
+    /**
      * @param string $field
      * @param string $logic
      * @return QueryInterface
@@ -225,25 +232,25 @@ interface QueryInterface
     public function orderBy(array|string $field, string $order = ''): QueryInterface;
 
     /**
-     * @param string $raw
+     * @param string $expression
      * @param array $bindings
      * @return QueryInterface
      */
-    public function orderByRaw(string $raw, array $bindings = []): QueryInterface;
+    public function orderByRaw(string $expression, array $bindings = []): QueryInterface;
 
     /**
-     * @param string $having
+     * @param string $expression
      * @param array $bindings
      * @return QueryInterface
      */
-    public function having(string $having, array $bindings = []): QueryInterface;
+    public function having(string $expression, array $bindings = []): QueryInterface;
 
     /**
-     * @param string $having
+     * @param string $expression
      * @param array $bindings
      * @return QueryInterface
      */
-    public function orHaving(string $having, array $bindings = []): QueryInterface;
+    public function orHaving(string $expression, array $bindings = []): QueryInterface;
 
     /**
      * @param int $offset
@@ -256,6 +263,20 @@ interface QueryInterface
      * @return QueryInterface
      */
     public function limit(int $limit): QueryInterface;
+
+    /**
+     * @param string $field
+     * @param float $step
+     * @return QueryInterface
+     */
+    public function incr(string $field, float $step = 1.0): QueryInterface;
+
+    /**
+     * @param string $field
+     * @param float $step
+     * @return QueryInterface
+     */
+    public function decr(string $field, float $step = 1.0): QueryInterface;
 
     /**
      * @param string $field

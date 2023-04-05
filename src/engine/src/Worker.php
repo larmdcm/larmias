@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Larmias\Engine;
 
 use Larmias\Contracts\ContextInterface;
+use Larmias\Contracts\Coroutine\ChannelFactoryInterface;
+use Larmias\Contracts\Coroutine\CoroutineFactoryInterface;
 use Larmias\Contracts\EventLoopInterface;
 use Larmias\Contracts\SignalInterface;
 use Larmias\Contracts\TimerInterface;
@@ -15,6 +17,8 @@ use Larmias\Engine\Contracts\WorkerConfigInterface;
 use Larmias\Engine\Contracts\WorkerInterface;
 use Larmias\Contracts\ContainerInterface;
 use Larmias\Engine\Coroutine\Channel;
+use Larmias\Engine\Factory\ChannelFactory;
+use Larmias\Engine\Factory\CoroutineFactory;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use function Larmias\Utils\data_get;
@@ -95,6 +99,8 @@ abstract class Worker implements WorkerInterface
             ContextInterface::class => $this->kernel->getDriver()->getContextClass(),
             WorkerInterface::class => $this,
             \Larmias\Contracts\Worker\WorkerInterface::class => $this,
+            ChannelFactoryInterface::class => ChannelFactory::class,
+            CoroutineFactoryInterface::class => CoroutineFactory::class,
         ];
 
         $init = [
@@ -104,7 +110,7 @@ abstract class Worker implements WorkerInterface
             Context::class => ContextInterface::class,
         ];
 
-        $this->container->bind(array_filter($bind, fn($value) => !empty($value)));
+        $this->container->bind($bind);
 
         Coroutine::init($this->kernel->getDriver()->getCoroutineClass());
         Channel::init($this->kernel->getDriver()->getChannelClass());

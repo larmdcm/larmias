@@ -74,6 +74,7 @@ abstract class Pool implements PoolInterface
     ];
 
     /**
+     * @param ContainerInterface $container
      * @param array $options
      */
     public function __construct(protected ContainerInterface $container, array $options = [])

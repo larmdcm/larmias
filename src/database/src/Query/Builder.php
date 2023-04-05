@@ -250,6 +250,27 @@ class Builder implements QueryInterface
     }
 
     /**
+     * @param string $field
+     * @param float $step
+     * @return QueryInterface
+     */
+    public function incr(string $field, float $step = 1.0): QueryInterface
+    {
+        $this->options['incr'][] = [$field, $step];
+        return $this;
+    }
+
+    /**
+     * @param string $field
+     * @param float $step
+     * @return QueryInterface
+     */
+    public function decr(string $field, float $step = 1.0): QueryInterface
+    {
+        return $this->incr($field, -$step);
+    }
+
+    /**
      * @param int $buildType
      * @return string
      */

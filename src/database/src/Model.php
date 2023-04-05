@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace Larmias\Database;
 
+use Larmias\Database\Contracts\ExpressionInterface;
 use Larmias\Database\Contracts\ManagerInterface;
 use Larmias\Database\Contracts\QueryInterface;
+use Larmias\Database\Contracts\TransactionInterface;
+use Larmias\Database\Model\Collection;
 use Larmias\Database\Model\Concerns\Attribute;
 use Larmias\Database\Model\Concerns\Conversion;
 use Larmias\Database\Model\Concerns\Timestamp;
@@ -17,6 +20,59 @@ use Stringable;
 use JsonSerializable;
 use function Larmias\Utils\class_basename;
 
+
+/**
+ * @method self table(string $name)
+ * @method string getTable()
+ * @method self alias(string|array $name)
+ * @method self name(string $name)
+ * @method self fieldRaw(string $field, array $bindings = [])
+ * @method self field(string|array|ExpressionInterface $field)
+ * @method self where(mixed $field, mixed $op = null, mixed $value = null, string $logic = 'AND')
+ * @method self orWhere(mixed $field, mixed $op = null, mixed $value = null)
+ * @method self whereRaw(string $expression, array $bindings = [])
+ * @method self whereNull(string $field, string $logic = 'AND')
+ * @method self whereNotNull(string $field, string $logic = 'AND')
+ * @method self whereIn(string $field, mixed $value, string $logic = 'AND')
+ * @method self whereNotIn(string $field, mixed $value, string $logic = 'AND')
+ * @method self whereBetween(string $field, mixed $value, string $logic = 'AND')
+ * @method self whereNotBetween(string $field, mixed $value, string $logic = 'AND')
+ * @method self whereLike(string $field, mixed $value, string $logic = 'AND')
+ * @method self whereNotLike(string $field, mixed $value, string $logic = 'AND')
+ * @method self whereExists(string $field, mixed $value, string $logic = 'AND')
+ * @method self whereNotExists(string $field, mixed $value, string $logic = 'AND')
+ * @method self whereColumn(string $field, mixed $value, string $logic = 'AND')
+ * @method self join(array|string $table, mixed $condition, string $joinType = 'INNER')
+ * @method self innerJoin(array|string $table, mixed $condition)
+ * @method self leftJoin(array|string $table, mixed $condition)
+ * @method self rightJoin(array|string $table, mixed $condition)
+ * @method self groupBy(array|string $field)
+ * @method self groupByRaw(string $expression, array $bindings = [])
+ * @method self orderBy(array|string $field)
+ * @method self orderByRaw(string $expression, array $bindings = [])
+ * @method self having(string $expression, array $bindings = [])
+ * @method self orHaving(string $expression, array $bindings = [])
+ * @method self offset(int $offset)
+ * @method self limit(int $limit)
+ * @method self incr(string $field, float $step)
+ * @method self decr(string $field, float $step)
+ * @method int count(string $field = '*')
+ * @method float sum(string $field)
+ * @method float min(string $field)
+ * @method float max(string $field)
+ * @method float avg(string $field)
+ * @method string buildSql(int $buildType = QueryInterface::BUILD_SQL_SELECT)
+ * @method int insert(?array $data = null)
+ * @method string insertGetId(?array $data = null)
+ * @method int insertAll(?array $data = null)
+ * @method int update(?array $data = null, mixed $condition = null)
+ * @method Collection get()
+ * @method self first()
+ * @method mixed value(string $name, mixed $default = null)
+ * @method Collection pluck(string $value, ?string $key = null)
+ * @method TransactionInterface beginTransaction()
+ * @method void transaction(\Closure $callback)
+ */
 abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, JsonSerializable
 {
     use Attribute;
@@ -32,7 +88,7 @@ abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, Js
     /**
      * @var ManagerInterface
      */
-    protected static ManagerInterface $manager;
+    protected ManagerInterface $manager;
 
     /**
      * @var Closure[]
@@ -96,9 +152,9 @@ abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, Js
     /**
      * @param ManagerInterface $manager
      */
-    public static function setManager(ManagerInterface $manager): void
+    public function setManager(ManagerInterface $manager): void
     {
-        static::$manager = $manager;
+        $this->manager = $manager;
     }
 
     /**
@@ -208,7 +264,7 @@ abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, Js
      */
     public function newQuery(): QueryInterface
     {
-        $query = static::$manager->query(static::$manager->connection($this->connection));
+        $query = $this->manager->query($this->manager->connection($this->connection));
         $query->name($this->name);
         if ($this->table) {
             $query->table($this->table);

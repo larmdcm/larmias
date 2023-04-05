@@ -37,7 +37,7 @@ trait Timestamp
     {
         $nowTime = time();
         return match ($this->autoWriteTimestampFieldType) {
-            'datetime' => date('Y-m-d H:i:s,u', $nowTime),
+            'datetime' => date('Y-m-d H:i:s.u', $nowTime),
             'date' => date('Y-m-d', $nowTime),
             'integer' => $nowTime,
             default => throw new RuntimeException("getTimestamp autoWriteTimestampFieldType parse error"),

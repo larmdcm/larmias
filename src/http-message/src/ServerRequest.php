@@ -28,7 +28,7 @@ class ServerRequest extends Request implements ServerRequestInterface
     protected array $attributes = [];
 
     /** @var array|object|null */
-    protected mixed $parseBody = null;
+    protected mixed $parsedBody = null;
 
     /**
      * @param array $params
@@ -45,7 +45,7 @@ class ServerRequest extends Request implements ServerRequestInterface
         );
         $serverRequest->serverParams = $params['server'] ?? [];
         $serverRequest->queryParams = $params['query'] ?? [];
-        $serverRequest->parseBody = $params['post'] ?? [];
+        $serverRequest->parsedBody = $params['post'] ?? [];
         $serverRequest->cookieParams = $params['cookie'] ?? [];
         $files = $params['file'] ?? [];
         foreach ($files as $name => $file) {
@@ -243,7 +243,7 @@ class ServerRequest extends Request implements ServerRequestInterface
      */
     public function getParsedBody(): mixed
     {
-        return $this->parseBody;
+        return $this->parsedBody;
     }
 
     /**

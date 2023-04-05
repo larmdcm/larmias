@@ -6,7 +6,7 @@ namespace Larmias\Database\Model\Concerns;
 
 use Larmias\Contracts\CollectionInterface;
 use Larmias\Database\Model\Collection;
-use function is_scalar;
+use function is_array;
 use function json_encode;
 
 trait Conversion
@@ -53,7 +53,9 @@ trait Conversion
      */
     public function toResult(mixed $result): mixed
     {
-        if (is_scalar($result)) {
+        $check = $result instanceof CollectionInterface || is_array($result);
+
+        if (!$check) {
             return $result;
         }
 

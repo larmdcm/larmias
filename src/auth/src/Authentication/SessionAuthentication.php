@@ -27,6 +27,6 @@ class SessionAuthentication extends Authentication
      */
     public function getCredentials(mixed $parameter): mixed
     {
-        return $this->session->get($this->config['name']);
+        return $this->session->get($this->config['auth_name']);
     }
 }

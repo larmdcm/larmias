@@ -55,9 +55,8 @@ class Message implements MessageInterface
      * @param string $version HTTP protocol version
      * @return self
      */
-    public function withProtocolVersion($version): self
+    public function withProtocolVersion(string $version): self
     {
-        $version = (string)$version;
         if ($this->protocolVersion === $version) {
             return $this;
         }
@@ -104,7 +103,7 @@ class Message implements MessageInterface
      *     name using a case-insensitive string comparison. Returns false if
      *     no matching header name is found in the message.
      */
-    public function hasHeader($name): bool
+    public function hasHeader(string $name): bool
     {
         return isset($this->headerNames[\strtolower($name)]);
     }
@@ -123,7 +122,7 @@ class Message implements MessageInterface
      *    header. If the header does not appear in the message, this method MUST
      *    return an empty array.
      */
-    public function getHeader($name): array
+    public function getHeader(string $name): array
     {
         $name = \strtolower($name);
 
@@ -155,7 +154,7 @@ class Message implements MessageInterface
      *    concatenated together using a comma. If the header does not appear in
      *    the message, this method MUST return an empty string.
      */
-    public function getHeaderLine($name): string
+    public function getHeaderLine(string $name): string
     {
         return \implode(', ', $this->getHeader($name));
     }

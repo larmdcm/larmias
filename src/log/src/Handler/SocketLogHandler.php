@@ -224,6 +224,7 @@ class SocketLogHandler implements LoggerHandlerInterface
     protected function send(string $message = '', string $address = '/'): bool
     {
         $url = 'http://' . $this->config['host'] . ':' . $this->config['port'] . $address;
+
         $ch = \curl_init();
 
         \curl_setopt($ch, \CURLOPT_URL, $url);

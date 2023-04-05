@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Larmias\Engine;
 
+/**
+ * @return int
+ */
 function get_cpu_num(): int
 {
     if (!is_unix()) {
@@ -20,6 +23,9 @@ function get_cpu_num(): int
     return $count > 0 ? $count : 1;
 }
 
+/**
+ * @return bool
+ */
 function is_unix(): bool
 {
     return \DIRECTORY_SEPARATOR === '/';

@@ -9,9 +9,9 @@ class QueryExecuted
     /**
      * @param string $sql
      * @param array $bindings
-     * @param float $executedTime
+     * @param float $time
      */
-    public function __construct(public string $sql, public array $bindings = [], public float $executedTime = 0.0)
+    public function __construct(public string $sql, public array $bindings = [], public float $time = 0.0)
     {
     }
 }

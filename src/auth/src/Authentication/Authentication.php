@@ -17,7 +17,7 @@ abstract class Authentication implements AuthenticationInterface
      * @var array
      */
     protected array $config = [
-        'name' => 'auth_id',
+        'auth_name' => 'auth_id',
     ];
 
     /**

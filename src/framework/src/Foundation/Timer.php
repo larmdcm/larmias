@@ -6,6 +6,7 @@ namespace Larmias\Framework\Foundation;
 
 use Larmias\Engine\Timer as EngineTimer;
 use Larmias\Timer\Timer as ProcessTimer;
+use function call_user_func_array;
 
 /**
  * @method static int tick(int $duration, callable $func, array $args = [])
@@ -32,6 +33,6 @@ class Timer
     public static function __callStatic(string $name, array $arguments)
     {
         $timer = EngineTimer::isInit() ? EngineTimer::getTimer() : ProcessTimer::getTimer();
-        return \call_user_func_array([$timer, $name], $arguments);
+        return call_user_func_array([$timer, $name], $arguments);
     }
 }

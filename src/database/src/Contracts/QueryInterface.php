@@ -356,6 +356,23 @@ interface QueryInterface
     public function first(): ?array;
 
     /**
+     * @return array|null
+     */
+    public function firstOrFail(): ?array;
+
+    /**
+     * @param int|string $id
+     * @return array|null
+     */
+    public function find(int|string $id): ?array;
+
+    /**
+     * @param int|string $id
+     * @return array|null
+     */
+    public function findOrFail(int|string $id): ?array;
+
+    /**
      * @param string $name
      * @param mixed|null $default
      * @return mixed
@@ -376,14 +393,25 @@ interface QueryInterface
 
     /**
      * @param \Closure $callback
-     * @return void
+     * @return mixed
      */
-    public function transaction(\Closure $callback): void;
+    public function transaction(\Closure $callback): mixed;
 
     /**
      * @return array
      */
     public function getOptions(): array;
+
+    /**
+     * @return string
+     */
+    public function getPrimaryKey(): string;
+
+    /**
+     * @param string $primaryKey
+     * @return QueryInterface
+     */
+    public function setPrimaryKey(string $primaryKey): QueryInterface;
 
     /**
      * @return ConnectionInterface

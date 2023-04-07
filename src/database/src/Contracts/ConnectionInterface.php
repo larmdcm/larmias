@@ -31,9 +31,9 @@ interface ConnectionInterface
 
     /**
      * @param Closure $callback
-     * @return void
+     * @return mixed
      */
-    public function transaction(Closure $callback): void;
+    public function transaction(Closure $callback): mixed;
 
     /**
      * @return bool

@@ -86,7 +86,7 @@ trait Attribute
         }
 
         if (isset($this->cast[$name])) {
-            $value = $this->castValue($this->cast[$name], $value);
+            $value = $this->castValue($this->cast[$name], $value, true);
         }
 
         return $value;
@@ -95,9 +95,10 @@ trait Attribute
     /**
      * @param string $type
      * @param mixed $value
+     * @param bool $isGet
      * @return mixed
      */
-    protected function castValue(string $type, mixed $value): mixed
+    protected function castValue(string $type, mixed $value, bool $isGet = false): mixed
     {
         if ($value === null) {
             return null;
@@ -123,23 +124,40 @@ trait Attribute
                 $value = date('Y-m-d H:i:s.u', $value);
                 break;
             case 'object':
-                if (is_object($value)) {
-                    $value = json_encode($value, JSON_FORCE_OBJECT);
+                if ($isGet) {
+                    $value = empty($value) ? new \stdClass() : json_decode($value);
+                } else {
+                    if (is_object($value)) {
+                        $value = json_encode($value, JSON_FORCE_OBJECT);
+                    }
                 }
                 break;
             case 'array':
-                $value = (array)$value;
+                if ($isGet) {
+                    $value = empty($value) ? [] : json_decode($value, true);
+                } else {
+                    $value = (array)$value;
+                }
                 break;
             case 'json':
-                $option = !empty($param) ? (int)$param : JSON_UNESCAPED_UNICODE;
-                $value = json_encode($value, $option);
+                if ($isGet) {
+                    $value = json_decode($value, true);
+                } else {
+                    $value = json_encode($value, JSON_UNESCAPED_UNICODE);
+                }
                 break;
             case 'serialize':
-                $value = serialize($value);
+                $value = $isGet ? unserialize($value) : serialize($value);
                 break;
             default:
-                if (is_object($value) && str_contains($type, '\\') && $value instanceof \Stringable) {
-                    $value = $value->__toString();
+                if ($isGet) {
+                    if (str_contains($type, '\\')) {
+                        $value = new $type($value);
+                    }
+                } else {
+                    if (is_object($value) && str_contains($type, '\\') && $value instanceof \Stringable) {
+                        $value = $value->__toString();
+                    }
                 }
         }
 
@@ -149,7 +167,7 @@ trait Attribute
     /**
      * @return array
      */
-    protected function getChangeData(): array
+    protected function getChangedData(): array
     {
         return array_udiff_assoc($this->data, $this->origin, function ($a, $b) {
             if ((empty($a) || empty($b)) && $a !== $b) {

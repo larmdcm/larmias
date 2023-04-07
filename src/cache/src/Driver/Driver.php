@@ -15,6 +15,9 @@ use Closure;
 
 abstract class Driver implements CacheInterface
 {
+    /**
+     * @var array
+     */
     protected array $config = [
         'prefix' => ''
     ];

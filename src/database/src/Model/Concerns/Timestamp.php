@@ -4,10 +4,14 @@ declare(strict_types=1);
 
 namespace Larmias\Database\Model\Concerns;
 
+use Larmias\Database\Model;
 use function date;
 use function time;
 use RuntimeException;
 
+/**
+ * @mixin Model
+ */
 trait Timestamp
 {
     /**
@@ -45,8 +49,7 @@ trait Timestamp
     }
 
     /**
-     * 检查是否写入时间戳
-     * @return boolean
+     * @return bool
      */
     protected function checkTimeStampWrite(): bool
     {

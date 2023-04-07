@@ -10,6 +10,7 @@ use Larmias\Snowflake\Contracts\IdGeneratorInterface;
 use Larmias\Snowflake\Sequence\RedisSequenceResolver;
 use Larmias\Snowflake\Contracts\SequenceResolverInterface;
 use Closure;
+use function array_merge;
 
 class IdGenerator implements IdGeneratorInterface
 {
@@ -56,7 +57,7 @@ class IdGenerator implements IdGeneratorInterface
      */
     public function __construct(protected ContainerInterface $container, ?ConfigInterface $config = null)
     {
-        $this->config = \array_merge($this->config, $config ? $config->get('snowflake', []) : []);
+        $this->config = array_merge($this->config, $config ? $config->get('snowflake', []) : []);
         $this->datacenterId = (int)$this->getConfig('datacenter_id');
         $this->workerId = (int)$this->getConfig('worker_id');
         $this->startTimestamp = (int)$this->getConfig('start_timestamp');

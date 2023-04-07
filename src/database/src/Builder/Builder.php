@@ -128,10 +128,14 @@ abstract class Builder implements BuilderInterface
             $this->parseTable($options['table']),
             $this->parseUpdateSet($options['data'], $options['incr']),
             $this->parseJoin($options['join'], $options['alias']),
-            $this->parseWhere($options['where']),
+            $where = $this->parseWhere($options['where']),
             $this->parseOrder($options['order']),
             $this->parseLimit($options['limit']),
         ], $this->updateSql);
+
+        if (empty($where)) {
+            throw new QueryException('Update condition cannot be empty');
+        }
 
         return $this->createSqlPrepare($sql);
     }
@@ -145,10 +149,15 @@ abstract class Builder implements BuilderInterface
         $sql = str_replace(['<TABLE>', '<JOIN>', '<WHERE>', '<ORDER>', '<LIMIT>'], [
             $this->parseTable($options['table']),
             $this->parseJoin($options['join'], $options['alias']),
-            $this->parseWhere($options['where']),
+            $where = $this->parseWhere($options['where']),
             $this->parseOrder($options['order']),
             $this->parseLimit($options['limit']),
         ], $this->deleteSql);
+
+        if (empty($where)) {
+            throw new QueryException('Delete condition cannot be empty');
+        }
+
         return $this->createSqlPrepare($sql);
     }
 

@@ -11,6 +11,8 @@ use Larmias\Contracts\ApplicationInterface;
 use Larmias\Engine\EngineConfig;
 use Larmias\Engine\Contracts\KernelInterface;
 use RuntimeException;
+use function method_exists;
+use function is_file;
 
 abstract class Worker extends Command
 {
@@ -76,11 +78,11 @@ abstract class Worker extends Command
      */
     protected function makeKernel(): void
     {
-        if (\method_exists($this->app, 'loadFileConfig')) {
+        if (method_exists($this->app, 'loadFileConfig')) {
             $config = $this->app->loadFileConfig('worker');
         } else {
             $configFile = $this->app->getConfigPath() . 'worker.php';
-            if (!\is_file($configFile)) {
+            if (!is_file($configFile)) {
                 throw new RuntimeException(sprintf('%s The worker configuration file does not exist.', $configFile));
             }
             $config = require $configFile;

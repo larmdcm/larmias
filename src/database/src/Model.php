@@ -20,7 +20,6 @@ use Stringable;
 use JsonSerializable;
 use function Larmias\Utils\class_basename;
 
-
 /**
  * @method self table(string $name)
  * @method string getTable()
@@ -68,10 +67,13 @@ use function Larmias\Utils\class_basename;
  * @method int update(?array $data = null, mixed $condition = null)
  * @method Collection get()
  * @method self first()
+ * @method self firstOrFail()
+ * @method self find(int|string $id)
+ * @method self findOrFail(int|string $id)
  * @method mixed value(string $name, mixed $default = null)
  * @method Collection pluck(string $value, ?string $key = null)
  * @method TransactionInterface beginTransaction()
- * @method void transaction(\Closure $callback)
+ * @method mixed transaction(\Closure $callback)
  */
 abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, JsonSerializable
 {
@@ -84,6 +86,11 @@ abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, Js
      * @var string
      */
     protected string $primaryKey = 'id';
+
+    /**
+     * @var bool
+     */
+    protected bool $incrementing = true;
 
     /**
      * @var ManagerInterface
@@ -128,8 +135,9 @@ abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, Js
      */
     public function __construct(array $data = [])
     {
-        $this->data = $data;
-        $this->origin = $data;
+        $this->setAttributes($data);
+
+        $this->origin = $this->data;
 
         if ($this->name === null) {
             $this->name = class_basename(static::class);
@@ -172,9 +180,44 @@ abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, Js
      */
     public static function create(array $data): static
     {
-        $model = new static($data);
-        $model->save();
+        $model = new static();
+        $model->save($data);
         return $model;
+    }
+
+    /**
+     * @param array|string|Closure $id
+     * @param bool $force
+     * @return bool
+     */
+    public static function destroy(array|string|Closure $id, bool $force = false): bool
+    {
+        if (empty($id)) {
+            return false;
+        }
+
+        $model = new static();
+        
+        if ($id instanceof Closure) {
+            $model->query()->where($id);
+        } else {
+            if (is_string($id)) {
+                $id = str_contains($id, ',') ? explode(',', $id) : [$id];
+            }
+            $model->query()->whereIn($model->getPrimaryKey(), $id);
+        }
+
+        $resultSet = $model->get();
+
+        /** @var Model $item */
+        foreach ($resultSet as $item) {
+            if (method_exists($item, 'force')) {
+                $item->force($force);
+            }
+            $item->delete();
+        }
+
+        return true;
     }
 
     /**
@@ -213,9 +256,15 @@ abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, Js
      */
     protected function insertData(): bool
     {
-        $id = $this->query()->insertGetId($this->data);
+        if ($this->incrementing) {
+            $id = $this->query()->insertGetId($this->data);
+            $exists = !empty($id);
+        } else {
+            $id = $this->generateUniqueId();
+            $exists = $this->query()->insert($this->data) > 0;
+        }
 
-        if (!empty($id)) {
+        if ($exists) {
             $this->data[$this->getPrimaryKey()] = $id;
             $this->setExists(true);
         }
@@ -224,12 +273,20 @@ abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, Js
     }
 
     /**
+     * @return string
+     */
+    public function generateUniqueId(): string
+    {
+        throw new \RuntimeException('Method not implemented.');
+    }
+
+    /**
      * 修改数据
      * @return bool
      */
     protected function updateData(): bool
     {
-        $data = $this->getChangeData();
+        $data = $this->getChangedData();
 
         return $this->query()->update($data, $this->getWhere()) > 0;
     }
@@ -245,6 +302,20 @@ abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, Js
             $where[$primaryKey] = $this->data[$primaryKey];
         }
         return $where;
+    }
+
+    /**
+     * @return array
+     */
+    protected function getQueryWhere(): array
+    {
+        $queryWhere = [];
+
+        if (isset($this->softDeleteField)) {
+            $queryWhere[] = method_exists($this, 'getSoftDeleteWhere') ? $this->getSoftDeleteWhere() : [];
+        }
+
+        return $queryWhere;
     }
 
     /**
@@ -265,10 +336,16 @@ abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, Js
     public function newQuery(): QueryInterface
     {
         $query = $this->manager->query($this->manager->connection($this->connection));
-        $query->name($this->name);
+        $query->name($this->name)->setPrimaryKey($this->getPrimaryKey());
         if ($this->table) {
             $query->table($this->table);
         }
+
+        $queryWhere = $this->getQueryWhere();
+        if (!empty($queryWhere)) {
+            $query->where($queryWhere);
+        }
+
         return $query;
     }
 

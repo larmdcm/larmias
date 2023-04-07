@@ -22,10 +22,10 @@ trait Transaction
 
     /**
      * @param \Closure $callback
-     * @return void
+     * @return mixed
      */
-    public function transaction(\Closure $callback): void
+    public function transaction(\Closure $callback): mixed
     {
-        $this->getConnection()->transaction($callback);
+        return $this->getConnection()->transaction($callback);
     }
 }

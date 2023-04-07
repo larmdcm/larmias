@@ -106,6 +106,7 @@
       "Larmias\\Pool\\": "src/pool/src/",
       "Larmias\\FileWatcher\\": "src/file-watcher/src/",
       "Larmias\\Database\\": "src/database/src/",
+      "Larmias\\Paginator\\": "src/paginator/src/",
       "Larmias\\Tests\\": "tests/"
     }
   }

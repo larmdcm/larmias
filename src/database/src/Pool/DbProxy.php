@@ -121,15 +121,16 @@ class DbProxy implements ConnectionInterface
 
     /**
      * @param Closure $callback
-     * @return void
+     * @return mixed
      * @throws Throwable
      */
-    public function transaction(Closure $callback): void
+    public function transaction(Closure $callback): mixed
     {
         $ctx = $this->beginTransaction();
         try {
-            $callback();
+            $result = $callback();
             $ctx->commit();
+            return $result;
         } catch (Throwable $e) {
             $ctx->rollback();
             throw $e;

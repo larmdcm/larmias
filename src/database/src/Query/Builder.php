@@ -11,6 +11,7 @@ use Larmias\Database\Contracts\ExecuteResultInterface;
 use Larmias\Database\Contracts\ExpressionInterface;
 use Larmias\Database\Contracts\QueryInterface;
 use Larmias\Database\Entity\Expression;
+use Larmias\Database\Exceptions\ResourceNotFoundException;
 use Larmias\Database\Query\Concerns\AggregateQuery;
 use Larmias\Database\Query\Concerns\JoinQuery;
 use Larmias\Database\Query\Concerns\Transaction;
@@ -37,6 +38,7 @@ class Builder implements QueryInterface
      * @var array
      */
     protected array $options = [
+        'primaryKey' => 'id',
         'data' => [],
         'table' => '',
         'alias' => [],
@@ -373,6 +375,40 @@ class Builder implements QueryInterface
     }
 
     /**
+     * @return array|null
+     */
+    public function firstOrFail(): ?array
+    {
+        $data = $this->first();
+        if ($data === null) {
+            throw new ResourceNotFoundException();
+        }
+        return $data;
+    }
+
+    /**
+     * @param int|string $id
+     * @return array|null
+     */
+    public function find(int|string $id): ?array
+    {
+        return $this->where($this->getPrimaryKey(), $id)->first();
+    }
+
+    /**
+     * @param int|string $id
+     * @return array|null
+     */
+    public function findOrFail(int|string $id): ?array
+    {
+        $data = $this->find($id);
+        if ($data === null) {
+            throw new ResourceNotFoundException();
+        }
+        return $data;
+    }
+
+    /**
      * @param string $name
      * @param mixed|null $default
      * @return mixed
@@ -410,6 +446,24 @@ class Builder implements QueryInterface
     public function getOptions(): array
     {
         return $this->options;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPrimaryKey(): string
+    {
+        return $this->options['primaryKey'];
+    }
+
+    /**
+     * @param string $primaryKey
+     * @return QueryInterface
+     */
+    public function setPrimaryKey(string $primaryKey): QueryInterface
+    {
+        $this->options['primaryKey'] = $primaryKey;
+        return $this;
     }
 
     /**

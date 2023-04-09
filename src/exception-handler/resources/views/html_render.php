@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>系统发生错误</title>
+    <title>System error occurred</title>
 
     <style type="text/css">
         <?php

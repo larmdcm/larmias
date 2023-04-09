@@ -70,7 +70,7 @@ class Manager implements ManagerInterface
      * @param ConnectionInterface $connection
      * @return QueryInterface
      */
-    public function query(ConnectionInterface $connection): QueryInterface
+    public function newQuery(ConnectionInterface $connection): QueryInterface
     {
         $queryClass = $connection->getConfig('query', Builder::class);
         if (!class_exists($queryClass)) {

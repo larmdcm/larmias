@@ -22,7 +22,7 @@ class QueryTest extends TestCase
      */
     public function testWhereClosure(): void
     {
-        $query = $this->getQuery()->table('t_user');
+        $query = $this->newQuery()->table('t_user');
 
         $result = $query->where('id', 1)->where(['username' => 'test'])->where(function (QueryInterface $query) {
             $query->where('status', '=', 1)->where('integral', '>', 1)->where(function (QueryInterface $query) {
@@ -37,7 +37,7 @@ class QueryTest extends TestCase
      */
     public function testWhereMix(): void
     {
-        $query = $this->getQuery()->table('t_user');
+        $query = $this->newQuery()->table('t_user');
         $result = $query->where('id = 1')->whereNull('info')->whereNotNull('update_time')
             ->whereIn('id', [1, 2, 3])
             ->whereNotIn('id', '4,5')
@@ -58,7 +58,7 @@ class QueryTest extends TestCase
      */
     public function testGet(): void
     {
-        $query = $this->getQuery();
+        $query = $this->newQuery();
         $collect = $query->table('t_user')->get();
         $this->assertTrue($collect->isNotEmpty());
     }
@@ -68,7 +68,7 @@ class QueryTest extends TestCase
      */
     public function testFirst(): void
     {
-        $query = $this->getQuery();
+        $query = $this->newQuery();
         $data = $query->table('t_user')->first();
         $this->assertNotNull($data);
     }
@@ -78,7 +78,7 @@ class QueryTest extends TestCase
      */
     public function testBuildSql(): void
     {
-        $query = $this->getQuery();
+        $query = $this->newQuery();
         $query->table('test')->field('id,name')->where('id', 1);
         $this->assertSame($query->buildSql(), 'SELECT`id`,`name` FROM `test` WHERE `id` = \'1\'');
         $query->where('integral', '>', 100);
@@ -90,7 +90,7 @@ class QueryTest extends TestCase
      */
     public function testInsert(): void
     {
-        $query = $this->getQuery();
+        $query = $this->newQuery();
         $result = $query->table('t_user')->insert([
             'username' => 'test',
             'password' => md5('123456')
@@ -103,7 +103,7 @@ class QueryTest extends TestCase
      */
     public function testInsertAll(): void
     {
-        $query = $this->getQuery();
+        $query = $this->newQuery();
         $result = $query->table('t_user')->insertAll([
             [
                 'username' => 'test1',
@@ -122,7 +122,7 @@ class QueryTest extends TestCase
      */
     public function testInsertGetId(): void
     {
-        $query = $this->getQuery();
+        $query = $this->newQuery();
         $data = $query->table('t_user')->orderBy('id', 'DESC')->first();
         $id = $data ? $data['id'] : 0;
         $result = $query->table('t_user')->insertGetId([
@@ -137,7 +137,7 @@ class QueryTest extends TestCase
      */
     public function testUpdate(): void
     {
-        $query = $this->getQuery();
+        $query = $this->newQuery();
         $result = $query->table('t_user')->where('id', 1)->update([
             'password' => md5('123456789'),
             'update_time' => date('Y-m-d H:i:s')
@@ -150,7 +150,7 @@ class QueryTest extends TestCase
      */
     public function testDelete(): void
     {
-        $query = $this->getQuery();
+        $query = $this->newQuery();
         $result = $query->table('t_user')->where('id', 10)->delete();
         $this->assertTrue($result > 0);
     }
@@ -158,8 +158,8 @@ class QueryTest extends TestCase
     /**
      * @return QueryInterface
      */
-    protected function getQuery(): QueryInterface
+    protected function newQuery(): QueryInterface
     {
-        return $this->manager->query($this->manager->connection());
+        return $this->manager->newQuery($this->manager->connection());
     }
 }

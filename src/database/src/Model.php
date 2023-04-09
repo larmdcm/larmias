@@ -197,7 +197,7 @@ abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, Js
         }
 
         $model = new static();
-        
+
         if ($id instanceof Closure) {
             $model->query()->where($id);
         } else {
@@ -335,7 +335,7 @@ abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, Js
      */
     public function newQuery(): QueryInterface
     {
-        $query = $this->manager->query($this->manager->connection($this->connection));
+        $query = $this->manager->newQuery($this->manager->connection($this->connection));
         $query->name($this->name)->setPrimaryKey($this->getPrimaryKey());
         if ($this->table) {
             $query->table($this->table);
@@ -422,7 +422,7 @@ abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, Js
      */
     public function __isset(string $name): bool
     {
-        return $this->getAttribute($name) !== null;
+        return $this->getAttribute($name, false) !== null;
     }
 
     /**

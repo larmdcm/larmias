@@ -24,5 +24,8 @@
     "psr-4": {
       "Larmias\\Auth\\": "src/"
     }
+  },
+  "larmias": {
+    "providers": "Larmias\\Auth\\Providers\\AuthServiceProvider"
   }
 }

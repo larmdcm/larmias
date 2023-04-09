@@ -18,7 +18,7 @@ interface ManagerInterface
      * @param ConnectionInterface $connection
      * @return QueryInterface
      */
-    public function query(ConnectionInterface $connection): QueryInterface;
+    public function newQuery(ConnectionInterface $connection): QueryInterface;
 
     /**
      * @return EventDispatcherInterface

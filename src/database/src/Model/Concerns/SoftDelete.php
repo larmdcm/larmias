@@ -61,7 +61,7 @@ trait SoftDelete
     protected function getSoftDeleteValue(): string|int
     {
         return match ($this->getSoftDeleteFieldType()) {
-            'datetime' => date('Y-m-d H:i:s', time()),
+            'datetime' => date('Y-m-d H:i:s.u', time()),
             'timestamp' => time(),
             'integer' => 1,
             default => throw new RuntimeException("getSoftDeleteData value parse error"),
@@ -81,7 +81,8 @@ trait SoftDelete
      */
     protected function getSoftDeleteWhere(): array
     {
-        return $this->softDeleteValue === null ? [$this->softDeleteField, 'is null'] : [$this->softDeleteField, '=', $this->softDeleteValue];
+        $softDeleteField = $this->getTable() . '.' . $this->softDeleteField;
+        return $this->softDeleteValue === null ? [$softDeleteField, 'is null'] : [$softDeleteField, '=', $this->softDeleteValue];
     }
 
     /**

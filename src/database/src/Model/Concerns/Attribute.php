@@ -70,7 +70,7 @@ trait Attribute
      * @param string $name
      * @return mixed
      */
-    public function getAttribute(string $name): mixed
+    public function getAttribute(string $name, bool $strict = true): mixed
     {
         $name = $this->getRealAttrName($name);
         $method = 'get' . Str::studly($name) . 'Attr';
@@ -79,6 +79,9 @@ trait Attribute
             $value = $this->{$method}($name);
         } else {
             if (!array_key_exists($name, $this->data)) {
+                if (!$strict) {
+                    return null;
+                }
                 throw new InvalidArgumentException('property not exists:' . static::class . '->' . $name);
             }
 
@@ -184,6 +187,6 @@ trait Attribute
      */
     protected function getRealAttrName(string $name): string
     {
-        return Str::camel($name);
+        return Str::snake($name);
     }
 }

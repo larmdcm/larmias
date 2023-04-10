@@ -11,6 +11,10 @@
     "framework"
   ],
   "homepage": "https://larmias.com/",
+  "support": {
+    "issues": "https://github.com/lardmcm/larmias/issues",
+    "source": "https://github.com/lardmcm/larmias"
+  },
   "license": "Apache-2.0",
   "authors": [
     {
@@ -49,6 +53,54 @@
     "swoole/ide-helper": "^4.5",
     "phpunit/phpunit": "^9.6"
   },
+  "replace": {
+    "larmias/async-queue": "self.version",
+    "larmias/auth": "self.version",
+    "larmias/cache": "self.version",
+    "larmias/captcha": "self.version",
+    "larmias/command": "self.version",
+    "larmias/config": "self.version",
+    "larmias/contracts": "self.version",
+    "larmias/crontab": "self.version",
+    "larmias/database": "self.version",
+    "larmias/di": "self.version",
+    "larmias/encryption": "self.version",
+    "larmias/engine": "self.version",
+    "larmias/engine-swoole": "self.version",
+    "larmias/engine-workerman": "self.version",
+    "larmias/enum": "self.version",
+    "larmias/env": "self.version",
+    "larmias/event": "self.version",
+    "larmias/exception-handler": "self.version",
+    "larmias/file-watcher": "self.version",
+    "larmias/framework": "self.version",
+    "larmias/http-csrf": "self.version",
+    "larmias/http-message": "self.version",
+    "larmias/http-server": "self.version",
+    "larmias/http-utils": "self.version",
+    "larmias/lock": "self.version",
+    "larmias/log": "self.version",
+    "larmias/middleware": "self.version",
+    "larmias/paginator": "self.version",
+    "larmias/pipeline": "self.version",
+    "larmias/pool": "self.version",
+    "larmias/process": "self.version",
+    "larmias/redis": "self.version",
+    "larmias/routing": "self.version",
+    "larmias/session": "self.version",
+    "larmias/shared-memory": "self.version",
+    "larmias/snowflake": "self.version",
+    "larmias/task": "self.version",
+    "larmias/throttle": "self.version",
+    "larmias/timer": "self.version",
+    "larmias/translation": "self.version",
+    "larmias/utils": "self.version",
+    "larmias/validation": "self.version",
+    "larmias/view": "self.version"
+  },
+  "suggest": {
+    "ext-swoole": "Required to use swoole (^4.6.*)."
+  },
   "autoload": {
     "files": [
       "src/utils/src/functions.php",
@@ -65,7 +117,6 @@
       "Larmias\\Cache\\": "src/cache/src/",
       "Larmias\\Di\\": "src/di/src/",
       "Larmias\\Event\\": "src/event/src/",
-      "Larmias\\WorkerS\\": "src/worker-s/src/",
       "Larmias\\Engine\\": "src/engine/src/",
       "Larmias\\Engine\\WorkerMan\\": "src/engine-workerman/src/",
       "Larmias\\Engine\\Swoole\\": "src/engine-swoole/src/",
@@ -102,8 +153,17 @@
       "Larmias\\Pool\\": "src/pool/src/",
       "Larmias\\FileWatcher\\": "src/file-watcher/src/",
       "Larmias\\Database\\": "src/database/src/",
-      "Larmias\\Paginator\\": "src/paginator/src/",
+      "Larmias\\Paginator\\": "src/paginator/src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
       "Larmias\\Tests\\": "tests/"
     }
-  }
+  },
+  "config": {
+    "sort-packages": true
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
 }

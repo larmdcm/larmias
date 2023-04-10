@@ -26,6 +26,8 @@
     }
   },
   "larmias": {
-    "providers": "Larmias\\Auth\\Providers\\AuthServiceProvider"
+    "providers": [
+      "Larmias\\Auth\\Providers\\AuthServiceProvider"
+    ]
   }
 }

@@ -16,11 +16,17 @@ class ProcessServiceProvider implements ServiceProviderInterface
     {
     }
 
+    /**
+     * @return void
+     */
     public function register(): void
     {
         // TODO: Implement register() method.
     }
 
+    /**
+     * @return void
+     */
     public function boot(): void
     {
         // TODO: Implement boot() method.

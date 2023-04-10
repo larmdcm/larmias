@@ -8,6 +8,8 @@ use Larmias\Contracts\ConfigInterface;
 use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\LockerInterface;
 use Larmias\Lock\Drivers\Redis;
+use function array_merge;
+use function is_string;
 
 class Locker implements LockerInterface
 {
@@ -33,8 +35,8 @@ class Locker implements LockerInterface
      */
     public function __construct(protected ContainerInterface $container, Key|string $key, ConfigInterface $config)
     {
-        $this->config = \array_merge($this->config, $config->get('lock', []));
-        if (\is_string($key)) {
+        $this->config = array_merge($this->config, $config->get('lock', []));
+        if (is_string($key)) {
             $key = new Key($key, $this->config['expire']);
         }
         $key->setPrefix($this->config['prefix']);

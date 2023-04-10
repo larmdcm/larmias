@@ -9,6 +9,10 @@ use Larmias\Contracts\LockerFactoryInterface;
 use Larmias\Contracts\LockerInterface;
 use Larmias\Utils\ApplicationContext;
 use Closure;
+use Throwable;
+use function is_string;
+use function call_user_func;
+use function is_bool;
 
 class LockUtils
 {
@@ -21,7 +25,7 @@ class LockUtils
         /** @var LockerFactoryInterface $factory */
         $factory = ApplicationContext::getContainer()->get(LockerFactoryInterface::class);
 
-        if (\is_string($key)) {
+        if (is_string($key)) {
             /** @var ConfigInterface $config */
             $config = ApplicationContext::getContainer()->get(ConfigInterface::class);
             $key = new Key($key, $config->get('lock.expire', 30000));
@@ -33,7 +37,7 @@ class LockUtils
      * @param LockerInterface|Key|string $key
      * @param Closure|null $callback
      * @return bool
-     * @throws \Throwable
+     * @throws Throwable
      */
     public static function acquire(LockerInterface|Key|string $key, ?Closure $callback = null): bool
     {
@@ -49,7 +53,7 @@ class LockUtils
      * @param int|null $waitTimeout
      * @param Closure|null $callback
      * @return bool
-     * @throws \Throwable
+     * @throws Throwable
      */
     public static function block(LockerInterface|Key|string $key, ?int $waitTimeout = null, ?Closure $callback = null): bool
     {
@@ -91,13 +95,13 @@ class LockUtils
         $result = true;
         try {
             if ($callback !== null) {
-                $result = \call_user_func($callback);
+                $result = call_user_func($callback);
                 $locker->release();
             }
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $locker->release();
             throw $e;
         }
-        return \is_bool($result) ? $result : true;
+        return is_bool($result) ? $result : true;
     }
 }

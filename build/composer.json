@@ -1,11 +1,8 @@
 {
-  "name": "larmias/worker-s",
-  "description": "Asynchronous Event Driven PHP Network Framework.",
+  "name": "larmias/build",
+  "description": "build scripts",
   "type": "library",
   "keywords": [
-    "larmias",
-    "event-loop",
-    "asynchronous"
   ],
   "homepage": "https://larmias.com/",
   "license": "Apache-2.0",
@@ -17,12 +14,12 @@
   ],
   "require": {
     "php": ">=8.0",
-    "psr/log": "^3.0",
-    "opis/closure": "^3.6"
+    "symfony/finder": "^4.3.2|^5.1"
   },
   "autoload": {
     "psr-4": {
-      "Larmias\\WorkerS\\": "src/"
-    }
+    },
+    "files": [
+    ]
   }
 }

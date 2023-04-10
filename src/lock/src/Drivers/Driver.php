@@ -7,6 +7,10 @@ namespace Larmias\Lock\Drivers;
 use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\LockerInterface;
 use Larmias\Lock\Key;
+use function array_merge;
+use function method_exists;
+use function microtime;
+use function usleep;
 
 abstract class Driver implements LockerInterface
 {
@@ -26,9 +30,9 @@ abstract class Driver implements LockerInterface
      */
     public function __construct(protected ContainerInterface $container, protected Key $key, array $config = [])
     {
-        $this->config = \array_merge($this->config, $config);
+        $this->config = array_merge($this->config, $config);
 
-        if (\method_exists($this, 'initialize')) {
+        if (method_exists($this, 'initialize')) {
             $this->container->invoke([$this, 'initialize']);
         }
     }
@@ -42,14 +46,14 @@ abstract class Driver implements LockerInterface
     public function block(?int $waitTimeout = null): bool
     {
         $waitTimeout = $waitTimeout ?: $this->config['wait_timeout'];
-        $beginTime = \microtime(true);
+        $beginTime = microtime(true);
         $waitSleepTime = $this->config['wait_sleep_time'] * 1000;
         do {
             if ($this->acquire()) {
                 return true;
             }
-            if (0 === $waitTimeout || \microtime(true) - $beginTime < $waitTimeout / 1000) {
-                \usleep($waitSleepTime);
+            if (0 === $waitTimeout || microtime(true) - $beginTime < $waitTimeout / 1000) {
+                usleep($waitSleepTime);
             } else {
                 break;
             }

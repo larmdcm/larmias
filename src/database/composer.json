@@ -1,5 +1,5 @@
 {
-  "name": "larmdcm/database",
+  "name": "larmias/database",
   "description": "A lightweight database ORM.",
   "type": "library",
   "keywords": [

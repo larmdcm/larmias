@@ -3,6 +3,7 @@
 /vendor
 /package
 /runtime
+/projects
 *.log
 .env
 .gitee
@@ -16,6 +17,7 @@ composer.lock
 *.exe
 *.o
 *.so
+.phpunit.result.cache
 
 # 压缩包 #
 ############

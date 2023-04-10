@@ -6,8 +6,15 @@ namespace Larmias\Lock;
 
 class Key
 {
+    /**
+     * @var string
+     */
     protected string $prefix = '';
 
+    /**
+     * @param string $name
+     * @param int $ttl
+     */
     public function __construct(protected string $name, protected int $ttl)
     {
     }

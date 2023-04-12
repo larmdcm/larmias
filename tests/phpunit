@@ -1,0 +1,34 @@
+#!/usr/bin/env php
+<?php
+declare (strict_types=1);
+
+foreach ([__DIR__ . '/../vendor/autoload.php'] as $file) {
+    if (file_exists($file)) {
+        require $file;
+        define('COMPOSER_AUTOLOAD_FILE', $file);
+        break;
+    }
+}
+
+if (!defined('COMPOSER_AUTOLOAD_FILE')) {
+    exit("include composer autoload.php fail\n");
+}
+
+$inKeys = ['--in-swoole', '--in-workerman'];
+$env = null;
+
+foreach ($inKeys as $key) {
+    $index = array_search($key, $argv);
+    if ($index !== false) {
+        $env = explode('-', $key)[1];
+        unset($argv[$index]);
+    }
+}
+
+$_SERVER['argv'] = $argv;
+
+require __DIR__ . '/bootstrap.php';
+
+$exitCode = \Larmias\Tests\main($env);
+
+exit($exitCode);

@@ -1,33 +1,40 @@
 {
-  "name": "larmias/auth",
-  "description": "A auth component for larmias.",
-  "type": "library",
-  "keywords": [
-    "larmias",
-    "auth"
-  ],
-  "homepage": "https://larmias.com/",
-  "license": "Apache-2.0",
-  "authors": [
-    {
-      "name": "larmdcm",
-      "email": "mdcm98@163.com"
+    "name": "larmias/auth",
+    "description": "A auth component for larmias.",
+    "type": "library",
+    "keywords": [
+        "larmias",
+        "auth"
+    ],
+    "homepage": "https://larmias.com/",
+    "license": "Apache-2.0",
+    "authors": [
+        {
+            "name": "larmdcm",
+            "email": "mdcm98@163.com"
+        }
+    ],
+    "require": {
+        "php": ">=8.0",
+        "psr/http-server-handler": "^1.0",
+        "psr/http-server-middleware": "^1.0",
+        "larmias/contracts": "^1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Larmias\\Auth\\": "src/"
+        }
+    },
+    "larmias": {
+        "providers": [
+            "Larmias\\Auth\\Providers\\AuthServiceProvider"
+        ]
+    },
+    "extra": {
+        "larmias": {
+            "providers": [
+                "Larmias\\Auth\\Providers\\AuthServiceProvider"
+            ]
+        }
     }
-  ],
-  "require": {
-    "php": ">=8.0",
-    "psr/http-server-handler": "^1.0",
-    "psr/http-server-middleware": "^1.0",
-    "larmias/contracts": "^1.0"
-  },
-  "autoload": {
-    "psr-4": {
-      "Larmias\\Auth\\": "src/"
-    }
-  },
-  "larmias": {
-    "providers": [
-      "Larmias\\Auth\\Providers\\AuthServiceProvider"
-    ]
-  }
 }

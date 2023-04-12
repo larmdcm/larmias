@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Larmias\Engine;
 
 use Larmias\Contracts\ContextInterface;
+use RuntimeException;
 
 /**
  * @method static mixed get(string $id, mixed $default = null)
@@ -37,7 +38,7 @@ class Context
     public static function __callStatic(string $name, array $arguments): mixed
     {
         if (static::$context === null) {
-            throw new \RuntimeException("not support: Context");
+            throw new RuntimeException("not support: Context");
         }
         return call_user_func_array([static::$context, $name], $arguments);
     }

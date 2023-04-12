@@ -1,23 +1,87 @@
 <?php
 
+namespace Larmias\Tests;
+
 use Larmias\Di\Container;
 use Larmias\Contracts\ContainerInterface;
+use Larmias\Timer\Timer;
+use PHPUnit\TextUI\Command;
 
 date_default_timezone_set('PRC');
-
-$container = Container::getInstance();
-
-\Larmias\Engine\Coroutine::init(\Larmias\Engine\Swoole\Coroutine::class);
-\Larmias\Engine\Coroutine\Channel::init(\Larmias\Engine\Swoole\Coroutine\Channel::class);
-\Larmias\Engine\Timer::init($container->get(\Larmias\Engine\Swoole\Timer::class));
-
-$container->bind(\Larmias\Contracts\ContextInterface::class, \Larmias\Engine\Swoole\Context::class);
-$container->bind(\Larmias\Contracts\Coroutine\CoroutineFactoryInterface::class, \Larmias\Engine\Factory\CoroutineFactory::class);
-$container->bind(\Larmias\Contracts\Coroutine\ChannelFactoryInterface::class, \Larmias\Engine\Factory\ChannelFactory::class);
-$container->bind(\Larmias\Contracts\TimerInterface::class, \Larmias\Engine\Timer::getTimer());
-
 
 function container(): ContainerInterface
 {
     return Container::getInstance();
+}
+
+function init(string $env = 'swoole'): void
+{
+    $container = container();
+
+    $classMap = [
+        'swoole' => [
+            'coroutine' => \Larmias\Engine\Swoole\Coroutine::class,
+            'channel' => \Larmias\Engine\Swoole\Coroutine\Channel::class,
+            'timer' => \Larmias\Engine\Swoole\Timer::class,
+            'context' => \Larmias\Engine\Swoole\Context::class,
+        ],
+        'workerman' => [
+            'coroutine' => null,
+            'channel' => null,
+            'timer' => \Larmias\Engine\WorkerMan\Timer::class,
+            'context' => \Larmias\Engine\WorkerMan\Context::class,
+        ]
+    ];
+
+
+    \Larmias\Engine\Coroutine::init($classMap[$env]['coroutine']);
+    \Larmias\Engine\Coroutine\Channel::init($classMap[$env]['channel']);
+    \Larmias\Engine\Timer::init($container->get($classMap[$env]['timer']));
+
+    $container->bind(\Larmias\Contracts\ContextInterface::class, $classMap[$env]['context']);
+    $container->bind(\Larmias\Contracts\Coroutine\CoroutineFactoryInterface::class, \Larmias\Engine\Factory\CoroutineFactory::class);
+    $container->bind(\Larmias\Contracts\Coroutine\ChannelFactoryInterface::class, \Larmias\Engine\Factory\ChannelFactory::class);
+    $container->bind(\Larmias\Contracts\TimerInterface::class, Timer::getTimer());
+}
+
+
+function main(?string $env = null): int
+{
+    if (!$env) {
+        $env = 'workerman';
+    }
+
+    init($env);
+
+    $callable = function (bool $exit = true) {
+        Command::main($exit);
+    };
+
+    try {
+        return match ($env) {
+            'swoole' => swoole_co_run(function () use ($callable) {
+                $callable(false);
+            }),
+            default => $callable(),
+        };
+    } finally {
+        Timer::clear();
+    }
+}
+
+function swoole_co_run(callable $callable): int
+{
+    $scheduler = new \Swoole\Coroutine\Scheduler();
+
+    $scheduler->set([
+        'hook_flags' => SWOOLE_HOOK_ALL,
+    ]);
+
+    $scheduler->add(function () use ($callable) {
+        call_user_func($callable);
+    });
+
+    $scheduler->start();
+
+    return 0;
 }

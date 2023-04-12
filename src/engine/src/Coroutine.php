@@ -41,6 +41,7 @@ class Coroutine
         if (static::isSupport()) {
             return call_user_func([static::$coClass, __FUNCTION__], $callable, ...$params);   
         }
+        
         $callable(...$params);
         return new class($callable) implements CoroutineInterface {
             /**

@@ -4,20 +4,10 @@ declare(strict_types=1);
 
 namespace Larmias\Tests\Database;
 
-use Larmias\Database\Builder\Builder;
 use Larmias\Database\Entity\Expression;
-use Larmias\Database\Manager;
-use PHPUnit\Framework\TestCase;
 
 class BuilderTest extends TestCase
 {
-    protected Manager $manager;
-
-    protected function setUp(): void
-    {
-        $this->manager = new Manager(container(), require __DIR__ . '/database.php');
-    }
-
     /**
      * @return void
      */
@@ -127,17 +117,8 @@ class BuilderTest extends TestCase
     public function testParseLimit(): void
     {
         $builder = $this->newBuilder();
-
         $result = $builder->parseLimit(10, 20);
         $this->assertSame($result, ' LIMIT 20,10');
         $this->assertSame($builder->parseLimit(10), ' LIMIT 10');
-    }
-
-    /**
-     * @return Builder
-     */
-    public function newBuilder(): Builder
-    {
-        return $this->manager->newBuilder($this->manager->connection());
     }
 }

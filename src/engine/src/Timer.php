@@ -16,7 +16,7 @@ use function call_user_func_array;
  */
 class Timer
 {
-    /** @var TimerInterface */
+    /** @var TimerInterface|null */
     protected static ?TimerInterface $timer = null;
 
     /**

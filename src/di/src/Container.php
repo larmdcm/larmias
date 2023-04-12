@@ -129,7 +129,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
 
         /** @var ContextInterface $context */
         $context = $this->instances[$this->getAlias(ContextInterface::class)] ?? null;
-        if ($context && $context->has($abstract) && \is_object($instance = $context->get($abstract))) {
+        if ($context && !$newInstance && $context->has($abstract) && \is_object($instance = $context->get($abstract))) {
             return $instance;
         }
 

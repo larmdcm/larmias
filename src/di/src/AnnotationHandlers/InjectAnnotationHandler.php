@@ -15,8 +15,14 @@ use ReflectionObject;
 
 class InjectAnnotationHandler implements AnnotationHandlerInterface
 {
+    /**
+     * @var array
+     */
     protected static array $inject = [];
 
+    /**
+     * @param ContainerInterface $container
+     */
     public function __construct(protected ContainerInterface $container)
     {
         $this->container->resolving(function ($object) {
@@ -47,6 +53,9 @@ class InjectAnnotationHandler implements AnnotationHandlerInterface
         });
     }
 
+    /**
+     * @return void
+     */
     public function handle(): void
     {
     }

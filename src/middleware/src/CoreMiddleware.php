@@ -9,6 +9,13 @@ use Larmias\Contracts\ConfigInterface;
 use Larmias\Contracts\CoreMiddlewareInterface;
 use Larmias\Contracts\PipelineInterface;
 use Closure;
+use function array_merge;
+use function array_unshift;
+use function explode;
+use function array_map;
+use function is_array;
+use function is_string;
+use function call_user_func;
 
 class CoreMiddleware implements CoreMiddlewareInterface
 {
@@ -28,9 +35,8 @@ class CoreMiddleware implements CoreMiddlewareInterface
     protected array $globalMiddleware = [];
 
     /**
-     * Middleware __construct
-     *
      * @param ContainerInterface $container
+     * @param ConfigInterface $config
      */
     public function __construct(protected ContainerInterface $container, protected ConfigInterface $config)
     {
@@ -61,7 +67,7 @@ class CoreMiddleware implements CoreMiddlewareInterface
      */
     public function set(array $middleware): CoreMiddlewareInterface
     {
-        $list = \array_merge($this->globalMiddleware, $middleware);
+        $list = array_merge($this->globalMiddleware, $middleware);
         $queue = [];
         foreach ($list as $item) {
             $middleware = $this->build($item);
@@ -98,7 +104,7 @@ class CoreMiddleware implements CoreMiddlewareInterface
     {
         $middleware = $this->build($middleware);
         if (!empty($middleware)) {
-            \array_unshift($this->queue, $middleware);
+            array_unshift($this->queue, $middleware);
         }
         return $this;
     }
@@ -119,9 +125,9 @@ class CoreMiddleware implements CoreMiddlewareInterface
             return [];
         }
         if (str_contains($middleware, ':')) {
-            $split = \explode(':', $middleware, 2);
+            $split = explode(':', $middleware, 2);
             $middleware = $split[0];
-            $args = \explode(',', $split[1]);
+            $args = explode(',', $split[1]);
         }
         $aliasMiddleware = $this->config->get('middleware.alias.' . $middleware);
         if ($aliasMiddleware) {
@@ -135,7 +141,7 @@ class CoreMiddleware implements CoreMiddlewareInterface
      * @param Closure $closure
      * @return mixed
      */
-    public function dispatch(mixed $passable, \Closure $closure): mixed
+    public function dispatch(mixed $passable, Closure $closure): mixed
     {
         return $this->pipeline()->send($passable)->then($closure);
     }
@@ -147,13 +153,13 @@ class CoreMiddleware implements CoreMiddlewareInterface
      */
     protected function pipeline(): PipelineInterface
     {
-        return $this->makePipeline()->through(\array_map(function ($middleware) {
+        return $this->makePipeline()->through(array_map(function ($middleware) {
             return function ($request, $next) use ($middleware) {
                 [$call, $params] = $middleware;
-                if (\is_array($call) && \is_string($call[0])) {
+                if (is_array($call) && is_string($call[0])) {
                     $call = [$this->container->make($call[0]), $call[1]];
                 }
-                return \call_user_func($call, $request, $this->warpHandler($next), ...$params);
+                return call_user_func($call, $request, $this->warpHandler($next), ...$params);
             };
         }, $this->queue));
     }
@@ -169,7 +175,7 @@ class CoreMiddleware implements CoreMiddlewareInterface
     }
 
     /**
-     * @param \Closure $handler
+     * @param Closure $handler
      * @return mixed
      */
     protected function warpHandler(Closure $handler): mixed

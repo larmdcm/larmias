@@ -1,29 +1,36 @@
 {
-  "name": "larmias/view",
-  "description": "A view component for larmias.",
-  "type": "library",
-  "keywords": [
-    "larmias",
-    "view"
-  ],
-  "homepage": "https://larmias.com/",
-  "license": "Apache-2.0",
-  "authors": [
-    {
-      "name": "larmdcm",
-      "email": "mdcm98@163.com"
-    }
-  ],
-  "require": {
-    "php": ">=8.0",
-    "larmias/contracts": "^1.0"
-  },
-  "autoload": {
-    "files": [
-      "src/Blade/helpers.php"
+    "name": "larmias/view",
+    "description": "A view component for larmias.",
+    "type": "library",
+    "keywords": [
+        "larmias",
+        "view"
     ],
-    "psr-4": {
-      "Larmias\\View\\": "src/"
+    "homepage": "https://larmias.com/",
+    "license": "Apache-2.0",
+    "authors": [
+        {
+            "name": "larmdcm",
+            "email": "mdcm98@163.com"
+        }
+    ],
+    "require": {
+        "php": ">=8.0",
+        "larmias/contracts": "^1.0"
+    },
+    "autoload": {
+        "files": [
+            "src/Blade/helpers.php"
+        ],
+        "psr-4": {
+            "Larmias\\View\\": "src/"
+        }
+    },
+    "extra": {
+        "larmias": {
+            "providers": [
+                "Larmias\\View\\Providers\\ViewServiceProvider"
+            ]
+        }
     }
-  }
 }

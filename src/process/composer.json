@@ -1,26 +1,33 @@
 {
-  "name": "larmias/process",
-  "description": "A process component for larmias.",
-  "type": "library",
-  "keywords": [
-    "larmias",
-    "Alarm"
-  ],
-  "homepage": "https://larmias.com/",
-  "license": "Apache-2.0",
-  "authors": [
-    {
-      "name": "larmdcm",
-      "email": "mdcm98@163.com"
+    "name": "larmias/process",
+    "description": "A process component for larmias.",
+    "type": "library",
+    "keywords": [
+        "larmias",
+        "Alarm"
+    ],
+    "homepage": "https://larmias.com/",
+    "license": "Apache-2.0",
+    "authors": [
+        {
+            "name": "larmdcm",
+            "email": "mdcm98@163.com"
+        }
+    ],
+    "require": {
+        "php": ">=8.0",
+        "larmias/contracts": "^1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Larmias\\Process\\": "src/"
+        }
+    },
+    "extra": {
+        "larmias": {
+            "providers": [
+                "Larmias\\Process\\Providers\\ProcessServiceProvider"
+            ]
+        }
     }
-  ],
-  "require": {
-    "php": ">=8.0",
-    "larmias/contracts": "^1.0"
-  },
-  "autoload": {
-    "psr-4": {
-      "Larmias\\Process\\": "src/"
-    }
-  }
 }

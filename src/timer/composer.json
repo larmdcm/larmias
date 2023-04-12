@@ -1,27 +1,27 @@
 {
-  "name": "larmias/timer",
-  "description": "A timer component for larmias.",
-  "type": "library",
-  "keywords": [
-    "larmias",
-    "timer"
-  ],
-  "homepage": "https://larmias.com/",
-  "license": "Apache-2.0",
-  "authors": [
-    {
-      "name": "larmdcm",
-      "email": "mdcm98@163.com"
+    "name": "larmias/timer",
+    "description": "A timer component for larmias.",
+    "type": "library",
+    "keywords": [
+        "larmias",
+        "timer"
+    ],
+    "homepage": "https://larmias.com/",
+    "license": "Apache-2.0",
+    "authors": [
+        {
+            "name": "larmdcm",
+            "email": "mdcm98@163.com"
+        }
+    ],
+    "require": {
+        "php": ">=8.0",
+        "ext-pcntl": "*",
+        "larmias/contracts": "^1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Larmias\\Timer\\": "src/"
+        }
     }
-  ],
-  "require": {
-    "php": ">=8.0",
-    "ext-pcntl": "*",
-    "larmias/contracts": "^1.0"
-  },
-  "autoload": {
-    "psr-4": {
-      "Larmias\\Timer\\": "src/"
-    }
-  }
 }

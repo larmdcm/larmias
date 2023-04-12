@@ -4,19 +4,10 @@ declare(strict_types=1);
 
 namespace Larmias\Tests\Database;
 
-use Larmias\Database\Manager;
-use PHPUnit\Framework\TestCase;
 use Larmias\Database\Contracts\QueryInterface;
 
 class QueryTest extends TestCase
 {
-    protected Manager $manager;
-
-    protected function setUp(): void
-    {
-        $this->manager = new Manager(container(), require __DIR__ . '/database.php');
-    }
-
     /**
      * @return void
      */
@@ -153,13 +144,5 @@ class QueryTest extends TestCase
         $query = $this->newQuery();
         $result = $query->table('t_user')->where('id', 10)->delete();
         $this->assertTrue($result > 0);
-    }
-
-    /**
-     * @return QueryInterface
-     */
-    protected function newQuery(): QueryInterface
-    {
-        return $this->manager->newQuery($this->manager->connection());
     }
 }

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Larmias\Contracts;
 
+use Closure;
+
 interface ServiceDiscoverInterface
 {
     /**
@@ -22,10 +24,10 @@ interface ServiceDiscoverInterface
     public const SERVICE_PROVIDER = 'providers';
 
     /**
-     * @param \Closure $callback
+     * @param Closure $callback
      * @return void
      */
-    public function discover(\Closure $callback): void;
+    public function discover(Closure $callback): void;
 
     /**
      * @param string $name

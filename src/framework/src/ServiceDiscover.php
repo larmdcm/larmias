@@ -156,7 +156,7 @@ class ServiceDiscover implements ServiceDiscoverInterface
      */
     protected function generate(): void
     {
-        $header = '// Service automatic discovery generated at' . date('Y-m-d H:i:s') . PHP_EOL . 'declare(strict_types=1);' . PHP_EOL;
+        $header = '// Service automatic discovery generated at ' . date('Y-m-d H:i:s') . PHP_EOL . 'declare(strict_types=1);' . PHP_EOL;
         $content = '<?php ' . PHP_EOL . $header . "return " . var_export($this->optimize($this->services), true) . ';';
         file_put_contents($this->app->getRuntimePath() . 'services.php', $content);
     }

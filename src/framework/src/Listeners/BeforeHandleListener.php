@@ -34,6 +34,6 @@ class BeforeHandleListener implements ListenerInterface
      */
     public function process(object $event): void
     {
-        $this->app->initialize();
+        $this->app->setStatus(ApplicationInterface::STATUS_NORMAL)->initialize();
     }
 }

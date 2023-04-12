@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Larmias\Engine;
 
 use Larmias\Contracts\SignalInterface;
+use RuntimeException;
+use function call_user_func_array;
 
 /**
  * @method static bool onSignal($signal, callable $func)
@@ -34,8 +36,8 @@ class Signal
     public static function __callStatic(string $name, array $arguments): mixed
     {
         if (static::$signal === null) {
-            throw new \RuntimeException("not support: Signal");
+            throw new RuntimeException("not support: Signal");
         }
-        return \call_user_func_array([static::$signal, $name], $arguments);
+        return call_user_func_array([static::$signal, $name], $arguments);
     }
 }

@@ -1,6 +1,6 @@
 {
   "name": "larmias/build",
-  "description": "build scripts",
+  "description": "build larmias",
   "type": "library",
   "keywords": [
   ],

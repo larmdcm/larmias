@@ -7,7 +7,9 @@ namespace Larmias\Timer;
 use Larmias\Contracts\TimerInterface;
 use Larmias\Timer\Drivers\Alarm;
 use Larmias\Timer\Drivers\Swoole;
-use Larmias\Timer\Drivers\NoSupport;
+use RuntimeException;
+use function extension_loaded;
+use function call_user_func_array;
 
 /**
  * @method static int tick(int $duration, callable $func, array $args = [])
@@ -50,17 +52,17 @@ class Timer
      */
     public static function getTimer(): TimerInterface
     {
-        $timer = static::$timer;
-        if ($timer === null) {
-            if (\extension_loaded('swoole')) {
-                $timer = Swoole::getInstance();
-            } else if (\extension_loaded('pcntl')) {
-                $timer = Alarm::getInstance();
+        if (!static::$timer) {
+            if (extension_loaded('swoole')) {
+                static::$timer = Swoole::getInstance();
+            } else if (extension_loaded('pcntl')) {
+                static::$timer = Alarm::getInstance();
             } else {
-                $timer = NoSupport::getInstance();
+                throw new RuntimeException('Not Support Timer');
             }
         }
-        return $timer;
+
+        return static::$timer;
     }
 
     /**
@@ -70,6 +72,6 @@ class Timer
      */
     public static function __callStatic(string $name, array $arguments): mixed
     {
-        return \call_user_func_array([static::getTimer(), $name], $arguments);
+        return call_user_func_array([static::getTimer(), $name], $arguments);
     }
 }

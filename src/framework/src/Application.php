@@ -31,11 +31,15 @@ use function glob;
 use function array_keys;
 use function array_merge;
 use function array_column;
-use function pathinfo;
 use function is_object;
 
 class Application implements ApplicationInterface
 {
+    /**
+     * @var int
+     */
+    protected int $status = self::STATUS_NORMAL;
+
     /**
      * @var string
      */
@@ -96,7 +100,7 @@ class Application implements ApplicationInterface
             StdoutLoggerInterface::class => StdoutLogger::class,
             ServiceDiscoverInterface::class => ServiceDiscover::class,
             ListenerProviderInterface::class => function () {
-                return ListenerProviderFactory::make($this->container, $this->loadFileConfig('listeners', false));
+                return ListenerProviderFactory::make($this->container, $this->loadServiceConfig('listeners'));
             },
             EventDispatcherInterface::class => function () {
                 return EventDispatcherFactory::make($this->container);
@@ -114,7 +118,7 @@ class Application implements ApplicationInterface
         if ($this->isInit) {
             return;
         }
-        $this->container->bindIf($this->loadFileConfig('dependencies'));
+        $this->container->bindIf($this->loadServiceConfig('dependencies', true));
         $this->loadEnv();
         $this->loadConfig();
         date_default_timezone_set($this->config->get('app.default_timezone', 'Asia/Shanghai'));
@@ -162,8 +166,8 @@ class Application implements ApplicationInterface
      */
     protected function boot(): void
     {
-        $bootProviders = array_merge($this->loadFileConfig('providers', false), $this->config->get('providers', []));
-        
+        $bootProviders = $this->loadServiceConfig(ServiceDiscoverInterface::SERVICE_PROVIDER, true);
+
         foreach ($bootProviders as $provider) {
             $this->register($provider);
         }
@@ -191,7 +195,7 @@ class Application implements ApplicationInterface
         }
 
         $this->providers[$provider] = $provider;
-        
+
         return $this;
     }
 
@@ -208,7 +212,7 @@ class Application implements ApplicationInterface
         if (!is_object($this->providers[$provider])) {
             $this->providers[$provider] = $this->container->get($this->providers[$provider]);
         }
-        
+
         return $this->providers[$provider];
     }
 
@@ -222,7 +226,7 @@ class Application implements ApplicationInterface
             $this->discoverConfig = $this->serviceDiscover->services();
             /** @var ConsoleInterface $console */
             $console = $this->container->get(ConsoleInterface::class);
-            $commands = $this->loadFileConfig('commands');
+            $commands = $this->loadServiceConfig(ServiceDiscoverInterface::SERVICE_COMMAND, true);
             foreach ($commands as $command) {
                 $console->addCommand($command);
             }
@@ -327,45 +331,63 @@ class Application implements ApplicationInterface
      * @param bool $loadConfigPath
      * @return array
      */
-    public function loadFileConfig(string $name, bool $loadConfigPath = true): array
+    public function loadServiceConfig(string $name, bool $loadConfigPath = false): array
     {
-        $files = [__DIR__ . '/../config/' . $name . '.php'];
-        if ($loadConfigPath) {
-            $files[] = $this->getConfigPath() . $name . '.' . $this->configExt;
-        }
-        $config = [];
-        foreach ($files as $file) {
-            if (!is_file($file)) {
-                continue;
+        $getConfig = function () use ($name, $loadConfigPath) {
+            $files = [__DIR__ . '/../config/' . $name . '.php'];
+            if ($loadConfigPath && $this->configExt === 'php') {
+                $files[] = $this->getConfigPath() . $name . '.' . $this->configExt;
             }
-            $extension = pathinfo($file, PATHINFO_EXTENSION);
-            if ($extension === 'php') {
+            $config = [];
+            foreach ($files as $file) {
+                if (!is_file($file)) {
+                    continue;
+                }
                 $config = array_merge($config, require $file);
             }
-        }
+            return $config;
+        };
+
+        $config = $getConfig();
+
         switch ($name) {
             case 'providers':
             case 'commands':
-                $config = isset($this->discoverConfig[$name]) ?
-                    array_merge(array_column($this->discoverConfig[$name], 'class'), $config) : $config;
+                $config = array_merge($config, isset($this->discoverConfig[$name]) ? array_column($this->discoverConfig[$name], 'class') : []);
                 break;
             case 'worker':
                 $processConfig = $this->discoverConfig[ServiceDiscoverInterface::SERVICE_PROCESS] ?? [];
-                if (!empty($processConfig)) {
-                    foreach ($processConfig as $item) {
-                        $config['workers'][] = [
-                            'name' => $item['args']['name'],
-                            'type' => WorkerType::WORKER_PROCESS,
-                            'settings' => ['worker_num' => $item['args']['count']],
-                            'callbacks' => [
-                                Event::ON_WORKER_START => [$item['class'], 'onStart'],
-                                Event::ON_WORKER => [$item['class'], 'handle'],
-                            ],
-                        ];
-                    }
+                foreach ($processConfig as $item) {
+                    $config['workers'][] = [
+                        'name' => $item['args']['name'],
+                        'type' => WorkerType::WORKER_PROCESS,
+                        'settings' => ['worker_num' => $item['args']['count']],
+                        'callbacks' => [
+                            Event::ON_WORKER_START => [$item['class'], 'onStart'],
+                            Event::ON_WORKER => [$item['class'], 'handle'],
+                        ],
+                    ];
                 }
                 break;
         }
         return $config;
+    }
+
+    /**
+     * @param int $status
+     * @return ApplicationInterface
+     */
+    public function setStatus(int $status): ApplicationInterface
+    {
+        $this->status = $status;
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getStatus(): int
+    {
+        return $this->status;
     }
 }

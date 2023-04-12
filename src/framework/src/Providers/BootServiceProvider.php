@@ -18,6 +18,12 @@ class BootServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        $this->commands([
+            \Larmias\Framework\Commands\Start::class,
+            \Larmias\Framework\Commands\Stop::class,
+            \Larmias\Framework\Commands\Restart::class,
+            \Larmias\Framework\Commands\Reload::class,
+        ]);
     }
 
     /**

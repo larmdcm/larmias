@@ -6,6 +6,12 @@ namespace Larmias\Contracts;
 
 interface ApplicationInterface
 {
+    /** @var int */
+    public const STATUS_NORMAL = 1;
+
+    /** @var int */
+    public const STATUS_PRELOAD = 2;
+
     /**
      * @return void
      */
@@ -89,4 +95,15 @@ interface ApplicationInterface
      * @return self
      */
     public function setConfigExt(string $configExt): ApplicationInterface;
+
+    /**
+     * @param int $status
+     * @return ApplicationInterface
+     */
+    public function setStatus(int $status): ApplicationInterface;
+
+    /**
+     * @return int
+     */
+    public function getStatus(): int;
 }

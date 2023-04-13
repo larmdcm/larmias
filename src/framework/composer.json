@@ -22,7 +22,8 @@
         "larmias/command": "^1.0",
         "larmias/engine": "^1.0",
         "larmias/utils": "^1.0",
-        "larmias/timer": "^1.0"
+        "larmias/timer": "^1.0",
+        "symfony/finder": "^4.3.2|^5.1"
     },
     "autoload": {
         "psr-4": {

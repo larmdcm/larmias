@@ -9,6 +9,8 @@ use Larmias\Contracts\StdoutLoggerInterface;
 use Larmias\Contracts\ApplicationInterface;
 use Larmias\Contracts\ConfigInterface;
 use Larmias\Utils\ApplicationContext;
+use function is_array;
+use function str_starts_with;
 
 /**
  * make
@@ -49,10 +51,10 @@ function config(mixed $key = null, mixed $value = null): mixed
     if ($key === null && $value === null) {
         return $config;
     }
-    if (\is_array($key)) {
+    if (is_array($key)) {
         return $config->set($key);
     }
-    return \str_starts_with($key, '?') ? $config->has($key) : $config->get($key, $value);
+    return str_starts_with($key, '?') ? $config->has($key) : $config->get($key, $value);
 }
 
 /**

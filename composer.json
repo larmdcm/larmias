@@ -161,6 +161,35 @@
             "Larmias\\Tests\\": "tests/"
         }
     },
+    "extra": {
+        "larmias": {
+            "providers": [
+                "Larmias\\AsyncQueue\\Providers\\QueueServiceProvider",
+                "Larmias\\Auth\\Providers\\AuthServiceProvider",
+                "Larmias\\Cache\\Providers\\CacheServiceProvider",
+                "Larmias\\Crontab\\Providers\\CrontabServiceProvider",
+                "Larmias\\Database\\Providers\\DatabaseServiceProvider",
+                "Larmias\\Di\\Providers\\AnnotationServiceProvider",
+                "Larmias\\Engine\\WorkerMan\\Providers\\WorkerManServiceProvider",
+                "Larmias\\FileWatcher\\Providers\\FileWatcherServiceProvider",
+                "Larmias\\Framework\\Providers\\BootServiceProvider",
+                "Larmias\\Http\\CSRFProviders\\CsrfServiceProvider",
+                "Larmias\\HttpServer\\Providers\\HttpServiceProvider",
+                "Larmias\\Lock\\Providers\\LockerServiceProvider",
+                "Larmias\\Log\\Providers\\LogServiceProvider",
+                "Larmias\\Process\\Providers\\ProcessServiceProvider",
+                "Larmias\\Redis\\Providers\\RedisServiceProvider",
+                "Larmias\\Session\\Providers\\SessionServiceProvider",
+                "Larmias\\SharedMemory\\Providers\\SharedMemoryServiceProvider",
+                "Larmias\\Snowflake\\Providers\\SnowflakeServiceProvider",
+                "Larmias\\Task\\Providers\\TaskServiceProvider",
+                "Larmias\\Throttle\\Providers\\ThrottleServiceProvider",
+                "Larmias\\Translation\\Providers\\TranslationServiceProvider",
+                "Larmias\\Validation\\Providers\\ValidatorServiceProvider",
+                "Larmias\\View\\Providers\\ViewServiceProvider"
+            ]
+        }
+    },
     "config": {
         "sort-packages": true
     },

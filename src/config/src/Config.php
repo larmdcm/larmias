@@ -75,7 +75,7 @@ class Config implements ArrayAccess, ConfigInterface
     /**
      * 设置配置参数.
      *
-     * @param string $key
+     * @param string|array $key
      * @param mixed $value
      * @return array
      */

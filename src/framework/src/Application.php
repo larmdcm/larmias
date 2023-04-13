@@ -61,7 +61,7 @@ class Application implements ApplicationInterface
     protected string $runtimePath;
 
     /**
-     * @var ServiceProviderInterface|string[]
+     * @var ServiceProviderInterface[]|string[]
      */
     protected array $providers = [];
 
@@ -118,7 +118,7 @@ class Application implements ApplicationInterface
         if ($this->isInit) {
             return;
         }
-        $this->container->bindIf($this->loadServiceConfig('dependencies', true));
+        $this->container->bindIf($this->loadServiceConfig('dependencies'));
         $this->loadEnv();
         $this->loadConfig();
         date_default_timezone_set($this->config->get('app.default_timezone', 'Asia/Shanghai'));
@@ -166,7 +166,7 @@ class Application implements ApplicationInterface
      */
     protected function boot(): void
     {
-        $bootProviders = $this->loadServiceConfig(ServiceDiscoverInterface::SERVICE_PROVIDER, true);
+        $bootProviders = array_merge($this->config->get('providers', []), $this->loadServiceConfig(ServiceDiscoverInterface::SERVICE_PROVIDER));
 
         foreach ($bootProviders as $provider) {
             $this->register($provider);

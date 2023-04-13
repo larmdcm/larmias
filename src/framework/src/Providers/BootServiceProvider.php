@@ -23,6 +23,7 @@ class BootServiceProvider extends ServiceProvider
             \Larmias\Framework\Commands\Stop::class,
             \Larmias\Framework\Commands\Restart::class,
             \Larmias\Framework\Commands\Reload::class,
+            \Larmias\Framework\Commands\VendorPublish::class,
         ]);
     }
 

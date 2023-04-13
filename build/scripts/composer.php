@@ -10,7 +10,7 @@ $composer = json_decode(file_get_contents($composerFile), true);
 $files = Finder::create()->files()->in([PROJECT_PATH . '/src'])->name(['composer.json']);
 $subComposer = [];
 
-function handleSubComposer(array $composer): void
+function handleSubComposer(array $composer): array
 {
     $jsonData = $composer['json_data'];
     /** @var SplFileInfo $file */
@@ -26,7 +26,12 @@ function handleSubComposer(array $composer): void
             $jsonData['extra']['larmias']['providers'] = $providers;
         }
     }
+
     putComposerFile($composer['file_path'], $jsonData);
+
+    $composer['json_data'] = $jsonData;
+
+    return $composer;
 }
 
 function getPsr4Namespace(array $jsonData): string
@@ -44,13 +49,14 @@ function putComposerFile(string $file, array $composer): void
 foreach ($files as $file) {
     $jsonData = json_decode($file->getContents(), true);
     $info = ['name' => $jsonData['name'], 'base_path' => dirname($file->getRealPath()), 'file_path' => $file->getRealPath(), 'json_data' => $jsonData];
+    $info = handleSubComposer($info);
     $subComposer[] = $info;
-    handleSubComposer($info);
 }
 
 
 foreach ($subComposer as $item) {
     $composer['replace'][$item['name']] = 'self.version';
+    $composer['extra']['larmias']['providers'] = array_merge($composer['extra']['larmias']['providers'], $item['json_data']['extra']['larmias']['providers'] ?? []);
 }
 
 putComposerFile($composerFile, $composer);

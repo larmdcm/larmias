@@ -19,6 +19,7 @@ use ArrayAccess;
 use Stringable;
 use JsonSerializable;
 use function Larmias\Utils\class_basename;
+use function method_exists;
 
 /**
  * @method self table(string $name)
@@ -47,7 +48,7 @@ use function Larmias\Utils\class_basename;
  * @method self rightJoin(array|string $table, mixed $condition)
  * @method self groupBy(array|string $field)
  * @method self groupByRaw(string $expression, array $bindings = [])
- * @method self orderBy(array|string $field)
+ * @method self orderBy(array|string $field, string $order = 'DESC')
  * @method self orderByRaw(string $expression, array $bindings = [])
  * @method self having(string $expression, array $bindings = [])
  * @method self orHaving(string $expression, array $bindings = [])
@@ -137,7 +138,7 @@ abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, Js
     {
         $this->setAttributes($data);
 
-        $this->origin = $this->data;
+        $this->refreshOrigin();
 
         if ($this->name === null) {
             $this->name = class_basename(static::class);
@@ -180,8 +181,8 @@ abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, Js
      */
     public static function create(array $data): static
     {
-        $model = new static();
-        $model->save($data);
+        $model = new static($data);
+        $model->save();
         return $model;
     }
 
@@ -204,6 +205,7 @@ abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, Js
             if (is_string($id)) {
                 $id = str_contains($id, ',') ? explode(',', $id) : [$id];
             }
+
             $model->query()->whereIn($model->getPrimaryKey(), $id);
         }
 
@@ -247,7 +249,7 @@ abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, Js
             $this->setExists(false);
         }
 
-        return $this->isExists();
+        return $result;
     }
 
     /**
@@ -264,12 +266,19 @@ abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, Js
             $exists = $this->query()->insert($this->data) > 0;
         }
 
+        $primaryKey = $this->getPrimaryKey();
+
         if ($exists) {
-            $this->data[$this->getPrimaryKey()] = $id;
+            if (!isset($this->data[$primaryKey]) || $this->data[$primaryKey] === '') {
+                $this->data[$primaryKey] = $id;
+            }
             $this->setExists(true);
+            if (empty($this->origin)) {
+                $this->refreshOrigin();
+            }
         }
 
-        return $this->isExists();
+        return $exists;
     }
 
     /**
@@ -288,7 +297,9 @@ abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, Js
     {
         $data = $this->getChangedData();
 
-        return $this->query()->update($data, $this->getWhere()) > 0;
+        $result = $this->query()->update($data, $this->getWhere()) > 0;
+
+        return $result;
     }
 
     /**
@@ -305,17 +316,14 @@ abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, Js
     }
 
     /**
-     * @return array
+     * @param QueryInterface $query
+     * @return void
      */
-    protected function getQueryWhere(): array
+    protected function setQueryWhere(QueryInterface $query): void
     {
-        $queryWhere = [];
-
-        if (isset($this->softDeleteField)) {
-            $queryWhere[] = method_exists($this, 'getSoftDeleteWhere') ? $this->getSoftDeleteWhere() : [];
+        if (isset($this->softDeleteField) && method_exists($this, 'withNoTrashed')) {
+            $this->withNoTrashed($query);
         }
-
-        return $queryWhere;
     }
 
     /**
@@ -331,6 +339,16 @@ abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, Js
     }
 
     /**
+     * @param QueryInterface $query
+     * @return self
+     */
+    public function setQuery(QueryInterface $query): self
+    {
+        $this->query = $query;
+        return $this;
+    }
+
+    /**
      * @return QueryInterface
      */
     public function newQuery(): QueryInterface
@@ -341,10 +359,7 @@ abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, Js
             $query->table($this->table);
         }
 
-        $queryWhere = $this->getQueryWhere();
-        if (!empty($queryWhere)) {
-            $query->where($queryWhere);
-        }
+        $this->setQueryWhere($query);
 
         return $query;
     }
@@ -358,7 +373,10 @@ abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, Js
     {
         $query = $this->query();
         $result = $query->{$name}(...$args);
-        return $result instanceof QueryInterface ? $this : $this->toResult($result);
+        if ($result instanceof QueryInterface) {
+            return $this->setQuery($result);
+        }
+        return $this->toResult($result);
     }
 
     /**

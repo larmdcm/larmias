@@ -10,6 +10,7 @@ use Larmias\Database\Contracts\ConnectionInterface;
 use Larmias\Database\Contracts\ExecuteResultInterface;
 use Larmias\Database\Contracts\ExpressionInterface;
 use Larmias\Database\Contracts\QueryInterface;
+use Larmias\Database\Contracts\SqlPrepareInterface;
 use Larmias\Database\Entity\Expression;
 use Larmias\Database\Exceptions\ResourceNotFoundException;
 use Larmias\Database\Query\Concerns\AggregateQuery;
@@ -50,6 +51,8 @@ class Builder implements QueryInterface
         'offset' => null,
         'limit' => null,
         'having' => [],
+        'incr' => [],
+        'soft_delete' => [],
     ];
 
     /**
@@ -180,7 +183,7 @@ class Builder implements QueryInterface
      * @param string $order
      * @return QueryInterface
      */
-    public function orderBy(array|string $field, string $order = ''): QueryInterface
+    public function orderBy(array|string $field, string $order = 'DESC'): QueryInterface
     {
         if (is_string($field)) {
             if (empty($order)) {
@@ -199,35 +202,35 @@ class Builder implements QueryInterface
     }
 
     /**
-     * @param string $raw
+     * @param string $expression
      * @param array $bindings
      * @return QueryInterface
      */
-    public function orderByRaw(string $raw, array $bindings = []): QueryInterface
+    public function orderByRaw(string $expression, array $bindings = []): QueryInterface
     {
-        $this->options['order'][] = new Expression($raw, $bindings);
+        $this->options['order'][] = new Expression($expression, $bindings);
         return $this;
     }
 
     /**
-     * @param string $having
+     * @param string $expression
      * @param array $bindings
      * @return QueryInterface
      */
-    public function having(string $having, array $bindings = []): QueryInterface
+    public function having(string $expression, array $bindings = []): QueryInterface
     {
-        $this->options['having']['AND'][] = new Expression($having, $bindings);
+        $this->options['having']['AND'][] = new Expression($expression, $bindings);
         return $this;
     }
 
     /**
-     * @param string $having
+     * @param string $expression
      * @param array $bindings
      * @return QueryInterface
      */
-    public function orHaving(string $having, array $bindings = []): QueryInterface
+    public function orHaving(string $expression, array $bindings = []): QueryInterface
     {
-        $this->options['having']['OR'][] = new Expression($having, $bindings);
+        $this->options['having']['OR'][] = new Expression($expression, $bindings);
         return $this;
     }
 
@@ -273,6 +276,17 @@ class Builder implements QueryInterface
     }
 
     /**
+     * @param string $field
+     * @param array $condition
+     * @return QueryInterface
+     */
+    public function useSoftDelete(string $field, array $condition): QueryInterface
+    {
+        $this->options['soft_delete'] = [$field, $condition];
+        return $this;
+    }
+
+    /**
      * @param int $buildType
      * @return string
      */
@@ -282,8 +296,8 @@ class Builder implements QueryInterface
             self::BUILD_SQL_INSERT => $this->builder->insert($this->getOptions()),
             self::BUILD_SQL_BATCH_INSERT => $this->builder->insertAll($this->getOptions()),
             self::BUILD_SQL_UPDATE => $this->builder->update($this->getOptions()),
-            self::BUILD_SQL_DELETE => $this->builder->delete($this->getOptions()),
-            default => $this->builder->select($this->getOptions())
+            self::BUILD_SQL_DELETE => $this->buildDelete(),
+            default => $this->buildSelect()
         };
         return $this->connection->buildSql($sqlPrepare->getSql(), $sqlPrepare->getBindings());
     }
@@ -302,8 +316,12 @@ class Builder implements QueryInterface
         if ($condition !== null) {
             $this->where($condition);
         }
-        $options = $this->getOptions();
-        $sqlPrepare = $this->builder->{$method}($options);
+        if ($method === 'delete') {
+            $sqlPrepare = $this->buildDelete();
+        } else {
+            $options = $this->getOptions();
+            $sqlPrepare = $this->builder->{$method}($options);
+        }
         return $this->connection->execute($sqlPrepare->getSql(), $sqlPrepare->getBindings());
     }
 
@@ -358,7 +376,7 @@ class Builder implements QueryInterface
      */
     public function get(): CollectionInterface
     {
-        $sqlPrepare = $this->builder->select($this->getOptions());
+        $sqlPrepare = $this->buildSelect();
         $items = $this->connection->query($sqlPrepare->getSql(), $sqlPrepare->getBindings())->getResultSet();
         return Collection::make($items);
     }
@@ -500,5 +518,46 @@ class Builder implements QueryInterface
     {
         $this->builder = $builder;
         return $this;
+    }
+
+    /**
+     * @return SqlPrepareInterface
+     */
+    protected function buildSelect(): SqlPrepareInterface
+    {
+        if ($this->options['soft_delete']) {
+            [$field, $condition] = $this->options['soft_delete'];
+            $this->where([
+                [$field, ...$condition]
+            ]);
+        }
+
+        return $this->builder->select($this->getOptions());
+    }
+
+    /**
+     * @return SqlPrepareInterface
+     */
+    protected function buildDelete(): SqlPrepareInterface
+    {
+        if ($this->options['soft_delete']) {
+            [$field, $condition] = $this->options['soft_delete'];
+            if ($condition) {
+                if (count($condition) > 1) {
+                    $value = $condition[1];
+                } else {
+                    $value = $condition[0];
+                    if ($value === null || (is_string($value) && in_array(strtoupper($value), ['NULL', 'IS NULL']))) {
+                        $value = null;
+                    }
+                }
+                $this->data([
+                    $field => $value,
+                ]);
+                return $this->builder->update($this->getOptions());
+            }
+        }
+
+        return $this->builder->delete($this->getOptions());
     }
 }

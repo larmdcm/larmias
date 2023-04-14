@@ -6,6 +6,7 @@ namespace Larmias\Database\Model\Concerns;
 
 use Larmias\Contracts\CollectionInterface;
 use Larmias\Database\Model\Collection;
+use Larmias\Utils\Contracts\Arrayable;
 use function is_array;
 use function json_encode;
 
@@ -53,7 +54,7 @@ trait Conversion
      */
     public function toResult(mixed $result): mixed
     {
-        $check = $result instanceof CollectionInterface || is_array($result);
+        $check = $result instanceof CollectionInterface || $result instanceof Arrayable || is_array($result);
 
         if (!$check) {
             return $result;
@@ -64,6 +65,8 @@ trait Conversion
             return $collect->map(function ($item) {
                 return $this->toResult($item);
             });
+        } else if ($result instanceof Arrayable) {
+            $result = $result->toArray();
         }
 
         $model = new static($result);

@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace Larmias\Database\Model\Concerns;
 
+use Larmias\Database\Contracts\QueryInterface;
 use Larmias\Database\Model;
 use RuntimeException;
+use function date;
+use function time;
 
 /**
  * @mixin Model
@@ -63,7 +66,7 @@ trait SoftDelete
         return match ($this->getSoftDeleteFieldType()) {
             'datetime' => date('Y-m-d H:i:s.u', time()),
             'timestamp' => time(),
-            'integer' => 1,
+            'integer', 'int' => 1,
             default => throw new RuntimeException("getSoftDeleteData value parse error"),
         };
     }
@@ -77,12 +80,14 @@ trait SoftDelete
     }
 
     /**
-     * @return array
+     * @param QueryInterface $query
+     * @return void
      */
-    protected function getSoftDeleteWhere(): array
+    protected function withNoTrashed(QueryInterface $query): void
     {
-        $softDeleteField = $this->getTable() . '.' . $this->softDeleteField;
-        return $this->softDeleteValue === null ? [$softDeleteField, 'is null'] : [$softDeleteField, '=', $this->softDeleteValue];
+        $softDeleteField = $query->getTable() . '.' . $this->softDeleteField;
+        $condition = $this->softDeleteValue === null ? ['null'] : ['=', $this->softDeleteValue];
+        $query->useSoftDelete($softDeleteField, $condition);
     }
 
     /**

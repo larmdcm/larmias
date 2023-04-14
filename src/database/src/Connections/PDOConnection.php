@@ -278,6 +278,11 @@ abstract class PDOConnection extends Connection
         return isset($this->pdo);
     }
 
+    public function ping(): bool
+    {
+        return $this->query();
+    }
+
     /**
      * @return bool
      */

@@ -52,7 +52,7 @@ abstract class Builder implements BuilderInterface
     /**
      * @var string
      */
-    protected string $deleteSql = 'DELETE FROM <TABLE> <JOIN><WHERE><ORDER><LIMIT>';
+    protected string $deleteSql = 'DELETE FROM <TABLE><JOIN><WHERE><ORDER><LIMIT>';
 
     /**
      * @var array
@@ -444,8 +444,10 @@ abstract class Builder implements BuilderInterface
 
         switch ($op) {
             case 'NULL':
+            case 'IS NULL':
                 return $this->buildWhereNull($field);
             case 'NOT NULL':
+            case 'IS NOT NULL':
                 return $this->buildWhereNotNull($field);
             case 'IN':
             case 'NOT IN':

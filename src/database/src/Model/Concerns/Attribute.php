@@ -36,6 +36,35 @@ trait Attribute
 
     /**
      * @param string $name
+     * @return mixed
+     */
+    public function getAttribute(string $name, bool $strict = true): mixed
+    {
+        $name = $this->getRealAttrName($name);
+        $method = 'get' . Str::studly($name) . 'Attr';
+
+        if (method_exists($this, $method)) {
+            $value = $this->{$method}($this->data[$name] ?? null, $name);
+        } else {
+            if (!array_key_exists($name, $this->data)) {
+                if (!$strict) {
+                    return null;
+                }
+                throw new InvalidArgumentException('property not exists:' . static::class . '->' . $name);
+            }
+
+            $value = $this->data[$name];
+        }
+
+        if (isset($this->cast[$name])) {
+            $value = $this->castValue($this->cast[$name], $value, true);
+        }
+
+        return $value;
+    }
+
+    /**
+     * @param string $name
      * @param mixed $value
      * @return void
      */
@@ -67,32 +96,11 @@ trait Attribute
     }
 
     /**
-     * @param string $name
-     * @return mixed
+     * @return void
      */
-    public function getAttribute(string $name, bool $strict = true): mixed
+    public function refreshOrigin(): void
     {
-        $name = $this->getRealAttrName($name);
-        $method = 'get' . Str::studly($name) . 'Attr';
-
-        if (method_exists($this, $method)) {
-            $value = $this->{$method}($name);
-        } else {
-            if (!array_key_exists($name, $this->data)) {
-                if (!$strict) {
-                    return null;
-                }
-                throw new InvalidArgumentException('property not exists:' . static::class . '->' . $name);
-            }
-
-            $value = $this->data[$name];
-        }
-
-        if (isset($this->cast[$name])) {
-            $value = $this->castValue($this->cast[$name], $value, true);
-        }
-
-        return $value;
+        $this->origin = $this->data;
     }
 
     /**
@@ -108,12 +116,15 @@ trait Attribute
         }
 
         switch ($type) {
+            case 'int':
             case 'integer':
                 $value = (int)$value;
                 break;
+            case 'double':
             case 'float':
                 $value = (float)$value;
                 break;
+            case 'bool':
             case 'boolean':
                 $value = (bool)$value;
                 break;
@@ -176,7 +187,6 @@ trait Attribute
             if ((empty($a) || empty($b)) && $a !== $b) {
                 return 1;
             }
-
             return is_object($a) || $a != $b ? 1 : 0;
         });
     }

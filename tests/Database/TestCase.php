@@ -28,7 +28,9 @@ class TestCase extends BaseTestCase
     protected function setUp(): void
     {
         $container = container();
-        $container->bind(ListenerProviderInterface::class, ListenerProviderFactory::make($container));
+        $container->bind(ListenerProviderInterface::class, ListenerProviderFactory::make($container, [
+            DbQueryExecutedListener::class,
+        ]));
         $this->manager = new Manager($container, require __DIR__ . '/database.php');
         $this->manager->setEventDispatcher(EventDispatcherFactory::make($container));
 

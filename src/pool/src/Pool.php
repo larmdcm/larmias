@@ -218,31 +218,59 @@ abstract class Pool implements PoolInterface
             return;
         }
         $this->heartbeatId = $this->timer->tick(intval($this->options['heartbeat'] * 1000), function () {
-            $now = time();
-            $connections = [];
-            while (true) {
-                if ($this->closed || $this->channel->isEmpty() || $this->connectionCount <= $this->poolOption->getMinActive()) {
-                    break;
-                }
-                $connection = $this->channel->pop();
-                if (!$connection) {
-                    continue;
-                }
-                $lastActiveTime = $connection->getLastActiveTime();
-                $lifetime = $this->poolOption->getMaxLifetime();
-                if ($now - $lastActiveTime < $this->poolOption->getMaxIdleTime() && ($lifetime <= 0 || $now - $connection->getConnectTime() < $lifetime)) {
-                    $connections[] = $connection;
-                } else {
-                    $this->disConnection($connection);
-                }
-            }
-
-            foreach ($connections as $connection) {
-                if (!$this->channel->push($connection)) {
-                    $this->disConnection($connection);
-                }
-            }
+            $this->checkLifetime();
+            $this->checkMaxIdleTime();
         });
+    }
+
+    /**
+     * @return void
+     */
+    protected function checkLifetime(): void
+    {
+        $now = time();
+        $lifetime = $this->poolOption->getMaxLifetime();
+        $length = $this->channel->length();
+        for ($i = 0; $i < $length; $i++) {
+            $connection = $this->channel->pop();
+            if (($lifetime > 0 && $now - $connection->getConnectTime() > $lifetime) || !$connection->ping()) {
+                $this->disConnection($connection);
+            } else {
+                $this->channel->push($connection);
+            }
+        }
+    }
+
+    /**
+     * @return void
+     */
+    protected function checkMaxIdleTime(): void
+    {
+        $now = time();
+        $connections = [];
+
+        while (true) {
+            if ($this->closed || $this->channel->isEmpty() || $this->connectionCount <= $this->poolOption->getMinActive()) {
+                break;
+            }
+            $connection = $this->channel->pop();
+            if (!$connection) {
+                continue;
+            }
+            $lastActiveTime = $connection->getLastActiveTime();
+            if ($now - $lastActiveTime < $this->poolOption->getMaxIdleTime()) {
+                $connections[] = $connection;
+            } else {
+                $this->disConnection($connection);
+            }
+        }
+
+        /** @var ConnectionInterface $connection */
+        foreach ($connections as $connection) {
+            if (!$this->channel->push($connection)) {
+                $this->disConnection($connection);
+            }
+        }
     }
 
     /**

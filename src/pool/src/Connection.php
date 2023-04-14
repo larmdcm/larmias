@@ -33,6 +33,22 @@ abstract class Connection implements ConnectionInterface
     }
 
     /**
+     * @return bool
+     */
+    public function reset(): bool
+    {
+        return true;
+    }
+
+    /**
+     * @return bool
+     */
+    public function ping(): bool
+    {
+        return true;
+    }
+
+    /**
      * @return PoolInterface
      */
     public function getPool(): PoolInterface

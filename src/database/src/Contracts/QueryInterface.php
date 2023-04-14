@@ -229,7 +229,7 @@ interface QueryInterface
      * @param string $order
      * @return QueryInterface
      */
-    public function orderBy(array|string $field, string $order = ''): QueryInterface;
+    public function orderBy(array|string $field, string $order = 'DESC'): QueryInterface;
 
     /**
      * @param string $expression
@@ -277,6 +277,13 @@ interface QueryInterface
      * @return QueryInterface
      */
     public function decr(string $field, float $step = 1.0): QueryInterface;
+
+    /**
+     * @param string $field
+     * @param array $condition
+     * @return QueryInterface
+     */
+    public function useSoftDelete(string $field, array $condition): QueryInterface;
 
     /**
      * @param string $field

@@ -19,6 +19,11 @@ interface ConnectionInterface
     /**
      * @return bool
      */
+    public function ping(): bool;
+
+    /**
+     * @return bool
+     */
     public function isConnected(): bool;
 
     /**

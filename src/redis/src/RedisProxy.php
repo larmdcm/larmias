@@ -103,6 +103,14 @@ class RedisProxy implements ConnectionInterface
     /**
      * @return bool
      */
+    public function connect(): bool
+    {
+        return $this->__call(__FUNCTION__, ...func_get_args());
+    }
+
+    /**
+     * @return bool
+     */
     public function reconnect(): bool
     {
         return $this->__call(__FUNCTION__, ...func_get_args());

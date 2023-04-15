@@ -29,7 +29,6 @@ use function is_callable;
 use function array_merge;
 use function call_user_func;
 use function call_user_func_array;
-use function array_filter;
 
 abstract class Worker implements WorkerInterface
 {
@@ -128,10 +127,10 @@ abstract class Worker implements WorkerInterface
     protected function reset(): void
     {
         mt_srand();
-        if (extension_loaded('apc')) {
+        if (extension_loaded('apc') && function_exists('apc_clear_cache')) {
             apc_clear_cache();
         }
-        if (extension_loaded('Zend OPcache')) {
+        if (extension_loaded('Zend OPcache') && function_exists('opcache_reset')) {
             opcache_reset();
         }
     }

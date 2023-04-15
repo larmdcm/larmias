@@ -278,9 +278,17 @@ abstract class PDOConnection extends Connection
         return isset($this->pdo);
     }
 
+    /**
+     * @return bool
+     */
     public function ping(): bool
     {
-        return $this->query();
+        try {
+            $this->query('select 1');
+            return true;
+        } catch (Throwable $e) {
+            return false;
+        }
     }
 
     /**

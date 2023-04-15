@@ -9,6 +9,11 @@ interface ConnectionInterface
     /**
      * @return bool
      */
+    public function connect(): bool;
+
+    /**
+     * @return bool
+     */
     public function reconnect(): bool;
 
     /**

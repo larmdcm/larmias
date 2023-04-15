@@ -48,17 +48,47 @@ class RedisConnection extends BaseConnection implements ConnectionInterface
      */
     public function connect(): bool
     {
-        return $this->reconnect();
+        $redis = $this->createRedis((string)$this->config['host'], (int)$this->config['port'], (float)$this->config['timeout']);
+        $options = $this->config['options'] ?? [];
+
+        foreach ($options as $name => $value) {
+            $redis->setOption($name, $value);
+        }
+
+        if (isset($this->config['auth']) && $this->config['auth'] !== '') {
+            $redis->auth($this->config['auth']);
+        }
+
+        $db = (int)$this->config['db'];
+        if ($db > 0) {
+            $redis->select($db);
+            $this->setDatabase($db);
+        }
+
+        $this->redis = $redis;
+
+        return true;
     }
 
     /**
      * @return bool
-     * @throws \RedisException
      */
     public function reset(): bool
     {
         $this->setDatabase((int)$this->config['db']);
         return $this->redis->select($this->getDatabase()) !== false;
+    }
+
+    /**
+     * @return bool
+     */
+    public function ping(): bool
+    {
+        try {
+            return (bool)$this->redis->ping();
+        } catch (\Throwable $e) {
+            return false;
+        }
     }
 
     /**
@@ -80,24 +110,7 @@ class RedisConnection extends BaseConnection implements ConnectionInterface
             $this->close();
         }
 
-        $redis = $this->createRedis((string)$this->config['host'], (int)$this->config['port'], (float)$this->config['timeout']);
-        $options = $this->config['options'] ?? [];
-
-        foreach ($options as $name => $value) {
-            $redis->setOption($name, $value);
-        }
-
-        if (isset($this->config['auth']) && $this->config['auth'] !== '') {
-            $redis->auth($this->config['auth']);
-        }
-
-        $db = (int)$this->config['db'];
-        if ($db > 0) {
-            $redis->select($db);
-            $this->setDatabase($db);
-        }
-
-        $this->redis = $redis;
+        $this->connect();
 
         return true;
     }
@@ -151,7 +164,7 @@ class RedisConnection extends BaseConnection implements ConnectionInterface
     {
         $redis = new Redis();
         if (!$redis->connect($host, $port, $timeout)) {
-            throw new RuntimeException('Connection reconnect failed.');
+            throw new RuntimeException('Connection connect failed.');
         }
         return $redis;
     }

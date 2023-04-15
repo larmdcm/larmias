@@ -141,7 +141,7 @@ abstract class Pool implements PoolInterface
         }
         $this->coroutineFactory->create(function () {
             while (!$this->channel->isEmpty()) {
-                $connection = $this->channel->pop();
+                $connection = $this->channel->pop($this->poolOption->getWaitTimeout());
                 if ($connection) {
                     $this->disConnection($connection);
                 }
@@ -232,7 +232,7 @@ abstract class Pool implements PoolInterface
         $lifetime = $this->poolOption->getMaxLifetime();
         $length = $this->channel->length();
         for ($i = 0; $i < $length; $i++) {
-            $connection = $this->channel->pop();
+            $connection = $this->channel->pop($this->poolOption->getWaitTimeout());
             if (($lifetime > 0 && $now - $connection->getConnectTime() > $lifetime) || !$connection->ping()) {
                 $this->disConnection($connection);
             } else {
@@ -253,7 +253,7 @@ abstract class Pool implements PoolInterface
             if ($this->closed || $this->channel->isEmpty() || $this->connectionCount <= $this->poolOption->getMinActive()) {
                 break;
             }
-            $connection = $this->channel->pop();
+            $connection = $this->channel->pop($this->poolOption->getWaitTimeout());
             if (!$connection) {
                 continue;
             }

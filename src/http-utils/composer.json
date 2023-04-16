@@ -24,7 +24,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Larmias\\Http\\Utils": "src/"
+            "Larmias\\Http\\Utils": "Larmias\\Http\\Utils\\"
         }
     }
 }

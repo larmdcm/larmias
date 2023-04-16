@@ -32,6 +32,8 @@ class AuthServiceProvider implements ServiceProviderInterface
      */
     public function boot(): void
     {
-        Auth::setContext($this->container->get(ContextInterface::class));
+        if ($this->container->has(ContextInterface::class)) {
+            Auth::setContext($this->container->get(ContextInterface::class));
+        }
     }
 }

@@ -16,16 +16,22 @@ function handleSubComposer(array $composer): array
     /** @var SplFileInfo $file */
     $providerPath = $composer['base_path'] . '/src/Providers';
     $namespace = getPsr4Namespace($jsonData);
+    if (substr($namespace, -1) !== '\\') {
+        $jsonData['autoload']['psr-4'][$namespace] = $namespace . '\\';
+        $namespace .= '\\';
+    }
     if (is_dir($providerPath)) {
         $providers = [];
         foreach (Finder::create()->files()->in([$providerPath])->name(['*.php']) as $file) {
-            $providers[] = $namespace . 'Providers\\' . pathinfo($file->getFilename(), PATHINFO_FILENAME);
+            $provider = $namespace . 'Providers\\' . pathinfo($file->getFilename(), PATHINFO_FILENAME);
+            $providers[] = $provider;
         }
 
         if (!empty($providers)) {
             $jsonData['extra']['larmias']['providers'] = $providers;
         }
     }
+
 
     putComposerFile($composer['file_path'], $jsonData);
 
@@ -54,9 +60,12 @@ foreach ($files as $file) {
 }
 
 
+$composer['extra']['larmias']['providers'] = [];
+
 foreach ($subComposer as $item) {
     $composer['replace'][$item['name']] = 'self.version';
-    $composer['extra']['larmias']['providers'] = array_merge($composer['extra']['larmias']['providers'], $item['json_data']['extra']['larmias']['providers'] ?? []);
+    $providers = (array)($item['json_data']['extra']['larmias']['providers'] ?? []);
+    $composer['extra']['larmias']['providers'] = [...$composer['extra']['larmias']['providers'], ...$providers];
 }
 
 putComposerFile($composerFile, $composer);

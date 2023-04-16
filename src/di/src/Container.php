@@ -125,13 +125,13 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
      */
     public function make(string $abstract, array $params = [], bool $newInstance = false): object
     {
-        $abstract = $this->getAlias($abstract);
-
         /** @var ContextInterface $context */
         $context = $this->instances[$this->getAlias(ContextInterface::class)] ?? null;
         if ($context && !$newInstance && $context->has($abstract) && \is_object($instance = $context->get($abstract))) {
             return $instance;
         }
+
+        $abstract = $this->getAlias($abstract);
 
         if (isset($this->instances[$abstract]) && !$newInstance) {
             return $this->instances[$abstract];
@@ -190,10 +190,10 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
         } else if (is_object($concrete) && !($concrete instanceof Closure)) {
             $this->instance($abstract, $concrete, $force);
         } else {
-            $abstract = $this->getAlias($abstract);
-            if ($concrete instanceof Closure || $abstract !== $concrete) {
-                if (!isset($this->bindings[$abstract]) || $force) {
-                    $this->bindings[$abstract] = $concrete;
+            $alias = $this->getAlias($abstract);
+            if (($alias === $abstract && !isset($this->bindings[$alias])) || $force) {
+                if ($concrete instanceof Closure || $alias !== $concrete) {
+                    $this->bindings[$alias] = $concrete;
                 }
             }
         }
@@ -222,9 +222,9 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
      */
     public function instance(string $abstract, object $instance, bool $force = true): object
     {
-        $abstract = $this->getAlias($abstract);
-        if (!isset($this->instances[$abstract]) || $force) {
-            $this->instances[$abstract] = $instance;
+        $alias = $this->getAlias($abstract);
+        if (($alias === $abstract && !isset($this->instances[$alias])) || $force) {
+            $this->instances[$alias] = $instance;
         }
         return $instance;
     }

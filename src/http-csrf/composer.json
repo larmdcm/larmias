@@ -27,13 +27,13 @@
             "src/functions.php"
         ],
         "psr-4": {
-            "Larmias\\Http\\CSRF": "src/"
+            "Larmias\\Http\\CSRF\\": "src/"
         }
     },
     "extra": {
         "larmias": {
             "providers": [
-                "Larmias\\Http\\CSRFProviders\\CsrfServiceProvider"
+                "Larmias\\Http\\CSRF\\Providers\\CsrfServiceProvider"
             ]
         }
     }

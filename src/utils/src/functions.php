@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\Utils;
 
+use Larmias\Contracts\CollectionInterface;
 use Throwable;
 use Closure;
 use Stringable;
@@ -115,9 +116,9 @@ function value(mixed $value): mixed
  * Create a collection from the given value.
  *
  * @param mixed $value
- * @return Collection
+ * @return CollectionInterface
  */
-function collect(mixed $value = null): Collection
+function collect(mixed $value = null): CollectionInterface
 {
     return new Collection($value);
 }

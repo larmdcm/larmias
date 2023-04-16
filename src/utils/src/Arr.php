@@ -380,11 +380,11 @@ class Arr
      * Pluck an array of values from an array.
      *
      * @param array $array
-     * @param string|array $value
+     * @param string|array|null $value
      * @param string|array|null $key
      * @return array
      */
-    public static function pluck(array $array, string|array $value, mixed $key = null): array
+    public static function pluck(array $array, string|array|null $value, mixed $key = null): array
     {
         $results = [];
 
@@ -415,11 +415,11 @@ class Arr
     /**
      * Explode the "value" and "key" arguments passed to "pluck".
      *
-     * @param string|array $value
+     * @param string|array|null $value
      * @param string|array|null $key
      * @return array
      */
-    protected static function explodePluckParameters(string|array $value, string|array|null $key): array
+    protected static function explodePluckParameters(string|array|null $value, string|array|null $key): array
     {
         $value = is_string($value) ? explode('.', $value) : $value;
 

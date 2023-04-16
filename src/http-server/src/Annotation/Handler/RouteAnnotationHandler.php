@@ -17,6 +17,9 @@ use Larmias\HttpServer\Routing\Router;
 
 class RouteAnnotationHandler implements RouteAnnotationHandlerInterface
 {
+    /**
+     * @var array|array[]
+     */
     protected static array $container = [
         'controller' => [],
         'routes' => [],
@@ -24,6 +27,9 @@ class RouteAnnotationHandler implements RouteAnnotationHandlerInterface
         'method_middleware' => [],
     ];
 
+    /**
+     * @return void
+     */
     public function handle(): void
     {
         foreach (static::$container['controller'] as $class => $controller) {
@@ -44,12 +50,20 @@ class RouteAnnotationHandler implements RouteAnnotationHandlerInterface
         }
     }
 
+    /**
+     * @param string $prefix
+     * @return string
+     */
     public function buildControllerPrefix(string $prefix): string
     {
         return $prefix;
     }
 
 
+    /**
+     * @param array $param
+     * @return void
+     */
     public function collect(array $param): void
     {
         switch ($param['type']) {
@@ -62,6 +76,10 @@ class RouteAnnotationHandler implements RouteAnnotationHandlerInterface
         }
     }
 
+    /**
+     * @param array $param
+     * @return void
+     */
     protected function collectClass(array $param)
     {
         switch ($param['annotation']) {
@@ -74,6 +92,10 @@ class RouteAnnotationHandler implements RouteAnnotationHandlerInterface
         }
     }
 
+    /**
+     * @param array $param
+     * @return void
+     */
     protected function collectMethod(array $param)
     {
         switch ($param['annotation']) {
@@ -92,6 +114,10 @@ class RouteAnnotationHandler implements RouteAnnotationHandlerInterface
         }
     }
 
+    /**
+     * @param array $middleware
+     * @return array
+     */
     protected function buildMiddleware(array $middleware): array
     {
         $result = [];

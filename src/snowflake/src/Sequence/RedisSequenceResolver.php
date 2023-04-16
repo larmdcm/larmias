@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Larmias\Snowflake\Sequence;
 
-use Godruoyi\Snowflake\SequenceResolver;
+use Larmias\Snowflake\Contracts\SequenceResolverInterface;
 use Larmias\Contracts\Redis\ConnectionInterface;
 use Larmias\Contracts\Redis\RedisFactoryInterface;
 
-class RedisSequenceResolver implements SequenceResolver
+class RedisSequenceResolver implements SequenceResolverInterface
 {
     /**
      * @var ConnectionInterface

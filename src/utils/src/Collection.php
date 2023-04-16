@@ -1367,7 +1367,7 @@ class Collection implements CollectionInterface, ArrayAccess, Arrayable, Countab
      * @param (callable(TValue): mixed)|string|null $callback
      * @return mixed
      */
-    public function sum($callback = null)
+    public function sum($callback = null): mixed
     {
         if (is_null($callback)) {
             return array_sum($this->items);

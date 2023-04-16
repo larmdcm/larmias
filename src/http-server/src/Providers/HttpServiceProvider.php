@@ -24,10 +24,16 @@ use Larmias\HttpServer\Routing\Router;
 
 class HttpServiceProvider implements ServiceProviderInterface
 {
+    /**
+     * @param ContainerInterface $container
+     */
     public function __construct(protected ContainerInterface $container)
     {
     }
 
+    /**
+     * @return void
+     */
     public function register(): void
     {
         /** @var BaseRouter $router */
@@ -51,6 +57,9 @@ class HttpServiceProvider implements ServiceProviderInterface
         ], RouteAnnotationHandlerInterface::class);
     }
 
+    /**
+     * @return void
+     */
     public function boot(): void
     {
         // TODO: Implement boot() method.

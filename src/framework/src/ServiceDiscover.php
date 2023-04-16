@@ -126,8 +126,8 @@ class ServiceDiscover implements ServiceDiscoverInterface
      */
     protected function handle(): void
     {
-        $this->app->setStatus(ApplicationInterface::STATUS_PRELOAD)->initialize();
         $this->serviceProvider();
+        $this->app->setStatus(ApplicationInterface::STATUS_PRELOAD)->initialize();
         $this->annotation();
         $this->generate();
     }
@@ -173,8 +173,10 @@ class ServiceDiscover implements ServiceDiscoverInterface
             foreach ($packages as $package) {
                 $extra = $package['extra']['larmias'] ?? [];
                 if (!empty($extra['providers'])) {
-                    foreach ((array)$extra['providers'] as $provider) {
+                    $providers = (array)$extra['providers'];
+                    foreach ($providers as $provider) {
                         $this->register(ServiceDiscoverInterface::SERVICE_PROVIDER, $provider);
+                        $this->app->register($provider);
                     }
                 }
             }

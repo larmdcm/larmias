@@ -22,5 +22,12 @@
         "psr-4": {
             "Larmias\\Encryption\\": "src/"
         }
+    },
+    "extra": {
+        "larmias": {
+            "providers": [
+                "Larmias\\Encryption\\Providers\\EncryptionServiceProvider"
+            ]
+        }
     }
 }

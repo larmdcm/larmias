@@ -22,5 +22,12 @@
         "psr-4": {
             "Larmias\\Captcha\\": "src/"
         }
+    },
+    "extra": {
+        "larmias": {
+            "providers": [
+                "Larmias\\Captcha\\Providers\\CaptchaServiceProvider"
+            ]
+        }
     }
 }

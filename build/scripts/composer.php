@@ -16,7 +16,7 @@ function handleSubComposer(array $composer): array
     /** @var SplFileInfo $file */
     $providerPath = $composer['base_path'] . '/src/Providers';
     $namespace = getPsr4Namespace($jsonData);
-    if (substr($namespace, -1) !== '\\') {
+    if (!str_ends_with($namespace, '\\')) {
         $jsonData['autoload']['psr-4'][$namespace] = $namespace . '\\';
         $namespace .= '\\';
     }

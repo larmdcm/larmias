@@ -297,9 +297,7 @@ abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, Js
     {
         $data = $this->getChangedData();
 
-        $result = $this->query()->update($data, $this->getWhere()) > 0;
-
-        return $result;
+        return $this->query()->update($data, $this->getWhere()) > 0;
     }
 
     /**

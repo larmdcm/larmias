@@ -11,6 +11,8 @@ use Larmias\Database\Contracts\ManagerInterface;
 use Larmias\Database\Model;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Larmias\Database\Manager;
+use Larmias\Contracts\ApplicationInterface;
+use Larmias\Contracts\VendorPublishInterface;
 
 class DatabaseServiceProvider implements ServiceProviderInterface
 {
@@ -35,6 +37,13 @@ class DatabaseServiceProvider implements ServiceProviderInterface
      */
     public function boot(): void
     {
+        if ($this->container->has(ApplicationInterface::class) && $this->container->has(VendorPublishInterface::class)) {
+            $app = $this->container->get(ApplicationInterface::class);
+            $this->container->get(VendorPublishInterface::class)->publishes(static::class, [
+                __DIR__ . '/../../publish/database.php' => $app->getConfigPath() . 'database.php',
+            ]);
+        }
+
         /** @var ManagerInterface $manager */
         $manager = $this->container->make(ManagerInterface::class, ['config' => $this->config->get('database', [])]);
         $manager->setEventDispatcher($this->container->get(EventDispatcherInterface::class));

@@ -10,6 +10,8 @@ use Larmias\Contracts\LockerInterface;
 use Larmias\Contracts\ServiceProviderInterface;
 use Larmias\Lock\Locker;
 use Larmias\Lock\LockerFactory;
+use Larmias\Contracts\ApplicationInterface;
+use Larmias\Contracts\VendorPublishInterface;
 
 class LockerServiceProvider implements ServiceProviderInterface
 {
@@ -25,7 +27,7 @@ class LockerServiceProvider implements ServiceProviderInterface
      */
     public function register(): void
     {
-        $this->container->bind([
+        $this->container->bindIf([
             LockerInterface::class => Locker::class,
             LockerFactoryInterface::class => LockerFactory::class,
         ]);
@@ -36,5 +38,11 @@ class LockerServiceProvider implements ServiceProviderInterface
      */
     public function boot(): void
     {
+        if ($this->container->has(ApplicationInterface::class) && $this->container->has(VendorPublishInterface::class)) {
+            $app = $this->container->get(ApplicationInterface::class);
+            $this->container->get(VendorPublishInterface::class)->publishes(static::class, [
+                __DIR__ . '/../../publish/lock.php' => $app->getConfigPath() . 'lock.php',
+            ]);
+        }
     }
 }

@@ -31,5 +31,12 @@
         "files": [
             "src/functions.php"
         ]
+    },
+    "extra": {
+        "larmias": {
+            "providers": [
+                "Larmias\\Engine\\Providers\\EngineServiceProvider"
+            ]
+        }
     }
 }

@@ -22,5 +22,12 @@
         "psr-4": {
             "Larmias\\ExceptionHandler\\": "src/"
         }
+    },
+    "extra": {
+        "larmias": {
+            "providers": [
+                "Larmias\\ExceptionHandler\\Providers\\ExceptionHandlerServiceProvider"
+            ]
+        }
     }
 }

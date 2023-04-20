@@ -5,6 +5,11 @@ declare(strict_types=1);
 namespace Larmias\Captcha;
 
 use Stringable;
+use function substr;
+use function md5;
+use function time;
+use function mt_rand;
+use function base64_encode;
 
 class Result implements Stringable
 {
@@ -19,9 +24,9 @@ class Result implements Stringable
      * @param string $code
      * @param string $mimeType
      */
-    public function __construct(protected string $content, protected string $code, protected $mimeType = 'image/png')
+    public function __construct(protected string $content, protected string $code, protected string $mimeType = 'image/png')
     {
-        $this->codeHash = \substr(\md5($this->code . \time() . \mt_rand(100000, 999999)), 8, 16);
+        $this->codeHash = substr(md5($this->code . time() . mt_rand(100000, 999999)), 8, 16);
     }
 
     /**
@@ -37,7 +42,7 @@ class Result implements Stringable
      */
     public function toBase64(): string
     {
-        return \base64_encode($this->getContent());
+        return base64_encode($this->getContent());
     }
 
     /**

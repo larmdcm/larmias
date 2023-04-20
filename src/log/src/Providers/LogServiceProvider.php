@@ -9,6 +9,8 @@ use Larmias\Contracts\LoggerInterface;
 use Psr\Log\LoggerInterface as PsrLoggerInterface;
 use Larmias\Contracts\ServiceProviderInterface;
 use Larmias\Log\Logger;
+use Larmias\Contracts\ApplicationInterface;
+use Larmias\Contracts\VendorPublishInterface;
 
 class LogServiceProvider implements ServiceProviderInterface
 {
@@ -35,5 +37,11 @@ class LogServiceProvider implements ServiceProviderInterface
      */
     public function boot(): void
     {
+        if ($this->container->has(ApplicationInterface::class) && $this->container->has(VendorPublishInterface::class)) {
+            $app = $this->container->get(ApplicationInterface::class);
+            $this->container->get(VendorPublishInterface::class)->publishes(static::class, [
+                __DIR__ . '/../../publish/logger.php' => $app->getConfigPath() . 'logger.php',
+            ]);
+        }
     }
 }

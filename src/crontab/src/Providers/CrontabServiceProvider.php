@@ -12,6 +12,8 @@ use Larmias\Crontab\Contracts\SchedulerInterface;
 use Larmias\Crontab\Executor\WorkerExecutor;
 use Larmias\Crontab\Parser;
 use Larmias\Crontab\Scheduler;
+use Larmias\Contracts\ApplicationInterface;
+use Larmias\Contracts\VendorPublishInterface;
 
 class CrontabServiceProvider implements ServiceProviderInterface
 {
@@ -27,7 +29,7 @@ class CrontabServiceProvider implements ServiceProviderInterface
      */
     public function register(): void
     {
-        $this->container->bind([
+        $this->container->bindIf([
             ParserInterface::class => Parser::class,
             SchedulerInterface::class => Scheduler::class,
             ExecutorInterface::class => WorkerExecutor::class,
@@ -39,5 +41,11 @@ class CrontabServiceProvider implements ServiceProviderInterface
      */
     public function boot(): void
     {
+        if ($this->container->has(ApplicationInterface::class) && $this->container->has(VendorPublishInterface::class)) {
+            $app = $this->container->get(ApplicationInterface::class);
+            $this->container->get(VendorPublishInterface::class)->publishes(static::class, [
+                __DIR__ . '/../../publish/crontab.php' => $app->getConfigPath() . 'crontab.php',
+            ]);
+        }
     }
 }

@@ -8,6 +8,8 @@ use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\ServiceProviderInterface;
 use Larmias\Snowflake\Contracts\IdGeneratorInterface;
 use Larmias\Snowflake\IdGenerator;
+use Larmias\Contracts\ApplicationInterface;
+use Larmias\Contracts\VendorPublishInterface;
 
 class SnowflakeServiceProvider implements ServiceProviderInterface
 {
@@ -23,7 +25,7 @@ class SnowflakeServiceProvider implements ServiceProviderInterface
      */
     public function register(): void
     {
-        $this->container->bind(IdGeneratorInterface::class, IdGenerator::class);
+        $this->container->bindIf(IdGeneratorInterface::class, IdGenerator::class);
     }
 
     /**
@@ -31,5 +33,11 @@ class SnowflakeServiceProvider implements ServiceProviderInterface
      */
     public function boot(): void
     {
+        if ($this->container->has(ApplicationInterface::class) && $this->container->has(VendorPublishInterface::class)) {
+            $app = $this->container->get(ApplicationInterface::class);
+            $this->container->get(VendorPublishInterface::class)->publishes(static::class, [
+                __DIR__ . '/../../publish/snowflake.php' => $app->getConfigPath() . 'snowflake.php',
+            ]);
+        }
     }
 }

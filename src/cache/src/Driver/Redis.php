@@ -6,6 +6,8 @@ namespace Larmias\Cache\Driver;
 
 use Larmias\Contracts\Redis\ConnectionInterface;
 use Larmias\Contracts\Redis\RedisFactoryInterface;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use function is_callable;
 use function is_null;
 
@@ -28,6 +30,11 @@ class Redis extends Driver
         'handler' => null,
     ];
 
+    /**
+     * @return void
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
     public function initialize(): void
     {
         if (is_callable($this->config['handler'])) {
@@ -39,6 +46,11 @@ class Redis extends Driver
         }
     }
 
+    /**
+     * @param string $key
+     * @param mixed $default
+     * @return mixed
+     */
     public function get($key, $default = null): mixed
     {
         $value = $this->handler->get($key);
@@ -48,6 +60,12 @@ class Redis extends Driver
         return $this->packer->unpack($value);
     }
 
+    /**
+     * @param string $key
+     * @param mixed $value
+     * @param int|\DateTimeInterface|\DateInterval $ttl
+     * @return bool
+     */
     public function set($key, $value, $ttl = null): bool
     {
         if (is_null($ttl)) {
@@ -66,27 +84,47 @@ class Redis extends Driver
         return (bool)$result;
     }
 
-
+    /**
+     * @param string $key
+     * @return bool
+     */
     public function delete($key): bool
     {
         return $this->handler->del($this->getCacheKey($key)) > 0;
     }
 
+    /**
+     * @return bool
+     */
     public function clear(): bool
     {
         return $this->handler->flushDB();
     }
 
+    /**
+     * @param string $key
+     * @return bool
+     */
     public function has($key): bool
     {
         return (bool)$this->handler->exists($this->getCacheKey($key));
     }
 
+    /**
+     * @param string $key
+     * @param int $step
+     * @return int|null
+     */
     public function increment(string $key, int $step = 1): ?int
     {
         return $this->handler->incrBy($this->getCacheKey($key), $step);
     }
 
+    /**
+     * @param string $key
+     * @param int $step
+     * @return int|null
+     */
     public function decrement(string $key, int $step = 1): ?int
     {
         return $this->handler->decrBy($this->getCacheKey($key), $step);

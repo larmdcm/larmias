@@ -23,5 +23,12 @@
         "psr-4": {
             "Larmias\\Event\\": "src/"
         }
+    },
+    "extra": {
+        "larmias": {
+            "providers": [
+                "Larmias\\Event\\Providers\\EventServiceProvider"
+            ]
+        }
     }
 }

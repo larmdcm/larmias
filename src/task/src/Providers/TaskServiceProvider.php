@@ -11,6 +11,8 @@ use Larmias\SharedMemory\Contracts\CommandExecutorInterface;
 use Larmias\Task\Command\TaskCommand;
 use Larmias\Task\Contracts\TaskExecutorInterface;
 use Larmias\Task\TaskExecutor;
+use Larmias\Contracts\ApplicationInterface;
+use Larmias\Contracts\VendorPublishInterface;
 
 class TaskServiceProvider implements ServiceProviderInterface
 {
@@ -26,7 +28,7 @@ class TaskServiceProvider implements ServiceProviderInterface
      */
     public function register(): void
     {
-        $this->container->bind([
+        $this->container->bindIf([
             BaseTaskExecutorInterface::class => TaskExecutor::class,
             TaskExecutorInterface::class => TaskExecutor::class,
         ]);
@@ -38,6 +40,13 @@ class TaskServiceProvider implements ServiceProviderInterface
      */
     public function boot(): void
     {
+        if ($this->container->has(ApplicationInterface::class) && $this->container->has(VendorPublishInterface::class)) {
+            $app = $this->container->get(ApplicationInterface::class);
+            $this->container->get(VendorPublishInterface::class)->publishes(static::class, [
+                __DIR__ . '/../../publish/task.php' => $app->getConfigPath() . 'task.php',
+            ]);
+        }
+
         /** @var CommandExecutorInterface $executor */
         $executor = $this->container->get(CommandExecutorInterface::class);
         $executor->addCommand(TaskCommand::COMMAND_NAME, TaskCommand::class);

@@ -30,9 +30,9 @@ function println(string|Stringable $format = null, ...$args): void
  */
 function format_exception(Throwable $e, bool $trace = true): string
 {
-    $message = $e->getFile() . '(' . $e->getLine() . ')' . ':' . $e->getMessage();
+    $message = $e->getMessage() . sprintf(' %s(code:%d) at %s:%d', get_class($e), $e->getCode(), $e->getFile(), $e->getLine());
     if ($trace) {
-        $message = $message . PHP_EOL . $e->getTraceAsString();
+        $message = $message . PHP_EOL . '[stacktrace]' . PHP_EOL . $e->getTraceAsString();
     }
     return $message;
 }

@@ -22,7 +22,6 @@ use function substr_replace;
 use function strpos;
 use function strlen;
 use function microtime;
-use function round;
 use function str_starts_with;
 use function number_format;
 

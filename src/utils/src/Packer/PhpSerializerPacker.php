@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Larmias\Utils\Packer;
 
 use Larmias\Contracts\PackerInterface;
+use function serialize;
+use function unserialize;
 
 class PhpSerializerPacker implements PackerInterface
 {
@@ -14,7 +16,7 @@ class PhpSerializerPacker implements PackerInterface
      */
     public function pack(mixed $data): string
     {
-        return \serialize($data);
+        return serialize($data);
     }
 
     /**
@@ -23,6 +25,6 @@ class PhpSerializerPacker implements PackerInterface
      */
     public function unpack(string $data): mixed
     {
-        return \unserialize($data);
+        return unserialize($data);
     }
 }

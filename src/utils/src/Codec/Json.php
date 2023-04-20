@@ -7,6 +7,11 @@ namespace Larmias\Utils\Codec;
 use Larmias\Utils\Contracts\Arrayable;
 use Larmias\Utils\Contracts\Jsonable;
 use InvalidArgumentException;
+use Throwable;
+use function json_encode;
+use function json_decode;
+use const JSON_UNESCAPED_UNICODE;
+use const JSON_THROW_ON_ERROR;
 
 class Json
 {
@@ -26,7 +31,7 @@ class Json
 
         try {
             $json = json_encode($data, $flags | JSON_THROW_ON_ERROR, $depth);
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             throw new InvalidArgumentException($exception->getMessage(), $exception->getCode());
         }
 
@@ -40,7 +45,7 @@ class Json
     {
         try {
             $decode = json_decode($json, $assoc, $depth, $flags | JSON_THROW_ON_ERROR);
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             throw new InvalidArgumentException($exception->getMessage(), $exception->getCode());
         }
 

@@ -7,6 +7,9 @@ namespace Larmias\Pipeline;
 use Larmias\Contracts\PipelineInterface;
 use Throwable;
 use Closure;
+use function array_reduce;
+use function array_reverse;
+use function call_user_func;
 
 class Pipeline implements PipelineInterface
 {
@@ -58,8 +61,8 @@ class Pipeline implements PipelineInterface
      */
     public function then(Closure $destination): mixed
     {
-        $pipeline = \array_reduce(
-            \array_reverse($this->pipes),
+        $pipeline = array_reduce(
+            array_reverse($this->pipes),
             $this->carry(),
             function ($passable) use ($destination) {
                 try {
@@ -112,7 +115,7 @@ class Pipeline implements PipelineInterface
     protected function handleException(mixed $passable, Throwable $e): mixed
     {
         if ($this->exceptionHandler) {
-            return \call_user_func($this->exceptionHandler, $passable, $e);
+            return call_user_func($this->exceptionHandler, $passable, $e);
         }
         throw $e;
     }

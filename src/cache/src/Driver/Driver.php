@@ -12,6 +12,7 @@ use DateInterval;
 use DateTime;
 use InvalidArgumentException;
 use Closure;
+use function array_merge;
 
 abstract class Driver implements CacheInterface
 {
@@ -22,22 +23,38 @@ abstract class Driver implements CacheInterface
         'prefix' => ''
     ];
 
+    /**
+     * @var PackerInterface
+     */
     protected PackerInterface $packer;
 
+    /**
+     * @var object
+     */
     protected object $handler;
 
+    /**
+     * @param ContainerInterface $container
+     * @param array $config
+     */
     public function __construct(protected ContainerInterface $container, array $config = [])
     {
-        $this->config = \array_merge($this->config, $config);
+        $this->config = array_merge($this->config, $config);
         /** @var PackerInterface $packer */
         $packer = $this->container->make($this->config['packer']);
         $this->packer = $packer;
 
-        if (method_exists($this,'initialize')) {
-            $this->container->invoke([$this,'initialize']);
+        if (method_exists($this, 'initialize')) {
+            $this->container->invoke([$this, 'initialize']);
         }
     }
 
+    /**
+     * @param array $keys
+     * @param mixed $default
+     * @return iterable
+     * @throws \Psr\SimpleCache\InvalidArgumentException
+     */
     public function getMultiple($keys, $default = null): iterable
     {
         if (!is_array($keys)) {
@@ -51,6 +68,12 @@ abstract class Driver implements CacheInterface
         return $result;
     }
 
+    /**
+     * @param array $values
+     * @param int|DateTimeInterface|DateInterval $ttl
+     * @return bool
+     * @throws \Psr\SimpleCache\InvalidArgumentException
+     */
     public function setMultiple($values, $ttl = null): bool
     {
         if (!is_array($values)) {
@@ -64,6 +87,11 @@ abstract class Driver implements CacheInterface
         return true;
     }
 
+    /**
+     * @param array $keys
+     * @return bool
+     * @throws \Psr\SimpleCache\InvalidArgumentException
+     */
     public function deleteMultiple($keys): bool
     {
         if (!is_array($keys)) {
@@ -127,6 +155,9 @@ abstract class Driver implements CacheInterface
         return $value;
     }
 
+    /**
+     * @return object
+     */
     public function getHandler(): object
     {
         return $this->handler;
@@ -151,6 +182,10 @@ abstract class Driver implements CacheInterface
         return (int)$expire;
     }
 
+    /**
+     * @param string $key
+     * @return string
+     */
     protected function getCacheKey(string $key): string
     {
         return $this->config['prefix'] . $key;

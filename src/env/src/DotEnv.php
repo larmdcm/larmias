@@ -93,10 +93,6 @@ class DotEnv implements DotEnvInterface, ArrayAccess
         if (empty($_ENV[$name])) {
             $_ENV[$name] = $value;
         }
-
-        if (empty($_SERVER[$name])) {
-            $_SERVER[$name] = $value;
-        }
     }
 
     protected function normaliseVariable(string $name, string $value = ''): array

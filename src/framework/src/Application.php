@@ -15,6 +15,7 @@ use Larmias\Engine\Contracts\KernelInterface;
 use Larmias\Engine\Event;
 use Larmias\Engine\Kernel;
 use Larmias\Engine\WorkerType;
+use Larmias\Env\DotEnv;
 use Larmias\Event\EventDispatcherFactory;
 use Larmias\Event\ListenerProviderFactory;
 use Larmias\Command\Application as ConsoleApplication;
@@ -99,6 +100,7 @@ class Application implements ApplicationInterface
             ConsoleInterface::class => ConsoleApplication::class,
             StdoutLoggerInterface::class => StdoutLogger::class,
             ServiceDiscoverInterface::class => ServiceDiscover::class,
+            DotEnvInterface::class => DotEnv::class,
             ListenerProviderInterface::class => function () {
                 return ListenerProviderFactory::make($this->container, $this->loadServiceConfig('listeners'));
             },
@@ -119,7 +121,6 @@ class Application implements ApplicationInterface
             return;
         }
         $this->container->bindIf($this->loadServiceConfig('dependencies'));
-        $this->loadEnv();
         $this->loadConfig();
         date_default_timezone_set($this->config->get('app.default_timezone', 'Asia/Shanghai'));
         $this->container->bindIf($this->config->get('dependencies', []));
@@ -222,6 +223,7 @@ class Application implements ApplicationInterface
     public function run(): void
     {
         $this->serviceDiscover = $this->container->get(ServiceDiscoverInterface::class);
+        $this->loadEnv();
         $this->serviceDiscover->discover(function () {
             $this->discoverConfig = $this->serviceDiscover->services();
             /** @var ConsoleInterface $console */

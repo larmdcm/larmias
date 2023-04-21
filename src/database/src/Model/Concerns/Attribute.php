@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Larmias\Database\Model\Concerns;
 
 use InvalidArgumentException;
+use Larmias\Database\Model\Relation\Relation;
 use Larmias\Utils\Str;
+use Larmias\Database\Model;
 use function array_udiff_assoc;
 use function is_object;
 use function method_exists;
@@ -17,6 +19,9 @@ use function json_encode;
 use function serialize;
 use function str_contains;
 
+/**
+ * @mixin Model
+ */
 trait Attribute
 {
     /**
@@ -35,6 +40,11 @@ trait Attribute
     protected array $cast = [];
 
     /**
+     * @var array
+     */
+    protected array $relation = [];
+
+    /**
      * @param string $name
      * @return mixed
      */
@@ -46,14 +56,17 @@ trait Attribute
         if (method_exists($this, $method)) {
             $value = $this->{$method}($this->data[$name] ?? null, $name);
         } else {
-            if (!array_key_exists($name, $this->data)) {
+            $relationAttr = method_exists($this, 'isRelationAttr') ? $this->isRelationAttr($name) : null;
+            $propertyExists = array_key_exists($name, $this->data);
+
+            if (!$propertyExists && !$relationAttr) {
                 if (!$strict) {
                     return null;
                 }
                 throw new InvalidArgumentException('property not exists:' . static::class . '->' . $name);
             }
 
-            $value = $this->data[$name];
+            $value = $propertyExists ? $this->data[$name] : $this->getRelationValue((string)$relationAttr);
         }
 
         if (isset($this->cast[$name])) {
@@ -101,6 +114,16 @@ trait Attribute
     public function refreshOrigin(): void
     {
         $this->origin = $this->data;
+    }
+
+    /**
+     * @param string $name
+     * @return mixed
+     */
+    protected function getRelationValue(string $name): mixed
+    {
+        $relation = $this->{$name};
+        return $relation instanceof Relation ? $relation->getRelation() : null;
     }
 
     /**

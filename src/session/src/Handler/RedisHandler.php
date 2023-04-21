@@ -9,13 +9,23 @@ use Larmias\Contracts\Redis\RedisFactoryInterface;
 
 class RedisHandler extends Driver
 {
+    /**
+     * @var ConnectionInterface
+     */
     protected ConnectionInterface $connection;
 
+    /**
+     * @var array
+     */
     protected array $config = [
         'prefix' => '',
         'expire' => 0,
     ];
 
+    /**
+     * @param RedisFactoryInterface $factory
+     * @return void
+     */
     public function initialize(RedisFactoryInterface $factory)
     {
         $this->connection = $factory->get();
@@ -93,8 +103,12 @@ class RedisHandler extends Driver
         return (bool)$this->connection->setex($id, $expire, $data);
     }
 
+    /**
+     * @param string $id
+     * @return string
+     */
     protected function getId(string $id): string
     {
-        return $this->config['expire'] . $id;
+        return $this->config['prefix'] . $id;
     }
 }

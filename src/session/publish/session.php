@@ -12,7 +12,7 @@ return [
             'handler' => \Larmias\Session\Handler\FileHandler::class,
             'path' => null,
             'prefix' => '',
-            'expire' => 0,
+            'expire' => 86400,
             'data_compress' => false,
             'gc_probability' => 1,
             'gc_divisor' => 100,
@@ -20,7 +20,7 @@ return [
         'redis' => [
             'handler' => \Larmias\Session\Handler\RedisHandler::class,
             'prefix' => '',
-            'expire' => 0,
+            'expire' => 86400,
         ]
     ]
 ];

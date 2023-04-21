@@ -17,4 +17,3 @@ dump($env->has('SET'));
 $env->set('SET','true');
 dump($env->get('SET'));
 dump($env->get('DB_PASSWORD'));
-

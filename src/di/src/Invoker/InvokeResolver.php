@@ -15,12 +15,22 @@ class InvokeResolver
      */
     protected static array $collect = [];
 
+    /**
+     * @param string|object $handler
+     * @return void
+     */
     public static function add(string|object $handler): void
     {
         $object = \is_string($handler) ? new $handler : $handler;
         static::$collect[\get_class($object)] = $object;
     }
 
+    /**
+     * @param Closure $process
+     * @param array $args
+     * @return mixed
+     * @throws \Throwable
+     */
     public static function process(Closure $process, array $args)
     {
         $pipes = [];

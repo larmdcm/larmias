@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Engine\Providers;
+namespace Larmias\Event\Providers;
 
 use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\ServiceProviderInterface;

@@ -89,8 +89,7 @@ class Response implements ResponseInterface
             $this->connection->send(new Chunk($data));
         } else {
             $this->response->withHeader('Transfer-Encoding', 'chunked');
-            $this->response->withBody($data);
-            $this->connection->send($this->response);
+            $this->connection->send($this->response->withBody($data));
         }
         $this->isSendChunk = true;
         return true;
@@ -108,9 +107,7 @@ class Response implements ResponseInterface
             $this->connection->send(new Chunk($data));
             return;
         }
-        if (!empty($data)) {
-            $this->response->withBody($data);
-        }
-        $this->connection->send($this->response);
+
+        $this->connection->send($this->response->withBody($data));
     }
 }

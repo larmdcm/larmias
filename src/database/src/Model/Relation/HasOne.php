@@ -23,18 +23,16 @@ class HasOne extends Relation
      */
     public function initModel(): void
     {
-        if (!isset($this->model)) {
-            $this->model = new $this->modelClass();
-            $this->model->where($this->foreignKey, $this->getId());
-        }
+        $this->model = $this->newModel();
+        $this->model->where($this->foreignKey, $this->getId());
     }
 
     /**
-     * @return Model
+     * @return Model|null
      */
-    public function getRelationData(): Model
+    public function getRelation(): ?Model
     {
-        return $this->first();
+        return $this->getModel()->first();
     }
 
     /**
@@ -43,7 +41,7 @@ class HasOne extends Relation
      */
     public function save(array $data = []): bool
     {
-        $model = new $this->modelClass();
+        $model = $this->newModel();
         $model->setAttribute($this->foreignKey, $this->getId());
         return $model->save($data);
     }

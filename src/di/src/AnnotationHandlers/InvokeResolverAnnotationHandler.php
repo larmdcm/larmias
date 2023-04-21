@@ -10,16 +10,26 @@ use Larmias\Di\Invoker\InvokeResolver;
 
 class InvokeResolverAnnotationHandler implements AnnotationHandlerInterface
 {
+    /**
+     * @param ContainerInterface $container
+     */
     public function __construct(protected ContainerInterface $container)
     {
 
     }
 
+    /**
+     * @param array $param
+     * @return void
+     */
     public function collect(array $param): void
     {
         InvokeResolver::add($this->container->make($param['class']));
     }
 
+    /**
+     * @return void
+     */
     public function handle(): void
     {
     }

@@ -34,6 +34,11 @@ abstract class Relation
     protected string $localKey;
 
     /**
+     * @var bool
+     */
+    protected bool $initModel = false;
+
+    /**
      * @return Model
      */
     public function getParent(): Model
@@ -54,6 +59,10 @@ abstract class Relation
      */
     public function getModel(): Model
     {
+        if (!$this->initModel) {
+            $this->initModel = true;
+            $this->initModel();
+        }
         return $this->model;
     }
 
@@ -121,16 +130,24 @@ abstract class Relation
     }
 
     /**
+     * @return Model
+     */
+    protected function newModel(): Model
+    {
+        return new $this->modelClass;
+    }
+
+    /**
      * @param string $method
      * @param array $args
      * @return Relation
      */
     public function __call(string $method, array $args)
     {
-        $result = $this->model->{$method}(...$args);
+        $model = $this->getModel();
 
-        $this->initModel();
+        $result = $model->{$method}(...$args);
 
-        return $result instanceof $this->model ? $this : $result;
+        return $result instanceof $model ? $this : $result;
     }
 }

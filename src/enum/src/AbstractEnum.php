@@ -7,6 +7,12 @@ namespace Larmias\Enum;
 use Closure;
 use Larmias\Contracts\TranslatorInterface;
 use Larmias\Enum\Annotation\Text;
+use function get_class;
+use function in_array;
+use function array_key_exists;
+use function array_search;
+use function array_keys;
+use function is_array;
 
 abstract class AbstractEnum
 {
@@ -101,7 +107,7 @@ abstract class AbstractEnum
     {
         return $variable instanceof self
             && $this->getValue() === $variable->getValue()
-            && static::class === \get_class($variable);
+            && static::class === get_class($variable);
     }
 
     /**
@@ -136,7 +142,7 @@ abstract class AbstractEnum
      */
     public static function isValid(mixed $value): bool
     {
-        return \in_array($value, static::toArray(), true);
+        return in_array($value, static::toArray(), true);
     }
 
     /**
@@ -146,7 +152,7 @@ abstract class AbstractEnum
     public static function isValidKey(string $key): bool
     {
         $array = static::toArray();
-        return isset($array[$key]) || \array_key_exists($key, $array);
+        return isset($array[$key]) || array_key_exists($key, $array);
     }
 
     /**
@@ -170,7 +176,7 @@ abstract class AbstractEnum
      */
     public static function search(mixed $value): bool|int|string
     {
-        return \array_search($value, static::toArray(), true);
+        return array_search($value, static::toArray(), true);
     }
 
     /**
@@ -182,7 +188,7 @@ abstract class AbstractEnum
      */
     public static function keys(): array
     {
-        return \array_keys(static::toArray());
+        return array_keys(static::toArray());
     }
 
     /**
@@ -219,7 +225,7 @@ abstract class AbstractEnum
     {
         $value = $this->getValue();
         $data = static::mergeArray(static::getAnnotationData()[$value] ?? [], static::data()[$value] ?? []);
-        if (\is_array($data) && $name) {
+        if (is_array($data) && $name) {
             $result = $data[$name] ?? null;
             if ($name === 'text' && $result && isset($this->translator)) {
                 return $this->translator->trans($result);
@@ -241,6 +247,7 @@ abstract class AbstractEnum
 
     /**
      * @return array
+     * @throws \ReflectionException
      */
     protected static function toArray(): array
     {
@@ -256,6 +263,7 @@ abstract class AbstractEnum
 
     /**
      * @return array
+     * @throws \ReflectionException
      */
     protected static function getAnnotationData(): array
     {
@@ -314,7 +322,7 @@ abstract class AbstractEnum
     private static function mergeArray(array $array, array $distArray): array
     {
         foreach ($distArray as $key => $item) {
-            if (\is_array($item) && isset($array[$key]) && \is_array($array[$key])) {
+            if (is_array($item) && isset($array[$key]) && is_array($array[$key])) {
                 $array[$key] = static::mergeArray($array[$key], $item);
             } else {
                 $array[$key] = $item;

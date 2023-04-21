@@ -18,6 +18,7 @@ use Larmias\Routing\Exceptions\RouteNotFoundException;
 use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
 use Larmias\ExceptionHandler\Contracts\RenderInterface;
 use Throwable;
+use function str_contains;
 
 class ExceptionHandler extends BaseExceptionHandler implements ExceptionHandlerInterface
 {
@@ -98,6 +99,6 @@ class ExceptionHandler extends BaseExceptionHandler implements ExceptionHandlerI
      */
     protected function isJsonRequest(RequestInterface $request): bool
     {
-        return \str_contains($request->getHeaderLine('accept'), 'json');
+        return str_contains($request->getHeaderLine('accept'), 'json');
     }
 }

@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Larmias\ExceptionHandler\Render;
 
+use Larmias\Utils\Codec\Json;
 use Throwable;
+use function Larmias\Utils\println;
+use function Larmias\Utils\format_exception;
 
 class JsonRender extends Render
 {
@@ -16,9 +19,10 @@ class JsonRender extends Render
     {
         try {
             $data = $this->getData($e);
-            return \json_encode($data, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
+            return Json::encode($data);
         } catch (Throwable) {
-            return ' ';
+            println(format_exception($e));
+            return '';
         }
     }
 }

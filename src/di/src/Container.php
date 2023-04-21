@@ -17,7 +17,14 @@ use ArrayAccess;
 use ArrayIterator;
 use IteratorAggregate;
 use Countable;
+use Throwable;
 use Larmias\Di\Invoker\InvokeResolver;
+use function is_object;
+use function get_class;
+use function current;
+use function count;
+use function is_string;
+use function is_array;
 
 class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, Countable
 {
@@ -56,7 +63,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
         $this->invoker = new Invoker(new Parameter(makeClassHandler: function (string $className, \ReflectionParameter $parameter) {
             try {
                 return $this->make($className);
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 if ($parameter->isDefaultValueAvailable()) {
                     return $parameter->getDefaultValue();
                 }
@@ -127,7 +134,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
     {
         /** @var ContextInterface $context */
         $context = $this->instances[$this->getAlias(ContextInterface::class)] ?? null;
-        if ($context && !$newInstance && $context->has($abstract) && \is_object($instance = $context->get($abstract))) {
+        if ($context && !$newInstance && $context->has($abstract) && is_object($instance = $context->get($abstract))) {
             return $instance;
         }
 
@@ -162,12 +169,12 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
      */
     protected function getScope(string|object $object): ?Scope
     {
-        $class = \is_object($object) ? \get_class($object) : $object;
+        $class = is_object($object) ? get_class($object) : $object;
         $annotations = AnnotationCollector::get(sprintf('%s.%s.%s', $class, 'class', Scope::class));
         if (empty($annotations)) {
             return null;
         }
-        return \current($annotations);
+        return current($annotations);
     }
 
     /**
@@ -310,7 +317,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
      */
     public function invoke(mixed $callable, array $params = [], bool $accessible = false): mixed
     {
-        if ($callable instanceof Closure || (\is_string($callable) && !str_contains($callable, '::'))) {
+        if ($callable instanceof Closure || (is_string($callable) && !str_contains($callable, '::'))) {
             return $this->invokeFunction($callable, $params);
         }
         return $this->invokeMethod($callable, $params, $accessible);
@@ -380,54 +387,72 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
         return $this->invoker->invokeMethod($method, $params, $accessible);
     }
 
-    public function __set($name, $value)
+    /**
+     * @param string $name
+     * @param mixed $value
+     * @return void
+     */
+    public function __set(string $name, mixed $value)
     {
         $this->bind($name, $value);
     }
 
-    public function __get($name)
+    /**
+     * @param string $name
+     * @return mixed
+     * @throws ReflectionException
+     */
+    public function __get(string $name): mixed
     {
         return $this->get($name);
     }
 
-    public function __isset($name): bool
+    /**
+     * @param string $name
+     * @return bool
+     */
+    public function __isset(string $name): bool
     {
         return $this->exists($name);
     }
 
-    public function __unset($name)
+    /**
+     * @param string $name
+     * @return void
+     */
+    public function __unset(string $name)
     {
         $this->unbind($name);
     }
 
     #[\ReturnTypeWillChange]
-    public function offsetExists($key): bool
+    public function offsetExists($offset): bool
     {
-        return $this->exists($key);
+        return $this->exists($offset);
     }
 
     #[\ReturnTypeWillChange]
-    public function offsetGet($key)
+    public function offsetGet($offset)
     {
-        return $this->make($key);
+        return $this->make($offset);
     }
 
     #[\ReturnTypeWillChange]
-    public function offsetSet($key, $value)
+    public function offsetSet($offset, $value)
     {
-        $this->bind($key, $value);
+        $this->bind($offset, $value);
     }
 
     #[\ReturnTypeWillChange]
-    public function offsetUnset($key)
+    public function offsetUnset($offset)
     {
-        $this->unbind($key);
+        $this->unbind($offset);
     }
 
     //Countable
     public function count(): int
     {
-        return \count($this->instances);
+        return count($this->instances);
     }
 
     //IteratorAggregate

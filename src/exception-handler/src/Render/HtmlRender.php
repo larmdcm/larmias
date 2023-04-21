@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Larmias\ExceptionHandler\Render;
 
 use Throwable;
+use function realpath;
+use function Larmias\Utils\println;
+use function Larmias\Utils\format_exception;
 
 class HtmlRender extends Render
 {
@@ -16,14 +19,15 @@ class HtmlRender extends Render
     {
         try {
             $data = $this->getData($e);
-            $data['resource_path'] = \realpath(__DIR__ . '/../../resources');
+            $data['resource_path'] = realpath(__DIR__ . '/../../resources');
             $data['source_code'] = $this->getSourceCode($e);
             ob_start();
             include $data['resource_path'] . '/views/html_render.php';
             $content = ob_get_clean();
             return $content === false ? ' ' : $content;
         } catch (Throwable $e) {
-            return ' ';
+            println(format_exception($e));
+            return '';
         }
     }
 }

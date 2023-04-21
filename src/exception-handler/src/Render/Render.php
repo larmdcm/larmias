@@ -4,35 +4,89 @@ declare(strict_types=1);
 
 namespace Larmias\ExceptionHandler\Render;
 
+use Larmias\Contracts\ConfigInterface;
 use Larmias\ExceptionHandler\Contracts\RenderInterface;
+use Larmias\Utils\Str;
 use Throwable;
+use function array_merge;
+use function file;
+use function get_class;
+use function is_array;
+use function Larmias\Utils\println;
+use function Larmias\Utils\format_exception;
 
 abstract class Render implements RenderInterface
 {
+    /**
+     * @var array
+     */
     protected array $tables = [];
 
+    /**
+     * @var array
+     */
+    protected array $ignoreVars = [];
+
+    /**
+     * @param ConfigInterface|array|null $config
+     */
+    public function __construct(ConfigInterface|array|null $config = null)
+    {
+        if ($config) {
+            $config = is_array($config) ? $config : $config->get('exceptions', []);
+            $this->ignoreVars = array_merge($this->ignoreVars, $config['ignore_vars'] ?? []);
+        }
+    }
+
+    /**
+     * @param string $name
+     * @param callable $callback
+     * @return $this
+     */
     public function addDataTableCallback(string $name, callable $callback): self
     {
         $this->tables[$name][] = $callback;
         return $this;
     }
 
-    public function getDataTable(): array
+    /**
+     * @return array
+     */
+    public function getDataOfTable(): array
     {
         $data = [];
         foreach ($this->tables as $name => $tables) {
             foreach ($tables as $callback) {
-                $data[$name] = \array_merge($data[$name] ?? [], (array)$callback());
+                $data[$name] = array_merge($data[$name] ?? [], $this->filterData((array)$callback()));
             }
         }
 
         return $data;
     }
 
+    /**
+     * @param Throwable $e
+     * @return array
+     */
     public function getData(Throwable $e): array
     {
         $data = $this->collectExceptionToArray($e);
-        $data['tables'] = $this->getDataTable();
+        $data['tables'] = $this->getDataOfTable();
+        return $data;
+    }
+
+    /**
+     * @param array $data
+     * @return array
+     */
+    protected function filterData(array $data): array
+    {
+        foreach ($data as $key => $item) {
+            if (Str::is($this->ignoreVars, $key)) {
+                unset($data[$key]);
+            }
+        }
+
         return $data;
     }
 
@@ -53,7 +107,7 @@ abstract class Render implements RenderInterface
         ];
         try {
             $source = [];
-            $contents = \file($exception->getFile()) ?: [];
+            $contents = file($exception->getFile()) ?: [];
             for ($i = $showLine; $i > 0; $i--) {
                 $line = $data['line'] - $i;
                 if (!isset($contents[$line])) {
@@ -75,6 +129,7 @@ abstract class Render implements RenderInterface
             }
             $data['source'] = $source;
         } catch (Throwable $e) {
+            println(format_exception($e));
         }
 
         return $data;
@@ -92,7 +147,7 @@ abstract class Render implements RenderInterface
         $nextException = $exception;
         do {
             $traces[] = [
-                'name' => \get_class($nextException),
+                'name' => get_class($nextException),
                 'file' => $nextException->getFile(),
                 'line' => $nextException->getLine(),
                 'code' => $nextException->getCode(),
@@ -100,14 +155,14 @@ abstract class Render implements RenderInterface
                 'trace' => $nextException->getTrace(),
             ];
         } while ($nextException = $nextException->getPrevious());
-        $data = [
+
+        return [
             'code' => $exception->getCode(),
             'message' => $exception->getMessage(),
-            'exception' => \get_class($exception),
+            'exception' => get_class($exception),
             'file' => $exception->getFile(),
             'line' => $exception->getLine(),
             'traces' => $traces,
         ];
-        return $data;
     }
 }

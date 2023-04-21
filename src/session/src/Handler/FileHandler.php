@@ -8,9 +8,33 @@ use FilesystemIterator;
 use SplFileInfo;
 use Generator;
 use Closure;
+use Throwable;
+use function sys_get_temp_dir;
+use function rtrim;
+use function is_dir;
+use function mkdir;
+use function random_int;
+use function time;
+use function is_file;
+use function filemtime;
+use function function_exists;
+use function unlink;
+use function dirname;
+use function fopen;
+use function flock;
+use function clearstatcache;
+use function fread;
+use function filesize;
+use function fclose;
+use function file_put_contents;
+use const LOCK_UN;
+use const LOCK_EX;
 
 class FileHandler extends Driver
 {
+    /**
+     * @var array
+     */
     protected array $config = [
         'path' => '',
         'expire' => 1440,
@@ -21,21 +45,22 @@ class FileHandler extends Driver
     ];
 
     /**
-     * @throws \Exception
+     * @return void
+     * @throws Throwable
      */
     public function initialize(): void
     {
         if (empty($this->config['path'])) {
-            $this->config['path'] = \sys_get_temp_dir();
+            $this->config['path'] = sys_get_temp_dir();
         }
-        $this->config['path'] = \rtrim($this->config['path'], DIRECTORY_SEPARATOR);
+        $this->config['path'] = rtrim($this->config['path'], DIRECTORY_SEPARATOR);
 
         try {
-            !\is_dir($this->config['path']) && \mkdir($this->config['path'], 0755, true);
-        } catch (\Throwable $e) {
+            !is_dir($this->config['path']) && mkdir($this->config['path'], 0755, true);
+        } catch (Throwable) {
         }
 
-        if (\random_int(1, $this->config['gc_divisor']) <= $this->config['gc_probability']) {
+        if (random_int(1, $this->config['gc_divisor']) <= $this->config['gc_probability']) {
             $this->gc($this->config['expire']);
         }
     }
@@ -58,7 +83,7 @@ class FileHandler extends Driver
     {
         try {
             return $this->unlink($this->getFileName($id));
-        } catch (\Exception $e) {
+        } catch (Throwable) {
             return false;
         }
     }
@@ -70,7 +95,7 @@ class FileHandler extends Driver
      */
     public function gc(int $max_lifetime): int|false
     {
-        $now = \time();
+        $now = time();
 
         $files = $this->findFiles($this->config['path'], function (SplFileInfo $item) use ($max_lifetime, $now) {
             return $now - $max_lifetime > $item->getMTime();
@@ -106,10 +131,10 @@ class FileHandler extends Driver
     {
         $filename = $this->getFileName($id);
 
-        if (\is_file($filename) && \filemtime($filename) >= \time() - $this->config['expire']) {
+        if (is_file($filename) && filemtime($filename) >= time() - $this->config['expire']) {
             $content = $this->readFile($filename);
 
-            if ($this->config['data_compress'] && \function_exists('gzuncompress')) {
+            if ($this->config['data_compress'] && function_exists('gzuncompress')) {
                 //启用数据压缩
                 $content = (string)gzuncompress($content);
             }
@@ -176,12 +201,12 @@ class FileHandler extends Driver
         }
 
         $filename = $this->config['path'] . DIRECTORY_SEPARATOR . $name;
-        $dir = \dirname($filename);
+        $dir = dirname($filename);
 
-        if ($auto && !\is_dir($dir)) {
+        if ($auto && !is_dir($dir)) {
             try {
-                \mkdir($dir, 0755, true);
-            } catch (\Throwable $e) {
+                mkdir($dir, 0755, true);
+            } catch (Throwable) {
             }
         }
 
@@ -197,19 +222,19 @@ class FileHandler extends Driver
     {
         $contents = '';
 
-        $handle = \fopen($path, 'rb');
+        $handle = fopen($path, 'rb');
 
         if ($handle) {
             try {
-                if (\flock($handle, LOCK_SH)) {
-                    \clearstatcache(true, $path);
+                if (flock($handle, LOCK_SH)) {
+                    clearstatcache(true, $path);
 
-                    $contents = \fread($handle, \filesize($path) ?: 1);
+                    $contents = fread($handle, filesize($path) ?: 1);
 
-                    \flock($handle, \LOCK_UN);
+                    flock($handle, LOCK_UN);
                 }
             } finally {
-                \fclose($handle);
+                fclose($handle);
             }
         }
 
@@ -224,7 +249,7 @@ class FileHandler extends Driver
      */
     protected function writeFile($path, $content): bool
     {
-        return (bool)\file_put_contents($path, $content, LOCK_EX);
+        return (bool)file_put_contents($path, $content, LOCK_EX);
     }
 
     /**
@@ -235,6 +260,6 @@ class FileHandler extends Driver
      */
     private function unlink(string $file): bool
     {
-        return \is_file($file) && \unlink($file);
+        return is_file($file) && unlink($file);
     }
 }

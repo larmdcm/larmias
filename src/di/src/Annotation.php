@@ -15,6 +15,9 @@ use ReflectionAttribute;
 use ReflectionMethod;
 use ReflectionParameter;
 use ReflectionProperty;
+use function array_merge;
+use function class_exists;
+use function is_string;
 
 class Annotation implements AnnotationInterface
 {
@@ -38,7 +41,7 @@ class Annotation implements AnnotationInterface
      */
     public function __construct(protected ContainerInterface $container, array $config = [])
     {
-        $this->config = \array_merge($this->config, $config);
+        $this->config = array_merge($this->config, $config);
     }
 
     /**
@@ -92,7 +95,7 @@ class Annotation implements AnnotationInterface
      */
     protected function parse(string|object $class): void
     {
-        if (\is_string($class) && !\class_exists($class)) {
+        if (is_string($class) && !class_exists($class)) {
             return;
         }
         $refClass = ReflectionManager::reflectClass($class);
@@ -189,7 +192,7 @@ class Annotation implements AnnotationInterface
      */
     protected function handleAnnotationExtend(array $annotations, array $parentAnnotations): array
     {
-        return \array_merge($parentAnnotations, $annotations);
+        return array_merge($parentAnnotations, $annotations);
     }
 
     /**
@@ -201,7 +204,7 @@ class Annotation implements AnnotationInterface
         $annotations = [];
         foreach ($attributes as $attribute) {
             if ($attribute instanceof ReflectionAttribute) {
-                if (\class_exists($attribute->getName())) {
+                if (class_exists($attribute->getName())) {
                     $annotations[$attribute->getName()][] = $attribute->newInstance();
                 }
             }

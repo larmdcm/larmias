@@ -31,6 +31,21 @@ trait RelationShip
 
     /**
      * @param string $name
+     * @return string|null
+     */
+    public function isRelationAttr(string $name): ?string
+    {
+        $name = Str::camel($name);
+        if (method_exists($this, $name) && !method_exists(Model::class, $name)) {
+            return $name;
+        }
+
+        return null;
+    }
+
+
+    /**
+     * @param string $name
      * @return string
      */
     protected function getForeignKey(string $name): string

@@ -10,10 +10,10 @@ use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
 
 interface ExceptionHandlerInterface extends ExceptionReportHandlerInterface
 {
-	/**
-	 * @param  RequestInterface $request [description]
-	 * @param  Throwable        $e       [description]
-	 * @return [type]                    [description]
-	 */
-    public function render(RequestInterface $request,Throwable $e): PsrResponseInterface;
+    /**
+     * @param RequestInterface $request
+     * @param Throwable $e
+     * @return PsrResponseInterface
+     */
+    public function render(RequestInterface $request, Throwable $e): PsrResponseInterface;
 }

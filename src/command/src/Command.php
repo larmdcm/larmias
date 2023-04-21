@@ -25,6 +25,8 @@ use Symfony\Component\Console\Question\Question;
 use Larmias\Utils\Contracts\Arrayable;
 use Larmias\Utils\Str;
 use Psr\EventDispatcher\EventDispatcherInterface;
+use function method_exists;
+use function call_user_func_array;
 
 abstract class Command extends SymfonyCommand
 {
@@ -90,15 +92,15 @@ abstract class Command extends SymfonyCommand
     {
         parent::configure();
 
-        if (\method_exists($this, 'getArguments')) {
+        if (method_exists($this, 'getArguments')) {
             foreach ($this->getArguments() ?? [] as $arguments) {
-                \call_user_func_array([$this, 'addArgument'], $arguments);
+                call_user_func_array([$this, 'addArgument'], $arguments);
             }
         }
 
-        if (\method_exists($this, 'getOptions')) {
+        if (method_exists($this, 'getOptions')) {
             foreach ($this->getOptions() ?? [] as $options) {
-                \call_user_func_array([$this, 'addOption'], $options);
+                call_user_func_array([$this, 'addOption'], $options);
             }
         }
     }

@@ -10,6 +10,13 @@ use Larmias\Contracts\PackerInterface;
 use Larmias\Contracts\SessionInterface;
 use SessionHandlerInterface;
 use Larmias\Utils\Arr;
+use function is_null;
+use function is_string;
+use function strlen;
+use function ctype_alnum;
+use function md5;
+use function microtime;
+use function session_create_id;
 
 class Session implements SessionInterface
 {
@@ -273,7 +280,7 @@ class Session implements SessionInterface
      */
     public function validId(?string $id = null): bool
     {
-        return \is_string($id) && \strlen($id) === 32 && \ctype_alnum($id);
+        return is_string($id) && strlen($id) === 32 && ctype_alnum($id);
     }
 
     /**
@@ -281,7 +288,7 @@ class Session implements SessionInterface
      */
     public function generateSessionId(): string
     {
-        return \md5(\microtime(true) . \session_create_id());
+        return md5(microtime(true) . session_create_id());
     }
 
     /**
@@ -307,7 +314,7 @@ class Session implements SessionInterface
      */
     public function getConfig(?string $name = null, mixed $default = null): mixed
     {
-        if (\is_null($name)) {
+        if (is_null($name)) {
             return $this->config->get('session');
         }
         return $this->config->get('session.' . $name, $default);

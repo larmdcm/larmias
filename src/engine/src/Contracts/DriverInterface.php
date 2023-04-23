@@ -31,6 +31,19 @@ interface DriverInterface
     public function reload(bool $force = true): void;
 
     /**
+     * @param array $config
+     * @return void
+     */
+    public function setConfig(array $config = []): void;
+
+    /**
+     * @param string $name
+     * @param mixed|null $default
+     * @return mixed
+     */
+    public function getConfig(string $name, mixed $default = null): mixed;
+
+    /**
      * @return string|null
      */
     public function getTcpServerClass(): ?string;

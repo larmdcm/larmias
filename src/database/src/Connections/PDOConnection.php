@@ -16,7 +16,6 @@ use PDOStatement;
 use Throwable;
 use Closure;
 use function is_numeric;
-use function is_array;
 use function addcslashes;
 use function substr_replace;
 use function strpos;
@@ -24,14 +23,10 @@ use function strlen;
 use function microtime;
 use function str_starts_with;
 use function number_format;
+use function gettype;
 
 abstract class PDOConnection extends Connection
 {
-    /**
-     * @var int
-     */
-    public const PARAM_FLOAT = 21;
-
     /**
      * @var array
      */
@@ -145,15 +140,7 @@ abstract class PDOConnection extends Connection
     {
         foreach ($bindings as $key => $value) {
             $param = is_numeric($key) ? $key + 1 : ':' . $key;
-            $type = PDO::PARAM_STR;
-            if (is_array($value)) {
-                $type = $value[1] ?? PDO::PARAM_STR;
-                $value = $value[0] ?? '';
-                if ($type === self::PARAM_FLOAT) {
-                    $type = PDO::PARAM_STR;
-                    $value = (float)$value;
-                }
-            }
+            $type = $this->getBindType($value);
             $result = $statement->bindValue($param, $value, $type);
             if (!$result) {
                 throw new BindParamException(sprintf(
@@ -173,12 +160,8 @@ abstract class PDOConnection extends Connection
     public function buildSql(string $sql, array $bindings = []): string
     {
         foreach ($bindings as $key => $value) {
-            $type = PDO::PARAM_STR;
-            if (is_array($value)) {
-                $type = $value[1] ?? PDO::PARAM_STR;
-                $value = $value[0] ?? '';
-            }
-            if ($type === self::PARAM_FLOAT || $type === PDO::PARAM_STR) {
+            $type = $this->getBindType($value);
+            if ($type === PDO::PARAM_STR) {
                 $value = '\'' . addcslashes((string)$value, "'") . '\'';
             }
             $sql = is_numeric($key) ?
@@ -187,6 +170,20 @@ abstract class PDOConnection extends Connection
         }
 
         return trim($sql);
+    }
+
+    /**
+     * @param mixed $value
+     * @return int
+     */
+    protected function getBindType(mixed $value): int
+    {
+        return match (gettype($value)) {
+            'integer' => PDO::PARAM_INT,
+            'boolean' => PDO::PARAM_BOOL,
+            'NULL' => PDO::PARAM_NULL,
+            default => PDO::PARAM_STR
+        };
     }
 
     /**
@@ -285,7 +282,7 @@ abstract class PDOConnection extends Connection
         try {
             $this->query('select 1');
             return true;
-        } catch (Throwable $e) {
+        } catch (Throwable) {
             return false;
         }
     }

@@ -78,8 +78,8 @@ abstract class Worker extends Command
      */
     protected function makeKernel(): void
     {
-        if (method_exists($this->app, 'loadFileConfig')) {
-            $config = $this->app->loadFileConfig('worker');
+        if (method_exists($this->app, 'loadServiceConfig')) {
+            $config = $this->app->loadServiceConfig('worker', true);
         } else {
             $configFile = $this->app->getConfigPath() . 'worker.php';
             if (!is_file($configFile)) {

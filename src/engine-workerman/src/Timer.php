@@ -6,6 +6,7 @@ namespace Larmias\Engine\WorkerMan;
 
 use Larmias\Contracts\TimerInterface;
 use Workerman\Timer as WorkerManTimer;
+use function floatval;
 
 class Timer implements TimerInterface
 {

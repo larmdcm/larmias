@@ -14,6 +14,11 @@ use Larmias\Engine\WorkerMan\WebSocket\Server as WebSocketServer;
 class Driver implements DriverInterface
 {
     /**
+     * @var array
+     */
+    protected array $config = [];
+
+    /**
      * @param KernelInterface $kernel
      */
     public function run(KernelInterface $kernel): void
@@ -46,6 +51,26 @@ class Driver implements DriverInterface
     public function reload(bool $force = true): void
     {
         Worker::command(__FUNCTION__, $force);
+    }
+
+    /**
+     * @param array $config
+     * @return void
+     */
+    public function setConfig(array $config = []): void
+    {
+        $this->config = $config;
+        Worker::initConfig($this->config);
+    }
+
+    /**
+     * @param string $name
+     * @param mixed|null $default
+     * @return mixed
+     */
+    public function getConfig(string $name, mixed $default = null): mixed
+    {
+        return $this->config[$name] ?? $default;
     }
 
     /**

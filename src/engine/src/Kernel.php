@@ -51,6 +51,7 @@ class Kernel implements KernelInterface
     {
         $this->engineConfig = $engineConfig;
         $this->driver = $this->container->get($this->engineConfig->getDriver());
+        $this->driver->setConfig($this->engineConfig->getSettings());
         return $this;
     }
 
@@ -118,7 +119,7 @@ class Kernel implements KernelInterface
      */
     public function stop(bool $force = true): void
     {
-        $this->getDriver()->stop($force);
+        $this->driver->stop($force);
     }
 
     /**
@@ -127,7 +128,8 @@ class Kernel implements KernelInterface
      */
     public function restart(bool $force = true): void
     {
-        $this->getDriver()->restart($force);
+        $this->driver->restart($force);
+        $this->run();
     }
 
     /**
@@ -136,6 +138,6 @@ class Kernel implements KernelInterface
      */
     public function reload(bool $force = true): void
     {
-        $this->getDriver()->reload($force);
+        $this->driver->reload($force);
     }
 }

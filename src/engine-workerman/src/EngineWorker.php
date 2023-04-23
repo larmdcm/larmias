@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Larmias\Engine\WorkerMan;
 
 use Larmias\Engine\Worker as BaseWorker;
-use Workerman\Connection\TcpConnection;
 use Larmias\Engine\Timer;
 use Larmias\Engine\Event;
 use Throwable;
@@ -76,34 +75,6 @@ class EngineWorker extends BaseWorker
             if (isset($config[$key])) {
                 $worker->{$property} = $config[$key];
             }
-        }
-
-        if (isset($config['daemonize'])) {
-            Worker::$daemonize = $config['daemonize'];
-        }
-
-        if (!empty($config['eventLoopClass'])) {
-            Worker::$eventLoopClass = $config['eventLoopClass'];
-        }
-
-        if (!empty($config['stdoutFile'])) {
-            Worker::$stdoutFile = $config['stdoutFile'];
-        }
-
-        if (!empty($config['pidFile'])) {
-            Worker::$pidFile = $config['pidFile'];
-        }
-
-        if (!empty($config['logFile'])) {
-            Worker::$logFile = $config['logFile'];
-        }
-
-        if (!empty($config['defaultMaxSendBufferSize'])) {
-            TcpConnection::$defaultMaxSendBufferSize = $config['defaultMaxSendBufferSize'];
-        }
-
-        if (!empty($config['defaultMaxPackageSize'])) {
-            TcpConnection::$defaultMaxPackageSize = $config['defaultMaxPackageSize'];
         }
 
         return $this->workerBind($worker, $this);

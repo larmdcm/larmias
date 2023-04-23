@@ -19,6 +19,11 @@ use function get_class;
 class Driver implements DriverInterface
 {
     /**
+     * @var array
+     */
+    protected array $config = [];
+
+    /**
      * @param KernelInterface $kernel
      * @return void
      * @throws \Throwable
@@ -26,12 +31,15 @@ class Driver implements DriverInterface
     public function run(KernelInterface $kernel): void
     {
         $manager = new Manager();
+
         foreach ($kernel->getWorkers() as $worker) {
             if (!($worker instanceof WorkerInterface)) {
                 throw new RuntimeException(get_class($worker) . ' worker not instanceof ' . WorkerInterface::class);
             }
+
             $manager->addWorker($worker);
         }
+
         $manager->start();
     }
 
@@ -52,7 +60,7 @@ class Driver implements DriverInterface
      */
     public function restart(bool $force = true): void
     {
-        $this->stop();
+        $this->stop($force);
     }
 
     /**
@@ -64,6 +72,25 @@ class Driver implements DriverInterface
         if (function_exists('posix_getppid')) {
             SwooleProcess::kill(posix_getppid(), SIGUSR1);
         }
+    }
+
+    /**
+     * @param array $config
+     * @return void
+     */
+    public function setConfig(array $config = []): void
+    {
+        $this->config = $config;
+    }
+
+    /**
+     * @param string $name
+     * @param mixed|null $default
+     * @return mixed
+     */
+    public function getConfig(string $name, mixed $default = null): mixed
+    {
+        return $this->config[$name] ?? $default;
     }
 
     /**

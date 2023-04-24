@@ -105,7 +105,7 @@ class RedisProxy implements ConnectionInterface
      */
     public function connect(): bool
     {
-        return $this->__call(__FUNCTION__, ...func_get_args());
+        return $this->__call(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -113,7 +113,7 @@ class RedisProxy implements ConnectionInterface
      */
     public function reconnect(): bool
     {
-        return $this->__call(__FUNCTION__, ...func_get_args());
+        return $this->__call(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -121,7 +121,7 @@ class RedisProxy implements ConnectionInterface
      */
     public function close(): bool
     {
-        return $this->__call(__FUNCTION__, ...func_get_args());
+        return $this->__call(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -129,7 +129,7 @@ class RedisProxy implements ConnectionInterface
      */
     public function getRaw(): \Redis
     {
-        return $this->__call(__FUNCTION__, ...func_get_args());
+        return $this->__call(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -137,7 +137,7 @@ class RedisProxy implements ConnectionInterface
      */
     public function getDatabase(): int
     {
-        return $this->__call(__FUNCTION__, ...func_get_args());
+        return $this->__call(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -146,6 +146,6 @@ class RedisProxy implements ConnectionInterface
      */
     public function setDatabase(int $db): void
     {
-        $this->__call(__FUNCTION__, ...func_get_args());
+        $this->__call(__FUNCTION__, func_get_args());
     }
 }

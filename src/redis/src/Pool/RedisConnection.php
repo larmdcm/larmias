@@ -7,6 +7,7 @@ namespace Larmias\Redis\Pool;
 use Larmias\Contracts\Redis\ConnectionInterface;
 use Larmias\Pool\Connection as BaseConnection;
 use RuntimeException;
+use Throwable;
 use Redis;
 use function array_merge;
 
@@ -86,7 +87,7 @@ class RedisConnection extends BaseConnection implements ConnectionInterface
     {
         try {
             return (bool)$this->redis->ping();
-        } catch (\Throwable $e) {
+        } catch (Throwable) {
             return false;
         }
     }
@@ -173,7 +174,7 @@ class RedisConnection extends BaseConnection implements ConnectionInterface
      * @param string $name
      * @param array $arguments
      * @return mixed
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function __call(string $name, array $arguments)
     {

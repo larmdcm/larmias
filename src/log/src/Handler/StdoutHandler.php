@@ -7,6 +7,15 @@ namespace Larmias\Log\Handler;
 use Larmias\Contracts\StdoutLoggerInterface;
 use Larmias\Log\Contracts\LoggerHandlerInterface;
 use Larmias\Log\LoggerLevel;
+use Psr\Log\LogLevel;
+use function sprintf;
+use function implode;
+use function fwrite;
+use function fflush;
+use function is_resource;
+use function get_resource_type;
+use function fstat;
+use const STDOUT;
 
 class StdoutHandler implements LoggerHandlerInterface
 {
@@ -66,7 +75,8 @@ class StdoutHandler implements LoggerHandlerInterface
                 if ($this->logger) {
                     $this->logger->log($logItem['level'], $logItem['content']);
                 } else {
-                    static::safeEcho(static::getLevelStyleText($logItem['content'], $logItem['level']));
+                    $message = static::getLevelStyleText($logItem['content'], $logItem['level']);
+                    static::safeEcho($message);
                 }
             }
         }
@@ -94,32 +104,32 @@ class StdoutHandler implements LoggerHandlerInterface
     {
         $codes = ['set' => [], 'unset' => []];
         switch ($level) {
-            case LoggerLevel::DEBUG:
+            case LogLevel::DEBUG:
             case LoggerLevel::SQL:
                 $codes['set'][] = static::$availableForegroundColors['green']['set'];
                 $codes['unset'][] = static::$availableForegroundColors['green']['unset'];
                 break;
-            case LoggerLevel::INFO:
+            case LogLevel::INFO:
                 $codes['set'][] = static::$availableForegroundColors['cyan']['set'];
                 $codes['unset'][] = static::$availableForegroundColors['cyan']['unset'];
                 break;
-            case LoggerLevel::WARNING:
+            case LogLevel::WARNING:
                 $codes['set'][] = static::$availableForegroundColors['yellow']['set'];
                 $codes['unset'][] = static::$availableForegroundColors['yellow']['unset'];
                 break;
-            case LoggerLevel::ERROR:
+            case LogLevel::ERROR:
                 $codes['set'][] = static::$availableForegroundColors['red']['set'];
                 $codes['unset'][] = static::$availableForegroundColors['red']['unset'];
                 break;
-            case LoggerLevel::CRITICAL:
+            case LogLevel::CRITICAL:
                 $codes['set'][] = static::$availableForegroundColors['blue']['set'];
                 $codes['unset'][] = static::$availableForegroundColors['blue']['unset'];
                 break;
-            case LoggerLevel::ALERT:
+            case LogLevel::ALERT:
                 $codes['set'][] = static::$availableForegroundColors['magenta']['set'];
                 $codes['unset'][] = static::$availableForegroundColors['magenta']['unset'];
                 break;
-            case LoggerLevel::EMERGENCY:
+            case LogLevel::EMERGENCY:
                 $codes['set'][] = static::$availableBackgroundColors['red']['set'];
                 $codes['unset'][] = static::$availableBackgroundColors['red']['unset'];
                 $codes['set'][] = static::$availableForegroundColors['white']['set'];
@@ -143,7 +153,7 @@ class StdoutHandler implements LoggerHandlerInterface
      */
     public static function getStyleText(string $content, array $setCodes, array $unsetCodes): string
     {
-        return \sprintf("\033[%sm%s\033[%sm", \implode(';', $setCodes), $content, \implode(';', $unsetCodes));
+        return sprintf("\033[%sm%s\033[%sm", implode(';', $setCodes), $content, implode(';', $unsetCodes));
     }
 
 
@@ -159,8 +169,8 @@ class StdoutHandler implements LoggerHandlerInterface
         if (!$stream) {
             return false;
         }
-        \fwrite($stream, $message);
-        \fflush($stream);
+        fwrite($stream, $message);
+        fflush($stream);
         return true;
     }
 
@@ -170,15 +180,15 @@ class StdoutHandler implements LoggerHandlerInterface
      * @param resource|null $stream
      * @return resource|bool
      */
-    private static function outputStream($stream = null)
+    private static function outputStream(mixed $stream = null): mixed
     {
         if (!$stream) {
-            $stream = static::$outputStream ?: \STDOUT;
+            $stream = static::$outputStream ?: STDOUT;
         }
-        if (!$stream || !\is_resource($stream) || 'stream' !== \get_resource_type($stream)) {
+        if (!$stream || !is_resource($stream) || 'stream' !== get_resource_type($stream)) {
             return false;
         }
-        $stat = \fstat($stream);
+        $stat = fstat($stream);
         if (!$stat) {
             return false;
         }

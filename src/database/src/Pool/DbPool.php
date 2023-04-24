@@ -18,6 +18,7 @@ class DbPool extends Pool
      * @param ContainerInterface $container
      * @param array $options
      * @param array $config
+     * @throws \Throwable
      */
     public function __construct(ContainerInterface $container, array $options = [], protected array $config = [])
     {

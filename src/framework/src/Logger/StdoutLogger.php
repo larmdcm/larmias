@@ -6,16 +6,21 @@ namespace Larmias\Framework\Logger;
 
 use Larmias\Contracts\ConfigInterface;
 use Larmias\Contracts\StdoutLoggerInterface;
-use Psr\Log\LogLevel;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
+use Psr\Log\LogLevel;
+use function in_array;
+use function array_keys;
+use function str_replace;
+use function array_map;
+use function sprintf;
 
 class StdoutLogger implements StdoutLoggerInterface
 {
     /**
-     * @var array
+     * @var string[]
      */
-    private array $tags = [
+    protected array $tags = [
         'component',
     ];
 
@@ -30,80 +35,138 @@ class StdoutLogger implements StdoutLoggerInterface
         }
     }
 
+    /**
+     * @param \Stringable|string $message
+     * @param array $context
+     * @return void
+     */
     public function emergency(\Stringable|string $message, array $context = []): void
     {
         $this->log(__FUNCTION__, $message, $context);
     }
 
+    /**
+     * @param \Stringable|string $message
+     * @param array $context
+     * @return void
+     */
     public function alert(\Stringable|string $message, array $context = []): void
     {
         $this->log(__FUNCTION__, $message, $context);
     }
 
+    /**
+     * @param \Stringable|string $message
+     * @param array $context
+     * @return void
+     */
     public function critical(\Stringable|string $message, array $context = []): void
     {
         $this->log(__FUNCTION__, $message, $context);
     }
 
+    /**
+     * @param \Stringable|string $message
+     * @param array $context
+     * @return void
+     */
     public function error(\Stringable|string $message, array $context = []): void
     {
         $this->log(__FUNCTION__, $message, $context);
     }
 
+    /**
+     * @param \Stringable|string $message
+     * @param array $context
+     * @return void
+     */
     public function warning(\Stringable|string $message, array $context = []): void
     {
         $this->log(__FUNCTION__, $message, $context);
     }
 
+    /**
+     * @param \Stringable|string $message
+     * @param array $context
+     * @return void
+     */
     public function notice(\Stringable|string $message, array $context = []): void
     {
         $this->log(__FUNCTION__, $message, $context);
     }
 
+    /**
+     * @param \Stringable|string $message
+     * @param array $context
+     * @return void
+     */
     public function info(\Stringable|string $message, array $context = []): void
     {
         $this->log(__FUNCTION__, $message, $context);
     }
 
+    /**
+     * @param \Stringable|string $message
+     * @param array $context
+     * @return void
+     */
     public function debug(\Stringable|string $message, array $context = []): void
     {
         $this->log(__FUNCTION__, $message, $context);
     }
 
+    /**
+     * @param \Stringable|string $message
+     * @param array $context
+     * @return void
+     */
     public function sql(\Stringable|string $message, array $context = []): void
     {
         $this->log(__FUNCTION__, $message, $context);
     }
 
+    /**
+     * @param $level
+     * @param \Stringable|string $message
+     * @param array $context
+     * @return void
+     */
     public function log($level, \Stringable|string $message, array $context = []): void
     {
         $config = $this->config?->get('logger', ['level' => []]);
-        if ($config && !empty($config['level']) && !\in_array($level, $config['level'], true)) {
+        if ($config && !empty($config['level']) && !in_array($level, $config['level'], true)) {
             return;
         }
-        $keys = \array_keys($context);
+        $keys = array_keys($context);
         $tags = [];
         foreach ($keys as $k => $key) {
-            if (\in_array($key, $this->tags, true)) {
+            if (in_array($key, $this->tags, true)) {
                 $tags[$key] = $context[$key];
                 unset($keys[$k]);
             }
         }
-        $search = \array_map(fn($key) => \sprintf('{%s}', $key), $keys);
-        $message = \str_replace($search, $context, $this->getMessage((string)$message, $level, $tags));
+        $search = array_map(fn($key) => sprintf('{%s}', $key), $keys);
+        $message = str_replace($search, $context, $this->getMessage((string)$message, $level, $tags));
         $this->writeln($message);
     }
 
+    /**
+     * @param string $message
+     * @return void
+     */
     public function write(string $message): void
     {
         $this->output->write($message);
     }
 
+    /**
+     * @param string $message
+     * @return void
+     */
     public function writeln(string $message): void
     {
         $this->output->writeln($message);
     }
-
 
     /**
      * @param string $message
@@ -120,12 +183,12 @@ class StdoutLogger implements StdoutLoggerInterface
             default => 'info',
         };
 
-        $template = \sprintf('<%s>[%s]</>', $tag, strtoupper($level));
+        $template = sprintf('<%s>[%s]</>', $tag, strtoupper($level));
         $implodedTags = '';
         foreach ($tags as $value) {
             $implodedTags .= (' [' . $value . ']');
         }
 
-        return \sprintf($template . $implodedTags . ' %s', $message);
+        return sprintf($template . $implodedTags . ' %s', $message);
     }
 }

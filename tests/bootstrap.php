@@ -2,9 +2,12 @@
 
 namespace Larmias\Tests;
 
+use Larmias\Config\Config;
+use Larmias\Contracts\ConfigInterface;
 use Larmias\Di\Container;
 use Larmias\Contracts\ContainerInterface;
 use Larmias\Timer\Timer;
+use Larmias\Utils\ApplicationContext;
 use PHPUnit\TextUI\Command;
 
 date_default_timezone_set('PRC');
@@ -42,6 +45,8 @@ function init(string $env = 'swoole'): void
     $container->bind(\Larmias\Contracts\Coroutine\CoroutineFactoryInterface::class, \Larmias\Engine\Factory\CoroutineFactory::class);
     $container->bind(\Larmias\Contracts\Coroutine\ChannelFactoryInterface::class, \Larmias\Engine\Factory\ChannelFactory::class);
     $container->bind(\Larmias\Contracts\TimerInterface::class, Timer::getTimer());
+    $container->bind(ConfigInterface::class, Config::class);
+    ApplicationContext::setContainer($container);
 }
 
 

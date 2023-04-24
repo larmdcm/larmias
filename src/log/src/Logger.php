@@ -9,6 +9,7 @@ use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\LoggerInterface;
 use Larmias\Log\Contracts\FormatterInterface;
 use Larmias\Utils\Arr;
+use function is_null;
 
 class Logger implements LoggerInterface
 {
@@ -250,7 +251,7 @@ class Logger implements LoggerInterface
      */
     public function getConfig(?string $name = null, mixed $default = null): mixed
     {
-        if (\is_null($name)) {
+        if (is_null($name)) {
             return $this->config->get('logger');
         }
         return $this->config->get('logger.' . $name, $default);

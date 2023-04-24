@@ -6,17 +6,25 @@ namespace Larmias\Log\Formatter;
 
 use Larmias\Log\Contracts\FormatterInterface;
 use Larmias\Utils\Str;
+use function array_merge;
+use function var_export;
 
 class LineFormatter implements FormatterInterface
 {
+    /**
+     * @var array|string[]
+     */
     protected array $config = [
         'format' => '[{datetime}][{channel}.{level}] {message} {context}' . PHP_EOL,
         'date_format' => 'Y-m-d H:i:s',
     ];
 
+    /**
+     * @param array $config
+     */
     public function __construct(array $config = [])
     {
-        $this->config = \array_merge($this->config, $config);
+        $this->config = array_merge($this->config, $config);
     }
 
 
@@ -40,7 +48,7 @@ class LineFormatter implements FormatterInterface
             'channel' => $channel,
             'level' => $level,
             'message' => $message,
-            'context' => !empty($context) ? \var_export($context, true) : '',
+            'context' => !empty($context) ? var_export($context, true) : '',
         ]);
     }
 }

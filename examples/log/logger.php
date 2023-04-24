@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'default' => 'socketLog',
+    'default' => 'stdout',
     'realtime_write' => true,
     'level_channels' => [],
     'level' => [],

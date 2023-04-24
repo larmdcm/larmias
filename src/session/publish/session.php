@@ -11,7 +11,7 @@ return [
         'file' => [
             'handler' => \Larmias\Session\Handler\FileHandler::class,
             'path' => null,
-            'prefix' => '',
+            'prefix' => 'larmias_',
             'expire' => 86400,
             'data_compress' => false,
             'gc_probability' => 1,
@@ -19,7 +19,7 @@ return [
         ],
         'redis' => [
             'handler' => \Larmias\Session\Handler\RedisHandler::class,
-            'prefix' => '',
+            'prefix' => 'larmias_',
             'expire' => 86400,
         ]
     ]

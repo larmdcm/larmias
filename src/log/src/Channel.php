@@ -7,6 +7,7 @@ namespace Larmias\Log;
 use Larmias\Contracts\LoggerInterface;
 use Larmias\Log\Contracts\FormatterInterface;
 use Larmias\Log\Contracts\LoggerHandlerInterface;
+use function in_array;
 
 class Channel implements LoggerInterface
 {

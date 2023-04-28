@@ -15,8 +15,8 @@ class LockerTestCase extends TestCase
     public function testAcquire(): void
     {
         LockUtils::acquire(__FUNCTION__, function () {
-            sleep(10);
-            println('执行完成.');
+            sleep(2);
+            $this->assertTrue(true);
         });
     }
 }

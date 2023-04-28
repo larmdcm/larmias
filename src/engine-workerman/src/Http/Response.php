@@ -8,6 +8,7 @@ use Larmias\Contracts\Http\ResponseInterface;
 use Workerman\Connection\TcpConnection;
 use Workerman\Protocols\Http\Chunk;
 use Workerman\Protocols\Http\Response as WorkerResponse;
+use function is_null;
 
 class Response implements ResponseInterface
 {
@@ -22,7 +23,7 @@ class Response implements ResponseInterface
      */
     public function __construct(protected TcpConnection $connection, protected ?WorkerResponse $response = null)
     {
-        if (\is_null($this->response)) {
+        if (is_null($this->response)) {
             $this->response = new WorkerResponse();
         }
     }

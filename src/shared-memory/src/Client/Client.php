@@ -4,16 +4,32 @@ declare(strict_types=1);
 
 namespace Larmias\SharedMemory\Client;
 
-use Larmias\Engine\EventLoop;
-use Larmias\Engine\Timer;
+use Larmias\Contracts\EventLoopInterface;
+use Larmias\Contracts\TimerInterface;
 use Larmias\SharedMemory\Client\Command\Channel;
-use Larmias\SharedMemory\Client\Command\Map;
+use Larmias\SharedMemory\Client\Command\Str;
 use Larmias\SharedMemory\Exceptions\ClientException;
 use Larmias\SharedMemory\Message\Command;
 use Larmias\SharedMemory\Message\Result;
+use function array_merge;
+use function stream_set_blocking;
+use function stream_set_write_buffer;
+use function stream_set_read_buffer;
+use function stream_socket_client;
+use function strlen;
+use function pack;
+use function fwrite;
+use function fread;
+use function unpack;
+use function is_resource;
+use function sprintf;
+use function fclose;
+use function feof;
+use function call_user_func_array;
+use const PHP_SAPI;
 
 /**
- * @property Map $map
+ * @property Str $str
  * @property Channel $channel
  */
 class Client
@@ -63,7 +79,7 @@ class Client
      * @var array
      */
     protected array $commands = [
-        'map' => Map::class,
+        'map' => Str::class,
         'channel' => Channel::class,
     ];
 
@@ -78,11 +94,21 @@ class Client
     protected array $events = [];
 
     /**
+     * @var EventLoopInterface|null
+     */
+    protected ?EventLoopInterface $eventLoop = null;
+
+    /**
+     * @var TimerInterface|null
+     */
+    protected ?TimerInterface $timer = null;
+
+    /**
      * @param array $options
      */
     public function __construct(array $options = [])
     {
-        $this->options = \array_merge($this->options, $options);
+        $this->options = array_merge($this->options, $options);
         foreach ($this->options['event'] as $event => $callback) {
             $this->on($event, $callback);
         }
@@ -121,9 +147,9 @@ class Client
                 $this->select($this->options['select']);
             }
             if ($this->options['async']) {
-                \stream_set_blocking($this->socket, false);
-                \stream_set_write_buffer($this->socket, 0);
-                \stream_set_read_buffer($this->socket, 0);
+                stream_set_blocking($this->socket, false);
+                stream_set_write_buffer($this->socket, 0);
+                stream_set_read_buffer($this->socket, 0);
             }
             $this->ping();
             $this->trigger(self::EVENT_CONNECT, $this);
@@ -137,7 +163,7 @@ class Client
      */
     public function set(array $options = []): self
     {
-        $this->options = \array_merge($this->options, $options);
+        $this->options = array_merge($this->options, $options);
         return $this;
     }
 
@@ -147,7 +173,7 @@ class Client
      */
     public function clone(array $options = []): static
     {
-        return new static(\array_merge($this->options, $options));
+        return new static(array_merge($this->options, $options));
     }
 
     /**
@@ -212,9 +238,9 @@ class Client
             $this->close();
             return false;
         }
-        $len = \strlen($data) + 4;
-        $data = \pack('N', $len) . $data;
-        $result = \fwrite($this->socket, $data, $len);
+        $len = strlen($data) + 4;
+        $data = pack('N', $len) . $data;
+        $result = fwrite($this->socket, $data, $len);
         return $result === $len;
     }
 
@@ -230,12 +256,12 @@ class Client
 
         $protocolLen = 4;
 
-        $buffer = \fread($this->socket, $protocolLen);
+        $buffer = fread($this->socket, $protocolLen);
         if ($buffer === '' || $buffer === false) {
             return null;
         }
-        $length = \unpack('Nlength', $buffer)['length'];
-        $buffer = \fread($this->socket, $length - $protocolLen);
+        $length = unpack('Nlength', $buffer)['length'];
+        $buffer = fread($this->socket, $length - $protocolLen);
 
         return Result::parse($buffer);
     }
@@ -248,10 +274,12 @@ class Client
     {
         $this->clearPing();
         if ($this->isConnected()) {
-            if (\is_resource($this->socket)) {
-                EventLoop::offReadable($this->socket);
-                EventLoop::offWritable($this->socket);
-                \fclose($this->socket);
+            if (is_resource($this->socket)) {
+                if ($this->eventLoop) {
+                    $this->eventLoop->offReadable($this->socket);
+                    $this->eventLoop->offWritable($this->socket);
+                }
+                fclose($this->socket);
             }
             $this->trigger(self::EVENT_CLOSE, $this);
             if (!$destroy && $this->options['break_reconnect']) {
@@ -279,7 +307,7 @@ class Client
      */
     public function isConnected(): bool
     {
-        return $this->connected && !\feof($this->socket) && \is_resource($this->socket);
+        return $this->connected && !feof($this->socket) && is_resource($this->socket);
     }
 
     /**
@@ -287,7 +315,7 @@ class Client
      */
     public function isCli(): bool
     {
-        return \PHP_SAPI === 'cli';
+        return PHP_SAPI === 'cli';
     }
 
     /**
@@ -318,7 +346,7 @@ class Client
     {
         if (isset($this->events[$event])) {
             foreach ($this->events[$event] as $callback) {
-                \call_user_func_array($callback, $args);
+                call_user_func_array($callback, $args);
             }
         }
     }
@@ -328,11 +356,11 @@ class Client
      */
     protected function createSocket()
     {
-        $conn = \stream_socket_client(
-            \sprintf('tcp://%s:%d', $this->options['host'], $this->options['port']), $errCode, $errMsg,
+        $conn = stream_socket_client(
+            sprintf('tcp://%s:%d', $this->options['host'], $this->options['port']), $errCode, $errMsg,
             $this->options['timeout']
         );
-        if (!\is_resource($conn)) {
+        if (!is_resource($conn)) {
             throw new ClientException($errMsg, $errCode);
         }
         return $conn;
@@ -343,11 +371,11 @@ class Client
      */
     protected function ping(): void
     {
-        if (!$this->options['ping_interval'] || !$this->isCli()) {
+        if (!$this->options['ping_interval'] || !$this->isCli() || !$this->timer) {
             return;
         }
         $this->clearPing();
-        $this->options['ping_interval_id'] = Timer::tick($this->options['ping_interval'], function () {
+        $this->options['ping_interval_id'] = $this->timer->tick($this->options['ping_interval'], function () {
             if (!$this->isConnected()) {
                 $this->close();
                 return;
@@ -361,9 +389,41 @@ class Client
      */
     protected function clearPing(): void
     {
-        if (isset($this->options['ping_interval_id'])) {
-            Timer::del($this->options['ping_interval_id']);
+        if (isset($this->options['ping_interval_id']) && $this->timer) {
+            $this->timer->del($this->options['ping_interval_id']);
         }
+    }
+
+    /**
+     * @return EventLoopInterface|null
+     */
+    public function getEventLoop(): ?EventLoopInterface
+    {
+        return $this->eventLoop;
+    }
+
+    /**
+     * @param EventLoopInterface|null $eventLoop
+     */
+    public function setEventLoop(?EventLoopInterface $eventLoop): void
+    {
+        $this->eventLoop = $eventLoop;
+    }
+
+    /**
+     * @return TimerInterface|null
+     */
+    public function getTimer(): ?TimerInterface
+    {
+        return $this->timer;
+    }
+
+    /**
+     * @param TimerInterface|null $timer
+     */
+    public function setTimer(?TimerInterface $timer): void
+    {
+        $this->timer = $timer;
     }
 
     public function __destruct()

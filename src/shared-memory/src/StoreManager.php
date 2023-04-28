@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Larmias\SharedMemory;
 
 use Larmias\SharedMemory\Contracts\ChannelInterface;
-use Larmias\SharedMemory\Contracts\MapInterface;
+use Larmias\SharedMemory\Contracts\StrInterface;
 use Larmias\SharedMemory\Store\Channel;
-use Larmias\SharedMemory\Store\Map;
+use Larmias\SharedMemory\Store\Str;
 
 class StoreManager
 {
@@ -20,7 +20,7 @@ class StoreManager
      * @var array|string[]
      */
     protected static array $container = [
-        MapInterface::class => Map::class,
+        StrInterface::class => Str::class,
         ChannelInterface::class => Channel::class,
     ];
 
@@ -35,12 +35,12 @@ class StoreManager
     }
 
     /**
-     * @return MapInterface
+     * @return StrInterface
      */
-    public static function map(): MapInterface
+    public static function map(): StrInterface
     {
         return static::getStore(__FUNCTION__, function () {
-            return new static::$container[MapInterface::class];
+            return new static::$container[StrInterface::class];
         });
     }
 

@@ -5,6 +5,12 @@ declare(strict_types=1);
 namespace Larmias\Tests\Lock;
 
 use Larmias\Contracts\ConfigInterface;
+use Larmias\Contracts\LockerFactoryInterface;
+use Larmias\Contracts\LockerInterface;
+use Larmias\Contracts\Redis\RedisFactoryInterface;
+use Larmias\Lock\Locker;
+use Larmias\Lock\LockerFactory;
+use Larmias\Redis\RedisFactory;
 use Larmias\Utils\ApplicationContext;
 use PHPUnit\Framework\TestCase as BaseTestCase;
 
@@ -16,12 +22,10 @@ class TestCase extends BaseTestCase
      */
     public function setUp(): void
     {
+        $container = ApplicationContext::getContainer();
         /** @var ConfigInterface $config */
-        $config = ApplicationContext::getContainer()->get(ConfigInterface::class);
+        $config = $container->get(ConfigInterface::class);
         $config->set([
-            'lock' => [
-
-            ],
             'redis' => [
                 'default' => [
                     'host' => '127.0.0.1',
@@ -41,5 +45,8 @@ class TestCase extends BaseTestCase
                 ]
             ]
         ]);
+        $container->bind(RedisFactoryInterface::class, RedisFactory::class);
+        $container->bind(LockerInterface::class, Locker::class);
+        $container->bind(LockerFactoryInterface::class, LockerFactory::class);
     }
 }

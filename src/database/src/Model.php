@@ -11,6 +11,7 @@ use Larmias\Database\Contracts\TransactionInterface;
 use Larmias\Database\Model\Collection;
 use Larmias\Database\Model\Concerns\Attribute;
 use Larmias\Database\Model\Concerns\Conversion;
+use Larmias\Database\Model\Concerns\RelationShip;
 use Larmias\Database\Model\Concerns\Timestamp;
 use Larmias\Utils\Contracts\Arrayable;
 use Larmias\Utils\Contracts\Jsonable;
@@ -81,6 +82,7 @@ abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, Js
     use Attribute;
     use Conversion;
     use Timestamp;
+    use RelationShip;
 
     /**
      * 主键

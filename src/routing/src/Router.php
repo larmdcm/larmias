@@ -241,7 +241,6 @@ class Router implements RouterInterface
             return;
         }
         $this->dispatcher = simpleDispatcher(function (RouteCollector $routeCollector) {
-            /** @var Rule $rule */
             foreach ($this->rules as $rule) {
                 $routeCollector->addRoute($rule->getMethod(), $rule->getRoute(), $rule);
             }

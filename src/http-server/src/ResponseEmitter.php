@@ -13,6 +13,12 @@ use function method_exists;
 
 class ResponseEmitter implements ResponseEmitterInterface
 {
+    /**
+     * @param PsrResponseInterface $response
+     * @param ResponseInterface $serverResponse
+     * @param bool $withContent
+     * @return void
+     */
     public function emit(PsrResponseInterface $response, ResponseInterface $serverResponse, bool $withContent = true): void
     {
         $content = $response->getBody();

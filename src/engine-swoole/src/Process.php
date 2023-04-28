@@ -7,7 +7,6 @@ namespace Larmias\Engine\Swoole;
 use Larmias\Engine\ProcessManager;
 use Larmias\Engine\Event;
 use function usleep;
-use Swoole\Process as SwooleProcess;
 
 class Process extends Worker
 {

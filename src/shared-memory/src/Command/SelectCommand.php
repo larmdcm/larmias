@@ -8,6 +8,9 @@ use Larmias\SharedMemory\Context;
 
 class SelectCommand extends Command
 {
+    /**
+     * @return string
+     */
     public function handle(): string
     {
         $select = $this->command->args[0] ?? 'default';

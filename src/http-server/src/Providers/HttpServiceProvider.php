@@ -19,7 +19,7 @@ use Larmias\HttpServer\Annotation\PostMapping;
 use Larmias\HttpServer\Annotation\PutMapping;
 use Larmias\HttpServer\Annotation\RequestMapping;
 use Larmias\HttpServer\ResponseEmitter;
-use \Larmias\Routing\Router as BaseRouter;
+use Larmias\Routing\Router as BaseRouter;
 use Larmias\HttpServer\Routing\Router;
 
 class HttpServiceProvider implements ServiceProviderInterface

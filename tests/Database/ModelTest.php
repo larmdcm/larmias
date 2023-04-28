@@ -82,4 +82,43 @@ class ModelTest extends TestCase
         $model->delete();
         $this->assertFalse($model->isExists());
     }
+
+    /**
+     * @return void
+     */
+    public function testUserInfoSave(): void
+    {
+        $model = UserModel::new()->first();
+        $model->userInfo()->save([
+            'age' => mt_rand(22, 35),
+            'address' => date('YmdHis'),
+        ]);
+        $this->assertSame($model->id, $model->userInfo->user_id);
+    }
+
+    /**
+     * @return void
+     */
+    public function testUserInfoGet(): void
+    {
+        /** @var UserModel $model */
+        $model = UserModel::new()->first();
+        $this->assertSame($model->id, $model->userInfo->user_id);
+        $userInfo = $model->userInfo()->field('id,user_id,address')->first();
+        $this->assertSame($model->id, $userInfo->user_id);
+        $address = date('YmdHis');
+        $userInfo->save(['address' => $address]);
+        $this->assertSame($address, $userInfo->address);
+    }
+
+    /**
+     * @return void
+     */
+    public function testUserInfoUpdate(): void
+    {
+        $model = UserModel::new()->first();
+        $age = mt_rand(22, 35);
+        $model->userInfo->save(['age' => $age]);
+        $this->assertSame($age, $model->userInfo->age);
+    }
 }

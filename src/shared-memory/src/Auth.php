@@ -8,6 +8,7 @@ use Larmias\Contracts\Worker\WorkerInterface;
 use Larmias\SharedMemory\Contracts\AuthInterface;
 use Larmias\SharedMemory\Exceptions\AuthenticateException;
 use Larmias\SharedMemory\Message\Command;
+use function in_array;
 
 class Auth implements AuthInterface
 {
@@ -33,12 +34,13 @@ class Auth implements AuthInterface
      * @param array $params
      * @param bool $throwException
      * @return bool
+     * @throws \Throwable
      */
     public function login(array $params, bool $throwException = true): bool
     {
         $password = $params[0] ?? '';
         if ($password && $password === $this->password) {
-            Context::setData(self::KEY_AUTH, true);
+            Context::setConnectionData(self::KEY_AUTH, true);
             return true;
         }
         return $throwException ? throw new AuthenticateException('Authentication failed') : false;
@@ -48,13 +50,14 @@ class Auth implements AuthInterface
      * @param Command $command
      * @param bool $throwException
      * @return bool
+     * @throws \Throwable
      */
     public function check(Command $command, bool $throwException = true): bool
     {
-        if (!$this->password || \in_array($command->name, [Command::COMMAND_PING, Command::COMMAND_AUTH])) {
+        if (!$this->password || in_array($command->name, [Command::COMMAND_PING, Command::COMMAND_AUTH])) {
             return true;
         }
-        if (!Context::getData(self::KEY_AUTH)) {
+        if (!Context::getConnectionData(self::KEY_AUTH)) {
             return $throwException ? throw new AuthenticateException('Authentication failed') : false;
         }
         return true;

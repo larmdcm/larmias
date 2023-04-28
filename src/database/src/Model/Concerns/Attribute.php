@@ -46,27 +46,32 @@ trait Attribute
 
     /**
      * @param string $name
+     * @param bool $strict
      * @return mixed
      */
     public function getAttribute(string $name, bool $strict = true): mixed
     {
         $name = $this->getRealAttrName($name);
         $method = 'get' . Str::studly($name) . 'Attr';
+        $relationAttr = $this->isRelationAttr($name);
+        $propertyExists = array_key_exists($name, $this->data);
+        $hasMethod = method_exists($this, $method);
 
-        if (method_exists($this, $method)) {
-            $value = $this->{$method}($this->data[$name] ?? null, $name);
-        } else {
-            $relationAttr = method_exists($this, 'isRelationAttr') ? $this->isRelationAttr($name) : null;
-            $propertyExists = array_key_exists($name, $this->data);
-
-            if (!$propertyExists && !$relationAttr) {
-                if (!$strict) {
-                    return null;
-                }
-                throw new InvalidArgumentException('property not exists:' . static::class . '->' . $name);
+        if (!$propertyExists && !$relationAttr && !$hasMethod) {
+            if (!$strict) {
+                return null;
             }
+            throw new InvalidArgumentException('property not exists:' . static::class . '->' . $name);
+        }
 
-            $value = $propertyExists ? $this->data[$name] : $this->getRelationValue((string)$relationAttr);
+        $value = null;
+
+        if ($propertyExists || $relationAttr) {
+            $value = $propertyExists ? $this->data[$name] : $this->getRelationValue($relationAttr);
+        }
+
+        if ($hasMethod) {
+            $value = $this->{$method}($value, $name);
         }
 
         if (isset($this->cast[$name])) {
@@ -122,8 +127,11 @@ trait Attribute
      */
     protected function getRelationValue(string $name): mixed
     {
-        $relation = $this->{$name};
-        return $relation instanceof Relation ? $relation->getRelation() : null;
+        if (!isset($this->relation[$name])) {
+            $relation = $this->{$name}();
+            $this->relation[$name] = $relation instanceof Relation ? $relation->getRelation() : null;
+        }
+        return $this->relation[$name];
     }
 
     /**

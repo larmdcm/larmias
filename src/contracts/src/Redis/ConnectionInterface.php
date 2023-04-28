@@ -27,13 +27,13 @@ interface ConnectionInterface
     public function getRaw(): mixed;
 
     /**
+     * @return int
+     */
+    public function getDatabase(): int;
+    
+    /**
      * @param int $db
      * @return void
      */
     public function setDatabase(int $db): void;
-
-    /**
-     * @return int
-     */
-    public function getDatabase(): int;
 }

@@ -97,13 +97,13 @@ interface ApplicationInterface
     public function setConfigExt(string $configExt): ApplicationInterface;
 
     /**
+     * @return int
+     */
+    public function getStatus(): int;
+
+    /**
      * @param int $status
      * @return ApplicationInterface
      */
     public function setStatus(int $status): ApplicationInterface;
-
-    /**
-     * @return int
-     */
-    public function getStatus(): int;
 }

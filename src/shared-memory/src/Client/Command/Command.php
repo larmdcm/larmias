@@ -8,11 +8,17 @@ use Larmias\SharedMemory\Client\Client;
 
 abstract class Command
 {
+    /**
+     * @param Client $client
+     */
     public function __construct(protected Client $client)
     {
         $this->initialize();
     }
 
+    /**
+     * @return void
+     */
     protected function initialize(): void
     {
     }

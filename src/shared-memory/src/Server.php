@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Larmias\SharedMemory;
 
 use Larmias\Contracts\ContainerInterface;
+use Larmias\Contracts\ContextInterface;
 use Larmias\Contracts\Tcp\ConnectionInterface;
 use Larmias\Contracts\TimerInterface;
 use Larmias\SharedMemory\Contracts\AuthInterface;
@@ -31,18 +32,21 @@ class Server
     protected LoggerInterface $logger;
 
     /**
-     * Server constructor.
      * @param ContainerInterface $container
      * @param CommandExecutorInterface $executor
      * @param AuthInterface $auth
+     * @param TimerInterface $timer
+     * @param ContextInterface $context
      */
     public function __construct(
         protected ContainerInterface       $container,
         protected CommandExecutorInterface $executor,
         protected AuthInterface            $auth,
         protected TimerInterface           $timer,
+        ContextInterface                   $context,
     )
     {
+        Context::init($context);
     }
 
     /**
@@ -52,7 +56,6 @@ class Server
     public function onWorkerStart(WorkerInterface $worker): void
     {
         $this->worker = $worker;
-
         /** @var LoggerInterface $logger */
         $logger = $this->container->make(LoggerInterface::class);
         $this->logger = $logger;
@@ -79,7 +82,7 @@ class Server
     public function onReceive(ConnectionInterface $connection, string $data): void
     {
         try {
-            Context::setConnection($connection);
+            Context::setConnectId($connection->getId());
             $command = $this->executor->parse($data);
             $this->logger->trace('#' . $connection->getId() . " Received command: " . $command->name, 'info');
             $this->auth->check($command);
@@ -98,8 +101,8 @@ class Server
     {
         try {
             $this->triggerCommand(__FUNCTION__, [$connection]);
+            Context::clearConnectionData($connection->getId());
             ConnectionManager::remove($connection);
-            Context::clear($connection->getId());
             $this->logger->trace('#' . $connection->getId() . " Closed", 'info');
         } catch (Throwable $e) {
             $this->handleException($connection, $e);

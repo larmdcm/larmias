@@ -5,8 +5,16 @@ declare(strict_types=1);
 namespace Larmias\Database\Model\Relation;
 
 use Larmias\Database\Model;
+use Larmias\Utils\Contracts\Arrayable;
+use Larmias\Utils\Contracts\Jsonable;
+use ArrayAccess;
+use Stringable;
+use JsonSerializable;
 
-abstract class Relation
+/**
+ * @mixin Model
+ */
+abstract class Relation implements ArrayAccess, Arrayable, Jsonable, Stringable, JsonSerializable
 {
     /**
      * @var Model
@@ -68,10 +76,12 @@ abstract class Relation
 
     /**
      * @param Model $model
+     * @return self
      */
-    public function setModel(Model $model): void
+    public function setModel(Model $model): self
     {
         $this->model = $model;
+        return $this;
     }
 
     /**
@@ -138,16 +148,118 @@ abstract class Relation
     }
 
     /**
+     * @return string|int
+     */
+    protected function getParentId(): string|int
+    {
+        return $this->parent->getAttribute($this->parent->getPrimaryKey());
+    }
+
+    /**
      * @param string $method
      * @param array $args
-     * @return Relation
+     * @return mixed
      */
-    public function __call(string $method, array $args)
+    public function __call(string $method, array $args): mixed
     {
         $model = $this->getModel();
 
         $result = $model->{$method}(...$args);
 
-        return $result instanceof $model ? $this : $result;
+        return $result instanceof $model ? $this->setModel($result) : $result;
+    }
+
+    /**
+     * @return array
+     */
+    public function toArray(): array
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param int $options
+     * @return string
+     */
+    public function toJson(int $options = JSON_UNESCAPED_UNICODE): string
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param string $name
+     * @return mixed
+     */
+    public function __get(string $name): mixed
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param string $name
+     * @param mixed $value
+     * @return void
+     */
+    public function __set(string $name, mixed $value): void
+    {
+        $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param string $name
+     * @return bool
+     */
+    public function __isset(string $name): bool
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param string $name
+     * @return void
+     */
+    public function __unset(string $name): void
+    {
+        $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @return string
+     */
+    public function __toString(): string
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    // JsonSerializable
+    #[\ReturnTypeWillChange]
+    public function jsonSerialize()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    // ArrayAccess
+    #[\ReturnTypeWillChange]
+    public function offsetSet($offset, $value)
+    {
+        $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    #[\ReturnTypeWillChange]
+    public function offsetExists($offset): bool
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    #[\ReturnTypeWillChange]
+    public function offsetUnset($offset)
+    {
+        $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    #[\ReturnTypeWillChange]
+    public function offsetGet($offset)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
     }
 }

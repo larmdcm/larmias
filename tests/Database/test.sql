@@ -12,3 +12,15 @@ CREATE TABLE `t_user` (
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户表';
+
+DROP TABLE IF EXISTS `t_user_info`;
+CREATE TABLE `t_user_info` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增主键id',
+  `user_id` int(10) unsigned NOT NULL DEFAULT 0 COMMENT '关联id',
+  `age` tinyint(1) unsigned NOT NULL DEFAULT 0 COMMENT '年龄',
+  `address` varchar(255) NOT NULL DEFAULT '' COMMENT '地址',
+  `deleted` boolean NOT NULL DEFAULT 0 COMMENT '是否删除',
+  `update_time` datetime DEFAULT NULL COMMENT '修改时间',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户信息表';

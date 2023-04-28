@@ -376,6 +376,14 @@ class Application implements ApplicationInterface
     }
 
     /**
+     * @return int
+     */
+    public function getStatus(): int
+    {
+        return $this->status;
+    }
+
+    /**
      * @param int $status
      * @return ApplicationInterface
      */
@@ -383,13 +391,5 @@ class Application implements ApplicationInterface
     {
         $this->status = $status;
         return $this;
-    }
-
-    /**
-     * @return int
-     */
-    public function getStatus(): int
-    {
-        return $this->status;
     }
 }

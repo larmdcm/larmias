@@ -4,67 +4,117 @@ declare(strict_types=1);
 
 namespace Larmias\SharedMemory;
 
+use Larmias\Contracts\ContextInterface;
 use Larmias\Contracts\Tcp\ConnectionInterface;
+use Larmias\SharedMemory\Exceptions\ServerException;
+use function Larmias\Utils\throw_unless;
 
 class Context
 {
-    public const KEY_STORE_SELECT = 'storeSelect';
-
-    protected static int $id = 0;
-
+    /**
+     * @var array
+     */
     protected static array $data = [];
 
-    protected static ConnectionInterface $connection;
+    /**
+     * @var ContextInterface
+     */
+    protected static ContextInterface $context;
 
+    /**
+     * @param ContextInterface $context
+     * @return void
+     */
+    public static function init(ContextInterface $context): void
+    {
+        static::$context = $context;
+    }
+
+    /**
+     * @return string
+     * @throws \Throwable
+     */
     public static function getStoreSelect(): string
     {
-        return static::getData(self::KEY_STORE_SELECT, 'default');
+        return static::getConnectionData('store.select', 'default');
     }
 
+    /**
+     * @param string $select
+     * @return void
+     * @throws \Throwable
+     */
     public static function setStoreSelect(string $select): void
     {
-        static::setData(self::KEY_STORE_SELECT, $select);
+        static::setConnectionData('store.select', $select);
     }
 
+    /**
+     * @return ConnectionInterface
+     * @throws \Throwable
+     */
     public static function getConnection(): ConnectionInterface
     {
-        return static::$connection;
+        $id = static::getConnectId();
+        $connection = ConnectionManager::get($id);
+        throw_unless($connection, ServerException::class, sprintf('Connection id does not exist: %d', $id));
+        return $connection;
     }
 
-    public static function setConnection(ConnectionInterface $connection): void
+    /**
+     * @return int
+     * @throws \Throwable
+     */
+    public static function getConnectId(): int
     {
-        static::$connection = $connection;
-        static::$id = $connection->getId();
+        $id = static::$context->get('shared_memory.conn.id');
+        throw_unless($id, ServerException::class, sprintf('Connection id does not exist: %d', $id));
+        return $id;
     }
 
-    public static function setData(string $name, mixed $value): void
+    /**
+     * @param int $id
+     * @return void
+     */
+    public static function setConnectId(int $id): void
     {
-        $id = static::getId();
+        static::$context->set('shared_memory.conn.id', $id);
+    }
+
+    /**
+     * @param string $name
+     * @param mixed|null $default
+     * @return mixed
+     * @throws \Throwable
+     */
+    public static function getConnectionData(string $name, mixed $default = null): mixed
+    {
+        $id = static::getConnectId();
+        $data = static::$data[$id] ?? [];
+        return $data[$name] ?? $default;
+    }
+
+    /**
+     * @param string $name
+     * @param mixed $value
+     * @return void
+     * @throws \Throwable
+     */
+    public static function setConnectionData(string $name, mixed $value): void
+    {
+        $id = static::getConnectId();
         if (!isset(static::$data[$id])) {
             static::$data[$id] = [];
         }
         static::$data[$id][$name] = $value;
     }
 
-    public static function getData(string $name, mixed $default = null): mixed
-    {
-        $id = static::getId();
-        $data = static::$data[$id] ?? [];
-        return $data[$name] ?? $default;
-    }
-
-    public static function clear(int $id): void
+    /**
+     * @param int $id
+     * @return void
+     */
+    public static function clearConnectionData(int $id): void
     {
         unset(static::$data[$id]);
-    }
-
-    public static function setId(int $id): void
-    {
-        static::$id = $id;
-    }
-
-    public static function getId(): int
-    {
-        return static::$id;
     }
 }

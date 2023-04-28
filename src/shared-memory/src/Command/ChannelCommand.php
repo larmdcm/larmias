@@ -9,16 +9,26 @@ use Larmias\SharedMemory\ConnectionManager;
 use Larmias\SharedMemory\Contracts\ChannelInterface;
 use Larmias\SharedMemory\Message\Result;
 use Larmias\SharedMemory\StoreManager;
+use function count;
 
 class ChannelCommand extends Command
 {
+    /**
+     * @var ChannelInterface
+     */
     protected ChannelInterface $channel;
 
+    /**
+     * @return void
+     */
     protected function initialize(): void
     {
         $this->channel = StoreManager::channel();
     }
 
+    /**
+     * @return array
+     */
     public function subscribe(): array
     {
         return [
@@ -27,6 +37,9 @@ class ChannelCommand extends Command
         ];
     }
 
+    /**
+     * @return array
+     */
     public function unsubscribe(): array
     {
         return [
@@ -35,6 +48,9 @@ class ChannelCommand extends Command
         ];
     }
 
+    /**
+     * @return array
+     */
     public function publish(): array
     {
         $result = $this->channel->publish($this->command->args[0]);
@@ -51,10 +67,13 @@ class ChannelCommand extends Command
 
         return [
             'type' => __FUNCTION__,
-            'data' => \count($result)
+            'data' => count($result)
         ];
     }
 
+    /**
+     * @return array
+     */
     public function channels(): array
     {
         return [
@@ -63,6 +82,9 @@ class ChannelCommand extends Command
         ];
     }
 
+    /**
+     * @return array
+     */
     public function close(): array
     {
         return [
@@ -71,6 +93,10 @@ class ChannelCommand extends Command
         ];
     }
 
+    /**
+     * @param ConnectionInterface $connection
+     * @return void
+     */
     public static function onClose(ConnectionInterface $connection): void
     {
         StoreManager::channel()->close($connection->getId());

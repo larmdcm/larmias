@@ -8,6 +8,7 @@ use Larmias\Http\CSRF\Contracts\CsrfManagerInterface;
 use Larmias\Utils\ApplicationContext;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
+use function sprintf;
 
 /**
  * @return string
@@ -40,5 +41,5 @@ function csrf_token_name(): string
  */
 function csrf_field(): string
 {
-    return \sprintf('<input type="hidden" name="%s" value="%s"/>', csrf_token_name(), csrf_token());
+    return sprintf('<input type="hidden" name="%s" value="%s"/>', csrf_token_name(), csrf_token());
 }

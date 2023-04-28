@@ -8,23 +8,25 @@ use Larmias\Contracts\ContainerInterface;
 use Larmias\SharedMemory\Command\AuthCommand;
 use Larmias\SharedMemory\Command\ChannelCommand;
 use Larmias\SharedMemory\Command\Command;
-use Larmias\SharedMemory\Command\MapCommand;
+use Larmias\SharedMemory\Command\StrCommand;
 use Larmias\SharedMemory\Command\PingCommand;
 use Larmias\SharedMemory\Command\SelectCommand;
 use Larmias\SharedMemory\Contracts\CommandExecutorInterface;
 use Larmias\SharedMemory\Exceptions\CommandException;
 use Larmias\SharedMemory\Message\Command as MessageCommand;
+use function str_contains;
+use function explode;
 
 class CommandExecutor implements CommandExecutorInterface
 {
     /**
-     * @var array|string[]
+     * @var string[]
      */
     protected array $commands = [
         MessageCommand::COMMAND_PING => PingCommand::class,
         MessageCommand::COMMAND_AUTH => AuthCommand::class,
         MessageCommand::COMMAND_SELECT => SelectCommand::class,
-        MessageCommand::COMMAND_MAP => MapCommand::class,
+        MessageCommand::COMMAND_MAP => StrCommand::class,
         MessageCommand::COMMAND_CHANNEL => ChannelCommand::class,
     ];
 
@@ -72,7 +74,7 @@ class CommandExecutor implements CommandExecutorInterface
     public function getCommand(MessageCommand $command): Command
     {
         $commands = $this->getCommands();
-        $name = \str_contains($command->name, ':') ? \explode(':', $command->name, 2)[0] : $command->name;
+        $name = str_contains($command->name, ':') ? explode(':', $command->name, 2)[0] : $command->name;
         if (!isset($commands[$name])) {
             throw new CommandException(sprintf('Command does not exist: %s', $command->name));
         }

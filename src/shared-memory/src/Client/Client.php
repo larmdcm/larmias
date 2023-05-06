@@ -96,12 +96,12 @@ class Client
     /**
      * @var EventLoopInterface|null
      */
-    protected ?EventLoopInterface $eventLoop = null;
+    protected static ?EventLoopInterface $eventLoop = null;
 
     /**
      * @var TimerInterface|null
      */
-    protected ?TimerInterface $timer = null;
+    protected static ?TimerInterface $timer = null;
 
     /**
      * @param array $options
@@ -275,9 +275,9 @@ class Client
         $this->clearPing();
         if ($this->isConnected()) {
             if (is_resource($this->socket)) {
-                if ($this->eventLoop) {
-                    $this->eventLoop->offReadable($this->socket);
-                    $this->eventLoop->offWritable($this->socket);
+                if (static::$eventLoop) {
+                    static::$eventLoop->offReadable($this->socket);
+                    static::$eventLoop->offWritable($this->socket);
                 }
                 fclose($this->socket);
             }
@@ -371,11 +371,11 @@ class Client
      */
     protected function ping(): void
     {
-        if (!$this->options['ping_interval'] || !$this->isCli() || !$this->timer) {
+        if (!$this->options['ping_interval'] || !$this->isCli() || !static::$timer) {
             return;
         }
         $this->clearPing();
-        $this->options['ping_interval_id'] = $this->timer->tick($this->options['ping_interval'], function () {
+        $this->options['ping_interval_id'] = static::$timer->tick($this->options['ping_interval'], function () {
             if (!$this->isConnected()) {
                 $this->close();
                 return;
@@ -389,41 +389,41 @@ class Client
      */
     protected function clearPing(): void
     {
-        if (isset($this->options['ping_interval_id']) && $this->timer) {
-            $this->timer->del($this->options['ping_interval_id']);
+        if (isset($this->options['ping_interval_id']) && static::$timer) {
+            static::$timer->del($this->options['ping_interval_id']);
         }
     }
 
     /**
      * @return EventLoopInterface|null
      */
-    public function getEventLoop(): ?EventLoopInterface
+    public static function getEventLoop(): ?EventLoopInterface
     {
-        return $this->eventLoop;
+        return static::$eventLoop;
     }
 
     /**
      * @param EventLoopInterface|null $eventLoop
      */
-    public function setEventLoop(?EventLoopInterface $eventLoop): void
+    public static function setEventLoop(?EventLoopInterface $eventLoop): void
     {
-        $this->eventLoop = $eventLoop;
+        static::$eventLoop = $eventLoop;
     }
 
     /**
      * @return TimerInterface|null
      */
-    public function getTimer(): ?TimerInterface
+    public static function getTimer(): ?TimerInterface
     {
-        return $this->timer;
+        return static::$timer;
     }
 
     /**
      * @param TimerInterface|null $timer
      */
-    public function setTimer(?TimerInterface $timer): void
+    public static function setTimer(?TimerInterface $timer): void
     {
-        $this->timer = $timer;
+        static::$timer = $timer;
     }
 
     public function __destruct()

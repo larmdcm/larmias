@@ -132,7 +132,7 @@ abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, Js
      * @var bool
      */
     protected bool $exists = false;
-
+    
     /**
      * @param array $data
      */
@@ -316,17 +316,6 @@ abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, Js
     }
 
     /**
-     * @param QueryInterface $query
-     * @return void
-     */
-    protected function setQueryWhere(QueryInterface $query): void
-    {
-        if (isset($this->softDeleteField) && method_exists($this, 'withNoTrashed')) {
-            $this->withNoTrashed($query);
-        }
-    }
-
-    /**
      * @return QueryInterface
      */
     public function query(): QueryInterface
@@ -365,6 +354,17 @@ abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, Js
     }
 
     /**
+     * @param QueryInterface $query
+     * @return void
+     */
+    protected function setQueryWhere(QueryInterface $query): void
+    {
+        if (isset($this->softDeleteField) && method_exists($this, 'withNoTrashed')) {
+            $this->withNoTrashed($query);
+        }
+    }
+
+    /**
      * @param string $name
      * @param array $args
      * @return mixed
@@ -373,28 +373,12 @@ abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, Js
     {
         $query = $this->query();
         $result = $query->{$name}(...$args);
+
         if ($result instanceof QueryInterface) {
             return $this->setQuery($result);
         }
+
         return $this->toResult($result);
-    }
-
-    /**
-     * @return bool
-     */
-    public function isExists(): bool
-    {
-        return $this->exists;
-    }
-
-    /**
-     * @param bool $exists
-     * @return self
-     */
-    public function setExists(bool $exists): self
-    {
-        $this->exists = $exists;
-        return $this;
     }
 
     /**
@@ -412,6 +396,24 @@ abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, Js
     public function setPrimaryKey(string $primaryKey): self
     {
         $this->primaryKey = $primaryKey;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isExists(): bool
+    {
+        return $this->exists;
+    }
+
+    /**
+     * @param bool $exists
+     * @return self
+     */
+    public function setExists(bool $exists): self
+    {
+        $this->exists = $exists;
         return $this;
     }
 

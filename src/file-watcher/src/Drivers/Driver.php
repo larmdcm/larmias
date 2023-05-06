@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\FileWatcher\Drivers;
 
+use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\FileWatcherInterface;
 use function method_exists;
 use function array_merge;
@@ -26,16 +27,17 @@ abstract class Driver implements FileWatcherInterface
     protected array $excludes = [];
 
     /**
+     * @param ContainerInterface $container
      * @param array $config
      */
-    public function __construct(array $config = [])
+    public function __construct(protected ContainerInterface $container, array $config = [])
     {
         $this->config = array_merge($this->config, $config);
         $this->includes = $this->config['includes'] ?? [];
         $this->excludes = $this->config['excludes'] ?? [];
 
         if (method_exists($this, 'initialize')) {
-            $this->initialize();
+            $this->container->invoke([$this, 'initialize']);
         }
     }
 

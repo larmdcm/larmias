@@ -27,7 +27,7 @@ class SharedMemoryServiceProvider implements ServiceProviderInterface
      */
     public function register(): void
     {
-        $this->container->bind([
+        $this->container->bindIf([
             CommandExecutorInterface::class => CommandExecutor::class,
             AuthInterface::class => Auth::class,
             LoggerInterface::class => Logger::class,

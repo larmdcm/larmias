@@ -25,11 +25,6 @@
             "Larmias\\Auth\\": "src/"
         }
     },
-    "larmias": {
-        "providers": [
-            "Larmias\\Auth\\Providers\\AuthServiceProvider"
-        ]
-    },
     "extra": {
         "larmias": {
             "providers": [

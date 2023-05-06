@@ -6,14 +6,14 @@ namespace Larmias\Database\Model\Relation;
 
 use Larmias\Database\Model;
 
-class HasOne extends OneToOne
+class BelongsTo extends OneToOne
 {
     /**
      * @return void
      */
-    protected function initModel(): void
+    public function initModel(): void
     {
-        $this->model->where($this->getForeignKey(), $this->parent->getAttribute($this->getLocalKey()));
+        $this->model->where($this->getLocalKey(), $this->parent->getAttribute($this->getForeignKey()));
     }
 
     /**

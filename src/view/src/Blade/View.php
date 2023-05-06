@@ -255,46 +255,50 @@ class View implements ArrayAccess
     /**
      * Determine if a piece of data is bound.
      *
-     * @param string $key
+     * @param string $offset
      * @return bool
      */
-    public function offsetExists($key)
+    #[\ReturnTypeWillChange]
+    public function offsetExists($offset): bool
     {
-        return array_key_exists($key, $this->data);
+        return array_key_exists($offset, $this->data);
     }
 
     /**
      * Get a piece of bound data to the view.
      *
-     * @param string $key
+     * @param string $offset
      * @return mixed
      */
-    public function offsetGet($key)
+    #[\ReturnTypeWillChange]
+    public function offsetGet($offset): mixed
     {
-        return $this->data[$key];
+        return $this->data[$offset];
     }
 
     /**
      * Set a piece of data on the view.
      *
-     * @param string $key
+     * @param string $offset
      * @param mixed $value
      * @return void
      */
-    public function offsetSet($key, $value)
+    #[\ReturnTypeWillChange]
+    public function offsetSet($offset, $value): void
     {
-        $this->with($key, $value);
+        $this->with($offset, $value);
     }
 
     /**
      * Unset a piece of data from the view.
      *
-     * @param string $key
+     * @param string $offset
      * @return void
      */
-    public function offsetUnset($key)
+    #[\ReturnTypeWillChange]
+    public function offsetUnset($offset): void
     {
-        unset($this->data[$key]);
+        unset($this->data[$offset]);
     }
 
     /**

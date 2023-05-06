@@ -35,7 +35,7 @@ class Channel extends Command
      */
     public function onConnect(Client $client): void
     {
-        $client->getEventLoop()->onReadable($client->getSocket(), function () use ($client) {
+        Client::getEventLoop()->onReadable($client->getSocket(), function () use ($client) {
             $result = $client->read();
             if (!$result || !$result->success || !is_array($result->data) || !isset($result->data['type'])) {
                 return;

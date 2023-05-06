@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\FileWatcher;
 
+use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\FileWatcherInterface;
 use Larmias\FileWatcher\Drivers\Scan;
 use function array_merge;
@@ -25,21 +26,15 @@ class Watcher implements FileWatcherInterface
     ];
 
     /**
+     * @param ContainerInterface $container
      * @param array $config
      */
-    public function __construct(array $config = [])
+    public function __construct(protected ContainerInterface $container, array $config = [])
     {
         $this->config = array_merge($this->config, $config);
-        $this->driver = new $this->config['driver']($this->config);
-    }
-
-    /**
-     * @param array $config
-     * @return FileWatcherInterface
-     */
-    public static function create(array $config = []): FileWatcherInterface
-    {
-        return new static($config);
+        /** @var FileWatcherInterface $driver */
+        $driver = $this->container->make($config['driver'], ['config' => $this->config]);
+        $this->driver = $driver;
     }
 
     /**

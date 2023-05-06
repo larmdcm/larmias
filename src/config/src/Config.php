@@ -133,6 +133,7 @@ class Config implements ArrayAccess, ConfigInterface
      * @param mixed $offset
      * @return bool
      */
+    #[\ReturnTypeWillChange]
     public function offsetExists(mixed $offset): bool
     {
         return $this->has($offset);
@@ -144,6 +145,7 @@ class Config implements ArrayAccess, ConfigInterface
      * @param mixed $offset
      * @return mixed
      */
+    #[\ReturnTypeWillChange]
     public function offsetGet(mixed $offset): mixed
     {
         return $this->get($offset);
@@ -156,6 +158,7 @@ class Config implements ArrayAccess, ConfigInterface
      * @param mixed $value
      * @return void
      */
+    #[\ReturnTypeWillChange]
     public function offsetSet(mixed $offset, mixed $value): void
     {
         $this->set($offset, $value);
@@ -167,6 +170,7 @@ class Config implements ArrayAccess, ConfigInterface
      * @param mixed $offset
      * @return void
      */
+    #[\ReturnTypeWillChange]
     public function offsetUnset(mixed $offset): void
     {
         $this->set($offset);

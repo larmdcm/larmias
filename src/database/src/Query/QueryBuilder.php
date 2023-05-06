@@ -28,7 +28,7 @@ use function is_string;
 use function preg_match;
 use const SORT_REGULAR;
 
-class Builder implements QueryInterface
+class QueryBuilder implements QueryInterface
 {
     use WhereQuery;
     use JoinQuery;

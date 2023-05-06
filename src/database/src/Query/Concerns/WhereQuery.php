@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Larmias\Database\Query\Concerns;
 
 use Larmias\Database\Entity\Expression;
-use Larmias\Database\Query\Builder;
+use Larmias\Database\Query\QueryBuilder;
 use Larmias\Database\Contracts\QueryInterface;
 use Larmias\Database\Contracts\ExpressionInterface;
 use Closure;
@@ -13,7 +13,7 @@ use function strtoupper;
 use function is_array;
 
 /**
- * @mixin Builder
+ * @mixin QueryBuilder
  */
 trait WhereQuery
 {

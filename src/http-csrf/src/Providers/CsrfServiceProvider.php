@@ -13,7 +13,6 @@ class CsrfServiceProvider implements ServiceProviderInterface
 {
     public function __construct(protected ContainerInterface $container)
     {
-
     }
 
     public function register(): void

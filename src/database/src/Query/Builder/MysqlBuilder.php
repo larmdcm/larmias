@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Database\Builder;
+namespace Larmias\Database\Query\Builder;
 
 use function explode;
 use function sprintf;

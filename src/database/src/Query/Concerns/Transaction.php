@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Larmias\Database\Query\Concerns;
 
 use Larmias\Database\Contracts\TransactionInterface;
-use Larmias\Database\Query\Builder;
+use Larmias\Database\Query\QueryBuilder;
 use Closure;
 
 /**
- * @mixin Builder
+ * @mixin QueryBuilder
  */
 trait Transaction
 {

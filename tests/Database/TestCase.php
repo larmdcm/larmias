@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Larmias\Tests\Database;
 
-use Larmias\Database\Builder\Builder;
 use Larmias\Database\Model;
+use Larmias\Database\Query\Builder\Builder;
 use Larmias\Event\EventDispatcherFactory;
 use Larmias\Event\ListenerProviderFactory;
 use PHPUnit\Framework\TestCase as BaseTestCase;

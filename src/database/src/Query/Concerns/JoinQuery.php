@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Larmias\Database\Query\Concerns;
 
 use Larmias\Database\Contracts\QueryInterface;
-use Larmias\Database\Query\Builder;
+use Larmias\Database\Query\QueryBuilder;
 
 /**
- * @mixin Builder
+ * @mixin QueryBuilder
  */
 trait JoinQuery
 {

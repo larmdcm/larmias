@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Database\Builder;
+namespace Larmias\Database\Query\Builder;
 
 use Larmias\Database\Contracts\BuilderInterface;
 use Larmias\Database\Contracts\ConnectionInterface;
@@ -356,7 +356,7 @@ abstract class Builder implements BuilderInterface
                     if (str_contains($key, ',')) {
                         $key = implode(',', array_map(fn($item) => $this->escape($item), explode(',', $key)));
                     }
-                    $values[] = $this->escape($key) . ' ' . $value;
+                    $values[] = $this->escape($key) . ' Builder.php' . $value;
                 }
             } else {
                 $values[] = $order;

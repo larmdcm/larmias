@@ -1571,48 +1571,52 @@ class Collection implements CollectionInterface, ArrayAccess, Arrayable, Countab
     /**
      * Determine if an item exists at an offset.
      *
-     * @param TKey $key
+     * @param TKey $offset
      * @return bool
      */
-    public function offsetExists($key)
+    #[\ReturnTypeWillChange]
+    public function offsetExists($offset): bool
     {
-        return array_key_exists($key, $this->items);
+        return array_key_exists($offset, $this->items);
     }
 
     /**
      * Get an item at a given offset.
      *
-     * @param TKey $key
+     * @param TKey $offset
      * @return TValue
      */
-    public function offsetGet($key)
+    #[\ReturnTypeWillChange]
+    public function offsetGet($offset)
     {
-        return $this->items[$key];
+        return $this->items[$offset];
     }
 
     /**
      * Set the item at a given offset.
      *
-     * @param null|TKey $key
+     * @param null|TKey $offset
      * @param TValue $value
      */
-    public function offsetSet($key, $value)
+    #[\ReturnTypeWillChange]
+    public function offsetSet($offset, $value)
     {
-        if (is_null($key)) {
+        if (is_null($offset)) {
             $this->items[] = $value;
         } else {
-            $this->items[$key] = $value;
+            $this->items[$offset] = $value;
         }
     }
 
     /**
      * Unset the item at a given offset.
      *
-     * @param TKey $key
+     * @param TKey $offset
      */
-    public function offsetUnset($key)
+    #[\ReturnTypeWillChange]
+    public function offsetUnset($offset)
     {
-        unset($this->items[$key]);
+        unset($this->items[$offset]);
     }
 
     /**

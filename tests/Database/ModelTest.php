@@ -104,7 +104,7 @@ class ModelTest extends TestCase
         /** @var UserModel $model */
         $model = UserModel::new()->first();
         $this->assertSame($model->id, $model->userInfo->user_id);
-        $userInfo = $model->userInfo()->field('id,user_id,address')->first();
+        $userInfo = $model->userInfo()->field('id,user_id,address')->where('user_id', $model->id)->first();
         $this->assertSame($model->id, $userInfo->user_id);
         $address = date('YmdHis');
         $userInfo->save(['address' => $address]);

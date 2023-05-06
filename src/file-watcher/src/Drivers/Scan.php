@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Larmias\FileWatcher\Drivers;
 
+use Larmias\Contracts\TimerInterface;
 use Symfony\Component\Finder\Finder;
-use Larmias\Engine\Timer;
 use SplFileInfo;
 use function md5_file;
 use function is_dir;
@@ -29,11 +29,18 @@ class Scan extends Driver
     protected int $intervalTime;
 
     /**
+     * @var TimerInterface
+     */
+    protected TimerInterface $timer;
+
+    /**
+     * @param TimerInterface $timer
      * @return void
      */
-    public function initialize(): void
+    public function initialize(TimerInterface $timer): void
     {
         $this->intervalTime = $this->config['scan_interval_time'] ?? 2000;
+        $this->timer = $timer;
     }
 
     /**
@@ -45,7 +52,7 @@ class Scan extends Driver
         $this->finder = $this->getFinder($this->includes, $this->excludes);
         $this->files = $this->getFiles();
 
-        Timer::tick($this->intervalTime, function () use ($callback) {
+        $this->timer->tick($this->intervalTime, function () use ($callback) {
             $files = $this->getFiles();
             $this->checkFiles($this->files, $files, $callback);
             $this->checkFiles($files, $this->files, function (string $path, int $event) use ($callback) {

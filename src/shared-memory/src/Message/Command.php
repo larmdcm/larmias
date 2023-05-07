@@ -28,7 +28,7 @@ class Command implements Stringable
     /**
      * @var string
      */
-    public const COMMAND_MAP = 'map';
+    public const COMMAND_STR = 'str';
 
     /**
      * @var string

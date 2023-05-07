@@ -26,7 +26,7 @@ class CommandExecutor implements CommandExecutorInterface
         MessageCommand::COMMAND_PING => PingCommand::class,
         MessageCommand::COMMAND_AUTH => AuthCommand::class,
         MessageCommand::COMMAND_SELECT => SelectCommand::class,
-        MessageCommand::COMMAND_MAP => StrCommand::class,
+        MessageCommand::COMMAND_STR => StrCommand::class,
         MessageCommand::COMMAND_CHANNEL => ChannelCommand::class,
     ];
 

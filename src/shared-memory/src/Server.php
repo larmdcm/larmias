@@ -22,11 +22,6 @@ use function call_user_func_array;
 class Server
 {
     /**
-     * @var WorkerInterface
-     */
-    protected WorkerInterface $worker;
-
-    /**
      * @var LoggerInterface
      */
     protected LoggerInterface $logger;
@@ -55,12 +50,11 @@ class Server
      */
     public function onWorkerStart(WorkerInterface $worker): void
     {
-        $this->worker = $worker;
         /** @var LoggerInterface $logger */
         $logger = $this->container->make(LoggerInterface::class);
         $this->logger = $logger;
-        $this->timer->tick($worker->getSettings('tick_interval', 1000), function () {
-            $this->triggerCommand('onTick', [$this->worker]);
+        $this->timer->tick($worker->getSettings('tick_interval', 1000), function () use ($worker) {
+            $this->triggerCommand('onTick', [$worker]);
         });
     }
 

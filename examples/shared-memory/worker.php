@@ -16,8 +16,10 @@ return [
                 'worker_num' => 1,
                 'protocol' => \Workerman\Protocols\Frame::class,
                 'auth_password' => '123456',
+                'console_output' => false,
             ],
             'callbacks' => [
+                Event::ON_WORKER_START => [SharedMemoryServer::class, 'onWorkerStart'],
                 Event::ON_CONNECT => [SharedMemoryServer::class, 'onConnect'],
                 Event::ON_RECEIVE => [SharedMemoryServer::class, 'onReceive'],
                 Event::ON_CLOSE => [SharedMemoryServer::class, 'onClose'],

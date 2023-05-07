@@ -22,17 +22,31 @@ $kernel->setConfig(EngineConfig::build([
                 'watch' => [
                     'enabled' => true,
                     'includes' => [
-
+                        __DIR__ . '/client.php'
                     ],
                 ],
             ],
             'callbacks' => [
                 \Larmias\Engine\Event::ON_WORKER_START => function () {
-                    $client = new Client();
-                    var_dump($client->command('auth', ['123456']));
-                    var_dump($client->command('select', ['map']));
-                    var_dump($client->command('map:set', ['name', '测试']));
-                    var_dump($client->command('map:get', ['name']));
+                    Client::setEventLoop(\Larmias\Engine\EventLoop::getEvent());
+                    // Client::setTimer(\Larmias\Engine\Timer::getTimer());
+                    $clients = [];
+
+
+                    for ($i = 0; $i < 10000; $i++) {
+                        $client = new Client([
+                            'password' => '123456',
+                        ]);
+                        $clients[] = $client;
+                    }
+
+                    $startTime = microtime(true);
+
+                    foreach ($clients as $k => $client) {
+                        $client->str->set('k' . $k, '测试' . $k);
+                    }
+
+                    println(round(microtime(true) - $startTime, 2));
                 },
             ]
         ]

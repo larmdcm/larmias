@@ -33,16 +33,24 @@ class EventLoop
     }
 
     /**
+     * @return EventLoopInterface
+     */
+    public static function getEvent(): EventLoopInterface
+    {
+        if (static::$eventLoop === null) {
+            throw new RuntimeException("not support: EventLoop");
+        }
+
+        return static::$eventLoop;
+    }
+
+    /**
      * @param string $name
      * @param array $arguments
      * @return mixed
      */
     public static function __callStatic(string $name, array $arguments): mixed
     {
-        if (static::$eventLoop === null) {
-            throw new RuntimeException("not support: EventLoop");
-        }
-
-        return call_user_func_array([static::$eventLoop, $name], $arguments);
+        return call_user_func_array([static::getEvent(), $name], $arguments);
     }
 }

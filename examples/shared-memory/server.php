@@ -11,6 +11,7 @@ $container = require '../di/container.php';
 $container->bind([
     \Larmias\SharedMemory\Contracts\CommandExecutorInterface::class => \Larmias\SharedMemory\CommandExecutor::class,
     \Larmias\SharedMemory\Contracts\AuthInterface::class => \Larmias\SharedMemory\Auth::class,
+    \Larmias\SharedMemory\Contracts\LoggerInterface::class => \Larmias\SharedMemory\Logger::class,
 ]);
 
 $kernel = new Kernel($container);

@@ -14,10 +14,13 @@ class Logger implements LoggerInterface
 {
     /**
      * @param WorkerInterface $worker
-     * @param PsrLoggerInterface $logger
+     * @param PsrLoggerInterface|null $logger
      * @param StdoutLoggerInterface|null $stdoutLogger
      */
-    public function __construct(protected WorkerInterface $worker, protected PsrLoggerInterface $logger, protected ?StdoutLoggerInterface $stdoutLogger = null)
+    public function __construct(
+        protected WorkerInterface        $worker,
+        protected ?PsrLoggerInterface    $logger = null,
+        protected ?StdoutLoggerInterface $stdoutLogger = null)
     {
     }
 
@@ -35,7 +38,7 @@ class Logger implements LoggerInterface
         }
 
         if ($this->worker->getSettings('log_record', false)) {
-            $this->logger->log($level, $message, $context);
+            $this->logger && $this->logger->log($level, $message, $context);
         }
     }
 }

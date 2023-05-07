@@ -79,7 +79,7 @@ class Client
      * @var array
      */
     protected array $commands = [
-        'map' => Str::class,
+        'str' => Str::class,
         'channel' => Channel::class,
     ];
 
@@ -123,13 +123,13 @@ class Client
      */
     public function __get(string $name)
     {
-        if (isset($this->commands[$name])) {
-            if (!isset($this->container[$name])) {
-                $this->container[$name] = new $this->commands[$name]($this);
-            }
+        if (isset($this->container[$name])) {
             return $this->container[$name];
         }
-        return null;
+        if (!isset($this->commands[$name])) {
+            throw new ClientException('command ' . $name . ' does not exist.');
+        }
+        return $this->container[$name] = new $this->commands[$name]($this);
     }
 
     /**

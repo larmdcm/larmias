@@ -28,12 +28,11 @@ $kernel->setConfig(EngineConfig::build([
             ],
             'callbacks' => [
                 \Larmias\Engine\Event::ON_WORKER_START => function () {
-                    Client::setEventLoop(\Larmias\Engine\EventLoop::getEvent());
+                    // Client::setEventLoop(\Larmias\Engine\EventLoop::getEvent());
                     // Client::setTimer(\Larmias\Engine\Timer::getTimer());
                     $clients = [];
 
-
-                    for ($i = 0; $i < 10000; $i++) {
+                    for ($i = 0; $i < 1; $i++) {
                         $client = new Client([
                             'password' => '123456',
                         ]);
@@ -42,8 +41,14 @@ $kernel->setConfig(EngineConfig::build([
 
                     $startTime = microtime(true);
 
+                    /**
+                     * @var int $k
+                     * @var Client $client
+                     */
                     foreach ($clients as $k => $client) {
-                        $client->str->set('k' . $k, '测试' . $k);
+                        for ($i = 0; $i < 100; $i++) {
+                            $client->str->set('k_' . $k . '_' . $i, '测试' . $k);
+                        }
                     }
 
                     println(round(microtime(true) - $startTime, 2));

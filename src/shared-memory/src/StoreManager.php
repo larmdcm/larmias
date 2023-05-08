@@ -36,6 +36,7 @@ class StoreManager
 
     /**
      * @return StrInterface
+     * @throws \Throwable
      */
     public static function map(): StrInterface
     {
@@ -46,6 +47,7 @@ class StoreManager
 
     /**
      * @return ChannelInterface
+     * @throws \Throwable
      */
     public static function channel(): ChannelInterface
     {
@@ -58,6 +60,7 @@ class StoreManager
      * @param string $name
      * @param callable $callback
      * @return mixed
+     * @throws \Throwable
      */
     public static function getStore(string $name, callable $callback): mixed
     {

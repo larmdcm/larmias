@@ -249,6 +249,7 @@ class Client
      */
     public function read(): ?Result
     {
+        return null;
         if (!$this->isConnected()) {
             $this->close();
             return null;

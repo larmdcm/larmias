@@ -21,7 +21,7 @@ class ChannelCommand extends Command
     /**
      * @return void
      */
-    protected function initialize(): void
+    public function initialize(): void
     {
         $this->channel = StoreManager::channel();
     }

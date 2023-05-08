@@ -5,7 +5,7 @@ use Larmias\Engine\Event;
 use Larmias\SharedMemory\Server as SharedMemoryServer;
 
 return [
-    'driver' => \Larmias\Engine\WorkerMan\Driver::class,
+    'driver' => \Larmias\Engine\Swoole\Driver::class,
     'workers' => [
         [
             'name' => 'tcp',
@@ -14,9 +14,10 @@ return [
             'port' => 2000,
             'settings' => [
                 'worker_num' => 1,
-                'protocol' => \Workerman\Protocols\Frame::class,
                 'auth_password' => '123456',
-                'console_output' => false,
+                'console_output' => true,
+                'protocol' => \Workerman\Protocols\Frame::class,
+                'packer' => \Larmias\Engine\Swoole\Packer\FramePacker::class,
             ],
             'callbacks' => [
                 Event::ON_WORKER_START => [SharedMemoryServer::class, 'onWorkerStart'],

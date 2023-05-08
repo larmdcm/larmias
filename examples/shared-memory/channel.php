@@ -28,9 +28,12 @@ $kernel->setConfig(EngineConfig::build([
             ],
             'callbacks' => [
                 \Larmias\Engine\Event::ON_WORKER_START => function () {
+                    Client::setEventLoop(\Larmias\Engine\EventLoop::getEvent());
+
                     $client = new Client([
                         'password' => '123456'
                     ]);
+
                     $client->channel->subscribe(['chat', 'public'], function ($data) {
                         var_dump($data);
                     });

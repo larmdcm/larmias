@@ -20,7 +20,7 @@ interface ConnectionInterface
      * @param mixed $data
      * @return bool
      */
-    public function close(mixed $data): bool;
+    public function close(mixed $data = null): bool;
 
     /**
      * 获取原生连接对象

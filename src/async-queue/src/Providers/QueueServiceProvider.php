@@ -8,6 +8,8 @@ use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\ApplicationInterface;
 use Larmias\Contracts\VendorPublishInterface;
 use Larmias\Contracts\ServiceProviderInterface;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 class QueueServiceProvider implements ServiceProviderInterface
 {
@@ -27,8 +29,8 @@ class QueueServiceProvider implements ServiceProviderInterface
 
     /**
      * @return void
-     * @throws \Psr\Container\NotFoundExceptionInterface
-     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     * @throws ContainerExceptionInterface
      */
     public function boot(): void
     {

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Larmias\Task\Command;
 
 use Larmias\Contracts\Tcp\ConnectionInterface;
-use Larmias\Engine\Contracts\WorkerInterface;
+use Larmias\Contracts\Worker\WorkerInterface;
 use Larmias\SharedMemory\Command\Command;
 use Larmias\SharedMemory\ConnectionManager;
 use Larmias\SharedMemory\Message\Result;
@@ -37,6 +37,7 @@ class TaskCommand extends Command
     /**
      * @param WorkerInterface $worker
      * @return void
+     * @throws \Throwable
      */
     public static function onTick(WorkerInterface $worker): void
     {
@@ -64,6 +65,7 @@ class TaskCommand extends Command
     /**
      * @param ConnectionInterface $connection
      * @return void
+     * @throws \Throwable
      */
     public static function onClose(ConnectionInterface $connection): void
     {

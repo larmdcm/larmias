@@ -7,6 +7,7 @@ namespace Larmias\Crontab\Process;
 use Larmias\Contracts\ConfigInterface;
 use Larmias\Crontab\Contracts\SchedulerInterface;
 use Larmias\Contracts\TimerInterface;
+use function array_merge;
 
 class CrontabProcess
 {
@@ -26,7 +27,7 @@ class CrontabProcess
      */
     public function __construct(ConfigInterface $config, protected SchedulerInterface $scheduler, protected TimerInterface $timer)
     {
-        $this->config = \array_merge($this->config, $config->get('crontab', []));
+        $this->config = array_merge($this->config, $config->get('crontab', []));
         if (!empty($this->config['crontab'])) {
             $this->scheduler->batch($this->config['crontab']);
         }

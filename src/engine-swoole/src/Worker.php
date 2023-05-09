@@ -47,9 +47,18 @@ abstract class Worker extends BaseWorker implements WorkerInterface
      * @param Throwable $e
      * @return void
      */
-    public function exceptionHandler(Throwable $e): void
+    public function printException(Throwable $e): void
     {
         println(format_exception($e));
+    }
+
+    /**
+     * @param Throwable $e
+     * @return void
+     */
+    public function exceptionHandler(Throwable $e): void
+    {
+        $this->printException($e);
         if (function_exists('posix_getppid')) {
             SwooleProcess::kill(posix_getppid(), SIGTERM);
         }

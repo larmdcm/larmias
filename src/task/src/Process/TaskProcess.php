@@ -6,7 +6,7 @@ namespace Larmias\Task\Process;
 
 use Larmias\Contracts\ConfigInterface;
 use Larmias\Contracts\ContainerInterface;
-use Larmias\Engine\Contracts\WorkerInterface;
+use Larmias\Contracts\Worker\WorkerInterface;
 use Larmias\Task\TaskWorker;
 
 class TaskProcess
@@ -17,6 +17,7 @@ class TaskProcess
     protected TaskWorker $taskWorker;
 
     /**
+     * @param ContainerInterface $container
      * @param WorkerInterface $worker
      * @param ConfigInterface $config
      */

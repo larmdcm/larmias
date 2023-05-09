@@ -7,6 +7,11 @@ namespace Larmias\Task;
 use JsonSerializable;
 use Opis\Closure\SerializableClosure;
 use Closure;
+use function session_create_id;
+use function is_array;
+use function is_string;
+use function serialize;
+use function unserialize;
 
 class Task implements JsonSerializable
 {
@@ -19,7 +24,7 @@ class Task implements JsonSerializable
     public function __construct(protected string|array|Closure $handler, protected array $args = [], protected int $priority = 1, protected ?string $id = null)
     {
         if ($this->id === null) {
-            $this->id = \session_create_id();
+            $this->id = session_create_id();
         }
     }
 
@@ -30,9 +35,9 @@ class Task implements JsonSerializable
     public static function parse(array $data): Task
     {
         $handler = $data['handler'];
-        if (\is_array($handler) && isset($handler['type'])) {
+        if (is_array($handler) && isset($handler['type'])) {
             if ($handler['type'] === 'closure') {
-                $handler = \unserialize($handler['handler']);
+                $handler = unserialize($handler['handler']);
                 $handler = $handler->getClosure();
             } else {
                 $handler = $handler['handler'];
@@ -119,11 +124,11 @@ class Task implements JsonSerializable
     public function jsonSerialize(): array
     {
         $data = ['type' => 'mixed', 'handler' => $this->handler];
-        if (\is_string($data['handler'])) {
+        if (is_string($data['handler'])) {
             $data['type'] = 'string';
-        } else if ($data['handler'] instanceof \Closure) {
+        } else if ($data['handler'] instanceof Closure) {
             $data['type'] = 'closure';
-            $data['handler'] = \serialize(new SerializableClosure($data['handler']));
+            $data['handler'] = serialize(new SerializableClosure($data['handler']));
         }
         return [
             'id' => $this->id,

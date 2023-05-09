@@ -17,7 +17,8 @@
     "require": {
         "php": ">=8.0",
         "larmias/contracts": "^1.0",
-        "larmias/shared-memory": "^1.0"
+        "larmias/shared-memory": "^1.0",
+        "opis/closure": "^3.6"
     },
     "autoload": {
         "psr-4": {

@@ -10,6 +10,10 @@ use Larmias\Task\Store\TaskStore;
 
 class StoreManager extends BaeStoreManager
 {
+    /**
+     * @return TaskStoreInterface
+     * @throws \Throwable
+     */
     public static function task(): TaskStoreInterface
     {
         return StoreManager::getStore(__FUNCTION__, function () {

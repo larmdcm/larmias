@@ -29,7 +29,7 @@ class Connection implements ConnectionInterface
      * @param mixed $data
      * @return bool
      */
-    public function close(mixed $data): bool
+    public function close(mixed $data = null): bool
     {
         return $this->connection->close($data);
     }

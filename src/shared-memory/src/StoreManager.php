@@ -38,7 +38,7 @@ class StoreManager
      * @return StrInterface
      * @throws \Throwable
      */
-    public static function map(): StrInterface
+    public static function str(): StrInterface
     {
         return static::getStore(__FUNCTION__, function () {
             return new static::$container[StrInterface::class];

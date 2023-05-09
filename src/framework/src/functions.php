@@ -26,7 +26,7 @@ function make(string $abstract, array $params = [], bool $newInstance = false): 
 }
 
 /**
- * 获取app实例对象
+ * 获取app实例对象w
  *
  * @return ApplicationInterface
  */

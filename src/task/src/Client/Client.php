@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Larmias\Task\Client;
 
 use Larmias\SharedMemory\Client\Client as BaseClient;
-use Larmias\Engine\EventLoop;
 use Larmias\Task\Task;
+use function is_array;
+use function implode;
+use function call_user_func_array;
 
 class Client extends BaseClient
 {
@@ -31,9 +33,9 @@ class Client extends BaseClient
      */
     public function onConnect(Client $client): void
     {
-        EventLoop::onReadable($client->getSocket(), function () use ($client) {
+        BaseClient::getEventLoop()->onReadable($client->getSocket(), function () use ($client) {
             $result = $client->read();
-            if (!$result || !$result->success || !\is_array($result->data) || !isset($result->data['type'])) {
+            if (!$result || !$result->success || !is_array($result->data) || !isset($result->data['type'])) {
                 return;
             }
             switch ($result->data['type']) {
@@ -110,8 +112,8 @@ class Client extends BaseClient
      */
     protected function listen(string|array $name, ?callable $callback = null, bool $once = false): void
     {
-        if (\is_array($name)) {
-            $name = \implode('.', $name);
+        if (is_array($name)) {
+            $name = implode('.', $name);
         }
         if ($callback) {
             $this->callbacks[$name] = ['callback' => $callback, 'once' => $once];
@@ -125,11 +127,11 @@ class Client extends BaseClient
      */
     protected function fireEvent(string|array $name, ...$args): mixed
     {
-        if (\is_array($name)) {
-            $name = \implode('.', $name);
+        if (is_array($name)) {
+            $name = implode('.', $name);
         }
         if (isset($this->callbacks[$name])) {
-            $result = \call_user_func_array($this->callbacks[$name]['callback'], $args);
+            $result = call_user_func_array($this->callbacks[$name]['callback'], $args);
             if ($this->callbacks[$name]['once']) {
                 unset($this->callbacks[$name]);
             }

@@ -9,5 +9,9 @@ use Larmias\Task\Task;
 
 interface TaskExecutorInterface extends BaseTaskExecutorInterface
 {
+    /**
+     * @param Task $task
+     * @return bool
+     */
     public function task(Task $task): bool;
 }

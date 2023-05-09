@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Larmias\Engine\Swoole\Tcp;
 
 use Larmias\Engine\Swoole\Contracts\PackerInterface;
+use Larmias\Engine\Swoole\Packer\Buffer;
 use Larmias\Engine\Swoole\Packer\EmptyPacker;
 use Larmias\Engine\Swoole\Server as BaseServer;
 use Swoole\Coroutine\Server as TCPServer;
@@ -42,20 +43,34 @@ class Server extends BaseServer
 
         $this->server->handle(function (TCPConnection $tcpConnection) {
             try {
-                $connection = new Connection($tcpConnection);
-                // $this->trigger(Event::ON_CONNECT, [$connection]);
+                $connection = new Connection($tcpConnection, $this->packer);
+                $this->trigger(Event::ON_CONNECT, [$connection]);
+                $buffer = new Buffer();
                 while (true) {
-                    $data = $tcpConnection->recv();
+                    $data = $connection->recv();
                     if ($data === '' || $data === false) {
                         break;
                     }
-                    begin:
-                    $data = $this->packer->unpack($data);
 
-                    // $this->trigger(Event::ON_RECEIVE, [$connection, $data]);
+                    $buffer->append($data);
+                    $bfString = $buffer->toString();
 
+                    while (!empty($bfString)) {
+                        try {
+                            $unpack = $this->packer->unpack($bfString);
+                        } catch (Throwable $e) {
+                            $this->printException($e);
+                            $buffer->flush();
+                        }
+                        if (empty($unpack)) {
+                            break;
+                        }
+                        $buffer->write($unpack[1]);
+                        $bfString = $buffer->toString();
+                        $this->trigger(Event::ON_RECEIVE, [$connection, $unpack[0]]);
+                    }
                 }
-                // $this->trigger(Event::ON_CLOSE, [$connection]);
+                $this->trigger(Event::ON_CLOSE, [$connection]);
                 $connection->close();
             } catch (Throwable $e) {
                 $this->exceptionHandler($e);

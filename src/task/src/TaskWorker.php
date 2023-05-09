@@ -7,8 +7,14 @@ namespace Larmias\Task;
 use Larmias\Contracts\ContainerInterface;
 use Larmias\Task\Enum\WorkerStatus;
 use Larmias\Task\Client\Client;
+use Throwable;
 use function Larmias\Utils\format_exception;
 use function Larmias\Utils\println;
+use function array_merge;
+use function is_callable;
+use function is_string;
+use function explode;
+use function method_exists;
 
 class TaskWorker
 {
@@ -48,7 +54,7 @@ class TaskWorker
      */
     public function __construct(protected ContainerInterface $container, array $config = [])
     {
-        $this->config = \array_merge($this->config, $config);
+        $this->config = array_merge($this->config, $config);
         $this->client = new Client($this->config);
     }
 
@@ -102,7 +108,7 @@ class TaskWorker
                 try {
                     $this->status = WorkerStatus::RUNNING;
                     $this->runTask(Task::parse($data['task']));
-                } catch (\Throwable $e) {
+                } catch (Throwable $e) {
                     println(format_exception($e));
                 } finally {
                     $this->setStatus(WorkerStatus::IDLE);
@@ -118,20 +124,20 @@ class TaskWorker
     protected function runTask(Task $task): void
     {
         $handler = $task->getHandler();
-        if (!\is_callable($handler)) {
-            if (\is_string($handler)) {
-                $handler = \explode('@', $handler);
+        if (!is_callable($handler)) {
+            if (is_string($handler)) {
+                $handler = explode('@', $handler);
             }
             $instance = $this->container->make($handler[0], [], true);
             $handler = [$instance, $handler[1]];
         }
         try {
             $result = $this->container->invoke($handler, $task->getArgs());
-            if (isset($instance) && \method_exists($instance, 'onFinish')) {
+            if (isset($instance) && method_exists($instance, 'onFinish')) {
                 $instance->onFinish($task, $result);
             }
-        } catch (\Throwable $e) {
-            if (isset($instance) && \method_exists($instance, 'onException')) {
+        } catch (Throwable $e) {
+            if (isset($instance) && method_exists($instance, 'onException')) {
                 $instance->onException($task, $e);
             }
         }

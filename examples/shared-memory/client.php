@@ -32,7 +32,7 @@ $kernel->setConfig(EngineConfig::build([
                     // Client::setTimer(\Larmias\Engine\Timer::getTimer());
                     $clients = [];
 
-                    for ($i = 0; $i < 1; $i++) {
+                    for ($i = 0; $i < 100; $i++) {
                         $client = new Client([
                             'password' => '123456',
                         ]);

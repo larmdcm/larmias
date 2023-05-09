@@ -26,4 +26,11 @@ interface WorkerInterface
      * @return int
      */
     public function getNum(): int;
+
+    /**
+     * @param string|null $name
+     * @param mixed|null $default
+     * @return mixed
+     */
+    public function getSettings(string $name = null, mixed $default = null): mixed;
 }

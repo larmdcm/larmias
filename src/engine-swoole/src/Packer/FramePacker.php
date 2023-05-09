@@ -13,21 +13,44 @@ use function unpack;
 
 class FramePacker implements PackerInterface
 {
+    /** @var int */
+    public const HEADER_SIZE = 4;
+
+    /** @var string */
+    public const HEADER_STRUCT = 'Nlength';
+
+    /** @var string */
+    public const HEADER_PACK = 'N';
+
     /**
      * @param string $data
      * @return string
      */
     public function pack(string $data): string
     {
-        return pack('N', strlen($data) + 4) . $data;
+        return pack(self::HEADER_PACK, strlen($data) + self::HEADER_SIZE) . $data;
     }
 
+    /**
+     * @param string $data
+     * @return string[]
+     */
     public function unpack(string $data): array
     {
-        $header = unpack('Nlength', substr($data, 0, 4));
+        $totalLen = strlen($data);
+
+        if ($totalLen < self::HEADER_SIZE) {
+            return [];
+        }
+        $header = unpack(self::HEADER_STRUCT, $data);
         if ($header === false) {
             throw new RuntimeException('Invalid Header');
         }
-        return [substr($data, 0, $header['length']), substr($data, $header['length'])];
+
+        if ($totalLen < $header['length']) {
+            return [];
+        }
+
+        return [substr($data, self::HEADER_SIZE, $header['length'] - self::HEADER_SIZE), substr($data, $header['length'])];
     }
 }

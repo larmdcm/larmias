@@ -41,23 +41,25 @@ class TaskCommand extends Command
      */
     public static function onTick(WorkerInterface $worker): void
     {
-        $taskStore = StoreManager::task();
-        while (!$taskStore->isEmpty()) {
-            $isConsume = false;
-            foreach ($taskStore->online() as $id => $info) {
-                if (isset($info['status']) && $info['status'] === WorkerStatus::IDLE) {
-                    $connection = ConnectionManager::get($id);
-                    $connection?->send(Result::build([
-                        'type' => 'message',
-                        'name' => $info['name'] ?? null,
-                        'task' => $taskStore->pop()
-                    ]));
-                    $taskStore->setInfo($id, 'status', WorkerStatus::RUNNING);
-                    $isConsume = true;
+        $taskStoreList = StoreManager::tasks();
+        foreach ($taskStoreList as $taskStore) {
+            while (!$taskStore->isEmpty()) {
+                $isConsume = false;
+                foreach ($taskStore->online() as $id => $info) {
+                    if (isset($info['status']) && $info['status'] === WorkerStatus::IDLE) {
+                        $connection = ConnectionManager::get($id);
+                        $connection?->send(Result::build([
+                            'type' => 'message',
+                            'name' => $info['name'] ?? null,
+                            'task' => $taskStore->pop()
+                        ]));
+                        $taskStore->setInfo($id, 'status', WorkerStatus::RUNNING);
+                        $isConsume = true;
+                    }
                 }
-            }
-            if (!$isConsume) {
-                break;
+                if (!$isConsume) {
+                    break;
+                }
             }
         }
     }

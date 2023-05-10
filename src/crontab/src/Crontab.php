@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace Larmias\Crontab;
 
-use Carbon\Carbon;
 use JsonSerializable;
 use Opis\Closure\SerializableClosure;
+use Closure;
+use function is_array;
+use function serialize;
+use function unserialize;
 
 class Crontab implements JsonSerializable
 {
@@ -31,9 +34,9 @@ class Crontab implements JsonSerializable
     protected int $mutexExpires = 3600;
 
     /**
-     * @var Carbon
+     * @var int
      */
-    protected Carbon $executeTime;
+    protected int $executeTime;
 
     /**
      * @var bool
@@ -63,16 +66,16 @@ class Crontab implements JsonSerializable
         $crontab->setName($data['name']);
         $crontab->setRule($data['rule']);
         $handler = $data['handler'];
-        if (\is_array($handler) && isset($handler['type'])) {
+        if (is_array($handler) && isset($handler['type'])) {
             if ($handler['type'] === 'closure') {
-                $handler = \unserialize($handler['handler']);
+                $handler = unserialize($handler['handler']);
                 $handler = $handler->getClosure();
             } else {
                 $handler = $handler['handler'];
             }
         }
         $crontab->setHandler($handler);
-        $crontab->setExecuteTime(\unserialize($data['executeTime']));
+        $crontab->setExecuteTime($data['executeTime']);
         $crontab->setEnable($data['enable']);
         $crontab->setMutexExpires($data['mutexExpires']);
         $crontab->setMutexName($data['mutexName']);
@@ -208,18 +211,18 @@ class Crontab implements JsonSerializable
     }
 
     /**
-     * @return Carbon
+     * @return int
      */
-    public function getExecuteTime(): Carbon
+    public function getExecuteTime(): int
     {
         return $this->executeTime;
     }
 
     /**
-     * @param Carbon $executeTime
+     * @param int $executeTime
      * @return self
      */
-    public function setExecuteTime(Carbon $executeTime): self
+    public function setExecuteTime(int $executeTime): self
     {
         $this->executeTime = $executeTime;
         return $this;
@@ -249,9 +252,9 @@ class Crontab implements JsonSerializable
     public function jsonSerialize(): array
     {
         $handler = ['type' => 'mixed', 'handler' => $this->getHandler()];
-        if ($handler['handler'] instanceof \Closure) {
+        if ($handler['handler'] instanceof Closure) {
             $handler['type'] = 'closure';
-            $handler['handler'] = \serialize(new SerializableClosure($handler['handler']));
+            $handler['handler'] = serialize(new SerializableClosure($handler['handler']));
         }
         return [
             'name' => $this->getName(),
@@ -259,7 +262,7 @@ class Crontab implements JsonSerializable
             'handler' => $handler,
             'mutexName' => $this->getMutexName(),
             'mutexExpires' => $this->getMutexExpires(),
-            'executeTime' => $this->getExecuteTime()->serialize(),
+            'executeTime' => $this->getExecuteTime(),
             'enable' => $this->isEnable(),
             'singleton' => $this->isSingleton(),
             'onOneServer' => $this->isOnOneServer(),

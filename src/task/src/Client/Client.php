@@ -19,6 +19,7 @@ class Client extends BaseClient
     {
         $options['async'] = true;
         $options['event'][self::EVENT_CONNECT] = [$this, 'onConnect'];
+        $options['connect_try_timeout'] = $options['connect_try_timeout'] ?? 3000;
         parent::__construct($options);
     }
 
@@ -27,13 +28,14 @@ class Client extends BaseClient
      */
     protected array $callbacks = [];
 
+
     /**
      * @param Client $client
      * @return void
      */
     public function onConnect(Client $client): void
     {
-        BaseClient::getEventLoop()->onReadable($client->getSocket(), function () use ($client) {
+        static::getEventLoop()->onReadable($client->getSocket(), function () use ($client) {
             $result = $client->read();
             if (!$result || !$result->success || !is_array($result->data) || !isset($result->data['type'])) {
                 return;

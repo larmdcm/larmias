@@ -8,6 +8,7 @@ use Larmias\Crontab\Contracts\ExecutorInterface;
 use Larmias\Crontab\Contracts\ParserInterface;
 use Larmias\Crontab\Contracts\SchedulerInterface;
 use SplQueue;
+use function time;
 
 class Scheduler implements SchedulerInterface
 {
@@ -72,7 +73,7 @@ class Scheduler implements SchedulerInterface
      */
     public function schedule(): SplQueue
     {
-        $startTime = \time();
+        $startTime = time();
         foreach ($this->list as $crontab) {
             $result = $this->parser->parse($crontab->getRule(), $startTime);
             foreach ($result as $time) {

@@ -40,7 +40,6 @@ class Manager
         $pool = new Pool(count($this->workers), SWOOLE_IPC_UNIXSOCK, 0, true);
         $pool->on(Constant::EVENT_WORKER_START, function (Pool $pool, int $workerId) {
             $worker = $this->workers[$workerId];
-            var_dump(get_class($worker));
             Runtime::enableCoroutine($worker->getSettings('enable_coroutine', true));
             $worker->workerStart($workerId);
             $worker->process();

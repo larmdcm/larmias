@@ -4,12 +4,17 @@ declare(strict_types=1);
 
 namespace Larmias\Crontab;
 
-use Carbon\Carbon;
 use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\LockerFactoryInterface;
 use Larmias\Crontab\Contracts\ExecutorInterface;
 use Closure;
 use Larmias\Contracts\TimerInterface;
+use Throwable;
+use function is_callable;
+use function is_string;
+use function explode;
+use function time;
+use function method_exists;
 
 abstract class Executor implements ExecutorInterface
 {
@@ -20,7 +25,7 @@ abstract class Executor implements ExecutorInterface
      */
     public function __construct(protected ContainerInterface $container, protected LockerFactoryInterface $lockerFactory, protected TimerInterface $timer)
     {
-        if (\method_exists($this, 'initialize')) {
+        if (method_exists($this, 'initialize')) {
             $this->container->invoke([$this, 'initialize']);
         }
     }
@@ -83,7 +88,7 @@ abstract class Executor implements ExecutorInterface
      */
     protected function runCallback(Crontab $crontab): void
     {
-        $diff = $crontab->getExecuteTime()->diffInRealSeconds(new Carbon());
+        $diff = $crontab->getExecuteTime() - time();
         $this->timer->after($diff > 0 ? $diff * 1000 : 1, function () use ($crontab) {
             $callback = $this->getCallback($crontab);
             if ($crontab->isSingleton()) {
@@ -105,9 +110,9 @@ abstract class Executor implements ExecutorInterface
         return function () use ($crontab) {
             $args = [];
             $handler = $crontab->getHandler();
-            if (!\is_callable($handler)) {
-                if (\is_string($handler)) {
-                    $handler = \explode('@', $handler);
+            if (!is_callable($handler)) {
+                if (is_string($handler)) {
+                    $handler = explode('@', $handler);
                 }
                 $instance = $this->container->make($handler[0], [], true);
                 $handler = [$instance, $handler[1]];
@@ -115,11 +120,11 @@ abstract class Executor implements ExecutorInterface
             }
             try {
                 $result = $this->container->invoke($handler, $args);
-                if (isset($instance) && \method_exists($instance, 'onFinish')) {
+                if (isset($instance) && method_exists($instance, 'onFinish')) {
                     $instance->onFinish($crontab, $result);
                 }
-            } catch (\Throwable $e) {
-                if (isset($instance) && \method_exists($instance, 'onException')) {
+            } catch (Throwable $e) {
+                if (isset($instance) && method_exists($instance, 'onException')) {
                     $instance->onException($crontab, $e);
                 }
             }

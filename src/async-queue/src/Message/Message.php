@@ -17,7 +17,7 @@ class Message implements MessageInterface, Serializable
      * @param int $attempts
      * @param int $maxAttempts
      */
-    public function __construct(protected JobInterface $job, protected array $data = [], protected string $messageId = "", protected int $attempts = 0, protected int $maxAttempts = 0)
+    public function __construct(protected JobInterface $job, protected array $data = [], protected string $messageId = '', protected int $attempts = 0, protected int $maxAttempts = 0)
     {
     }
 

@@ -6,6 +6,7 @@ namespace Larmias\Engine\Swoole;
 
 use Larmias\Engine\ProcessManager;
 use Larmias\Engine\Event;
+use Throwable;
 use function usleep;
 
 class Process extends Worker
@@ -19,7 +20,7 @@ class Process extends Worker
             try {
                 $this->trigger(Event::ON_WORKER, [$this]);
                 usleep(100);
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 $this->exceptionHandler($e);
             }
         }

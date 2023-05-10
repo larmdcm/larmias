@@ -73,4 +73,20 @@ class StoreManager
         }
         return static::$stores[$select][$name];
     }
+
+    /**
+     * @param string $name
+     * @return array
+     */
+    public static function getStores(string $name): array
+    {
+        $result = [];
+        foreach (static::$stores as $storeMap) {
+            if (isset($storeMap[$name])) {
+                $result[] = $storeMap[$name];
+            }
+        }
+
+        return $result;
+    }
 }

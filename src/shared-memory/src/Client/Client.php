@@ -26,6 +26,10 @@ use function sprintf;
 use function fclose;
 use function feof;
 use function call_user_func_array;
+use function usleep;
+use function microtime;
+use function set_error_handler;
+use function restore_error_handler;
 use const PHP_SAPI;
 
 /**
@@ -68,6 +72,7 @@ class Client
         'timeout' => 5,
         'event' => [],
         'async' => false,
+        'connect_try_timeout' => 0,
     ];
 
     /**
@@ -356,14 +361,32 @@ class Client
      */
     protected function createSocket()
     {
-        $conn = stream_socket_client(
-            sprintf('tcp://%s:%d', $this->options['host'], $this->options['port']), $errCode, $errMsg,
-            $this->options['timeout']
-        );
-        if (!is_resource($conn)) {
-            throw new ClientException($errMsg, $errCode);
+        $socket = function () {
+            set_error_handler(fn() => null);
+            $conn = stream_socket_client(
+                sprintf('tcp://%s:%d', $this->options['host'], $this->options['port']), $errCode, $errMsg,
+                $this->options['timeout']
+            );
+            restore_error_handler();
+            if (!is_resource($conn)) {
+                throw new ClientException($errMsg, $errCode);
+            }
+            return $conn;
+        };
+
+        $tryTimeout = $this->options['connect_try_timeout'] ?? 0;
+        $beginTime = microtime(true);
+
+        while (true) {
+            try {
+                return $socket();
+            } catch (ClientException $e) {
+                if ($tryTimeout === 0 || microtime(true) - $beginTime > $tryTimeout / 1000) {
+                    throw $e;
+                }
+                usleep(10000);
+            }
         }
-        return $conn;
     }
 
     /**

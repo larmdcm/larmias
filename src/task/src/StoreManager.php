@@ -23,4 +23,12 @@ class StoreManager extends BaeStoreManager
             return new static::$container[TaskStoreInterface::class];
         });
     }
+
+    /**
+     * @return array
+     */
+    public static function tasks(): array
+    {
+        return StoreManager::getStores('task');
+    }
 }

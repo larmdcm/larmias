@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Larmias\Crontab;
 
-use Carbon\Carbon;
 use InvalidArgumentException;
 use Larmias\Crontab\Contracts\ParserInterface;
 
@@ -36,7 +35,7 @@ class Parser implements ParserInterface
      *                              |    +----------- min (0 - 59)
      *                              +------------- sec (0-59)
      * @param mixed $startTime
-     * @return Carbon[]
+     * @return int[]
      */
     public function parse(string $rule, mixed $startTime = null): array
     {
@@ -53,7 +52,7 @@ class Parser implements ParserInterface
         ) {
             $result = [];
             foreach ($date['second'] as $second) {
-                $result[] = Carbon::createFromTimestamp($startTime + $second);
+                $result[] = $startTime + $second;
             }
             return $result;
         }
@@ -82,9 +81,8 @@ class Parser implements ParserInterface
     {
         if ($startTime === null) {
             $startTime = time();
-        } else if ($startTime instanceof Carbon) {
-            return $startTime->getTimestamp();
         }
+
         if (!is_numeric($startTime)) {
             throw new InvalidArgumentException("\$startTime have to be a valid unix timestamp ({$startTime} given)");
         }

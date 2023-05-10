@@ -10,21 +10,6 @@ class Event
     public const ON_BEFORE_START = 'beforeStart';
 
     /** @var string */
-    public const ON_MASTER_START = 'masterStart';
-
-    /** @var string */
-    public const ON_MASTER = 'master';
-
-    /** @var string */
-    public const ON_MASTER_SIGNAL = 'masterSignal';
-
-    /** @var string */
-    public const ON_MASTER_CUSTOM = 'masterCustom';
-
-    /** @var string */
-    public const ON_MASTER_STOP = 'masterStop';
-
-    /** @var string */
     public const ON_WORKER_START = 'workerStart';
 
     /** @var string */
@@ -32,9 +17,6 @@ class Event
 
     /** @var string */
     public const ON_WORKER_SIGNAL = 'workerSignal';
-
-    /** @var string */
-    public const ON_WORKER_CUSTOM = 'workerCustom';
 
     /** @var string */
     public const ON_WORKER_STOP = 'workerStop';

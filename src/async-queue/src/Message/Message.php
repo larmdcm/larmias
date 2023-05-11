@@ -7,6 +7,8 @@ namespace Larmias\AsyncQueue\Message;
 use Larmias\AsyncQueue\Contracts\JobInterface;
 use Larmias\AsyncQueue\Contracts\MessageInterface;
 use Serializable;
+use function serialize;
+use function unserialize;
 
 class Message implements MessageInterface, Serializable
 {
@@ -17,7 +19,12 @@ class Message implements MessageInterface, Serializable
      * @param int $attempts
      * @param int $maxAttempts
      */
-    public function __construct(protected JobInterface $job, protected array $data = [], protected string $messageId = '', protected int $attempts = 0, protected int $maxAttempts = 0)
+    public function __construct(
+        protected JobInterface $job, 
+        protected array $data = [], 
+        protected string $messageId = '', 
+        protected int $attempts = 0,
+        protected int $maxAttempts = 0)
     {
     }
 
@@ -88,7 +95,7 @@ class Message implements MessageInterface, Serializable
      */
     public function serialize(): string
     {
-        return \serialize([
+        return serialize([
             'message_id' => $this->messageId,
             'job' => $this->job,
             'data' => $this->data,
@@ -103,7 +110,7 @@ class Message implements MessageInterface, Serializable
      */
     public function unserialize(string $data): void
     {
-        $object = \unserialize($data);
+        $object = unserialize($data);
         $this->messageId = $object['message_id'];
         $this->job = $object['job'];
         $this->data = $object['data'];

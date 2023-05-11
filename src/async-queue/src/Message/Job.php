@@ -6,6 +6,8 @@ namespace Larmias\AsyncQueue\Message;
 
 use Larmias\AsyncQueue\Contracts\JobInterface;
 use Serializable;
+use function serialize;
+use function unserialize;
 
 abstract class Job implements JobInterface, Serializable
 {
@@ -37,7 +39,7 @@ abstract class Job implements JobInterface, Serializable
      */
     public function serialize(): string
     {
-        return \serialize([
+        return serialize([
             'data' => $this->data,
         ]);
     }
@@ -48,7 +50,7 @@ abstract class Job implements JobInterface, Serializable
      */
     public function unserialize(string $data): void
     {
-        $object = \unserialize($data);
+        $object = unserialize($data);
         $this->data = $object['data'];
     }
 }

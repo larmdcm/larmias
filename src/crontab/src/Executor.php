@@ -15,6 +15,7 @@ use function is_string;
 use function explode;
 use function time;
 use function method_exists;
+use function sha1;
 
 abstract class Executor implements ExecutorInterface
 {
@@ -70,7 +71,7 @@ abstract class Executor implements ExecutorInterface
     protected function runOnOneServer(Crontab $crontab, Closure $callback): Closure
     {
         return function () use ($crontab, $callback) {
-            $locker = $this->lockerFactory->create('mutex:crontab' . \sha1($crontab->getName() . $crontab->getRule()), $crontab->getMutexExpires());
+            $locker = $this->lockerFactory->create('mutex:crontab' . sha1($crontab->getName() . $crontab->getRule()), $crontab->getMutexExpires());
             if (!$locker->acquire()) {
                 return;
             }

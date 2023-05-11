@@ -6,6 +6,8 @@ namespace Larmias\AsyncQueue\Drivers;
 
 use Larmias\AsyncQueue\Contracts\QueueDriverInterface;
 use Larmias\Contracts\ContainerInterface;
+use function array_merge;
+use function method_exists;
 
 abstract class QueueDriver implements QueueDriverInterface
 {
@@ -20,8 +22,8 @@ abstract class QueueDriver implements QueueDriverInterface
      */
     public function __construct(protected ContainerInterface $container, array $config = [])
     {
-        $this->config = \array_merge($this->config, $config);
-        if (\method_exists($this, 'initialize')) {
+        $this->config = array_merge($this->config, $config);
+        if (method_exists($this, 'initialize')) {
             $this->container->invoke([$this, 'initialize']);
         }
     }

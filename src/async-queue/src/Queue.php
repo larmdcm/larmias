@@ -10,6 +10,8 @@ use Larmias\AsyncQueue\Contracts\QueueInterface;
 use Larmias\AsyncQueue\Message\Message;
 use Larmias\Contracts\ConfigInterface;
 use Larmias\Di\Container;
+use function is_null;
+use function session_create_id;
 
 class Queue implements QueueInterface
 {
@@ -64,7 +66,7 @@ class Queue implements QueueInterface
      */
     public function getConfig(?string $name = null, mixed $default = null): mixed
     {
-        if (\is_null($name)) {
+        if (is_null($name)) {
             return $this->config->get('async_queue');
         }
         return $this->config->get('async_queue.' . $name, $default);

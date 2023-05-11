@@ -8,6 +8,10 @@ use Larmias\Contracts\Redis\ConnectionInterface;
 use Larmias\Contracts\Redis\RedisFactoryInterface;
 use Larmias\AsyncQueue\Contracts\MessageInterface;
 use Larmias\AsyncQueue\Exceptions\QueueException;
+use function array_key_first;
+use function unserialize;
+use function serialize;
+use function microtime;
 
 class RedisStream extends QueueDriver
 {
@@ -82,9 +86,9 @@ class RedisStream extends QueueDriver
     {
         $message->setAttempts($message->getAttempts() + 1);
         $result = $this->connection->xAdd($this->getQueueKey(), '*', [
-            'message' => \serialize($message),
+            'message' => serialize($message),
             'delay' => $delay,
-            'timestamp' => \microtime(true),
+            'timestamp' => microtime(true),
         ], $this->config['maxlength'], $this->config['approximate']);
         if (!$result) {
             throw new QueueException($this->connection->getLastError() ?: 'Queue push failed.');
@@ -104,7 +108,7 @@ class RedisStream extends QueueDriver
         if (!$result) {
             return null;
         }
-        $messageId = \array_key_first($result[$queueKey]);
+        $messageId = array_key_first($result[$queueKey]);
         $data = $result[$queueKey][$messageId];
         if ($data['delay'] > 0 && (($data['delay'] / 1000 + $data['timestamp']) - microtime(true)) > 0) {
             // 延时队列重入
@@ -113,7 +117,7 @@ class RedisStream extends QueueDriver
             return $this->pop($timeout);
         }
         /** @var MessageInterface $message */
-        $message = \unserialize($data['message']);
+        $message = unserialize($data['message']);
         $message->setMessageId($messageId);
         return $message;
     }

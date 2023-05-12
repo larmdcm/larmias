@@ -6,6 +6,7 @@ namespace Larmias\Lock\Drivers;
 
 use Larmias\Contracts\Redis\ConnectionInterface;
 use Larmias\Contracts\Redis\RedisFactoryInterface;
+use function session_create_id;
 
 class Redis extends Driver
 {
@@ -25,7 +26,7 @@ class Redis extends Driver
     public function initialize(RedisFactoryInterface $factory)
     {
         $this->connection = $factory->get();
-        $this->value = \session_create_id();
+        $this->value = session_create_id();
     }
 
     /**

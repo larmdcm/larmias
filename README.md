@@ -8,7 +8,7 @@
 <a href="https://github.com/larmdcm/larmias/issues"><img src="https://img.shields.io/github/issues/larmdcm/larmias" alt=""></a>
 <a href="https://github.com/larmdcm/larmias"><img src="https://img.shields.io/github/stars/larmdcm/larmias" alt=""></a>
 <img src="https://img.shields.io/badge/php-%3E%3D8.0-brightgreen" alt="">
-<img src="https://img.shields.io/badge/license-apache%202-blue" alt="">
+<img src="https://img.shields.io/badge/license-MIT-blue" alt="">
 </p>
 
 # 介绍
@@ -57,7 +57,7 @@ Larmias 框架提供以下组件：
 
 ## 许可证
 
-Larmias 框架基于 Apache 2.0开源许可证，详细信息请参见 LICENSE 文件。
+Larmias 框架基于 MIT开源许可证，详细信息请参见 LICENSE 文件。
 
 ## 贡献一览
 

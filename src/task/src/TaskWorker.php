@@ -106,7 +106,7 @@ class TaskWorker
             },
             function (array $data) {
                 try {
-                    $this->status = WorkerStatus::RUNNING;
+                    $this->setStatus(WorkerStatus::RUNNING);
                     $this->runTask(Task::parse($data['task']));
                 } catch (Throwable $e) {
                     println(format_exception($e));

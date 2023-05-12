@@ -1,15 +1,15 @@
 <?php
 
-namespace Larmias\View\Blade\Compilers;
+namespace Larmias\View\Drivers\Blade\Compilers;
 
-use Larmias\View\Blade\Filesystem;
+use Larmias\View\Drivers\Blade\Filesystem;
 
 abstract class Compiler
 {
     /**
      * The Filesystem instance.
      *
-     * @var \Larmias\View\Blade\Filesystem
+     * @var \Larmias\View\Drivers\Blade\Filesystem
      */
     protected $files;
 

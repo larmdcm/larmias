@@ -9,7 +9,7 @@ use Larmias\AsyncQueue\Contracts\JobInterface;
 use Larmias\AsyncQueue\Contracts\QueueInterface;
 use Larmias\AsyncQueue\Message\Message;
 use Larmias\Contracts\ConfigInterface;
-use Larmias\Di\Container;
+use Larmias\Contracts\ContainerInterface;
 use function is_null;
 use function session_create_id;
 
@@ -21,10 +21,10 @@ class Queue implements QueueInterface
     protected array $drivers = [];
 
     /**
-     * @param Container $container
+     * @param ContainerInterface $container
      * @param ConfigInterface $config
      */
-    public function __construct(protected Container $container, protected ConfigInterface $config)
+    public function __construct(protected ContainerInterface $container, protected ConfigInterface $config)
     {
     }
 
@@ -33,7 +33,6 @@ class Queue implements QueueInterface
      * @param array $data
      * @param float $delay
      * @return string
-     * @throws \ReflectionException
      */
     public function push(JobInterface $job, array $data = [], float $delay = 0): string
     {
@@ -44,7 +43,6 @@ class Queue implements QueueInterface
     /**
      * @param string|null $name
      * @return QueueDriverInterface
-     * @throws \ReflectionException
      */
     public function driver(?string $name = null): QueueDriverInterface
     {

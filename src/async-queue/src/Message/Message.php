@@ -20,30 +20,44 @@ class Message implements MessageInterface, Serializable
      * @param int $maxAttempts
      */
     public function __construct(
-        protected JobInterface $job, 
-        protected array $data = [], 
-        protected string $messageId = '', 
-        protected int $attempts = 0,
-        protected int $maxAttempts = 0)
+        protected JobInterface $job,
+        protected array        $data = [],
+        protected string       $messageId = '',
+        protected int          $attempts = 0,
+        protected int          $maxAttempts = 0)
     {
     }
 
+    /**
+     * @return string
+     */
     public function getMessageId(): string
     {
         return $this->messageId;
     }
 
+    /**
+     * @param string $messageId
+     * @return MessageInterface
+     */
     public function setMessageId(string $messageId): MessageInterface
     {
         $this->messageId = $messageId;
         return $this;
     }
 
+    /**
+     * @return JobInterface
+     */
     public function getJob(): JobInterface
     {
         return $this->job;
     }
 
+    /**
+     * @param JobInterface $job
+     * @return MessageInterface
+     */
     public function setJob(JobInterface $job): MessageInterface
     {
         $this->job = $job;
@@ -68,22 +82,36 @@ class Message implements MessageInterface, Serializable
         return $this;
     }
 
+    /**
+     * @return int
+     */
     public function getAttempts(): int
     {
         return $this->attempts;
     }
 
+    /**
+     * @param int $attempts
+     * @return MessageInterface
+     */
     public function setAttempts(int $attempts): MessageInterface
     {
         $this->attempts = $attempts;
         return $this;
     }
 
+    /**
+     * @return int
+     */
     public function getMaxAttempts(): int
     {
         return $this->maxAttempts;
     }
 
+    /**
+     * @param int $maxAttempts
+     * @return MessageInterface
+     */
     public function setMaxAttempts(int $maxAttempts): MessageInterface
     {
         $this->maxAttempts = $maxAttempts;

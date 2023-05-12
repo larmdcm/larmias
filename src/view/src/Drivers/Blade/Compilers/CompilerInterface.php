@@ -1,6 +1,6 @@
 <?php
 
-namespace Larmias\View\Blade\Compilers;
+namespace Larmias\View\Drivers\Blade\Compilers;
 
 interface CompilerInterface
 {

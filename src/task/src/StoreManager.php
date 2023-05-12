@@ -25,7 +25,7 @@ class StoreManager extends BaeStoreManager
     }
 
     /**
-     * @return array
+     * @return TaskStoreInterface[]
      */
     public static function tasks(): array
     {

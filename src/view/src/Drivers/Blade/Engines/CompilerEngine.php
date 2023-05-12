@@ -1,30 +1,33 @@
 <?php
 
-namespace Larmias\View\Blade\Engines;
+declare(strict_types=1);
 
+namespace Larmias\View\Drivers\Blade\Engines;
+
+use Throwable;
 use ErrorException;
-use Larmias\View\Blade\Compilers\CompilerInterface;
+use Larmias\View\Drivers\Blade\Compilers\CompilerInterface;
 
 class CompilerEngine extends PhpEngine
 {
     /**
      * The Blade compiler instance.
      *
-     * @var \Larmias\View\Blade\Compilers\CompilerInterface
+     * @var CompilerInterface
      */
-    protected $compiler;
+    protected CompilerInterface $compiler;
 
     /**
      * A stack of the last compiled templates.
      *
      * @var array
      */
-    protected $lastCompiled = [];
+    protected array $lastCompiled = [];
 
     /**
      * Create a new Blade view engine instance.
      *
-     * @param  \Larmias\View\Blade\Compilers\CompilerInterface  $compiler
+     * @param CompilerInterface $compiler
      * @return void
      */
     public function __construct(CompilerInterface $compiler)
@@ -35,11 +38,12 @@ class CompilerEngine extends PhpEngine
     /**
      * Get the evaluated contents of the view.
      *
-     * @param  string  $path
-     * @param  array   $data
+     * @param string $path
+     * @param array $data
      * @return string
+     * @throws Throwable
      */
-    public function get($path, array $data = [])
+    public function get(string $path, array $data = []): string
     {
         $this->lastCompiled[] = $path;
 
@@ -64,13 +68,13 @@ class CompilerEngine extends PhpEngine
     /**
      * Handle a view exception.
      *
-     * @param  \Exception  $e
-     * @param  int  $obLevel
+     * @param Throwable $e
+     * @param int $obLevel
      * @return void
      *
      * @throws $e
      */
-    protected function handleViewException($e, $obLevel)
+    protected function handleViewException(Throwable $e, int $obLevel): void
     {
         $e = new ErrorException($this->getMessage($e), 0, 1, $e->getFile(), $e->getLine(), $e);
 
@@ -80,20 +84,20 @@ class CompilerEngine extends PhpEngine
     /**
      * Get the exception message for an exception.
      *
-     * @param  \Exception  $e
+     * @param Throwable $e
      * @return string
      */
-    protected function getMessage($e)
+    protected function getMessage(Throwable $e): string
     {
-        return $e->getMessage().' (View: '.realpath(last($this->lastCompiled)).')';
+        return $e->getMessage() . ' (View: ' . realpath(end($this->lastCompiled)) . ')';
     }
 
     /**
      * Get the compiler implementation.
      *
-     * @return \Larmias\View\Blade\Compilers\CompilerInterface
+     * @return CompilerInterface
      */
-    public function getCompiler()
+    public function getCompiler(): CompilerInterface
     {
         return $this->compiler;
     }

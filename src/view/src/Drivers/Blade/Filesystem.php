@@ -1,6 +1,8 @@
 <?php
 
-namespace Larmias\View\Blade;
+declare(strict_types=1);
+
+namespace Larmias\View\Drivers\Blade;
 
 use Exception;
 
@@ -9,10 +11,10 @@ class Filesystem
     /**
      * Determine if a file exists.
      *
-     * @param  string  $path
+     * @param string $path
      * @return bool
      */
-    public function exists($path)
+    public function exists(string $path): bool
     {
         return file_exists($path);
     }
@@ -20,12 +22,12 @@ class Filesystem
     /**
      * Get the contents of a file.
      *
-     * @param  string  $path
+     * @param string $path
      * @return string
      *
      * @throws Exception
      */
-    public function get($path)
+    public function get(string $path): string
     {
         if ($this->isFile($path)) {
             return file_get_contents($path);
@@ -37,12 +39,12 @@ class Filesystem
     /**
      * Write the contents of a file.
      *
-     * @param  string  $path
-     * @param  string  $contents
-     * @param  bool  $lock
-     * @return int
+     * @param string $path
+     * @param string $contents
+     * @param bool $lock
+     * @return int|false
      */
-    public function put($path, $contents, $lock = false)
+    public function put(string $path, string $contents, bool $lock = false): int|false
     {
         return file_put_contents($path, $contents, $lock ? LOCK_EX : 0);
     }
@@ -50,10 +52,10 @@ class Filesystem
     /**
      * Get the file's last modification time.
      *
-     * @param  string  $path
+     * @param string $path
      * @return int
      */
-    public function lastModified($path)
+    public function lastModified(string $path): int
     {
         return filemtime($path);
     }
@@ -61,10 +63,10 @@ class Filesystem
     /**
      * Determine if the given path is a file.
      *
-     * @param  string  $file
+     * @param string $file
      * @return bool
      */
-    public function isFile($file)
+    public function isFile(string $file): bool
     {
         return is_file($file);
     }

@@ -12,7 +12,7 @@ $kernel->setConfig(EngineConfig::build([
     'driver' => \Larmias\Engine\WorkerMan\Driver::class,
     'workers' => [
         [
-            'name' => 'taskProcess',
+            'name' => 'queueProcess',
             'type' => \Larmias\Engine\WorkerType::WORKER_PROCESS,
             'settings' => [
                 'worker_num' => 1,

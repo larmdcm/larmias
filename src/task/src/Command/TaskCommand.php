@@ -55,6 +55,7 @@ class TaskCommand extends Command
                         ]));
                         $taskStore->setInfo($id, 'status', WorkerStatus::RUNNING);
                         $isConsume = true;
+                        break;
                     }
                 }
                 if (!$isConsume) {

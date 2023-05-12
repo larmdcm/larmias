@@ -114,7 +114,7 @@ class RedisStream extends QueueDriver
             // 延时队列重入
             $this->connection->xAdd($queueKey, '*', $data);
             $this->connection->xAck($queueKey, $this->group, [$messageId]);
-            return $this->pop($timeout);
+            return null;
         }
         /** @var MessageInterface $message */
         $message = unserialize($data['message']);

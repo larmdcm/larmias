@@ -6,23 +6,29 @@ namespace Larmias\View\Exceptions;
 
 use RuntimeException;
 
-class TemplateNotFoundException extends RuntimeException
+class ViewNotFoundException extends RuntimeException
 {
-    public string $template;
+    /**
+     * @var string
+     */
+    protected string $template;
 
+    /**
+     * @param string $message
+     * @param string $template
+     * @param int $code
+     */
     public function __construct(string $message = '', string $template = '', int $code = 0)
     {
         parent::__construct($message, $code);
         $this->template = $template;
     }
 
+    /**
+     * @return string
+     */
     public function getTemplate(): string
     {
         return $this->template;
-    }
-
-    public function __toString(): string
-    {
-        return \sprintf("%s:[%s]: %s->%s", __CLASS__, $this->code, $this->message, $this->template);
     }
 }

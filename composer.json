@@ -45,7 +45,6 @@
         "nikic/fast-route": "^1.3",
         "workerman/workerman": "^4.1",
         "godruoyi/php-snowflake": "^1.0",
-        "nesbot/carbon": "^2.0",
         "symfony/console": "^6.0",
         "symfony/finder": "^4.3.2|^5.1"
     },
@@ -106,7 +105,7 @@
             "src/utils/src/functions.php",
             "src/engine/src/functions.php",
             "src/framework/src/functions.php",
-            "src/view/src/Blade/helpers.php",
+            "src/view/src/Drivers/Blade/helpers.php",
             "src/http-server/src/functions.php",
             "src/http-csrf/src/functions.php"
         ],

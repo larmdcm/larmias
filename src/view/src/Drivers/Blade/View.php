@@ -1,24 +1,24 @@
 <?php
 
-namespace Larmias\View\Blade;
+namespace Larmias\View\Drivers\Blade;
 
 use ArrayAccess;
 use BadMethodCallException;
-use Larmias\View\Blade\Engines\EngineInterface;
+use Larmias\View\Drivers\Blade\Engines\EngineInterface;
 
 class View implements ArrayAccess
 {
     /**
      * The view factory instance.
      *
-     * @var \Larmias\View\Blade\Factory
+     * @var Factory
      */
     protected $factory;
 
     /**
      * The engine implementation.
      *
-     * @var \Larmias\View\Blade\Engines\EngineInterface
+     * @var EngineInterface
      */
     protected $engine;
 
@@ -46,8 +46,8 @@ class View implements ArrayAccess
     /**
      * Create a new view instance.
      *
-     * @param \Larmias\View\Blade\Factory $factory
-     * @param \Larmias\View\Blade\Engines\EngineInterface $engine
+     * @param Factory $factory
+     * @param EngineInterface $engine
      * @param string $view
      * @param string $path
      * @param array $data
@@ -113,7 +113,7 @@ class View implements ArrayAccess
     /**
      * Get the sections of the rendered view.
      *
-     * @return array
+     * @return string
      */
     public function renderSections()
     {
@@ -184,7 +184,7 @@ class View implements ArrayAccess
     /**
      * Get the view factory instance.
      *
-     * @return \Larmias\View\Blade\Factory
+     * @return Factory
      */
     public function getFactory()
     {
@@ -194,7 +194,7 @@ class View implements ArrayAccess
     /**
      * Get the view's rendering engine.
      *
-     * @return \Larmias\View\Blade\Engines\EngineInterface
+     * @return EngineInterface
      */
     public function getEngine()
     {
@@ -339,7 +339,7 @@ class View implements ArrayAccess
      * Remove a piece of bound data from the view.
      *
      * @param string $key
-     * @return bool
+     * @return void
      */
     public function __unset($key)
     {
@@ -351,7 +351,7 @@ class View implements ArrayAccess
      *
      * @param string $method
      * @param array $parameters
-     * @return \Larmias\View\Blade\View
+     * @return \Larmias\View\Drivers\Blade\View
      *
      * @throws \BadMethodCallException
      */

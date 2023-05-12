@@ -1,6 +1,6 @@
 <?php
 
-namespace Larmias\View\Blade;
+namespace Larmias\View\Drivers\Blade;
 
 interface ViewFinderInterface
 {

@@ -8,12 +8,17 @@ use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\ConfigInterface;
 use Larmias\Contracts\ContextInterface;
 use Larmias\Contracts\ViewInterface;
+use function is_null;
+use function str_contains;
+use function lcfirst;
+use function substr;
+use function strlen;
 
 class View implements ViewInterface
 {
     /**
-     * View constructor.
      * @param ContainerInterface $container
+     * @param ContextInterface $context
      * @param ConfigInterface $config
      */
     public function __construct(protected ContainerInterface $container, protected ContextInterface $context, protected ConfigInterface $config)
@@ -49,7 +54,7 @@ class View implements ViewInterface
      */
     public function getConfig(?string $name = null, mixed $default = null): mixed
     {
-        if (\is_null($name)) {
+        if (is_null($name)) {
             return $this->config->get('view');
         }
         return $this->config->get('view.' . $name, $default);
@@ -71,8 +76,8 @@ class View implements ViewInterface
      */
     public function __call(string $name, array $arguments): mixed
     {
-        if (\str_contains($name, 'with')) {
-            return $this->driver()->with(\lcfirst(\substr($name, -(\strlen($name) - 4))), $arguments[0]);
+        if (str_contains($name, 'with')) {
+            return $this->driver()->with(lcfirst(substr($name, -(strlen($name) - 4))), $arguments[0]);
         }
         return $this->driver()->{$name}(...$arguments);
     }

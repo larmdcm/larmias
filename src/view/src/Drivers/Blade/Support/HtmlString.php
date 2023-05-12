@@ -1,43 +1,47 @@
 <?php
 
-namespace Larmias\View\Blade\Support;
+declare(strict_types=1);
 
-class HtmlString
+namespace Larmias\View\Drivers\Blade\Support;
+
+use Stringable;
+
+class HtmlString implements Stringable
 {
     /**
      * The HTML string.
      *
      * @var string
      */
-    protected $html;
+    protected string $html;
 
     /**
      * Create a new HTML string instance.
      *
-     * @param  string  $html
+     * @param string $html
      * @return void
      */
-    public function __construct($html)
+    public function __construct(string $html)
     {
         $this->html = $html;
     }
 
     /**
-     * Get the the HTML string.
+     * Get the HTML string.
      *
      * @return string
      */
-    public function toHtml()
+    public function toHtml(): string
     {
         return $this->html;
     }
 
     /**
-     * Get the the HTML string.
+     * Get the HTML string.
      *
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->toHtml();
     }

@@ -16,6 +16,7 @@ $container->bind([
     \Larmias\SharedMemory\Contracts\CommandExecutorInterface::class => \Larmias\SharedMemory\CommandExecutor::class,
     \Larmias\SharedMemory\Contracts\AuthInterface::class => \Larmias\SharedMemory\Auth::class,
     \Larmias\SharedMemory\Contracts\LoggerInterface::class => \Larmias\SharedMemory\Logger::class,
+    \Larmias\Contracts\TaskExecutorInterface::class => \Larmias\Task\TaskExecutor::class,
 ]);
 
 $kernel = new Kernel($container);

@@ -6,7 +6,14 @@ namespace Larmias\View\Drivers;
 
 use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\ViewInterface;
-use Larmias\View\Exceptions\TemplateNotFoundException;
+use Larmias\View\Exceptions\ViewNotFoundException;
+use function array_merge;
+use function method_exists;
+use function rtrim;
+use function str_replace;
+use function is_file;
+use function is_array;
+use const DIRECTORY_SEPARATOR;
 
 abstract class Driver implements ViewInterface
 {
@@ -29,21 +36,29 @@ abstract class Driver implements ViewInterface
      */
     protected array $vars = [];
 
+    /**
+     * @param ContainerInterface $container
+     * @param array $config
+     */
     public function __construct(protected ContainerInterface $container, array $config = [])
     {
-        $this->config = \array_merge($this->config, $config);
+        $this->config = array_merge($this->config, $config);
 
-        if (\method_exists($this, 'initialize')) {
+        if (method_exists($this, 'initialize')) {
             $this->container->invoke([$this, 'initialize']);
         }
     }
 
+    /**
+     * @param string $path
+     * @return string
+     */
     public function parsePath(string $path): string
     {
-        $file = \rtrim($this->config['view_path'], DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR .
+        $file = rtrim($this->config['view_path'], DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR .
             str_replace('.', DIRECTORY_SEPARATOR, $path) . '.' . $this->config['view_suffix'];
-        if (!\is_file($file)) {
-            throw new TemplateNotFoundException("Template not exists:" . $file, $file);
+        if (!is_file($file)) {
+            throw new ViewNotFoundException("Template not exists:" . $file, $file);
         }
         return $file;
     }
@@ -55,7 +70,7 @@ abstract class Driver implements ViewInterface
      */
     public function with(string|array $name, mixed $value = null): ViewInterface
     {
-        if (\is_array($name)) {
+        if (is_array($name)) {
             foreach ($name as $k => $v) {
                 $this->vars[$k] = $v;
             }

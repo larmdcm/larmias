@@ -16,7 +16,15 @@ $container->bind([
     \Larmias\SharedMemory\Contracts\CommandExecutorInterface::class => \Larmias\SharedMemory\CommandExecutor::class,
     \Larmias\SharedMemory\Contracts\AuthInterface::class => \Larmias\SharedMemory\Auth::class,
     \Larmias\SharedMemory\Contracts\LoggerInterface::class => \Larmias\SharedMemory\Logger::class,
+    \Larmias\Crontab\Contracts\ParserInterface::class => \Larmias\Crontab\Parser::class,
+    \Larmias\Crontab\Contracts\SchedulerInterface::class => \Larmias\Crontab\Scheduler::class,
+    \Larmias\Crontab\Contracts\ExecutorInterface::class => \Larmias\Crontab\Executor\TaskWorkerExecutor::class,
+    \Larmias\Contracts\TaskExecutorInterface::class => \Larmias\Task\TaskExecutor::class,
 ]);
+$container->get(\Larmias\Contracts\ConfigInterface::class)->load('../redis/redis.php');
+$container->bind(\Larmias\Contracts\Redis\RedisFactoryInterface::class, \Larmias\Redis\RedisFactory::class);
+$container->bind(\Larmias\Contracts\LockerInterface::class, \Larmias\Lock\Locker::class);
+$container->bind(\Larmias\Contracts\LockerFactoryInterface::class, \Larmias\Lock\LockerFactory::class);
 
 $kernel = new Kernel($container);
 
@@ -52,6 +60,16 @@ $kernel->setConfig(EngineConfig::build([
                 Event::ON_WORKER_START => [\Larmias\Task\Process\TaskProcess::class, 'handle'],
             ]
         ],
+        [
+            'name' => 'crontabProcess',
+            'type' => WorkerType::WORKER_PROCESS,
+            'settings' => [
+                'worker_num' => 1,
+            ],
+            'callbacks' => [
+                Event::ON_WORKER_START => [\Larmias\Crontab\Process\CrontabProcess::class, 'handle'],
+            ]
+        ]
     ],
     'settings' => [
 
@@ -61,10 +79,20 @@ $kernel->setConfig(EngineConfig::build([
             function () {
                 \Larmias\SharedMemory\Client\Client::setEventLoop(\Larmias\Engine\EventLoop::getEvent());
                 $container = require '../di/container.php';
-                $container->make(\Larmias\Contracts\ConfigInterface::class)->set('task', [
-                    'host' => '127.0.0.1',
-                    'port' => 2000,
-                    'password' => '123456',
+                $container->make(\Larmias\Contracts\ConfigInterface::class)->set([
+                    'task' => [
+                        'host' => '127.0.0.1',
+                        'port' => 2000,
+                        'password' => '123456',
+                    ],
+                    'crontab' => [
+                        'enable' => true,
+                        'crontab' => [
+                            new \Larmias\Crontab\Crontab('1 * * * * *', function () {
+                                echo 'crontab call.' . PHP_EOL;
+                            })
+                        ],
+                    ]
                 ]);
                 $container->get(\Larmias\SharedMemory\Contracts\CommandExecutorInterface::class)->addCommand(
                     \Larmias\Task\Command\TaskCommand::COMMAND_NAME, \Larmias\Task\Command\TaskCommand::class,

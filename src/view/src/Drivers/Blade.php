@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace Larmias\View\Drivers;
 
-use Larmias\View\Blade\Compilers\BladeCompiler;
-use Larmias\View\Blade\Engines\CompilerEngine;
-use Larmias\View\Blade\FileViewFinder;
-use Larmias\View\Blade\Factory;
+use Larmias\View\Drivers\Blade\Compilers\BladeCompiler;
+use Larmias\View\Drivers\Blade\Engines\CompilerEngine;
+use Larmias\View\Drivers\Blade\FileViewFinder;
+use Larmias\View\Drivers\Blade\Factory;
+use function array_merge;
 
 class Blade extends Driver
 {
@@ -48,7 +49,7 @@ class Blade extends Driver
      */
     public function render(string $path, array $vars = []): string
     {
-        $tpl = $this->factory->file($this->parsePath($path), \array_merge($this->vars, $vars))->render();
+        $tpl = $this->factory->file($this->parsePath($path), array_merge($this->vars, $vars))->render();
         $this->vars = [];
         return $tpl;
     }

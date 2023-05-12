@@ -7,7 +7,7 @@
         "view"
     ],
     "homepage": "https://larmias.com/",
-    "license": "Apache-2.0",
+    "license": "MIT",
     "authors": [
         {
             "name": "larmdcm",
@@ -20,7 +20,7 @@
     },
     "autoload": {
         "files": [
-          "src/Drivers/Blade/helpers.php"
+            "src/Drivers/Blade/helpers.php"
         ],
         "psr-4": {
             "Larmias\\View\\": "src/"

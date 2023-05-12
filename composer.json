@@ -15,7 +15,7 @@
         "issues": "https://github.com/lardmcm/larmias/issues",
         "source": "https://github.com/lardmcm/larmias"
     },
-    "license": "Apache-2.0",
+    "license": "MIT",
     "authors": [
         {
             "name": "larmdcm",

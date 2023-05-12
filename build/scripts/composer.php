@@ -10,6 +10,8 @@ $composer = json_decode(file_get_contents($composerFile), true);
 $files = Finder::create()->files()->in([PROJECT_PATH . '/src'])->name(['composer.json']);
 $subComposer = [];
 
+$GLOBALS['license'] = 'MIT';
+
 function handleSubComposer(array $composer): array
 {
     $jsonData = $composer['json_data'];
@@ -32,7 +34,7 @@ function handleSubComposer(array $composer): array
         }
     }
 
-
+    $jsonData['license'] = $GLOBALS['license'];
     putComposerFile($composer['file_path'], $jsonData);
 
     $composer['json_data'] = $jsonData;
@@ -60,6 +62,7 @@ foreach ($files as $file) {
 }
 
 
+$composer['license'] = $GLOBALS['license'];
 $composer['extra']['larmias']['providers'] = [];
 
 foreach ($subComposer as $item) {

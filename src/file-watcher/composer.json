@@ -8,7 +8,7 @@
         "watcher"
     ],
     "homepage": "https://larmias.com/",
-    "license": "Apache-2.0",
+    "license": "MIT",
     "authors": [
         {
             "name": "larmdcm",

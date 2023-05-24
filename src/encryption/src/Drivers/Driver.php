@@ -7,6 +7,7 @@ namespace Larmias\Encryption\Drivers;
 use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\DataCodingInterface;
 use Larmias\Contracts\Encryption\EncryptorInterface;
+use function array_merge;
 
 abstract class Driver implements EncryptorInterface, DataCodingInterface
 {
@@ -29,7 +30,7 @@ abstract class Driver implements EncryptorInterface, DataCodingInterface
      */
     public function __construct(protected ContainerInterface $container, array $config = [])
     {
-        $this->config = \array_merge($this->config, $config);
+        $this->config = array_merge($this->config, $config);
         if ($this->config['data_coding']) {
             /** @var DataCodingInterface $dataCoding */
             $dataCoding = $this->container->make($this->config['data_coding']);

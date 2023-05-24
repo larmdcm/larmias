@@ -45,7 +45,7 @@ abstract class ExceptionHandler implements ExceptionReportHandlerInterface
         }
         try {
             $this->logger?->log($this->levels[get_class($e)] ?? 'error', $e->getMessage(), ['exception' => $e->getTraceAsString()]);
-        } catch (Throwable $e) {
+        } catch (Throwable) {
         }
     }
 

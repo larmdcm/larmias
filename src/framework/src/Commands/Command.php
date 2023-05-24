@@ -12,7 +12,6 @@ use Larmias\Engine\Run;
 use Larmias\Framework\Commands\Concerns\WorkerConfig;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use RuntimeException;
 
 abstract class Command extends BaseCommand
 {
@@ -61,5 +60,15 @@ abstract class Command extends BaseCommand
             return parent::execute($input, $output);
         });
         return self::SUCCESS;
+    }
+
+    /**
+     * @return void
+     */
+    public function exit(): void
+    {
+        if ($this->inEngineContainer) {
+            $this->kernel->stop();
+        }
     }
 }

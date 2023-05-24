@@ -8,16 +8,16 @@ interface ChannelInterface
 {
     /**
      * @param mixed $data
-     * @param float|null $timeout
+     * @param float $timeout
      * @return bool
      */
-    public function push(mixed $data, $timeout = null);
+    public function push(mixed $data, $timeout = -1);
 
     /**
-     * @param float|null $timeout
+     * @param float $timeout
      * @return mixed
      */
-    public function pop($timeout = null);
+    public function pop($timeout = -1);
 
     /**
      * @return int

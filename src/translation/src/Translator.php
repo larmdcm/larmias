@@ -8,6 +8,18 @@ use Larmias\Contracts\ConfigInterface;
 use Larmias\Contracts\TranslatorInterface;
 use Larmias\Utils\Arr;
 use Larmias\Utils\Str;
+use function array_merge;
+use function is_file;
+use function rtrim;
+use function is_dir;
+use function glob;
+use function pathinfo;
+use function file_get_contents;
+use function function_exists;
+use function json_decode;
+use function json_last_error;
+use function is_array;
+use const JSON_ERROR_NONE;
 
 class Translator implements TranslatorInterface
 {
@@ -42,7 +54,7 @@ class Translator implements TranslatorInterface
      */
     public function __construct(ConfigInterface $config)
     {
-        $this->config = \array_merge($this->config, $config->get('translation', []));
+        $this->config = array_merge($this->config, $config->get('translation', []));
         $this->locale = $this->config['locale'];
         $this->fallbackLocale = $this->config['fallback_locale'];
     }
@@ -97,12 +109,12 @@ class Translator implements TranslatorInterface
         }
 
         foreach ((array)$file as $name) {
-            if (\is_file($name)) {
+            if (is_file($name)) {
                 $result = $this->parse($name);
                 if ($groupName) {
-                    $this->lang[$locale][$groupName] = \array_merge($this->lang[$locale][$groupName], $result);
+                    $this->lang[$locale][$groupName] = array_merge($this->lang[$locale][$groupName], $result);
                 } else {
-                    $this->lang[$locale] = \array_merge($this->lang[$locale], $result);
+                    $this->lang[$locale] = array_merge($this->lang[$locale], $result);
                 }
             }
         }
@@ -145,11 +157,11 @@ class Translator implements TranslatorInterface
     protected function loadLocale(string $locale): void
     {
         if (!isset($this->lang[$locale])) {
-            $path = \rtrim($this->config['path'], DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $locale . DIRECTORY_SEPARATOR . '*';
-            $list = \glob($path);
+            $path = rtrim($this->config['path'], DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $locale . DIRECTORY_SEPARATOR . '*';
+            $list = glob($path);
             foreach ($list as $item) {
-                if (\is_dir($item)) {
-                    $this->load(\glob($item . DIRECTORY_SEPARATOR . '*.*'), $locale, \basename($item));
+                if (is_dir($item)) {
+                    $this->load(glob($item . DIRECTORY_SEPARATOR . '*.*'), $locale, \basename($item));
                 } else {
                     $this->load($item, $locale);
                 }
@@ -163,7 +175,7 @@ class Translator implements TranslatorInterface
      */
     protected function parse(string $file): array
     {
-        $info = \pathinfo($file);
+        $info = pathinfo($file);
 
         switch ($info['extension']) {
             case 'php':
@@ -171,23 +183,23 @@ class Translator implements TranslatorInterface
                 break;
             case 'yml':
             case 'yaml':
-                if (\function_exists('yaml_parse_file')) {
+                if (function_exists('yaml_parse_file')) {
                     $result = yaml_parse_file($file);
                 }
                 break;
             case 'json':
-                $data = \file_get_contents($file);
+                $data = file_get_contents($file);
 
                 if (false !== $data) {
-                    $data = \json_decode($data, true);
+                    $data = json_decode($data, true);
 
-                    if (\json_last_error() === JSON_ERROR_NONE) {
+                    if (json_last_error() === JSON_ERROR_NONE) {
                         $result = $data;
                     }
                 }
 
                 break;
         }
-        return isset($result) && \is_array($result) ? $result : [];
+        return isset($result) && is_array($result) ? $result : [];
     }
 }

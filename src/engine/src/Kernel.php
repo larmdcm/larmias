@@ -7,6 +7,7 @@ namespace Larmias\Engine;
 use Larmias\Engine\Bootstrap\BeforeStartCallback;
 use Larmias\Engine\Contracts\DriverInterface;
 use Larmias\Engine\Contracts\EngineConfigInterface;
+use Larmias\Engine\Contracts\WorkerConfigInterface;
 use Larmias\Engine\Contracts\KernelInterface;
 use Larmias\Engine\Contracts\WorkerInterface;
 use Larmias\Contracts\ContainerInterface;
@@ -70,10 +71,10 @@ class Kernel implements KernelInterface
     }
 
     /**
-     * @param WorkerConfig $workerConfig
+     * @param WorkerConfigInterface $workerConfig
      * @return WorkerInterface
      */
-    public function addWorker(WorkerConfig $workerConfig): WorkerInterface
+    public function addWorker(WorkerConfigInterface $workerConfig): WorkerInterface
     {
         $class = match ($workerConfig->getType()) {
             WorkerType::TCP_SERVER => $this->driver->getTcpServerClass(),

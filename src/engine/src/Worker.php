@@ -28,7 +28,6 @@ use function mt_srand;
 use function is_callable;
 use function array_merge;
 use function call_user_func;
-use function call_user_func_array;
 
 abstract class Worker implements WorkerInterface
 {
@@ -75,8 +74,7 @@ abstract class Worker implements WorkerInterface
 
     /**
      * @param int $workerId
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
+     * @throws \Throwable
      */
     public function start(int $workerId): void
     {
@@ -88,6 +86,7 @@ abstract class Worker implements WorkerInterface
 
     /**
      * @return void
+     * @throws \Throwable
      */
     protected function bind(): void
     {
@@ -164,7 +163,7 @@ abstract class Worker implements WorkerInterface
                 $this->container->invoke($callback, $args);
             } else {
                 $object = $this->container->get($callback[0]);
-                call_user_func_array([$object, $callback[1]], $args);
+                $this->container->invoke([$object, $callback[1]], $args);
             }
         }
     }

@@ -14,4 +14,10 @@ interface TaskExecutorInterface extends BaseTaskExecutorInterface
      * @return bool
      */
     public function task(Task $task): bool;
+
+    /**
+     * @param Task $task
+     * @return mixed
+     */
+    public function syncTask(Task $task): mixed;
 }

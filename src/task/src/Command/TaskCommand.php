@@ -48,11 +48,20 @@ class TaskCommand extends Command
                 foreach ($taskStore->online() as $id => $info) {
                     if (isset($info['status']) && $info['status'] === WorkerStatus::IDLE) {
                         $connection = ConnectionManager::get($id);
-                        $connection?->send(Result::build([
+                        if (!$connection) {
+                            continue;
+                        }
+                        $data = $taskStore->pop();
+                        $connection->send(Result::build([
                             'type' => 'message',
                             'name' => $info['name'] ?? null,
-                            'task' => $taskStore->pop()
+                            'task' => $data['task']
                         ]));
+
+                        if (ConnectionManager::has($data['id'])) {
+                            $taskStore->taskPush($data['task']->getId(), $data['id']);
+                        }
+
                         $taskStore->setInfo($id, 'status', WorkerStatus::RUNNING);
                         $isConsume = true;
                         break;
@@ -73,6 +82,7 @@ class TaskCommand extends Command
     public static function onClose(ConnectionInterface $connection): void
     {
         StoreManager::task()->leave($connection->getId());
+        StoreManager::task()->taskClear($connection->getId());
     }
 
     /**
@@ -82,7 +92,7 @@ class TaskCommand extends Command
     {
         $data = $this->command->args[0];
         $task = Task::parse($data);
-        $this->taskStore->publish($task);
+        $this->taskStore->publish($task, $this->getConnection()->getId());
         return [
             'type' => __FUNCTION__,
             'task_id' => $task->getId(),
@@ -100,6 +110,25 @@ class TaskCommand extends Command
         return [
             'type' => __FUNCTION__,
             'name' => $name,
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public function finish(): array
+    {
+        $taskId = $this->command->args[0];
+        $id = $this->taskStore->taskFinish($taskId);
+        if ($id) {
+            ConnectionManager::get($id)?->send(Result::build([
+                'type' => 'finish',
+                'task_id' => $taskId,
+                'result' => $this->command->args[1]
+            ]));
+        }
+        return [
+            'type' => __FUNCTION__,
         ];
     }
 

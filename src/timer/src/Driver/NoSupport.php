@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Timer\Drivers;
+namespace Larmias\Timer\Driver;
 
 class NoSupport extends Driver
 {

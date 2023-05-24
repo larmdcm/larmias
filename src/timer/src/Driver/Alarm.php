@@ -2,10 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Timer\Drivers;
+namespace Larmias\Timer\Driver;
 
 use InvalidArgumentException;
 use Throwable;
+use function time;
+use const PHP_INT_MAX;
 
 class Alarm extends Driver
 {
@@ -56,7 +58,7 @@ class Alarm extends Driver
      */
     public function tick(int $duration, callable $func, array $args = []): int
     {
-        return $this->add($duration, $func, $args, true);
+        return $this->add($duration, $func, $args);
     }
 
     /**
@@ -107,7 +109,7 @@ class Alarm extends Driver
      * @return void
      * @throws Throwable
      */
-    protected function signalHandle(): void
+    public function signalHandle(): void
     {
         \pcntl_alarm(1);
         $this->interval();
@@ -133,8 +135,8 @@ class Alarm extends Driver
         if (empty($this->tasks)) {
             \pcntl_alarm(1);
         }
-        $this->timerId = $this->timerId === \PHP_INT_MAX ? 1 : ++$this->timerId;
-        $runTime = \time() + $time;
+        $this->timerId = $this->timerId === PHP_INT_MAX ? 1 : ++$this->timerId;
+        $runTime = time() + $time;
         if (!isset($this->tasks[$runTime])) {
             $this->tasks[$runTime] = [];
         }
@@ -154,7 +156,7 @@ class Alarm extends Driver
             return;
         }
 
-        $timeNow = \time();
+        $timeNow = time();
         foreach ($this->tasks as $runTime => $tasks) {
             if ($timeNow < $runTime) {
                 continue;
@@ -163,7 +165,7 @@ class Alarm extends Driver
                 [$func, $args, $persistent, $time] = $task;
                 $func($args, $timerId);
                 if ($persistent && isset($this->taskStatus[$timerId])) {
-                    $newRuntime = \time() + $time;
+                    $newRuntime = time() + $time;
                     if (!isset($this->tasks[$newRuntime])) {
                         $this->tasks[$newRuntime] = [];
                     }

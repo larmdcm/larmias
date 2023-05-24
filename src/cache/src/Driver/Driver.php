@@ -12,7 +12,11 @@ use DateInterval;
 use DateTime;
 use InvalidArgumentException;
 use Closure;
+use Throwable;
 use function array_merge;
+use function time;
+use function usleep;
+use function is_null;
 
 abstract class Driver implements CacheInterface
 {
@@ -110,27 +114,27 @@ abstract class Driver implements CacheInterface
      *
      * @param string $key
      * @param mixed $value
-     * @param null $ttl
+     * @param mixed $ttl
      * @return mixed
+     * @throws Throwable
      * @throws \Psr\SimpleCache\InvalidArgumentException
-     * @throws \Throwable
      */
-    public function remember(string $key, mixed $value, $ttl = null): mixed
+    public function remember(string $key, mixed $value, mixed $ttl = null): mixed
     {
         if (($result = $this->get($key)) !== null) {
             return $result;
         }
 
-        if (\is_null($ttl)) {
+        if (is_null($ttl)) {
             $ttl = $this->config['expire'];
         }
 
-        $time = \time();
+        $time = time();
         $lockKey = $key . '_lock';
 
-        while ($time + 5 > \time() && $this->has($lockKey)) {
+        while ($time + 5 > time() && $this->has($lockKey)) {
             // 存在锁定则等待
-            \usleep(200000);
+            usleep(200000);
         }
 
         try {
@@ -147,7 +151,7 @@ abstract class Driver implements CacheInterface
 
             // 解锁
             $this->delete($lockKey);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->delete($lockKey);
             throw $e;
         }
@@ -172,11 +176,11 @@ abstract class Driver implements CacheInterface
     protected function getExpireTime(int|DateTimeInterface|DateInterval $expire): int
     {
         if ($expire instanceof DateTimeInterface) {
-            $expire = $expire->getTimestamp() - \time();
+            $expire = $expire->getTimestamp() - time();
         } elseif ($expire instanceof DateInterval) {
-            $expire = DateTime::createFromFormat('U', (string)\time())
+            $expire = DateTime::createFromFormat('U', (string)time())
                     ->add($expire)
-                    ->format('U') - \time();
+                    ->format('U') - time();
         }
 
         return (int)$expire;

@@ -420,6 +420,7 @@ abstract class Command extends SymfonyCommand
         } finally {
             $this->eventDispatcher && $this->eventDispatcher->dispatch(new AfterExecute($this));
         }
-        return 0;
+
+        return self::SUCCESS;
     }
 }

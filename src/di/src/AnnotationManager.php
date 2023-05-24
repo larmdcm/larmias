@@ -26,7 +26,7 @@ class AnnotationManager
         static::registerHandler(static::$container[$name]);
     }
 
-    /**
+    /**f
      * @param string|array $annotations
      * @param string $handler
      * @return void

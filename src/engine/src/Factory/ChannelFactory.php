@@ -18,4 +18,12 @@ class ChannelFactory implements ChannelFactoryInterface
     {
         return Channel::create($size);
     }
+
+    /**
+     * @return bool
+     */
+    public function support(): bool
+    {
+        return Channel::support();
+    }
 }

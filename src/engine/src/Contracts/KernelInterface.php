@@ -4,16 +4,13 @@ declare(strict_types=1);
 
 namespace Larmias\Engine\Contracts;
 
-use Larmias\Engine\EngineConfig;
-use Larmias\Engine\WorkerConfig;
-
 interface KernelInterface
 {
     /**
-     * @param EngineConfig $engineConfig
+     * @param EngineConfigInterface $engineConfig
      * @return KernelInterface
      */
-    public function setConfig(EngineConfig $engineConfig): KernelInterface;
+    public function setConfig(EngineConfigInterface $engineConfig): KernelInterface;
 
     /**
      * @return EngineConfigInterface
@@ -21,10 +18,10 @@ interface KernelInterface
     public function getConfig(): EngineConfigInterface;
 
     /**
-     * @param WorkerConfig $workerConfig
+     * @param WorkerConfigInterface $workerConfig
      * @return WorkerInterface
      */
-    public function addWorker(WorkerConfig $workerConfig): WorkerInterface;
+    public function addWorker(WorkerConfigInterface $workerConfig): WorkerInterface;
 
     /**
      * @return WorkerInterface[]

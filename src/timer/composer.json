@@ -16,7 +16,6 @@
     ],
     "require": {
         "php": ">=8.0",
-        "ext-pcntl": "*",
         "larmias/contracts": "^1.0"
     },
     "autoload": {

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Larmias\Cache\Driver;
 
+use Throwable;
+use FilesystemIterator;
 use function is_null;
 use function is_file;
 use function dirname;
@@ -193,7 +195,7 @@ class File extends Driver
     {
         try {
             return is_file($path) && unlink($path);
-        } catch (\Throwable $e) {
+        } catch (Throwable) {
             return false;
         }
     }
@@ -210,7 +212,7 @@ class File extends Driver
             return false;
         }
 
-        $items = new \FilesystemIterator($dirname);
+        $items = new FilesystemIterator($dirname);
 
         foreach ($items as $item) {
             if ($item->isDir() && !$item->isLink()) {
@@ -220,7 +222,7 @@ class File extends Driver
             }
         }
 
-        @rmdir($dirname);
+        rmdir($dirname);
 
         return true;
     }

@@ -4,18 +4,18 @@ declare(strict_types=1);
 
 namespace Larmias\Framework\Commands;
 
+use Larmias\Framework\Commands\Concerns\WorkerConfig;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Larmias\Contracts\ApplicationInterface;
 use Larmias\Engine\EngineConfig;
 use Larmias\Engine\Contracts\KernelInterface;
-use RuntimeException;
-use function method_exists;
-use function is_file;
 
 abstract class Worker extends Command
 {
+    use WorkerConfig;
+
     /**
      * @var string
      */
@@ -78,15 +78,6 @@ abstract class Worker extends Command
      */
     protected function makeKernel(): void
     {
-        if (method_exists($this->app, 'loadServiceConfig')) {
-            $config = $this->app->loadServiceConfig('worker', true);
-        } else {
-            $configFile = $this->app->getConfigPath() . 'worker.php';
-            if (!is_file($configFile)) {
-                throw new RuntimeException(sprintf('%s The worker configuration file does not exist.', $configFile));
-            }
-            $config = require $configFile;
-        }
-        $this->kernel->setConfig(EngineConfig::build($config));
+        $this->kernel->setConfig(EngineConfig::build($this->getWorkerConfig()));
     }
 }

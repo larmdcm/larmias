@@ -7,6 +7,7 @@ namespace Larmias\Encryption;
 use Larmias\Contracts\ConfigInterface;
 use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\Encryption\EncryptorInterface;
+use function is_null;
 
 class Encryptor implements EncryptorInterface
 {
@@ -50,7 +51,7 @@ class Encryptor implements EncryptorInterface
      */
     public function getConfig(?string $name = null, mixed $default = null): mixed
     {
-        if (\is_null($name)) {
+        if (is_null($name)) {
             return $this->config->get('encryption');
         }
         return $this->config->get('encryption.' . $name, $default);

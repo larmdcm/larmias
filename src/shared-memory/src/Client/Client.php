@@ -69,7 +69,7 @@ class Client
         'break_reconnect' => true,
         'password' => '',
         'select' => 'default',
-        'timeout' => 5,
+        'timeout' => 3,
         'event' => [],
         'async' => false,
         'connect_try_timeout' => 0,
@@ -278,33 +278,34 @@ class Client
     public function close(bool $destroy = false): bool
     {
         $this->clearPing();
-        if ($this->isConnected()) {
-            if (is_resource($this->socket)) {
-                if (static::$eventLoop) {
-                    static::$eventLoop->offReadable($this->socket);
-                    static::$eventLoop->offWritable($this->socket);
-                }
-                fclose($this->socket);
+        if (is_resource($this->socket)) {
+            if (static::$eventLoop) {
+                static::$eventLoop->offReadable($this->socket);
+                static::$eventLoop->offWritable($this->socket);
             }
-            $this->trigger(self::EVENT_CLOSE, $this);
-            if (!$destroy && $this->options['break_reconnect']) {
-                $this->reconnect();
-            }
+            fclose($this->socket);
         }
-        $this->connected = false;
+        $this->trigger(self::EVENT_CLOSE, $this);
+        if (!$destroy && $this->options['break_reconnect']) {
+            $this->reconnect();
+            $this->connected = $this->isConnected();
+        } else {
+            $this->connected = false;
+        }
         return true;
     }
 
     /**
-     * @return self
+     * @return bool
      */
-    public function reconnect(): self
+    public function reconnect(): bool
     {
         if ($this->close(true)) {
-            $this->connect();
+            $result = $this->connect();
             $this->trigger(self::EVENT_RECONNECT, $this);
+            return $result;
         }
-        return $this;
+        return false;
     }
 
     /**
@@ -384,7 +385,7 @@ class Client
                 if ($tryTimeout === 0 || microtime(true) - $beginTime > $tryTimeout / 1000) {
                     throw $e;
                 }
-                usleep(10000);
+                usleep(100000);
             }
         }
     }

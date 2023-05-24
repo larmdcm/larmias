@@ -12,6 +12,7 @@ use function extension_loaded;
 use function posix_kill;
 use function time;
 use function usleep;
+use function in_array;
 use const SIGQUIT;
 use const SIGINT;
 use const SIGUSR1;
@@ -64,6 +65,11 @@ class Worker extends BaseWorkerManWorker
         if (!isset($argv[1])) {
             $argv[1] = 'start';
         }
+
+        if (!in_array($argv[1], ['start', 'stop', 'restart', 'reload', 'status'])) {
+            $argv[1] = 'start';
+        }
+
         parent::parseCommand();
         $argv = $tempArgv;
     }

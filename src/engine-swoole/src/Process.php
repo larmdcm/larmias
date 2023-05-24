@@ -8,6 +8,7 @@ use Larmias\Engine\ProcessManager;
 use Larmias\Engine\Event;
 use Throwable;
 use function usleep;
+use function sleep;
 
 class Process extends Worker
 {
@@ -18,8 +19,12 @@ class Process extends Worker
     {
         while (ProcessManager::isRunning()) {
             try {
-                $this->trigger(Event::ON_WORKER, [$this]);
-                usleep(100);
+                if ($this->hasListen(Event::ON_WORKER)) {
+                    $this->trigger(Event::ON_WORKER, [$this]);
+                    usleep(1000);
+                } else {
+                    sleep(5);
+                }
             } catch (Throwable $e) {
                 $this->exceptionHandler($e);
             }

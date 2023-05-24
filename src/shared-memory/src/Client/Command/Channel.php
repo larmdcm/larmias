@@ -37,7 +37,11 @@ class Channel extends Command
     {
         Client::getEventLoop()->onReadable($client->getSocket(), function () use ($client) {
             $result = $client->read();
-            if (!$result || !$result->success || !is_array($result->data) || !isset($result->data['type'])) {
+            if (!$result) {
+                $client->close();
+                return;
+            }
+            if (!$result->success || !is_array($result->data) || !isset($result->data['type'])) {
                 return;
             }
             switch ($result->data['type']) {

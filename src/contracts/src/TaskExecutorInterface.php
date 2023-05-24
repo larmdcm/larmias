@@ -14,4 +14,11 @@ interface TaskExecutorInterface
      * @return bool
      */
     public function execute(string|array|Closure $handler, array $args = []): bool;
+
+    /**
+     * @param string|array|Closure $handler
+     * @param array $args
+     * @return mixed
+     */
+    public function syncExecute(string|array|Closure $handler, array $args = []): mixed;
 }

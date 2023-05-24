@@ -20,6 +20,11 @@ class TaskStore implements TaskStoreInterface
      */
     protected array $clients = [];
 
+    /**
+     * @var array
+     */
+    protected array $tasks = [];
+
     public function __construct()
     {
         $this->scheduler = new SplPriorityQueue();
@@ -28,17 +33,18 @@ class TaskStore implements TaskStoreInterface
 
     /**
      * @param Task $task
+     * @param int|null $id
      * @return bool
      */
-    public function publish(Task $task): bool
+    public function publish(Task $task, ?int $id = null): bool
     {
-        return $this->scheduler->insert($task, $task->getPriority());
+        return $this->scheduler->insert(['task' => $task, 'id' => $id], $task->getPriority());
     }
 
     /**
-     * @return Task|null
+     * @return array|null
      */
-    public function pop(): ?Task
+    public function pop(): ?array
     {
         return $this->scheduler->isEmpty() ? null : $this->scheduler->extract();
     }
@@ -57,6 +63,44 @@ class TaskStore implements TaskStoreInterface
     public function isEmpty(): bool
     {
         return $this->scheduler->isEmpty();
+    }
+
+    /**
+     * @param string $taskId
+     * @param int $id
+     * @return bool
+     */
+    public function taskPush(string $taskId, int $id): bool
+    {
+        $this->tasks[$taskId] = $id;
+        return true;
+    }
+
+    /**
+     * @param string $taskId
+     * @return int|null
+     */
+    public function taskFinish(string $taskId): ?int
+    {
+        $id = $this->tasks[$taskId] ?? null;
+        if ($id) {
+            unset($this->tasks[$taskId]);
+        }
+        return $id;
+    }
+
+    /**
+     * @param int $id
+     * @return bool
+     */
+    public function taskClear(int $id): bool
+    {
+        foreach ($this->tasks as $taskId => $connId) {
+            if ($id === $connId) {
+                unset($this->tasks[$taskId]);
+            }
+        }
+        return true;
     }
 
     /**

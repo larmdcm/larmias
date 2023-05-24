@@ -51,11 +51,12 @@ class TaskWorker
      * TaskWorker constructor.
      * @param ContainerInterface $container
      * @param array $config
+     * @throws Throwable
      */
     public function __construct(protected ContainerInterface $container, array $config = [])
     {
         $this->config = array_merge($this->config, $config);
-        $this->client = new Client($this->config);
+        $this->client = new Client($this->container, $this->config);
     }
 
     /**
@@ -107,7 +108,8 @@ class TaskWorker
             function (array $data) {
                 try {
                     $this->setStatus(WorkerStatus::RUNNING);
-                    $this->runTask(Task::parse($data['task']));
+                    $task = Task::parse($data['task']);
+                    $this->runTask($task);
                 } catch (Throwable $e) {
                     println(format_exception($e));
                 } finally {
@@ -140,11 +142,23 @@ class TaskWorker
             if (isset($instance) && method_exists($instance, 'onException')) {
                 $instance->onException($task, $e);
             }
+        } finally {
+            $this->finishTask($task, $result ?? null);
         }
+    }
+
+    /**
+     * @param Task $task
+     * @param mixed $result
+     * @return void
+     */
+    protected function finishTask(Task $task, mixed $result): void
+    {
+        $this->client->finish($task->getId(), $result);
     }
 
     public function __destruct()
     {
-        $this->client->close();
+        $this->client->close(true);
     }
 }

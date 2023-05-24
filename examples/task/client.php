@@ -38,11 +38,20 @@ $kernel->setConfig(EngineConfig::build([
                     $executor->execute(function () {
                         sleep(2);
                         var_dump("异步任务1");
+                        return 1;
                     });
+
                     $executor->execute(function () {
                         sleep(1);
                         var_dump("异步任务2");
+                        return 2;
                     });
+
+                    var_dump($executor->syncExecute(function () {
+                        sleep(3);
+                        var_dump("sync异步任务3");
+                        return ['id' => session_create_id()];
+                    }));
                 },
             ]
         ]

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\Task\Client;
 
+use Larmias\Contracts\ContainerInterface;
 use Larmias\SharedMemory\Client\Client as BaseClient;
 use Larmias\Task\Task;
 use function is_array;
@@ -13,13 +14,21 @@ use function call_user_func_array;
 class Client extends BaseClient
 {
     /**
-     * @param array $options
+     * @var SyncWait
      */
-    public function __construct(array $options = [])
+    public SyncWait $syncWait;
+
+    /**
+     * @param ContainerInterface $container
+     * @param array $options
+     * @throws \Throwable
+     */
+    public function __construct(ContainerInterface $container, array $options = [])
     {
         $options['async'] = true;
         $options['event'][self::EVENT_CONNECT] = [$this, 'onConnect'];
         $options['connect_try_timeout'] = $options['connect_try_timeout'] ?? 3000;
+        $this->syncWait = $container->get(SyncWait::class);
         parent::__construct($options);
     }
 
@@ -27,7 +36,6 @@ class Client extends BaseClient
      * @var callable[]
      */
     protected array $callbacks = [];
-
 
     /**
      * @param Client $client
@@ -37,7 +45,12 @@ class Client extends BaseClient
     {
         static::getEventLoop()->onReadable($client->getSocket(), function () use ($client) {
             $result = $client->read();
-            if (!$result || !$result->success || !is_array($result->data) || !isset($result->data['type'])) {
+            if (!$result) {
+                $client->close();
+                return;
+            }
+
+            if (!$result->success || !is_array($result->data) || !isset($result->data['type'])) {
                 return;
             }
             switch ($result->data['type']) {
@@ -56,6 +69,11 @@ class Client extends BaseClient
                 case 'message':
                     $this->fireEvent(['message', $result->data['name']], $result->data);
                     break;
+                case 'finish':
+                    if (isset($result->data['task_id'])) {
+                        $this->taskFinish($result->data['task_id'], $result->data['result'] ?? null);
+                    }
+                    break;
             }
         });
     }
@@ -67,8 +85,13 @@ class Client extends BaseClient
      */
     public function publish(Task $task, ?callable $callback = null): bool
     {
-        $this->listen([__FUNCTION__, $task->getId()], $callback, true);
-        return $this->sendCommand('task:publish', [$task]);
+        $taskId = $task->getId();
+        $result = $this->sendCommand('task:publish', [$task]);
+        if ($result) {
+            $this->syncWait->add($taskId);
+            $this->listen([__FUNCTION__, $taskId], $callback, true);
+        }
+        return $result;
     }
 
     /**
@@ -81,6 +104,16 @@ class Client extends BaseClient
         $this->listen([__FUNCTION__, $name], $callbacks[0], true);
         $this->listen(['message', $name], $callbacks[1]);
         return $this->sendCommand('task:subscribe', [$name]);
+    }
+
+    /**
+     * @param string $taskId
+     * @param mixed $result
+     * @return bool
+     */
+    public function finish(string $taskId, mixed $result): bool
+    {
+        return $this->sendCommand('task:finish', [$taskId, $result]);
     }
 
     /**
@@ -104,6 +137,16 @@ class Client extends BaseClient
     {
         $this->listen([__FUNCTION__, $key], $callback, true);
         return $this->sendCommand('task:setInfo', [$key, $value]);
+    }
+
+    /**
+     * @param string $taskId
+     * @param mixed $result
+     * @return void
+     */
+    protected function taskFinish(string $taskId, mixed $result): void
+    {
+        $this->syncWait->done($taskId, $result);
     }
 
     /**

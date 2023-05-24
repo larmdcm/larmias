@@ -6,6 +6,7 @@ namespace Larmias\Task;
 
 use Closure;
 use Larmias\Contracts\ConfigInterface;
+use Larmias\Contracts\ContainerInterface;
 use Larmias\Task\Client\Client;
 use Larmias\Task\Contracts\TaskExecutorInterface;
 
@@ -17,11 +18,13 @@ class TaskExecutor implements TaskExecutorInterface
     protected Client $client;
 
     /**
+     * @param ContainerInterface $container
      * @param ConfigInterface $config
+     * @throws \Throwable
      */
-    public function __construct(protected ConfigInterface $config)
+    public function __construct(protected ContainerInterface $container, protected ConfigInterface $config)
     {
-        $this->client = new Client($this->config->get('task', []));
+        $this->client = new Client($this->container, $this->config->get('task', []));
     }
 
     /**
@@ -35,11 +38,45 @@ class TaskExecutor implements TaskExecutorInterface
     }
 
     /**
+     * @param string|array|Closure $handler
+     * @param array $args
+     * @return mixed
+     */
+    public function syncExecute(string|array|Closure $handler, array $args = []): mixed
+    {
+        return $this->syncTask(new Task($handler, $args));
+    }
+
+    /**
      * @param Task $task
      * @return bool
      */
     public function task(Task $task): bool
     {
-        return $this->client->publish($task);
+        return $this->publishTask($task);
+    }
+
+    /**
+     * @param Task $task
+     * @return mixed
+     */
+    public function syncTask(Task $task): mixed
+    {
+        return $this->publishTask($task, false);
+    }
+
+    /**
+     * @param Task $task
+     * @param bool $async
+     * @return mixed
+     */
+    public function publishTask(Task $task, bool $async = true): mixed
+    {
+        $this->client->publish($task, function () use ($async, $task) {
+            if ($async) {
+                $this->client->syncWait->done($task->getId(), true);
+            }
+        });
+        return $this->client->syncWait->wait($task->getId());
     }
 }

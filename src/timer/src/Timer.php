@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace Larmias\Timer;
 
 use Larmias\Contracts\TimerInterface;
-use Larmias\Timer\Drivers\Alarm;
-use Larmias\Timer\Drivers\Swoole;
+use Larmias\Timer\Driver\Alarm;
+use Larmias\Timer\Driver\Swoole;
 use RuntimeException;
+use Swoole\Coroutine;
 use function extension_loaded;
 use function call_user_func_array;
 
@@ -53,7 +54,7 @@ class Timer
     public static function getTimer(): TimerInterface
     {
         if (!static::$timer) {
-            if (extension_loaded('swoole')) {
+            if (extension_loaded('swoole') && Coroutine::getCid() > 0) {
                 static::$timer = Swoole::getInstance();
             } else if (extension_loaded('pcntl')) {
                 static::$timer = Alarm::getInstance();

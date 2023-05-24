@@ -10,14 +10,15 @@ interface TaskStoreInterface
 {
     /**
      * @param Task $task
+     * @param int|null $id
      * @return bool
      */
-    public function publish(Task $task): bool;
+    public function publish(Task $task, ?int $id = null): bool;
 
     /**
-     * @return Task|null
+     * @return array|null
      */
-    public function pop(): ?Task;
+    public function pop(): ?array;
 
     /**
      * @return int

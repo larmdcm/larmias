@@ -6,23 +6,32 @@ namespace Larmias\Contracts;
 
 interface TimerInterface
 {
+    /** @var int */
+    public const MILLISECOND = 1;
+    /** @var int */
+    public const SECOND = 1000 * self::MILLISECOND;
+    /** @var int */
+    public const MINUTE = 60 * self::SECOND;
+    /** @var int */
+    public const HOUR = 60 * self::MINUTE;
+
     /**
      * 毫秒定时器间隔触发
-     * @param int       $duration
-     * @param callable  $func
-     * @param array     $args
+     * @param int $duration
+     * @param callable $func
+     * @param array $args
      * @return int
      */
-    public function tick(int $duration,callable $func,array $args = []): int;
+    public function tick(int $duration, callable $func, array $args = []): int;
 
     /**
      * 毫秒定时器延时触发 只会触发一次
-     * @param int      $duration
+     * @param int $duration
      * @param callable $func
-     * @param array    $args
+     * @param array $args
      * @return int
      */
-    public function after(int $duration,callable $func,array $args = []): int;
+    public function after(int $duration, callable $func, array $args = []): int;
 
     /**
      * 删除指定定时器

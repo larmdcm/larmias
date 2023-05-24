@@ -11,4 +11,9 @@ interface ChannelFactoryInterface
      * @return ChannelInterface
      */
     public function create(int $size = 0): ChannelInterface;
+
+    /**
+     * @return bool
+     */
+    public function support(): bool;
 }

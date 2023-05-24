@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Larmias\Cache;
 
 use Larmias\Contracts\ConfigInterface;
-
 use Larmias\Contracts\CacheInterface;
 use Larmias\Contracts\ContainerInterface;
+use function func_get_args;
 
 class Cache implements CacheInterface
 {
@@ -51,67 +51,124 @@ class Cache implements CacheInterface
      */
     public function getConfig(?string $name = null, mixed $default = null): mixed
     {
-        if (\is_null($name)) {
+        if ($name === null) {
             return $this->config->get('cache');
         }
         return $this->config->get('cache.' . $name, $default);
     }
 
+    /**
+     * @param string $key
+     * @param mixed $default
+     * @return mixed
+     */
     public function get($key, $default = null): mixed
     {
         return $this->__call(__FUNCTION__, func_get_args());
     }
 
+    /**
+     * @param string $key
+     * @param mixed $value
+     * @param int|\DateTimeInterface|\DateInterval $ttl
+     * @return bool
+     */
     public function set($key, $value, $ttl = null): bool
     {
         return $this->__call(__FUNCTION__, func_get_args());
     }
 
+    /**
+     * @param string $key
+     * @return bool
+     */
     public function delete($key): bool
     {
         return $this->__call(__FUNCTION__, func_get_args());
     }
 
+    /**
+     * @return bool
+     */
     public function clear(): bool
     {
         return $this->__call(__FUNCTION__, func_get_args());
     }
 
+    /**
+     * @param array $keys
+     * @param mixed $default
+     * @return iterable
+     */
     public function getMultiple($keys, $default = null): iterable
     {
         return $this->__call(__FUNCTION__, func_get_args());
     }
 
+    /**
+     * @param array $values
+     * @param int|\DateTimeInterface|\DateInterval $ttl
+     * @return bool
+     */
     public function setMultiple($values, $ttl = null): bool
     {
         return $this->__call(__FUNCTION__, func_get_args());
     }
 
+    /**
+     * @param array $keys
+     * @return bool
+     */
     public function deleteMultiple($keys): bool
     {
         return $this->__call(__FUNCTION__, func_get_args());
     }
 
+    /**
+     * @param string $key
+     * @return bool
+     */
     public function has($key): bool
     {
         return $this->__call(__FUNCTION__, func_get_args());
     }
 
+    /**
+     * @param string $key
+     * @param int $step
+     * @return int|null
+     */
     public function increment(string $key, int $step = 1): ?int
     {
         return $this->__call(__FUNCTION__, func_get_args());
     }
 
+    /**
+     * @param string $key
+     * @param int $step
+     * @return int|null
+     */
     public function decrement(string $key, int $step = 1): ?int
     {
         return $this->__call(__FUNCTION__, func_get_args());
     }
 
-    public function remember(string $key, mixed $value, $ttl = null): mixed
+    /**
+     * @param string $key
+     * @param mixed $value
+     * @param mixed $ttl
+     * @return mixed
+     */
+    public function remember(string $key, mixed $value, mixed $ttl = null): mixed
     {
         return $this->__call(__FUNCTION__, func_get_args());
     }
 
+    /**
+     * @param string $name
+     * @param array $arguments
+     * @return mixed
+     */
     public function __call(string $name, array $arguments): mixed
     {
         return $this->store()->{$name}(...$arguments);

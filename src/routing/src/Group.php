@@ -5,6 +5,13 @@ declare(strict_types=1);
 namespace Larmias\Routing;
 
 use function Larmias\Utils\is_empty;
+use function array_merge;
+use function is_callable;
+use function is_array;
+use function call_user_func;
+use function array_search;
+use function array_splice;
+use function array_filter;
 
 class Group
 {
@@ -34,12 +41,12 @@ class Group
         $this->groupNumber++;
         $groupNumber = $this->groupNumber;
         $this->groupNumbers[] = $groupNumber;
-        $this->options[$groupNumber] = \array_merge(Rule::getDefaultOption(), $option);
-        \is_callable($callback) && \call_user_func($callback, $this->groupNumbers);
+        $this->options[$groupNumber] = array_merge(Rule::getDefaultOption(), $option);
+        is_callable($callback) && call_user_func($callback, $this->groupNumbers);
 
-        if (\in_array($groupNumber, $this->groupNumbers, true)) {
-            $index = \array_search($groupNumber, $this->groupNumbers);
-            \array_splice($this->groupNumbers, $index, 1);
+        if (in_array($groupNumber, $this->groupNumbers, true)) {
+            $index = array_search($groupNumber, $this->groupNumbers);
+            array_splice($this->groupNumbers, $index, 1);
         }
     }
 
@@ -53,7 +60,7 @@ class Group
     public function setOption(int $groupNumber, array $option): self
     {
         if (isset($this->options[$groupNumber])) {
-            $this->options[$groupNumber] = \array_merge($this->options[$groupNumber], $option);
+            $this->options[$groupNumber] = array_merge($this->options[$groupNumber], $option);
         }
         return $this;
     }
@@ -69,7 +76,7 @@ class Group
         $params = [];
         if (!empty($groupNumbers)) {
             foreach ($this->options as $key => $value) {
-                if (!\in_array($key, $groupNumbers) || empty($value)) {
+                if (!in_array($key, $groupNumbers) || empty($value)) {
                     continue;
                 }
                 $params = static::mergeOption($params, $value);
@@ -88,7 +95,7 @@ class Group
     public static function mergeOption(array $first, array $second): array
     {
         if (empty($first)) {
-            $first = \array_filter($second, fn($value) => !is_empty($value));
+            $first = array_filter($second, fn($value) => !is_empty($value));
         } else {
             foreach ($second as $key => $value) {
                 if (is_empty($value)) {
@@ -101,7 +108,7 @@ class Group
                         $first[$key] = [$first[$key]];
                     }
                 }
-                $first[$key] = \array_merge($first[$key], \is_array($value) ? $value : [$value]);
+                $first[$key] = array_merge($first[$key], is_array($value) ? $value : [$value]);
             }
         }
         return $first;

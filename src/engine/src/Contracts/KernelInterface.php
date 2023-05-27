@@ -7,15 +7,15 @@ namespace Larmias\Engine\Contracts;
 interface KernelInterface
 {
     /**
+     * @return EngineConfigInterface
+     */
+    public function getConfig(): EngineConfigInterface;
+
+    /**
      * @param EngineConfigInterface $engineConfig
      * @return KernelInterface
      */
     public function setConfig(EngineConfigInterface $engineConfig): KernelInterface;
-
-    /**
-     * @return EngineConfigInterface
-     */
-    public function getConfig(): EngineConfigInterface;
 
     /**
      * @param WorkerConfigInterface $workerConfig

@@ -13,6 +13,15 @@ use Larmias\Utils\Arr;
 use FastRoute\Dispatcher as FastRouteDispatcher;
 use FastRoute\RouteCollector;
 use function FastRoute\simpleDispatcher;
+use function count;
+use function strtoupper;
+use function is_callable;
+use function is_string;
+use function is_file;
+use function is_array;
+use function call_user_func;
+use function end;
+use function implode;
 
 class Router implements RouterInterface
 {
@@ -83,12 +92,12 @@ class Router implements RouterInterface
     public function rule(string|array $method, string $route, mixed $handler): self
     {
         $methods = Arr::wrap($method);
-        $count = \count($this->rules);
+        $count = count($this->rules);
         $queue = [];
         foreach ($methods as $method) {
             $routes = $route === '/' || $route === '' ? [$route, $route === '/' ? '' : '/'] : [$route];
             foreach ($routes as $routeItem) {
-                $rule = new Rule(\strtoupper($method), $routeItem, $handler, $this->group->getGroupNumbers());
+                $rule = new Rule(strtoupper($method), $routeItem, $handler, $this->group->getGroupNumbers());
                 $this->rules[] = $rule;
                 $queue[] = ['type' => self::TYPE_RULE, 'index' => $count++];
             }
@@ -107,22 +116,22 @@ class Router implements RouterInterface
     public function group(callable|array|string $option, ?callable $handler = null): self
     {
         $params = [];
-        if (\is_callable($option)) {
+        if (is_callable($option)) {
             $handler = $option;
-        } else if (\is_string($option)) {
-            if (\is_file($option)) {
+        } else if (is_string($option)) {
+            if (is_file($option)) {
                 $handler = function () use ($option) {
                     require_once $option;
                 };
             } else {
                 $params['prefix'] = $option;
             }
-        } else if (\is_array($option)) {
+        } else if (is_array($option)) {
             $params = $option;
         }
         $this->group->create($params, function ($groupNumbers) use ($handler) {
-            \is_callable($handler) && \call_user_func($handler, $this);
-            $this->queue = [['type' => self::TYPE_GROUP, 'index' => \end($groupNumbers)]];
+            is_callable($handler) && call_user_func($handler, $this);
+            $this->queue = [['type' => self::TYPE_GROUP, 'index' => end($groupNumbers)]];
         });
         return $this;
     }
@@ -183,7 +192,7 @@ class Router implements RouterInterface
      */
     public function getRule(string|int $name): ?Rule
     {
-        $index = \is_string($name) ? $this->routeName->get($name) : $name;
+        $index = is_string($name) ? $this->routeName->get($name) : $name;
         return $this->rules[$index] ?? null;
     }
 
@@ -220,10 +229,10 @@ class Router implements RouterInterface
             $option = $this->group->getOption($rule->getGroupNumbers());
             $ruleOption = $rule->getOption();
             $rule->setRoute(
-                \implode('', [...Arr::wrap($option['prefix'] ?? []), $ruleOption['prefix'] ?? '', $rule->getRoute()])
+                implode('', [...Arr::wrap($option['prefix'] ?? []), $ruleOption['prefix'] ?? '', $rule->getRoute()])
             );
             $ruleOption['middleware'] = [...Arr::wrap($option['middleware'] ?? []), ...Arr::wrap($ruleOption['middleware'] ?? [])];
-            $ruleOption['namespace'] = \implode('', [...Arr::wrap($option['namespace'] ?? []), $ruleOption['namespace'] ?? '']);
+            $ruleOption['namespace'] = implode('', [...Arr::wrap($option['namespace'] ?? []), $ruleOption['namespace'] ?? '']);
             $rule->setOption($ruleOption);
         }
 

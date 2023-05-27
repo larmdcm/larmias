@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Larmias\Routing;
 
+use function array_merge;
+
 class Rule
 {
     /**
@@ -51,7 +53,7 @@ class Rule
         $this->route = $route;
         $this->handler = $handler;
         $this->groupNumbers = $groupNumbers;
-        $this->option = \array_merge($option, self::getDefaultOption());
+        $this->option = array_merge($option, self::getDefaultOption());
     }
 
     /**

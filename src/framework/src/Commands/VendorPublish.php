@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Larmias\Framework\Commands;
 
 use Larmias\Contracts\VendorPublishInterface;
-use Psr\Container\ContainerExceptionInterface;
-use Psr\Container\NotFoundExceptionInterface;
 use Symfony\Component\Console\Input\InputOption;
 
 class VendorPublish extends Command
@@ -23,8 +21,7 @@ class VendorPublish extends Command
 
     /**
      * @return void
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
+     * @throws \Throwable
      */
     public function handle(): void
     {

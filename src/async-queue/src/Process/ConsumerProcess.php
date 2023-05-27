@@ -5,14 +5,15 @@ declare(strict_types=1);
 namespace Larmias\AsyncQueue\Process;
 
 use Larmias\AsyncQueue\Contracts\QueueInterface;
-use Larmias\Engine\Timer;
+use Larmias\Contracts\TimerInterface;
 
 class ConsumerProcess
 {
     /**
      * @param QueueInterface $queue
+     * @param TimerInterface $timer
      */
-    public function __construct(protected QueueInterface $queue)
+    public function __construct(protected QueueInterface $queue, protected TimerInterface $timer)
     {
     }
 
@@ -21,7 +22,7 @@ class ConsumerProcess
      */
     public function handle(): void
     {
-        Timer::tick(1, function () {
+        $this->timer->tick(1, function () {
             $this->queue->driver()->consumer();
         });
     }

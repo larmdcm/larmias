@@ -11,8 +11,6 @@ use Larmias\Engine\Contracts\WorkerConfigInterface;
 use Larmias\Engine\Contracts\KernelInterface;
 use Larmias\Engine\Contracts\WorkerInterface;
 use Larmias\Contracts\ContainerInterface;
-use Psr\Container\ContainerExceptionInterface;
-use Psr\Container\NotFoundExceptionInterface;
 use RuntimeException;
 use function class_exists;
 
@@ -45,8 +43,7 @@ class Kernel implements KernelInterface
     /**
      * @param EngineConfigInterface $engineConfig
      * @return self
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
+     * @throws \Throwable
      */
     public function setConfig(EngineConfigInterface $engineConfig): self
     {

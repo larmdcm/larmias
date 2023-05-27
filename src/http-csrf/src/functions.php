@@ -6,14 +6,11 @@ namespace Larmias\Http\CSRF;
 
 use Larmias\Http\CSRF\Contracts\CsrfManagerInterface;
 use Larmias\Utils\ApplicationContext;
-use Psr\Container\ContainerExceptionInterface;
-use Psr\Container\NotFoundExceptionInterface;
 use function sprintf;
 
 /**
  * @return string
- * @throws ContainerExceptionInterface
- * @throws NotFoundExceptionInterface
+ * @throws \Throwable
  */
 function csrf_token(): string
 {
@@ -24,8 +21,7 @@ function csrf_token(): string
 
 /**
  * @return string
- * @throws ContainerExceptionInterface
- * @throws NotFoundExceptionInterface
+ * @throws \Throwable
  */
 function csrf_token_name(): string
 {
@@ -36,8 +32,7 @@ function csrf_token_name(): string
 
 /**
  * @return string
- * @throws ContainerExceptionInterface
- * @throws NotFoundExceptionInterface
+ * @throws \Throwable
  */
 function csrf_field(): string
 {

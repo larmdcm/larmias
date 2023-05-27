@@ -8,8 +8,6 @@ use Larmias\Contracts\StdoutLoggerInterface;
 use Larmias\Engine\Contracts\KernelInterface;
 use Larmias\Contracts\ContainerInterface;
 use Larmias\Engine\Events\BeforeStart;
-use Psr\Container\ContainerExceptionInterface;
-use Psr\Container\NotFoundExceptionInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 
 class BeforeStartCallback
@@ -28,8 +26,7 @@ class BeforeStartCallback
      * EngineStartCallback constructor.
      *
      * @param ContainerInterface $container
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
+     * @throws \Throwable
      */
     public function __construct(protected ContainerInterface $container)
     {

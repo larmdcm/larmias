@@ -18,6 +18,8 @@
     "require": {
         "php": ">=8.0",
         "larmias/contracts": "^1.0",
+        "larmias/utils": "^1.0",
+        "larmias/exception-handler": "^1.0",
         "symfony/console": "^6.0"
     },
     "autoload": {

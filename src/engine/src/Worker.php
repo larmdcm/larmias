@@ -19,8 +19,6 @@ use Larmias\Contracts\ContainerInterface;
 use Larmias\Engine\Coroutine\Channel;
 use Larmias\Engine\Factory\ChannelFactory;
 use Larmias\Engine\Factory\CoroutineFactory;
-use Psr\Container\ContainerExceptionInterface;
-use Psr\Container\NotFoundExceptionInterface;
 use function Larmias\Utils\data_get;
 use function extension_loaded;
 use function is_array;
@@ -147,8 +145,7 @@ abstract class Worker implements WorkerInterface
      * 触发回调函数
      * @param string $event
      * @param array $args
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
+     * @throws \Throwable
      */
     public function trigger(string $event, array $args = []): void
     {

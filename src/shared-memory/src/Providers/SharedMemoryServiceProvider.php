@@ -35,8 +35,6 @@ class SharedMemoryServiceProvider implements ServiceProviderInterface
             AuthInterface::class => Auth::class,
             LoggerInterface::class => Logger::class,
         ]);
-        Client::setTimer($this->container->get(TimerInterface::class));
-        Client::setEventLoop($this->container->get(EventLoopInterface::class));
     }
 
     /**
@@ -44,6 +42,12 @@ class SharedMemoryServiceProvider implements ServiceProviderInterface
      */
     public function boot(): void
     {
-        // TODO: Implement boot() method.
+        if ($this->container->has(TimerInterface::class)) {
+            Client::setTimer($this->container->get(TimerInterface::class));
+        }
+
+        if ($this->container->has(EventLoopInterface::class)) {
+            Client::setEventLoop($this->container->get(EventLoopInterface::class));
+        }
     }
 }

@@ -36,7 +36,7 @@ class ThrottleServiceProvider implements ServiceProviderInterface
         if ($this->container->has(ApplicationInterface::class) && $this->container->has(VendorPublishInterface::class)) {
             $app = $this->container->get(ApplicationInterface::class);
             $this->container->get(VendorPublishInterface::class)->publishes(static::class, [
-                __DIR__ . '/../../publish/auth.php' => $app->getConfigPath() . 'auth.php',
+                __DIR__ . '/../../publish/throttle.php' => $app->getConfigPath() . 'throttle.php',
             ]);
         }
     }

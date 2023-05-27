@@ -167,7 +167,7 @@ class Application implements ApplicationInterface
      */
     protected function boot(): void
     {
-        $bootProviders = array_merge($this->config->get('providers', []), $this->loadServiceConfig(ServiceDiscoverInterface::SERVICE_PROVIDER));
+        $bootProviders = array_merge($this->config->get('app.providers', []), $this->loadServiceConfig(ServiceDiscoverInterface::SERVICE_PROVIDER));
 
         foreach ($bootProviders as $provider) {
             $this->register($provider);
@@ -262,7 +262,7 @@ class Application implements ApplicationInterface
      */
     public function setRootPath(string $rootPath): self
     {
-        $this->rootPath = $rootPath;
+        $this->rootPath = rtrim($rootPath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
         return $this;
     }
 
@@ -284,7 +284,7 @@ class Application implements ApplicationInterface
      */
     public function setConfigPath(string $configPath): self
     {
-        $this->configPath = $configPath;
+        $this->configPath = rtrim($configPath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
         return $this;
     }
 
@@ -306,7 +306,7 @@ class Application implements ApplicationInterface
      */
     public function setRuntimePath(string $runtimePath): self
     {
-        $this->runtimePath = $runtimePath;
+        $this->runtimePath = rtrim($runtimePath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
         return $this;
     }
 

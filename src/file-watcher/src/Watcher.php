@@ -33,7 +33,7 @@ class Watcher implements FileWatcherInterface
     {
         $this->config = array_merge($this->config, $config);
         /** @var FileWatcherInterface $driver */
-        $driver = $this->container->make($config['driver'], ['config' => $this->config]);
+        $driver = $this->container->make($this->config['driver'], ['config' => $this->config]);
         $this->driver = $driver;
     }
 

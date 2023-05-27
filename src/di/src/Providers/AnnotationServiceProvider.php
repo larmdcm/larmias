@@ -10,12 +10,14 @@ use Larmias\Contracts\ServiceProviderInterface;
 use Larmias\Di\Annotation;
 use Larmias\Di\AnnotationManager;
 use Larmias\Di\Contracts\AnnotationInterface;
+use Larmias\Contracts\ApplicationInterface;
+use Larmias\Contracts\VendorPublishInterface;
 
 class AnnotationServiceProvider implements ServiceProviderInterface
 {
     /**
      * @param ContainerInterface $container
-     * @param ConfigInterface    $config
+     * @param ConfigInterface $config
      */
     public function __construct(protected ContainerInterface $container, protected ConfigInterface $config)
     {
@@ -38,6 +40,12 @@ class AnnotationServiceProvider implements ServiceProviderInterface
      */
     public function boot(): void
     {
+        if ($this->container->has(ApplicationInterface::class) && $this->container->has(VendorPublishInterface::class)) {
+            $app = $this->container->get(ApplicationInterface::class);
+            $this->container->get(VendorPublishInterface::class)->publishes(static::class, [
+                __DIR__ . '/../../publish/annotation.php' => $app->getConfigPath() . 'annotation.php',
+            ]);
+        }
         AnnotationManager::scan();
     }
 }

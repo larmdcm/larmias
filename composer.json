@@ -12,13 +12,13 @@
     ],
     "homepage": "https://larmias.com/",
     "support": {
-        "issues": "https://github.com/lardmcm/larmias/issues",
-        "source": "https://github.com/lardmcm/larmias"
+        "issues": "https://github.com/larmdcm/larmias/issues",
+        "source": "https://github.com/larmdcm/larmias"
     },
     "license": "MIT",
     "authors": [
         {
-            "name": "larmdcm",
+            "name": "clow",
             "email": "mdcm98@163.com"
         }
     ],

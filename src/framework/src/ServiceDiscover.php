@@ -7,6 +7,7 @@ namespace Larmias\Framework;
 use Larmias\Contracts\ApplicationInterface;
 use Larmias\Contracts\ServiceDiscoverInterface;
 use Closure;
+use Larmias\Framework\Annotation\Provider;
 use RuntimeException;
 use function class_exists;
 use function extension_loaded;
@@ -35,6 +36,10 @@ class ServiceDiscover implements ServiceDiscoverInterface
         'Larmias\Command\Annotation\Command' => [
             'name' => ServiceDiscoverInterface::SERVICE_COMMAND,
             'method' => 'collectCommand',
+        ],
+        Provider::class => [
+            'name' => ServiceDiscoverInterface::SERVICE_PROVIDER,
+            'method' => 'collectProvider',
         ],
     ];
 
@@ -219,6 +224,18 @@ class ServiceDiscover implements ServiceDiscoverInterface
      * @return array
      */
     protected function collectCommand(array $item): array
+    {
+        return [
+            'class' => $item['class'],
+            'args' => [],
+        ];
+    }
+
+    /**
+     * @param array $item
+     * @return array
+     */
+    protected function collectProvider(array $item): array
     {
         return [
             'class' => $item['class'],

@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Larmias\Di\AnnotationHandlers;
 
+use Larmias\Contracts\Annotation\AnnotationHandlerInterface;
 use Larmias\Contracts\ContainerInterface;
 use Larmias\Di\Annotation\Inject;
 use Larmias\Di\Annotation\Scope;
 use Larmias\Di\AnnotationCollector;
-use Larmias\Di\Contracts\AnnotationHandlerInterface;
 use Larmias\Utils\Reflection\ReflectUtil;
-use ReflectionProperty;
 use ReflectionObject;
+use ReflectionProperty;
 
 class InjectAnnotationHandler implements AnnotationHandlerInterface
 {

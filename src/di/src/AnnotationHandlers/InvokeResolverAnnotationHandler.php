@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Larmias\Di\AnnotationHandlers;
 
+use Larmias\Contracts\Annotation\AnnotationHandlerInterface;
 use Larmias\Contracts\ContainerInterface;
-use Larmias\Di\Contracts\AnnotationHandlerInterface;
 use Larmias\Di\Invoker\InvokeResolver;
 
 class InvokeResolverAnnotationHandler implements AnnotationHandlerInterface

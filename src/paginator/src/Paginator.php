@@ -426,7 +426,7 @@ abstract class Paginator implements PaginatorInterface, ArrayAccess, Countable, 
      * @param mixed $value
      */
     #[\ReturnTypeWillChange]
-    public function offsetSet($offset, $value)
+    public function offsetSet(mixed $offset, mixed $value): void
     {
         $this->items->offsetSet($offset, $value);
     }
@@ -438,7 +438,7 @@ abstract class Paginator implements PaginatorInterface, ArrayAccess, Countable, 
      * @since  5.0.0
      */
     #[\ReturnTypeWillChange]
-    public function offsetUnset($offset)
+    public function offsetUnset($offset): void
     {
         $this->items->offsetUnset($offset);
     }

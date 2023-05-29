@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Larmias\Di;
 
+use Larmias\Contracts\Annotation\AnnotationHandlerInterface;
+use Larmias\Contracts\Annotation\AnnotationInterface;
 use Larmias\Contracts\ContainerInterface;
-use Larmias\Di\Contracts\AnnotationHandlerInterface;
-use Larmias\Di\Contracts\AnnotationInterface;
 use Larmias\Utils\FileSystem\Finder;
 use Larmias\Utils\Reflection\ReflectionManager;
 use Larmias\Utils\Reflection\ReflectUtil;
-use ReflectionClass;
 use ReflectionAttribute;
+use ReflectionClass;
 use ReflectionMethod;
 use ReflectionParameter;
 use ReflectionProperty;

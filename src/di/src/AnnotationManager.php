@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Larmias\Di;
 
+use Larmias\Contracts\Annotation\AnnotationInterface;
 use Larmias\Di\Annotation\Inject;
 use Larmias\Di\Annotation\InvokeResolver;
 use Larmias\Di\AnnotationHandlers\InjectAnnotationHandler;
 use Larmias\Di\AnnotationHandlers\InvokeResolverAnnotationHandler;
-use Larmias\Di\Contracts\AnnotationInterface;
 
 class AnnotationManager
 {

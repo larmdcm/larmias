@@ -288,6 +288,6 @@ class DotEnv implements DotEnvInterface, ArrayAccess
     #[\ReturnTypeWillChange]
     public function offsetUnset($offset): void
     {
-        throw new \RuntimeException('not support: unset');
+        unset($this->data[$offset]);
     }
 }

@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Larmias\Di\Providers;
 
+use Larmias\Contracts\Annotation\AnnotationInterface;
+use Larmias\Contracts\ApplicationInterface;
 use Larmias\Contracts\ConfigInterface;
 use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\ServiceProviderInterface;
+use Larmias\Contracts\VendorPublishInterface;
 use Larmias\Di\Annotation;
 use Larmias\Di\AnnotationManager;
-use Larmias\Di\Contracts\AnnotationInterface;
-use Larmias\Contracts\ApplicationInterface;
-use Larmias\Contracts\VendorPublishInterface;
 
 class AnnotationServiceProvider implements ServiceProviderInterface
 {
@@ -29,14 +29,14 @@ class AnnotationServiceProvider implements ServiceProviderInterface
     public function register(): void
     {
         /** @var AnnotationInterface $annotation */
-        $this->container->bind(AnnotationInterface::class, Annotation::class);
+        $this->container->bindIf(AnnotationInterface::class, Annotation::class);
         $annotation = $this->container->make(AnnotationInterface::class, ['config' => $this->config->get('annotation', [])]);
         AnnotationManager::init($annotation);
     }
 
     /**
      * @return void
-     * @throws \ReflectionException
+     * @throws \Throwable
      */
     public function boot(): void
     {

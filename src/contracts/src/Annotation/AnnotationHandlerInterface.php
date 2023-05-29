@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Di\Contracts;
+namespace Larmias\Contracts\Annotation;
 
 interface AnnotationHandlerInterface
 {

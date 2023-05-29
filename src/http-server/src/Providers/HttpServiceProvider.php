@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Larmias\HttpServer\Providers;
 
+use Larmias\Contracts\Annotation\AnnotationInterface;
 use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\Http\ResponseEmitterInterface;
 use Larmias\Contracts\ServiceProviderInterface;
-use Larmias\Di\AnnotationManager;
 use Larmias\HttpServer\Annotation\Controller;
 use Larmias\HttpServer\Annotation\DeleteMapping;
 use Larmias\HttpServer\Annotation\GetMapping;
@@ -33,6 +33,7 @@ class HttpServiceProvider implements ServiceProviderInterface
 
     /**
      * @return void
+     * @throws \Throwable
      */
     public function register(): void
     {
@@ -45,16 +46,20 @@ class HttpServiceProvider implements ServiceProviderInterface
             ResponseEmitterInterface::class => ResponseEmitter::class,
         ]);
 
-        AnnotationManager::addHandler([
-            Controller::class,
-            RequestMapping::class,
-            GetMapping::class,
-            PostMapping::class,
-            DeleteMapping::class,
-            PatchMapping::class,
-            PutMapping::class,
-            Middleware::class,
-        ], RouteAnnotationHandlerInterface::class);
+        if ($this->container->has(AnnotationInterface::class)) {
+            /** @var AnnotationInterface $annotation */
+            $annotation = $this->container->get(AnnotationInterface::class);
+            $annotation->addHandler([
+                Controller::class,
+                RequestMapping::class,
+                GetMapping::class,
+                PostMapping::class,
+                DeleteMapping::class,
+                PatchMapping::class,
+                PutMapping::class,
+                Middleware::class,
+            ], RouteAnnotationHandlerInterface::class);
+        }
     }
 
     /**

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\HttpServer\Annotation\Handler;
 
-use Larmias\Di\Contracts\AnnotationHandlerInterface;
+use Larmias\Contracts\Annotation\AnnotationHandlerInterface;
 
 interface RouteAnnotationHandlerInterface extends AnnotationHandlerInterface
 {

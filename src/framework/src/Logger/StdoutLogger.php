@@ -9,6 +9,7 @@ use Larmias\Contracts\StdoutLoggerInterface;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Psr\Log\LogLevel;
+use Stringable;
 use function in_array;
 use function array_keys;
 use function str_replace;
@@ -36,102 +37,102 @@ class StdoutLogger implements StdoutLoggerInterface
     }
 
     /**
-     * @param \Stringable|string $message
+     * @param Stringable|string $message
      * @param array $context
      * @return void
      */
-    public function emergency(\Stringable|string $message, array $context = []): void
+    public function emergency(Stringable|string $message, array $context = []): void
     {
         $this->log(__FUNCTION__, $message, $context);
     }
 
     /**
-     * @param \Stringable|string $message
+     * @param Stringable|string $message
      * @param array $context
      * @return void
      */
-    public function alert(\Stringable|string $message, array $context = []): void
+    public function alert(Stringable|string $message, array $context = []): void
     {
         $this->log(__FUNCTION__, $message, $context);
     }
 
     /**
-     * @param \Stringable|string $message
+     * @param Stringable|string $message
      * @param array $context
      * @return void
      */
-    public function critical(\Stringable|string $message, array $context = []): void
+    public function critical(Stringable|string $message, array $context = []): void
     {
         $this->log(__FUNCTION__, $message, $context);
     }
 
     /**
-     * @param \Stringable|string $message
+     * @param Stringable|string $message
      * @param array $context
      * @return void
      */
-    public function error(\Stringable|string $message, array $context = []): void
+    public function error(Stringable|string $message, array $context = []): void
     {
         $this->log(__FUNCTION__, $message, $context);
     }
 
     /**
-     * @param \Stringable|string $message
+     * @param Stringable|string $message
      * @param array $context
      * @return void
      */
-    public function warning(\Stringable|string $message, array $context = []): void
+    public function warning(Stringable|string $message, array $context = []): void
     {
         $this->log(__FUNCTION__, $message, $context);
     }
 
     /**
-     * @param \Stringable|string $message
+     * @param Stringable|string $message
      * @param array $context
      * @return void
      */
-    public function notice(\Stringable|string $message, array $context = []): void
+    public function notice(Stringable|string $message, array $context = []): void
     {
         $this->log(__FUNCTION__, $message, $context);
     }
 
     /**
-     * @param \Stringable|string $message
+     * @param Stringable|string $message
      * @param array $context
      * @return void
      */
-    public function info(\Stringable|string $message, array $context = []): void
+    public function info(Stringable|string $message, array $context = []): void
     {
         $this->log(__FUNCTION__, $message, $context);
     }
 
     /**
-     * @param \Stringable|string $message
+     * @param Stringable|string $message
      * @param array $context
      * @return void
      */
-    public function debug(\Stringable|string $message, array $context = []): void
+    public function debug(Stringable|string $message, array $context = []): void
     {
         $this->log(__FUNCTION__, $message, $context);
     }
 
     /**
-     * @param \Stringable|string $message
+     * @param Stringable|string $message
      * @param array $context
      * @return void
      */
-    public function sql(\Stringable|string $message, array $context = []): void
+    public function sql(Stringable|string $message, array $context = []): void
     {
         $this->log(__FUNCTION__, $message, $context);
     }
 
     /**
      * @param $level
-     * @param \Stringable|string $message
+     * @param Stringable|string $message
      * @param array $context
      * @return void
      */
-    public function log($level, \Stringable|string $message, array $context = []): void
+    public function log($level, Stringable|string $message, array $context = []): void
     {
         $config = $this->config?->get('logger', ['level' => []]);
         if ($config && !empty($config['level']) && !in_array($level, $config['level'], true)) {

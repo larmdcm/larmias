@@ -12,6 +12,10 @@ use Larmias\Di\AnnotationCollector;
 use Larmias\Utils\Reflection\ReflectUtil;
 use ReflectionObject;
 use ReflectionProperty;
+use Throwable;
+use RuntimeException;
+use function get_class;
+use function current;
 
 class InjectAnnotationHandler implements AnnotationHandlerInterface
 {
@@ -26,7 +30,7 @@ class InjectAnnotationHandler implements AnnotationHandlerInterface
     public function __construct(protected ContainerInterface $container)
     {
         $this->container->resolving(function ($object) {
-            $class = \get_class($object);
+            $class = get_class($object);
             if (!isset(static::$inject[$class])) {
                 return;
             }
@@ -40,7 +44,7 @@ class InjectAnnotationHandler implements AnnotationHandlerInterface
                 }
                 try {
                     $value = $this->container->make($item['name'], [], $newInstance);
-                } catch (\Throwable $e) {
+                } catch (Throwable $e) {
                     if ($item['required']) {
                         throw $e;
                     }
@@ -76,7 +80,7 @@ class InjectAnnotationHandler implements AnnotationHandlerInterface
             if ($reflectionProperty->hasType() && !$reflectionProperty->getType()->isBuiltin()) {
                 $name = $reflectionProperty->getType()->getName();
             } else {
-                throw new \RuntimeException('Inject annotation must have type');
+                throw new RuntimeException('Inject annotation must have type');
             }
         }
 
@@ -99,6 +103,6 @@ class InjectAnnotationHandler implements AnnotationHandlerInterface
         if (empty($annotations)) {
             return null;
         }
-        return \current($annotations);
+        return current($annotations);
     }
 }

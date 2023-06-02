@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Larmias\Throttle\Drivers;
 
 use Psr\SimpleCache\InvalidArgumentException;
+use function ceil;
 
 /**
  * 漏桶算法
@@ -27,7 +28,7 @@ class LeakyBucket extends Driver
         $rate = (float)$duration / $maxRequests;
         if ($microTime - $lastTime < $rate) {
             $this->setCurRequests(1);
-            $this->setWaitSeconds((int)\ceil($rate - ($microTime - $lastTime)));
+            $this->setWaitSeconds((int)ceil($rate - ($microTime - $lastTime)));
             return false;
         }
 

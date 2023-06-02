@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Larmias\Throttle\Drivers;
 
 use Psr\SimpleCache\InvalidArgumentException;
+use function floor;
+use function min;
+use function ceil;
 
 class TokenBucket extends Driver
 {

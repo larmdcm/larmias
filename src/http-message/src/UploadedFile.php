@@ -8,6 +8,29 @@ use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UploadedFileInterface;
 use SplFileInfo;
 use Stringable;
+use RuntimeException;
+use InvalidArgumentException;
+use function fopen;
+use function json_encode;
+use function explode;
+use function is_string;
+use function in_array;
+use function gettype;
+use function is_int;
+use function dirname;
+use function is_dir;
+use function mkdir;
+use function php_sapi_name;
+use function rename;
+use function move_uploaded_file;
+use const UPLOAD_ERR_OK;
+use const UPLOAD_ERR_INI_SIZE;
+use const UPLOAD_ERR_FORM_SIZE;
+use const UPLOAD_ERR_PARTIAL;
+use const UPLOAD_ERR_NO_FILE;
+use const UPLOAD_ERR_NO_TMP_DIR;
+use const UPLOAD_ERR_CANT_WRITE;
+use const UPLOAD_ERR_EXTENSION;
 
 class UploadedFile extends SplFileInfo implements UploadedFileInterface, Stringable
 {
@@ -97,16 +120,16 @@ class UploadedFile extends SplFileInfo implements UploadedFileInterface, Stringa
      * an exception.
      *
      * @return StreamInterface Stream representation of the uploaded file.
-     * @throws \RuntimeException in cases when no stream is available or can be
+     * @throws RuntimeException in cases when no stream is available or can be
      *     created.
      */
     public function getStream(): StreamInterface
     {
         if ($this->moved) {
-            throw new \RuntimeException('uploaded file is moved');
+            throw new RuntimeException('uploaded file is moved');
         }
 
-        return Stream::create(\fopen($this->file, 'r+'));
+        return Stream::create(fopen($this->file, 'r+'));
     }
 
     /**
@@ -137,29 +160,29 @@ class UploadedFile extends SplFileInfo implements UploadedFileInterface, Stringa
      * @see http://php.net/is_uploaded_file
      * @see http://php.net/move_uploaded_file
      * @param string $targetPath Path to which to move the uploaded file.
-     * @throws \InvalidArgumentException if the $targetPath specified is invalid.
-     * @throws \RuntimeException on any error during the move operation, or on
+     * @throws InvalidArgumentException if the $targetPath specified is invalid.
+     * @throws RuntimeException on any error during the move operation, or on
      *     the second or subsequent call to the method.
      */
     public function moveTo($targetPath): void
     {
         $this->validateActive();
 
-        $dirname = \dirname($targetPath);
-        if (!\is_dir($dirname)) {
-            \mkdir($dirname, 0755, true);
+        $dirname = dirname($targetPath);
+        if (!is_dir($dirname)) {
+            mkdir($dirname, 0755, true);
         }
 
         if (!$this->isStringNotEmpty($targetPath)) {
-            throw new \InvalidArgumentException('Invalid path provided for move operation');
+            throw new InvalidArgumentException('Invalid path provided for move operation');
         }
 
         if ($this->file) {
-            $this->moved = \php_sapi_name() == 'cli' ? \rename($this->file, $targetPath) : \move_uploaded_file($this->file, $targetPath);
+            $this->moved = php_sapi_name() == 'cli' ? rename($this->file, $targetPath) : move_uploaded_file($this->file, $targetPath);
         }
 
         if (!$this->moved) {
-            throw new \RuntimeException(sprintf('Uploaded file could not be move to %s', $targetPath));
+            throw new RuntimeException(sprintf('Uploaded file could not be move to %s', $targetPath));
         }
     }
 
@@ -237,7 +260,7 @@ class UploadedFile extends SplFileInfo implements UploadedFileInterface, Stringa
      */
     public function __toString(): string
     {
-        return \json_encode($this->toArray());
+        return json_encode($this->toArray());
     }
 
     /**
@@ -260,7 +283,7 @@ class UploadedFile extends SplFileInfo implements UploadedFileInterface, Stringa
     public function getExtension(): ?string
     {
         $clientName = $this->getClientFilename();
-        $segments = \explode('.', $clientName);
+        $segments = explode('.', $clientName);
         return end($segments) ?? null;
     }
 
@@ -269,7 +292,7 @@ class UploadedFile extends SplFileInfo implements UploadedFileInterface, Stringa
      */
     public function getMimeType(): string
     {
-        if (\is_string($this->mimeType)) {
+        if (is_string($this->mimeType)) {
             return $this->mimeType;
         }
         return $this->mimeType = (mime_content_type($this->file) ?: '');
@@ -281,7 +304,7 @@ class UploadedFile extends SplFileInfo implements UploadedFileInterface, Stringa
      */
     protected function isStringOrNull(mixed $param): bool
     {
-        return \in_array(\gettype($param), ['string', 'NULL']);
+        return in_array(gettype($param), ['string', 'NULL']);
     }
 
     /**
@@ -311,12 +334,12 @@ class UploadedFile extends SplFileInfo implements UploadedFileInterface, Stringa
     }
 
     /**
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     protected function setError(int $error): self
     {
-        if (\in_array($error, UploadedFile::$errors) === false) {
-            throw new \InvalidArgumentException('Invalid error status for UploadedFile');
+        if (in_array($error, UploadedFile::$errors) === false) {
+            throw new InvalidArgumentException('Invalid error status for UploadedFile');
         }
 
         $this->error = $error;
@@ -325,12 +348,12 @@ class UploadedFile extends SplFileInfo implements UploadedFileInterface, Stringa
 
     /**
      * @param null|int $size
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     protected function setSize(?int $size): self
     {
         if (is_int($size) === false) {
-            throw new \InvalidArgumentException('Upload file size must be an integer');
+            throw new InvalidArgumentException('Upload file size must be an integer');
         }
 
         $this->size = $size;
@@ -338,12 +361,12 @@ class UploadedFile extends SplFileInfo implements UploadedFileInterface, Stringa
     }
 
     /**
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     protected function setClientFilename(?string $clientFilename): self
     {
         if ($this->isStringOrNull($clientFilename) === false) {
-            throw new \InvalidArgumentException('Upload file client filename must be a string or null');
+            throw new InvalidArgumentException('Upload file client filename must be a string or null');
         }
 
         $this->clientFilename = $clientFilename;
@@ -351,12 +374,12 @@ class UploadedFile extends SplFileInfo implements UploadedFileInterface, Stringa
     }
 
     /**
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     protected function setClientMediaType(?string $clientMediaType): self
     {
         if ($this->isStringOrNull($clientMediaType) === false) {
-            throw new \InvalidArgumentException('Upload file client media type must be a string or null');
+            throw new InvalidArgumentException('Upload file client media type must be a string or null');
         }
 
         $this->clientMediaType = $clientMediaType;
@@ -372,16 +395,16 @@ class UploadedFile extends SplFileInfo implements UploadedFileInterface, Stringa
     }
 
     /**
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     protected function validateActive()
     {
         if ($this->isOk() === false) {
-            throw new \RuntimeException('Cannot retrieve stream due to upload error');
+            throw new RuntimeException('Cannot retrieve stream due to upload error');
         }
 
         if ($this->isMoved()) {
-            throw new \RuntimeException('Cannot retrieve stream after it has already been moved');
+            throw new RuntimeException('Cannot retrieve stream after it has already been moved');
         }
     }
 }

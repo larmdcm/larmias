@@ -7,6 +7,24 @@ namespace Larmias\Http\Message;
 use Psr\Http\Message\StreamInterface;
 use RuntimeException;
 use Stringable;
+use InvalidArgumentException;
+use Throwable;
+use function is_resource;
+use function stream_get_meta_data;
+use function fseek;
+use function is_string;
+use function fopen;
+use function fread;
+use function fwrite;
+use function fclose;
+use function fstat;
+use function ftell;
+use function feof;
+use function clearstatcache;
+use function var_export;
+use function stream_get_contents;
+use const SEEK_CUR;
+use const SEEK_SET;
 
 class Stream implements StreamInterface, Stringable
 {
@@ -47,11 +65,11 @@ class Stream implements StreamInterface, Stringable
      */
     public function __construct(protected $stream)
     {
-        if (!\is_resource($this->stream)) {
-            throw new \InvalidArgumentException('First argument to new Stream must be a string, resource.');
+        if (!is_resource($this->stream)) {
+            throw new InvalidArgumentException('First argument to new Stream must be a string, resource.');
         }
-        $meta = \stream_get_meta_data($this->stream);
-        $this->seekable = $meta['seekable'] && \fseek($this->stream, 0, \SEEK_CUR) === 0;
+        $meta = stream_get_meta_data($this->stream);
+        $this->seekable = $meta['seekable'] && fseek($this->stream, 0, SEEK_CUR) === 0;
         $this->readable = isset(self::READ_WRITE_HASH['read'][$meta['mode']]);
         $this->writable = isset(self::READ_WRITE_HASH['write'][$meta['mode']]);
         $this->uri = $this->getMetadata('uri');
@@ -74,7 +92,7 @@ class Stream implements StreamInterface, Stringable
             }
 
             return $this->getContents();
-        } catch (\Exception $e) {
+        } catch (Throwable) {
             return '';
         }
     }
@@ -84,7 +102,7 @@ class Stream implements StreamInterface, Stringable
      *
      * @param string|StreamInterface|resource $body
      *
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public static function create(mixed $body = ''): StreamInterface
     {
@@ -92,24 +110,24 @@ class Stream implements StreamInterface, Stringable
             return $body;
         }
 
-        if (\is_string($body)) {
-            $resource = \fopen('php://temp', 'rw+');
-            \fwrite($resource, $body);
+        if (is_string($body)) {
+            $resource = fopen('php://temp', 'rw+');
+            fwrite($resource, $body);
             $body = $resource;
         }
 
-        if (\is_resource($body)) {
+        if (is_resource($body)) {
             return new self($body);
         }
 
-        throw new \InvalidArgumentException('First argument to Stream::create() must be a string, resource or StreamInterface.');
+        throw new InvalidArgumentException('First argument to Stream::create() must be a string, resource or StreamInterface.');
     }
 
     public function close(): void
     {
         if (isset($this->stream)) {
-            if (\is_resource($this->stream)) {
-                \fclose($this->stream);
+            if (is_resource($this->stream)) {
+                fclose($this->stream);
             }
             $this->detach();
         }
@@ -141,10 +159,10 @@ class Stream implements StreamInterface, Stringable
 
         // Clear the stat cache if the stream has a URI
         if ($this->uri) {
-            \clearstatcache(true, $this->uri);
+            clearstatcache(true, $this->uri);
         }
 
-        $stats = \fstat($this->stream);
+        $stats = fstat($this->stream);
         if (isset($stats['size'])) {
             $this->size = $stats['size'];
             return $this->size;
@@ -155,7 +173,7 @@ class Stream implements StreamInterface, Stringable
 
     public function tell(): int
     {
-        if (false === $result = \ftell($this->stream)) {
+        if (false === $result = ftell($this->stream)) {
             throw new RuntimeException('Unable to determine stream position');
         }
 
@@ -164,7 +182,7 @@ class Stream implements StreamInterface, Stringable
 
     public function eof(): bool
     {
-        return !$this->stream || \feof($this->stream);
+        return !$this->stream || feof($this->stream);
     }
 
     public function isSeekable(): bool
@@ -172,14 +190,14 @@ class Stream implements StreamInterface, Stringable
         return $this->seekable;
     }
 
-    public function seek($offset, $whence = \SEEK_SET): void
+    public function seek($offset, $whence = SEEK_SET): void
     {
         if (!$this->seekable) {
             throw new RuntimeException('Stream is not seekable');
         }
 
-        if (\fseek($this->stream, $offset, $whence) === -1) {
-            throw new RuntimeException('Unable to seek to stream position ' . $offset . ' with whence ' . \var_export($whence, true));
+        if (fseek($this->stream, $offset, $whence) === -1) {
+            throw new RuntimeException('Unable to seek to stream position ' . $offset . ' with whence ' . var_export($whence, true));
         }
     }
 
@@ -202,7 +220,7 @@ class Stream implements StreamInterface, Stringable
         // We can't know the size after writing anything
         $this->size = null;
 
-        if (false === $result = \fwrite($this->stream, $string)) {
+        if (false === $result = fwrite($this->stream, $string)) {
             throw new RuntimeException('Unable to write to stream');
         }
 
@@ -220,7 +238,7 @@ class Stream implements StreamInterface, Stringable
             throw new RuntimeException('Cannot read from non-readable stream');
         }
 
-        return \fread($this->stream, $length);
+        return fread($this->stream, $length);
     }
 
     public function getContents(): string
@@ -229,7 +247,7 @@ class Stream implements StreamInterface, Stringable
             throw new RuntimeException('Unable to read stream contents');
         }
 
-        if (false === $contents = \stream_get_contents($this->stream)) {
+        if (false === $contents = stream_get_contents($this->stream)) {
             throw new RuntimeException('Unable to read stream contents');
         }
 
@@ -242,7 +260,7 @@ class Stream implements StreamInterface, Stringable
             return $key ? null : [];
         }
 
-        $meta = \stream_get_meta_data($this->stream);
+        $meta = stream_get_meta_data($this->stream);
 
         if ($key === null) {
             return $meta;

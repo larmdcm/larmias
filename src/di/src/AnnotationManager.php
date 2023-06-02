@@ -9,6 +9,7 @@ use Larmias\Di\Annotation\Inject;
 use Larmias\Di\Annotation\InvokeResolver;
 use Larmias\Di\AnnotationHandlers\InjectAnnotationHandler;
 use Larmias\Di\AnnotationHandlers\InvokeResolverAnnotationHandler;
+use RuntimeException;
 
 class AnnotationManager
 {
@@ -55,7 +56,7 @@ class AnnotationManager
     public static function get(string $name = 'default'): AnnotationInterface
     {
         if (!static::has($name)) {
-            throw new \RuntimeException($name . ' not in container');
+            throw new RuntimeException($name . ' not in container');
         }
 
         return static::$container[$name];

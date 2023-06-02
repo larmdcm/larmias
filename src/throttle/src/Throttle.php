@@ -10,6 +10,8 @@ use Larmias\Contracts\ContextInterface;
 use Larmias\Contracts\ThrottleInterface;
 use Larmias\Throttle\Contracts\ThrottleDriverInterface;
 use Larmias\Throttle\Drivers\CounterSlider;
+use function array_merge;
+use function microtime;
 
 class Throttle implements ThrottleInterface
 {
@@ -34,7 +36,7 @@ class Throttle implements ThrottleInterface
      */
     public function __construct(protected ContainerInterface $container, protected ContextInterface $context, ConfigInterface $config)
     {
-        $this->config = \array_merge($this->config, $config->get('throttle', []));
+        $this->config = array_merge($this->config, $config->get('throttle', []));
         /** @var ThrottleDriverInterface $driver */
         $driver = $this->container->make($this->config['driver']);
         $this->driver = $driver;
@@ -51,7 +53,7 @@ class Throttle implements ThrottleInterface
             return true;
         }
         $key = $this->getKey($key);
-        $microTime = \microtime(true);
+        $microTime = microtime(true);
         [$maxRequests, $duration] = $rateLimit;
         $allow = $this->driver->allow($key, $microTime, $maxRequests, $duration);
         $this->context->set(__CLASS__ . '.allow', [

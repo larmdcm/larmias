@@ -6,6 +6,20 @@ namespace Larmias\HttpServer\Routing;
 
 use Larmias\HttpServer\Contracts\RequestInterface;
 use Stringable;
+use InvalidArgumentException;
+use function parse_url;
+use function in_array;
+use function parse_str;
+use function array_merge;
+use function http_build_query;
+use function preg_match_all;
+use function str_replace;
+use function str_contains;
+use function ltrim;
+use function pathinfo;
+use function str_ends_with;
+use const PHP_URL_PORT;
+use const PATHINFO_EXTENSION;
 
 class Url implements Stringable
 {
@@ -29,6 +43,8 @@ class Url implements Stringable
 
     /**
      * @param RequestInterface $request
+     * @param string $url
+     * @param array $vars
      */
     public function __construct(protected RequestInterface $request, protected string $url = '', protected array $vars = [])
     {
@@ -41,7 +57,7 @@ class Url implements Stringable
      */
     public static function setConfig(array $config): void
     {
-        static::$config = \array_merge(static::$config, $config);
+        static::$config = array_merge(static::$config, $config);
     }
 
     /**
@@ -99,33 +115,33 @@ class Url implements Stringable
     {
         $url = $this->parseUrl($this->url);
         $domain = $this->domain;
-        $parseUrl = \parse_url($url);
+        $parseUrl = parse_url($url);
         if (isset($parseUrl['host'])) {
             $domain = $parseUrl['host'];
         }
         if (isset($parseUrl['scheme'])) {
             $domain = $parseUrl['scheme'] . '://' . $domain;
         }
-        if (isset($parseUrl['port']) && !\in_array($parseUrl['port'], [80, 443])) {
+        if (isset($parseUrl['port']) && !in_array($parseUrl['port'], [80, 443])) {
             $domain = $domain . ':' . $parseUrl['port'];
         }
         $result = $this->parseDomain($domain);
         [$path, $vars] = $this->parsePath($parseUrl['path'] ?? '', $this->vars);
         if (!empty($path)) {
             if (!str_ends_with($path, '/')) {
-                $extension = \pathinfo($path, PATHINFO_EXTENSION);
+                $extension = pathinfo($path, PATHINFO_EXTENSION);
                 if (empty($extension)) {
                     $path .= $this->parseSuffix($this->suffix);
                 }
             }
-            $result .= '/' . \ltrim($path, '/');
+            $result .= '/' . ltrim($path, '/');
         }
         if (isset($parseUrl['query'])) {
-            \parse_str($parseUrl['query'], $params);
-            $vars = \array_merge($params, $vars);
+            parse_str($parseUrl['query'], $params);
+            $vars = array_merge($params, $vars);
         }
         if (!empty($vars)) {
-            $result .= '?' . \http_build_query($vars);
+            $result .= '?' . http_build_query($vars);
         }
         if (isset($parseUrl['fragment'])) {
             $result .= '#' . $parseUrl['fragment'];
@@ -142,18 +158,18 @@ class Url implements Stringable
      */
     protected function parsePath(string $path, array $vars = []): array
     {
-        if (\preg_match_all('/\{(\w+)\:?.*?\}|\[\/\{(\w+).*?\}\]/', $path, $matches)) {
+        if (preg_match_all('/\{(\w+)\:?.*?\}|\[\/\{(\w+).*?\}\]/', $path, $matches)) {
             foreach ($matches[0] as $key => $val) {
                 $varName = $val[0] === '{' ? $matches[1][$key] : $matches[2][$key];
                 if ($val[0] === '{' && !isset($vars[$varName])) {
-                    throw new \InvalidArgumentException('Error parsing path variable {' . $varName . '} is a required parameter');
+                    throw new InvalidArgumentException('Error parsing path variable {' . $varName . '} is a required parameter');
                 }
                 $varVal = $vars[$varName] ?? '';
                 if ($val[0] === '[' && !empty($varVal)) {
                     $varVal = '/' . $varVal;
                 }
                 unset($vars[$varName]);
-                $path = \str_replace($val, (string)$varVal, $path);
+                $path = str_replace($val, (string)$varVal, $path);
             }
         }
         return [$path, $vars];
@@ -180,7 +196,7 @@ class Url implements Stringable
     {
         $suffix = $suffix ?: static::$config['suffix'];
         if (!empty($suffix)) {
-            return \str_contains($this->suffix, '.') ? $this->suffix : '.' . $this->suffix;
+            return str_contains($this->suffix, '.') ? $this->suffix : '.' . $this->suffix;
         }
         return '';
     }
@@ -196,13 +212,13 @@ class Url implements Stringable
             $domain = $this->request->getUri()->getHost();
         }
         $scheme = '';
-        if (!\str_contains($domain, '://')) {
+        if (!str_contains($domain, '://')) {
             $scheme = $this->request->getUri()->getScheme() . '://';
         }
 
         $port = $this->request->getUri()->getPort();
-        if ($port && !\in_array($port, [80, 443])) {
-            $domainPort = \parse_url($domain, \PHP_URL_PORT);
+        if ($port && !in_array($port, [80, 443])) {
+            $domainPort = parse_url($domain, PHP_URL_PORT);
             if (!$domainPort) {
                 $domain .= ':' . $port;
             }

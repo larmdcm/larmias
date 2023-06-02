@@ -14,8 +14,14 @@ use BadMethodCallException;
 
 class FileStream implements StreamInterface, Stringable, FileInterface
 {
+    /**
+     * @var SplFileInfo
+     */
     protected SplFileInfo $file;
 
+    /**
+     * @param string|SplFileInfo $file
+     */
     public function __construct(string|SplFileInfo $file)
     {
         if (!$file instanceof SplFileInfo) {
@@ -28,11 +34,14 @@ class FileStream implements StreamInterface, Stringable, FileInterface
         $this->file = $file;
     }
 
+    /**
+     * @return string
+     */
     public function __toString(): string
     {
         try {
             return $this->getContents();
-        } catch (Throwable $e) {
+        } catch (Throwable) {
             return '';
         }
     }
@@ -107,6 +116,9 @@ class FileStream implements StreamInterface, Stringable, FileInterface
         // TODO: Implement getMetadata() method.
     }
 
+    /**
+     * @return string
+     */
     public function getFilename(): string
     {
         return $this->file->getPathname();

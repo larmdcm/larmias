@@ -13,8 +13,22 @@ use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
 use Larmias\Utils\Arr;
 use SplFileInfo;
+use BadMethodCallException;
 use function Larmias\Utils\data_get;
 use function Larmias\Utils\value;
+use function method_exists;
+use function array_merge;
+use function array_key_exists;
+use function is_array;
+use function is_null;
+use function parse_str;
+use function ksort;
+use function trim;
+use function rtrim;
+use function preg_replace;
+use function strpos;
+use function substr;
+use const PHP_QUERY_RFC3986;
 
 class Request implements RequestInterface
 {
@@ -77,13 +91,13 @@ class Request implements RequestInterface
     public function route(?string $key = null, mixed $default = null): mixed
     {
         $route = $this->getAttribute(Dispatched::class);
-        if (\is_null($route)) {
+        if (is_null($route)) {
             return $default;
         }
-        if (\is_null($key)) {
+        if (is_null($key)) {
             return $route->params;
         }
-        return \array_key_exists($key, $route->params) ? $route->params[$key] : $default;
+        return array_key_exists($key, $route->params) ? $route->params[$key] : $default;
     }
 
     /**
@@ -178,7 +192,7 @@ class Request implements RequestInterface
      */
     public function hasCookie(string $key): bool
     {
-        return !\is_null($this->cookie($key));
+        return !is_null($this->cookie($key));
     }
 
     /**
@@ -236,7 +250,7 @@ class Request implements RequestInterface
      */
     public function url(): string
     {
-        return \rtrim(\preg_replace('/\?.*/', '', (string)$this->getUri()), '/');
+        return rtrim(preg_replace('/\?.*/', '', (string)$this->getUri()), '/');
     }
 
     /**
@@ -298,7 +312,7 @@ class Request implements RequestInterface
     {
         $body = $this->getParsedBody();
         $route = $this->route();
-        return \array_merge(\is_array($route) ? $route : [], $this->getQueryParams(), \is_array($body) ? $body : []);
+        return array_merge(is_array($route) ? $route : [], $this->getQueryParams(), is_array($body) ? $body : []);
     }
 
     /**
@@ -326,8 +340,8 @@ class Request implements RequestInterface
     protected function call(string $name, array $arguments): mixed
     {
         $request = $this->getRequest();
-        if (!\method_exists($request, $name)) {
-            throw new \RuntimeException($name . ' Method not exist.');
+        if (!method_exists($request, $name)) {
+            throw new BadMethodCallException(sprintf('Call to undefined method %s::%s()', get_class($request), $name));
         }
         return $request->{$name}(...$arguments);
     }

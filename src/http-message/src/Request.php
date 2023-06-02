@@ -8,6 +8,9 @@ use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
 use InvalidArgumentException;
+use function strtoupper;
+use function preg_match;
+use function in_array;
 
 class Request extends Message implements RequestInterface
 {
@@ -31,7 +34,7 @@ class Request extends Message implements RequestInterface
      */
     public function __construct(string $method, UriInterface|string $uri, array $headers = [], StreamInterface|string $body = null, string $version = '1.1')
     {
-        $this->method = \strtoupper($method);
+        $this->method = strtoupper($method);
         $this->uri = $uri instanceof UriInterface ? $uri : new Uri($uri);
         $this->setHeaders($headers);
         $this->protocolVersion = $version;
@@ -96,7 +99,7 @@ class Request extends Message implements RequestInterface
      */
     public function withRequestTarget($requestTarget): self
     {
-        if (\preg_match('#\s#', $requestTarget)) {
+        if (preg_match('#\s#', $requestTarget)) {
             throw new InvalidArgumentException(
                 'Invalid request target provided; cannot contain whitespace'
             );
@@ -134,10 +137,10 @@ class Request extends Message implements RequestInterface
      */
     public function withMethod($method): self
     {
-        $method = \strtoupper($method);
+        $method = strtoupper($method);
         $methods = ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'HEAD'];
-        if (!\in_array($method, $methods)) {
-            throw new \InvalidArgumentException('Invalid Method');
+        if (!in_array($method, $methods)) {
+            throw new InvalidArgumentException('Invalid Method');
         }
         $new = clone $this;
         $new->method = $method;

@@ -7,6 +7,14 @@ namespace Larmias\Http\Message;
 use InvalidArgumentException;
 use DateTimeInterface;
 use Stringable;
+use function preg_match;
+use function is_numeric;
+use function strtotime;
+use function in_array;
+use function gmdate;
+use function urlencode;
+use function rawurlencode;
+use function time;
 
 class Cookie implements Stringable
 {
@@ -28,7 +36,7 @@ class Cookie implements Stringable
      * Cookie constructor.
      * @param string $name
      * @param string $value
-     * @param \DateTimeInterface|int|string $expire
+     * @param DateTimeInterface|int|string $expire
      * @param string $path
      * @param string $domain
      * @param bool $secure
@@ -48,13 +56,13 @@ class Cookie implements Stringable
         protected ?string $sameSite = null
     )
     {
-        if (\preg_match("/[=,; \t\r\n\013\014]/", $this->name)) {
+        if (preg_match("/[=,; \t\r\n\013\014]/", $this->name)) {
             throw new InvalidArgumentException(\sprintf('The cookie name "%s" contains invalid characters.', $this->name));
         }
         if ($expire instanceof DateTimeInterface) {
             $expire = (int)$expire->format('U');
-        } else if (!\is_numeric($expire)) {
-            $expire = \strtotime($expire);
+        } else if (!is_numeric($expire)) {
+            $expire = strtotime($expire);
         }
 
         $this->expire = $expire;
@@ -64,7 +72,7 @@ class Cookie implements Stringable
         }
 
         if (!in_array($this->sameSite, [self::SAMESITE_LAX, self::SAMESITE_STRICT, self::SAMESITE_NONE, null], true)) {
-            throw new \InvalidArgumentException('The "sameSite" parameter value is not valid.');
+            throw new InvalidArgumentException('The "sameSite" parameter value is not valid.');
         }
     }
 
@@ -78,12 +86,12 @@ class Cookie implements Stringable
         $str = ($this->isRaw() ? $this->getName() : urlencode($this->getName())) . '=';
 
         if ($this->getValue() === '') {
-            $str .= 'deleted; expires=' . \gmdate('D, d-M-Y H:i:s T', \time() - 31536001) . '; max-age=-31536001';
+            $str .= 'deleted; expires=' . gmdate('D, d-M-Y H:i:s T', time() - 31536001) . '; max-age=-31536001';
         } else {
-            $str .= $this->isRaw() ? $this->getValue() : \rawurlencode($this->getValue());
+            $str .= $this->isRaw() ? $this->getValue() : rawurlencode($this->getValue());
 
             if ($this->getExpiresTime() !== 0) {
-                $str .= '; expires=' . \gmdate(
+                $str .= '; expires=' . gmdate(
                         'D, d-M-Y H:i:s T',
                         $this->getExpiresTime()
                     ) . '; max-age=' . $this->getMaxAge();

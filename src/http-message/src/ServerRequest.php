@@ -9,6 +9,8 @@ use Psr\Http\Message\ServerRequestInterface;
 use InvalidArgumentException;
 use Larmias\Contracts\Http\RequestInterface as HttpRequestInterface;
 use Psr\Http\Message\UriInterface;
+use function str_contains;
+use function explode;
 
 class ServerRequest extends Request implements ServerRequestInterface
 {
@@ -90,8 +92,8 @@ class ServerRequest extends Request implements ServerRequestInterface
         $header = $request->header();
         $uri = $uri->withScheme($request->schema())->withPath($request->path())->withQuery($request->queryString());
         if (isset($header['host'])) {
-            if (\str_contains($header['host'], ':')) {
-                [$host, $port] = \explode(':', $header['host'], 2);
+            if (str_contains($header['host'], ':')) {
+                [$host, $port] = explode(':', $header['host'], 2);
                 if ($port !== $uri->getDefaultPort()) {
                     $uri = $uri->withPort($port);
                 }

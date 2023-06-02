@@ -7,6 +7,13 @@ namespace Larmias\Di\Invoker;
 use Closure;
 use Larmias\Di\AnnotationCollector;
 use Larmias\Pipeline\Pipeline;
+use function is_string;
+use function get_class;
+use function property_exists;
+use function str_contains;
+use function explode;
+use function array_map;
+use function call_user_func;
 
 class InvokeResolver
 {
@@ -21,8 +28,8 @@ class InvokeResolver
      */
     public static function add(string|object $handler): void
     {
-        $object = \is_string($handler) ? new $handler : $handler;
-        static::$collect[\get_class($object)] = $object;
+        $object = is_string($handler) ? new $handler : $handler;
+        static::$collect[get_class($object)] = $object;
     }
 
     /**
@@ -35,14 +42,14 @@ class InvokeResolver
     {
         $pipes = [];
         foreach (static::$collect as $handlerClass => $handler) {
-            $classes = \property_exists($handler, 'classes') ? $handler->classes : [];
-            $annotations = \property_exists($handler, 'annotations') ? $handler->annotations : [];
+            $classes = property_exists($handler, 'classes') ? $handler->classes : [];
+            $annotations = property_exists($handler, 'annotations') ? $handler->annotations : [];
             if (isset($pipes[$handlerClass])) {
                 continue;
             }
             foreach ($classes as $classItem) {
-                if (\str_contains($classItem, '::')) {
-                    [$class, $method] = \explode('::', $classItem);
+                if (str_contains($classItem, '::')) {
+                    [$class, $method] = explode('::', $classItem);
                 } else {
                     [$class, $method] = [$classItem, '*'];
                 }
@@ -66,9 +73,9 @@ class InvokeResolver
         }
         $pipeline = new Pipeline();
         $pipeline->through(
-            \array_map(function ($handler) {
+            array_map(function ($handler) {
                 return function ($args, $next) use ($handler) {
-                    return \call_user_func([$handler, 'process'], $args, $next);
+                    return call_user_func([$handler, 'process'], $args, $next);
                 };
             }, $pipes)
         );

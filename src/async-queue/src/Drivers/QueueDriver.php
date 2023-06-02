@@ -6,6 +6,7 @@ namespace Larmias\AsyncQueue\Drivers;
 
 use Larmias\AsyncQueue\Contracts\QueueDriverInterface;
 use Larmias\Contracts\ContainerInterface;
+use Throwable;
 use function array_merge;
 use function method_exists;
 
@@ -39,7 +40,7 @@ abstract class QueueDriver implements QueueDriverInterface
         }
         try {
             $message->getJob()->handle($message, $this);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->fail($message, $message->getAttempts() < $message->getMaxAttempts());
         }
     }

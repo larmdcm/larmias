@@ -7,6 +7,9 @@ namespace Larmias\Http\Message;
 use Larmias\Utils\Arr;
 use Psr\Http\Message\MessageInterface;
 use Psr\Http\Message\StreamInterface;
+use function strtolower;
+use function array_map;
+use function trim;
 
 class Message implements MessageInterface
 {
@@ -105,7 +108,7 @@ class Message implements MessageInterface
      */
     public function hasHeader(string $name): bool
     {
-        return isset($this->headerNames[\strtolower($name)]);
+        return isset($this->headerNames[strtolower($name)]);
     }
 
     /**
@@ -124,7 +127,7 @@ class Message implements MessageInterface
      */
     public function getHeader(string $name): array
     {
-        $name = \strtolower($name);
+        $name = strtolower($name);
 
         if (!isset($this->headerNames[$name])) {
             return [];
@@ -177,7 +180,7 @@ class Message implements MessageInterface
     public function withHeader($name, $value): self
     {
         $value = $this->trimHeaderValues(Arr::wrap($value));
-        $normalized = \strtolower($name);
+        $normalized = strtolower($name);
         $new = clone $this;
 
         if (isset($new->headerNames[$normalized])) {
@@ -222,7 +225,7 @@ class Message implements MessageInterface
     public function withAddedHeader($name, $value): self
     {
         $value = $this->trimHeaderValues(Arr::wrap($value));
-        $normalized = \strtolower($name);
+        $normalized = strtolower($name);
         $new = clone $this;
 
         if (isset($new->headerNames[$normalized])) {
@@ -250,7 +253,7 @@ class Message implements MessageInterface
      */
     public function withoutHeader($name): self
     {
-        $normalized = \strtolower($name);
+        $normalized = strtolower($name);
 
         if (!isset($this->headerNames[$normalized])) {
             return $this;
@@ -311,7 +314,7 @@ class Message implements MessageInterface
             $value = $this->trimHeaderValues(Arr::wrap($value));
             $header = (string)$header;
 
-            $normalized = \strtolower($header);
+            $normalized = strtolower($header);
             if (isset($this->headerNames[$normalized])) {
                 $header = $this->headerNames[$normalized];
                 $this->headers[$header] = array_merge($this->headers[$header], $value);
@@ -339,6 +342,6 @@ class Message implements MessageInterface
      */
     protected function trimHeaderValues(array $values): array
     {
-        return \array_map(fn($value) => \trim((string)$value, " \t"), $values);
+        return array_map(fn($value) => trim((string)$value, " \t"), $values);
     }
 }

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Larmias\Utils;
 
+use function method_exists;
+
 class Helper
 {
     /**
@@ -16,7 +18,7 @@ class Helper
     public static function isMethodsExists(object $object, string|array $methods): bool
     {
         foreach ((array)$methods as $method) {
-            if (!\method_exists($object, $method)) {
+            if (!method_exists($object, $method)) {
                 return false;
             }
         }

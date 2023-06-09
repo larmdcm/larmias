@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Larmias\HttpServer\Contracts;
 
-use Larmias\Contracts\ExceptionReportHandlerInterface;
+use Larmias\Contracts\ExceptionHandlerInterface;
 use Throwable;
 use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
 
-interface ExceptionHandlerInterface extends ExceptionReportHandlerInterface
+interface ExceptionHandlerInterface extends ExceptionHandlerInterface
 {
     /**
      * @param RequestInterface $request

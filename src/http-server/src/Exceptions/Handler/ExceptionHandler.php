@@ -37,6 +37,16 @@ class ExceptionHandler extends BaseExceptionHandler implements ExceptionHandlerI
 
     /**
      * @param Throwable $e
+     * @param array $args
+     * @return PsrResponseInterface
+     */
+    public function handle(Throwable $e, array $args = []): PsrResponseInterface
+    {
+        return $this->render($args[0], $e);
+    }
+
+    /**
+     * @param Throwable $e
      * @return int
      */
     protected function getHttpCode(Throwable $e): int

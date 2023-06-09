@@ -128,9 +128,12 @@ class Server implements OnRequestInterface
     protected function getExceptionResponse(RequestInterface $request, Throwable $e): PsrResponseInterface
     {
         /** @var ExceptionHandlerInterface $handler */
-        $class = $this->config->get('exceptions.handler.http', ExceptionHandler::class);
-        $handler = $this->container->make($class);
-        $handler->report($e);
+        $classes = $this->config->get('exceptions.handler.http', []);
+        $classes[] = ExceptionHandler::class;
+        foreach ($classes as $class) {
+            $handler = $this->container->make($class);
+            $handler->report($e);
+        }
         return $handler->render($request, $e);
     }
 

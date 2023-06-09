@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace Larmias\ExceptionHandler;
 
 use Larmias\Contracts\ContainerInterface;
-use Larmias\Contracts\ExceptionReportHandlerInterface;
+use Larmias\Contracts\ExceptionHandlerInterface;
 use Psr\Log\LoggerInterface;
 use Throwable;
 use function get_class;
 
-abstract class ExceptionHandler implements ExceptionReportHandlerInterface
+abstract class ExceptionHandler implements ExceptionHandlerInterface
 {
     /**
      * @var array
@@ -47,6 +47,25 @@ abstract class ExceptionHandler implements ExceptionReportHandlerInterface
             $this->logger?->log($this->levels[get_class($e)] ?? 'error', $e->getMessage(), ['exception' => $e->getTraceAsString()]);
         } catch (Throwable) {
         }
+    }
+
+    /**
+     * @param Throwable $e
+     * @param array $args
+     * @return mixed
+     */
+    public function handle(Throwable $e, array $args = []): mixed
+    {
+        return null;
+    }
+
+    /**
+     * @param Throwable $e
+     * @return bool
+     */
+    public function isValid(Throwable $e): bool
+    {
+        return true;
     }
 
     /**

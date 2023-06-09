@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Larmias\Command\Contracts;
 
 use Larmias\Command\Command;
-use Larmias\Contracts\ExceptionReportHandlerInterface;
+use Larmias\Contracts\ExceptionHandlerInterface;
 
-interface ExceptionHandlerInterface extends ExceptionReportHandlerInterface
+interface ExceptionHandlerInterface extends ExceptionHandlerInterface
 {
     /**
      * @param Command $command

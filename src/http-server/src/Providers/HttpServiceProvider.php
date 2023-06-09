@@ -38,7 +38,7 @@ class HttpServiceProvider implements ServiceProviderInterface
     public function register(): void
     {
         /** @var BaseRouter $router */
-        $router = $this->container->make(BaseRouter::class);
+        $router = $this->container->make(BaseRouter::class,[],true);
         Router::init($router);
 
         $this->container->bindIf([

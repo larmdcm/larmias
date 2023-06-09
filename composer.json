@@ -94,7 +94,8 @@
         "larmias/translation": "self.version",
         "larmias/utils": "self.version",
         "larmias/validation": "self.version",
-        "larmias/view": "self.version"
+        "larmias/view": "self.version",
+        "larmias/constants": "self.version"
     },
     "suggest": {
         "ext-swoole": "Required to use swoole (^4.6.*)."
@@ -150,7 +151,8 @@
             "Larmias\\Pool\\": "src/pool/src/",
             "Larmias\\FileWatcher\\": "src/file-watcher/src/",
             "Larmias\\Database\\": "src/database/src/",
-            "Larmias\\Paginator\\": "src/paginator/src/"
+            "Larmias\\Paginator\\": "src/paginator/src/",
+            "Larmias\\Constants\\": "src/constants/src/"
         }
     },
     "autoload-dev": {
@@ -166,6 +168,7 @@
                 "Larmias\\Cache\\Providers\\CacheServiceProvider",
                 "Larmias\\Captcha\\Providers\\CaptchaServiceProvider",
                 "Larmias\\Command\\Providers\\CommandServiceProvider",
+                "Larmias\\Constants\\Providers\\ConstantsServiceProvider",
                 "Larmias\\Crontab\\Providers\\CrontabServiceProvider",
                 "Larmias\\Database\\Providers\\DatabaseServiceProvider",
                 "Larmias\\Di\\Providers\\AnnotationServiceProvider",

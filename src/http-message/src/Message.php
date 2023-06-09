@@ -10,6 +10,7 @@ use Psr\Http\Message\StreamInterface;
 use function strtolower;
 use function array_map;
 use function trim;
+use function implode;
 
 class Message implements MessageInterface
 {
@@ -159,7 +160,7 @@ class Message implements MessageInterface
      */
     public function getHeaderLine(string $name): string
     {
-        return \implode(', ', $this->getHeader($name));
+        return implode(', ', $this->getHeader($name));
     }
 
     /**

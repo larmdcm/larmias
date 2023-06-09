@@ -73,7 +73,7 @@ class ThrottleMiddleware implements MiddlewareInterface
      */
     protected function getRateLimit(): array
     {
-        return [60, 60];
+        return [100, 60];
     }
 
     /**

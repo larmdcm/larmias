@@ -24,6 +24,7 @@ use function func_get_args;
 use function is_string;
 use function sprintf;
 use function get_class;
+use function rawurlencode;
 
 class Response implements PsrResponseInterface, ResponseInterface
 {
@@ -113,7 +114,7 @@ class Response implements PsrResponseInterface, ResponseInterface
         });
         return $this->withHeader('content-description', 'File Transfer')
             ->withHeader('content-type', $contentType)
-            ->withHeader('content-disposition', "attachment; filename={$filename}; filename*=UTF-8''" . \rawurlencode($filename))
+            ->withHeader('content-disposition', "attachment; filename={$filename}; filename*=UTF-8''" . rawurlencode($filename))
             ->withHeader('content-transfer-encoding', 'binary')
             ->withHeader('pragma', 'public')
             ->withBody(new FileStream($file));

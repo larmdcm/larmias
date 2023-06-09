@@ -12,6 +12,7 @@ use function array_merge;
 use function file;
 use function get_class;
 use function is_array;
+use function count;
 use function Larmias\Utils\println;
 use function Larmias\Utils\format_exception;
 
@@ -119,7 +120,7 @@ abstract class Render implements RenderInterface
                 $source[] = $contents[$line];
             }
             $source[] = $contents[$data['line']];
-            $data['highlight'] = \count($source);
+            $data['highlight'] = count($source);
             for ($i = 1; $i <= $showLine; $i++) {
                 $line = $data['line'] + $i;
                 if (!isset($contents[$line])) {

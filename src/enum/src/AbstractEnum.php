@@ -7,6 +7,9 @@ namespace Larmias\Enum;
 use Closure;
 use Larmias\Contracts\TranslatorInterface;
 use Larmias\Enum\Annotation\Text;
+use UnexpectedValueException;
+use BadMethodCallException;
+use ReflectionClass;
 use function get_class;
 use function in_array;
 use function array_key_exists;
@@ -162,7 +165,7 @@ abstract class AbstractEnum
     public static function assertValidValueReturningKey(mixed $value): string
     {
         if (false === ($key = static::search($value))) {
-            throw new \UnexpectedValueException("Value '$value' is not part of the enum " . static::class);
+            throw new UnexpectedValueException("Value '$value' is not part of the enum " . static::class);
         }
 
         return $key;
@@ -254,7 +257,7 @@ abstract class AbstractEnum
         $class = static::class;
 
         if (!isset(static::$cache[$class])) {
-            $reflection = new \ReflectionClass($class);
+            $reflection = new ReflectionClass($class);
             static::$cache[$class] = $reflection->getConstants();
         }
 
@@ -270,7 +273,7 @@ abstract class AbstractEnum
         $class = static::class;
         if (!isset(static::$data[$class])) {
             $data = [];
-            $reflection = new \ReflectionClass($class);
+            $reflection = new ReflectionClass($class);
             foreach ($reflection->getReflectionConstants() as $reflectionConstant) {
                 $attributes = $reflectionConstant->getAttributes();
                 foreach ($attributes as $item) {
@@ -297,8 +300,8 @@ abstract class AbstractEnum
         $class = static::class;
         if (!isset(self::$instances[$class][$name])) {
             $array = static::toArray();
-            if (!isset($array[$name]) && !\array_key_exists($name, $array)) {
-                throw new \BadMethodCallException("No static method or enum constant '$name' in class " . static::class);
+            if (!isset($array[$name]) && !array_key_exists($name, $array)) {
+                throw new BadMethodCallException("No static method or enum constant '$name' in class " . static::class);
             }
             self::$instances[$class][$name] = new static($array[$name]);
         }

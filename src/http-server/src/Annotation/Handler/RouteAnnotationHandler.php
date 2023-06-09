@@ -14,6 +14,7 @@ use Larmias\HttpServer\Annotation\PostMapping;
 use Larmias\HttpServer\Annotation\PutMapping;
 use Larmias\HttpServer\Annotation\RequestMapping;
 use Larmias\HttpServer\Routing\Router;
+use function array_merge;
 
 class RouteAnnotationHandler implements RouteAnnotationHandlerInterface
 {
@@ -122,7 +123,7 @@ class RouteAnnotationHandler implements RouteAnnotationHandlerInterface
     {
         $result = [];
         foreach ($middleware as $item) {
-            $result = \array_merge($result, $item->middleware);
+            $result = array_merge($result, $item->middleware);
         }
         return $result;
     }

@@ -23,6 +23,9 @@ class HttpResponseException extends RuntimeException
         parent::__construct($message, $code, $previous);
     }
 
+    /**
+     * @return ResponseInterface
+     */
     public function getResponse(): ResponseInterface
     {
         return $this->response;

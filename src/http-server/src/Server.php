@@ -10,6 +10,7 @@ use Larmias\Contracts\Http\OnRequestInterface;
 use Larmias\Contracts\Http\RequestInterface as HttpRequestInterface;
 use Larmias\Contracts\Http\ResponseEmitterInterface;
 use Larmias\Contracts\Http\ResponseInterface as HttpResponseInterface;
+use Larmias\ExceptionHandler\Contracts\ExceptionHandlerDispatcherInterface;
 use Larmias\Http\Message\ServerRequest;
 use Larmias\HttpServer\Events\HttpRequestStart;
 use Larmias\HttpServer\Events\HttpRequestEnd;
@@ -19,12 +20,12 @@ use Larmias\HttpServer\Message\Response;
 use Larmias\HttpServer\CoreMiddleware\HttpCoreMiddleware;
 use Larmias\HttpServer\CoreMiddleware\HttpRouteCoreMiddleware;
 use Larmias\Http\Message\ServerResponse as PsrResponse;
-use Larmias\HttpServer\Contracts\ExceptionHandlerInterface;
 use Larmias\HttpServer\Contracts\RequestInterface;
 use Larmias\HttpServer\Contracts\ResponseInterface;
 use Larmias\Contracts\ContainerInterface;
 use Larmias\HttpServer\Routing\Router;
 use Larmias\Routing\Dispatched;
+use Larmias\Utils\Arr;
 use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -82,6 +83,7 @@ class Server implements OnRequestInterface
     /**
      * @param RequestInterface $request
      * @return PsrResponseInterface
+     * @throws Throwable
      */
     protected function runWithRequest(RequestInterface $request): PsrResponseInterface
     {
@@ -93,6 +95,7 @@ class Server implements OnRequestInterface
     /**
      * @param RequestInterface $request
      * @return PsrResponseInterface
+     * @throws Throwable
      */
     protected function dispatchRouter(RequestInterface $request): PsrResponseInterface
     {
@@ -100,7 +103,7 @@ class Server implements OnRequestInterface
         $this->context->set(ServerRequestInterface::class, $request->withAttribute(Dispatched::class, $dispatched));
         $option = $dispatched->rule->getOption();
         /** @var HttpRouteCoreMiddleware $httpRouteCoreMiddleware */
-        $httpRouteCoreMiddleware = $this->container->make(HttpRouteCoreMiddleware::class);
+        $httpRouteCoreMiddleware = $this->container->get(HttpRouteCoreMiddleware::class);
         return $httpRouteCoreMiddleware->set($option['middleware'])->dispatch($request, function (RequestInterface $request) use ($dispatched) {
             return $this->warpResultToResponse($dispatched->dispatcher->run($request->all()));
         });
@@ -124,17 +127,15 @@ class Server implements OnRequestInterface
      * @param RequestInterface $request
      * @param Throwable $e
      * @return PsrResponseInterface
+     * @throws Throwable
      */
     protected function getExceptionResponse(RequestInterface $request, Throwable $e): PsrResponseInterface
     {
-        /** @var ExceptionHandlerInterface $handler */
-        $classes = $this->config->get('exceptions.handler.http', []);
-        $classes[] = ExceptionHandler::class;
-        foreach ($classes as $class) {
-            $handler = $this->container->make($class);
-            $handler->report($e);
-        }
-        return $handler->render($request, $e);
+        $handlers = Arr::wrap($this->config->get('exceptions.handler.http', []));
+        $handlers[] = ExceptionHandler::class;
+        /** @var ExceptionHandlerDispatcherInterface $dispatcher */
+        $dispatcher = $this->container->get(ExceptionHandlerDispatcherInterface::class);
+        return $dispatcher->dispatch($e, $handlers, $request);
     }
 
     /**

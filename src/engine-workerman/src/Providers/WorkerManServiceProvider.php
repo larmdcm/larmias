@@ -11,15 +11,15 @@ use Larmias\Engine\WorkerMan\Commands\Status;
 class WorkerManServiceProvider implements ServiceProviderInterface
 {
     /**
-     * @param ServiceDiscoverInterface $serviceDiscover
+     * @param ServiceDiscoverInterface|null $serviceDiscover
      */
-    public function __construct(protected ServiceDiscoverInterface $serviceDiscover)
+    public function __construct(protected ?ServiceDiscoverInterface $serviceDiscover = null)
     {
     }
 
     public function register(): void
     {
-        $this->serviceDiscover->commands([
+        $this->serviceDiscover?->commands([
             Status::class,
         ]);
     }

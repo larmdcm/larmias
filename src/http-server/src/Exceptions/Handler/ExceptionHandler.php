@@ -18,6 +18,7 @@ use Larmias\Routing\Exceptions\RouteNotFoundException;
 use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
 use Larmias\ExceptionHandler\Contracts\RenderInterface;
 use Throwable;
+use Closure;
 use function str_contains;
 
 class ExceptionHandler extends BaseExceptionHandler implements ExceptionHandlerInterface
@@ -29,20 +30,33 @@ class ExceptionHandler extends BaseExceptionHandler implements ExceptionHandlerI
      */
     public function render(RequestInterface $request, Throwable $e): PsrResponseInterface
     {
-        if ($e instanceof HttpResponseException) {
-            return $e->getResponse();
-        }
-        return $this->getRenderResponse($request, $e)->withStatus($this->getHttpCode($e));
+        return $this->whenResponse($e, function ($e) use ($request) {
+            return $this->getRenderResponse($request, $e)->withStatus($this->getHttpCode($e));
+        });
     }
 
     /**
      * @param Throwable $e
-     * @param array $args
+     * @param Closure $callback
      * @return PsrResponseInterface
      */
-    public function handle(Throwable $e, array $args = []): PsrResponseInterface
+    public function whenResponse(Throwable $e, Closure $callback): PsrResponseInterface
     {
-        return $this->render($args[0], $e);
+        if ($e instanceof HttpResponseException) {
+            return $e->getResponse();
+        }
+        return $callback($e);
+    }
+
+    /**
+     * @param Throwable $e
+     * @param mixed $result
+     * @param mixed|null $args
+     * @return PsrResponseInterface
+     */
+    public function handle(Throwable $e, mixed $result, mixed $args = null): PsrResponseInterface
+    {
+        return $this->render($args, $e);
     }
 
     /**

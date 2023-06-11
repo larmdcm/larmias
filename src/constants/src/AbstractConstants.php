@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Larmias\Constants;
 
-use Larmias\Constants\Annotation\Dict;
 use Larmias\Contracts\TranslatorInterface;
-use ReflectionClass;
+use Larmias\Constants\Annotation\Dict;
 use Larmias\Constants\Annotation\Text;
+use ReflectionClass;
 use function array_merge;
 use function str_starts_with;
 

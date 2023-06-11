@@ -147,6 +147,7 @@ class Application implements ApplicationInterface
      * 加载配置
      *
      * @return void
+     * @throws \Throwable
      */
     protected function loadConfig(): void
     {

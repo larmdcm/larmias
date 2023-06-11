@@ -8,6 +8,7 @@ use Larmias\Engine\Contracts\DriverInterface;
 use Larmias\Engine\Contracts\KernelInterface;
 use Larmias\Engine\Swoole\Http\Server as HttpServer;
 use Larmias\Engine\Swoole\Tcp\Server as TcpServer;
+use Larmias\Engine\Swoole\Udp\Server as UdpServer;
 use Larmias\Engine\Swoole\Contracts\WorkerInterface;
 use Larmias\Engine\Swoole\Coroutine\Channel;
 use Swoole\Process as SwooleProcess;
@@ -107,7 +108,7 @@ class Driver implements DriverInterface
      */
     public function getUdpServerClass(): ?string
     {
-        return null;
+        return UdpServer::class;
     }
 
     /**

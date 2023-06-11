@@ -8,6 +8,8 @@ use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\ServiceProviderInterface;
 use Larmias\Contracts\ApplicationInterface;
 use Larmias\Contracts\VendorPublishInterface;
+use Larmias\ExceptionHandler\Contracts\ExceptionHandlerDispatcherInterface;
+use Larmias\ExceptionHandler\ExceptionHandlerDispatcher;
 
 class ExceptionHandlerServiceProvider implements ServiceProviderInterface
 {
@@ -23,6 +25,7 @@ class ExceptionHandlerServiceProvider implements ServiceProviderInterface
      */
     public function register(): void
     {
+        $this->container->bindIf(ExceptionHandlerDispatcherInterface::class, ExceptionHandlerDispatcher::class);
     }
 
     /**

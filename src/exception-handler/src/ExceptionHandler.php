@@ -23,6 +23,11 @@ abstract class ExceptionHandler implements ExceptionHandlerInterface
     protected array $levels = [];
 
     /**
+     * @var bool
+     */
+    protected bool $isPropagationStopped = false;
+
+    /**
      * ExceptionHandler constructor.
      *
      * @param ContainerInterface $container
@@ -51,12 +56,13 @@ abstract class ExceptionHandler implements ExceptionHandlerInterface
 
     /**
      * @param Throwable $e
-     * @param array $args
+     * @param mixed $result
+     * @param mixed|null $args
      * @return mixed
      */
-    public function handle(Throwable $e, array $args = []): mixed
+    public function handle(Throwable $e, mixed $result, mixed $args = null): mixed
     {
-        return null;
+        return $result;
     }
 
     /**
@@ -66,6 +72,22 @@ abstract class ExceptionHandler implements ExceptionHandlerInterface
     public function isValid(Throwable $e): bool
     {
         return true;
+    }
+
+    /**
+     * @return void
+     */
+    public function stopPropagation(): void
+    {
+        $this->isPropagationStopped = true;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isPropagationStopped(): bool
+    {
+        return $this->isPropagationStopped;
     }
 
     /**

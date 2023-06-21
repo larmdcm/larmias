@@ -11,6 +11,15 @@ use Larmias\Validation\Exceptions\RuleException;
 use Larmias\Contracts\ValidatorInterface;
 use Larmias\Utils\Str;
 use Closure;
+use function array_unshift;
+use function array_merge;
+use function in_array;
+use function is_array;
+use function is_string;
+use function explode;
+use function method_exists;
+use function call_user_func;
+use function call_user_func_array;
 
 class Validator implements ValidatorInterface
 {
@@ -182,7 +191,7 @@ class Validator implements ValidatorInterface
         $checkEnd = false;
         $validateData = [];
         if ($this->currentScene && $this->hasScene($this->currentScene)) {
-            \call_user_func($this->getScene($this->currentScene));
+            call_user_func($this->getScene($this->currentScene));
         }
         $rules = $this->rules;
         foreach ($rules as $field => $ruleItems) {
@@ -191,10 +200,10 @@ class Validator implements ValidatorInterface
             }
             $value = $this->getDataValue($field);
             Arr::set($validateData, $field, $value);
-            if (!empty($this->only) && !\in_array($field, $this->only)) {
+            if (!empty($this->only) && !in_array($field, $this->only)) {
                 continue;
             }
-            if (!empty($this->except) && \in_array($field, $this->except)) {
+            if (!empty($this->except) && in_array($field, $this->except)) {
                 continue;
             }
             if (isset($this->append[$field])) {
@@ -239,7 +248,7 @@ class Validator implements ValidatorInterface
 
         if (isset($this->remove[$field])) {
             $removeRules = $this->remove[$field];
-            if (\in_array($name, $removeRules)) {
+            if (in_array($name, $removeRules)) {
                 return true;
             }
         }
@@ -249,19 +258,19 @@ class Validator implements ValidatorInterface
         }
 
         $method = 'validate' . Str::studly($name);
-        \array_unshift($args, $value);
+        array_unshift($args, $value);
         if (isset($this->validateHandlers[$name])) {
-            \array_unshift($args, $field);
-            return \call_user_func_array($this->validateHandlers[$name], $args);
+            array_unshift($args, $field);
+            return call_user_func_array($this->validateHandlers[$name], $args);
         }
 
-        if (\method_exists($this, $method)) {
-            \array_unshift($args, $field);
-            return \call_user_func_array([$this, $method], $args);
+        if (method_exists($this, $method)) {
+            array_unshift($args, $field);
+            return call_user_func_array([$this, $method], $args);
         }
 
         try {
-            return \call_user_func_array([Validate::class, $name], $args);
+            return call_user_func_array([Validate::class, $name], $args);
         } catch (RuleException $e) {
             throw new RuleException($e->getMessage(), $ruleItem);
         }
@@ -323,8 +332,8 @@ class Validator implements ValidatorInterface
      */
     public function validateMessage(string|array $rule, string $message): self
     {
-        if (\is_array($rule)) {
-            $this->validateMessages = \array_merge($this->validateMessages, $rule);
+        if (is_array($rule)) {
+            $this->validateMessages = array_merge($this->validateMessages, $rule);
         } else {
             $this->validateMessages[$rule] = $message;
         }
@@ -359,7 +368,7 @@ class Validator implements ValidatorInterface
      */
     protected function setRule(string $property, string|array $field, string|array $rule = []): self
     {
-        if (\is_array($field)) {
+        if (is_array($field)) {
             foreach ($field as $key => $val) {
                 $this->setRule($property, $key, $val);
             }
@@ -375,7 +384,7 @@ class Validator implements ValidatorInterface
      */
     public function attribute(array $attributes): self
     {
-        $this->attributes = \array_merge($this->attributes, $attributes);
+        $this->attributes = array_merge($this->attributes, $attributes);
         return $this;
     }
 
@@ -385,7 +394,7 @@ class Validator implements ValidatorInterface
      */
     public function message(array $messages): self
     {
-        $this->messages = \array_merge($this->messages, $messages);
+        $this->messages = array_merge($this->messages, $messages);
         return $this;
     }
 
@@ -426,12 +435,12 @@ class Validator implements ValidatorInterface
      */
     public function remove(string|array $field, string|array $rule = []): self
     {
-        if (\is_array($field)) {
+        if (is_array($field)) {
             foreach ($field as $key => $value) {
                 $this->remove($key, $value);
             }
         } else {
-            $this->remove[$field] = \is_string($rule) ? \explode('|', $rule) : $rule;
+            $this->remove[$field] = is_string($rule) ? explode('|', $rule) : $rule;
         }
         return $this;
     }
@@ -464,7 +473,7 @@ class Validator implements ValidatorInterface
      */
     public function scenes(array $scenes): self
     {
-        $this->scenes = \array_merge($this->scenes, $scenes);
+        $this->scenes = array_merge($this->scenes, $scenes);
         return $this;
     }
 
@@ -474,7 +483,7 @@ class Validator implements ValidatorInterface
      */
     public function hasScene(string $scene): bool
     {
-        return isset($this->scenes[$scene]) || \method_exists($this, 'scene' . Str::studly($scene));
+        return isset($this->scenes[$scene]) || method_exists($this, 'scene' . Str::studly($scene));
     }
 
     /**
@@ -488,11 +497,11 @@ class Validator implements ValidatorInterface
             if ($item !== null) {
                 if ($item instanceof Closure) {
                     $item($this);
-                } else if (\is_array($item)) {
+                } else if (is_array($item)) {
                     $this->only = $item;
                 }
             } else {
-                \call_user_func([$this, 'scene' . Str::studly($scene)]);
+                call_user_func([$this, 'scene' . Str::studly($scene)]);
             }
         };
     }

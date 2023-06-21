@@ -27,7 +27,7 @@ class Server extends BaseServer
             $response = new Response($connection);
             $this->trigger(Event::ON_REQUEST, [$request, $response]);
         } catch (Throwable $e) {
-            $this->exceptionHandler($e);
+            $this->handleException($e);
         }
     }
 }

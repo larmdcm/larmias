@@ -26,7 +26,7 @@ class Process extends Worker
                     sleep(5);
                 }
             } catch (Throwable $e) {
-                $this->exceptionHandler($e);
+                $this->handleException($e);
             }
         }
     }

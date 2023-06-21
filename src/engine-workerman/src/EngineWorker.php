@@ -42,7 +42,7 @@ class EngineWorker extends BaseWorker
                 });
             }
         } catch (Throwable $e) {
-            $this->exceptionHandler($e);
+            $this->handleException($e);
         }
     }
 
@@ -114,7 +114,7 @@ class EngineWorker extends BaseWorker
      * @param Throwable $e
      * @return void
      */
-    public function exceptionHandler(Throwable $e): void
+    public function handleException(Throwable $e): void
     {
         Worker::stopAll(log: format_exception($e));
     }

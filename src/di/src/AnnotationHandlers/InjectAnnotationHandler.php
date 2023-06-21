@@ -72,11 +72,11 @@ class InjectAnnotationHandler implements AnnotationHandlerInterface
         if ($param['type'] !== 'property') {
             return;
         }
-        $reflectionProperty = new ReflectionProperty($param['class'], $param['property']);
         /** @var Inject $value */
         $value = $param['value'][0];
         $name = $value->name;
         if (!$name) {
+            $reflectionProperty = new ReflectionProperty($param['class'], $param['property']);
             if ($reflectionProperty->hasType() && !$reflectionProperty->getType()->isBuiltin()) {
                 $name = $reflectionProperty->getType()->getName();
             } else {

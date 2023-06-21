@@ -73,7 +73,7 @@ class Server extends BaseServer
                 $this->trigger(Event::ON_CLOSE, [$connection]);
                 $connection->close();
             } catch (Throwable $e) {
-                $this->exceptionHandler($e);
+                $this->handleException($e);
             }
         });
 

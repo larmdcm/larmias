@@ -8,6 +8,10 @@ use IteratorAggregate;
 use ArrayIterator;
 use Traversable;
 use Closure;
+use function array_merge;
+use function is_string;
+use function explode;
+use function is_array;
 
 class Rules implements IteratorAggregate
 {
@@ -33,7 +37,7 @@ class Rules implements IteratorAggregate
         if ($rules instanceof Rules) {
             $rules = $rules->getRules();
         }
-        $this->rules = \array_merge($this->rules, $rules);
+        $this->rules = array_merge($this->rules, $rules);
         return $this;
     }
 
@@ -52,15 +56,15 @@ class Rules implements IteratorAggregate
      */
     protected function parseRule(): void
     {
-        $rules = \is_string($this->rule) ? \explode('|', $this->rule) : $this->rule;
+        $rules = is_string($this->rule) ? explode('|', $this->rule) : $this->rule;
         foreach ($rules as $key => $item) {
-            if (\is_string($item)) {
-                $item = \explode(':', $item, 2);
+            if (is_string($item)) {
+                $item = explode(':', $item, 2);
                 $key = $item[0];
-                $item = isset($item[1]) ? \explode(',', $item[1]) : [];
+                $item = isset($item[1]) ? explode(',', $item[1]) : [];
             }
 
-            if (\is_array($item) || $item instanceof Closure) {
+            if (is_array($item) || $item instanceof Closure) {
                 $item = new Rule($key, $item);
             }
 

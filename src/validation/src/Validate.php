@@ -6,6 +6,34 @@ namespace Larmias\Validation;
 
 use Larmias\Validation\Exceptions\RuleException;
 use Larmias\Utils\Str;
+use function is_numeric;
+use function in_array;
+use function is_array;
+use function checkdnsrr;
+use function strtotime;
+use function ctype_digit;
+use function ctype_alnum;
+use function is_string;
+use function strpos;
+use function function_exists;
+use function explode;
+use function filter_var;
+use function is_int;
+use function filter_id;
+use function str_starts_with;
+use function is_scalar;
+use function preg_match;
+use function func_get_args;
+use function count;
+use function mb_strlen;
+use const FILTER_VALIDATE_EMAIL;
+use const FILTER_VALIDATE_IP;
+use const FILTER_FLAG_IPV4;
+use const FILTER_FLAG_IPV6;
+use const FILTER_VALIDATE_INT;
+use const FILTER_VALIDATE_URL;
+use const FILTER_VALIDATE_MAC;
+use const FILTER_VALIDATE_FLOAT;
 
 /**
  * @method static bool required(mixed $value)
@@ -61,15 +89,15 @@ class Validate
         switch (Str::camel($rule)) {
             case 'required':
                 // 必须
-                $result = !empty($value) || \is_numeric($value);
+                $result = !empty($value) || is_numeric($value);
                 break;
             case 'accepted':
                 // 接受
-                $result = \in_array($value, ['1', 'on', 'yes']);
+                $result = in_array($value, ['1', 'on', 'yes']);
                 break;
             case 'date':
                 // 是否是一个有效日期
-                $result = false !== \strtotime($value);
+                $result = false !== strtotime($value);
                 break;
             case 'activeUrl':
                 // 是否为有效的网址
@@ -78,7 +106,7 @@ class Validate
             case 'boolean':
             case 'bool':
                 // 是否为布尔值
-                $result = \in_array($value, [true, false, 0, 1, '0', '1'], true);
+                $result = in_array($value, [true, false, 0, 1, '0', '1'], true);
                 break;
             case 'number':
                 $result = ctype_digit((string)$value);
@@ -88,7 +116,7 @@ class Validate
                 break;
             case 'array':
                 // 是否为数组
-                $result = \is_array($value);
+                $result = is_array($value);
                 break;
             default:
                 if (function_exists('ctype_' . $rule)) {
@@ -117,15 +145,15 @@ class Validate
      */
     public static function filter(mixed $value, int|string|array $rule): bool
     {
-        if (\is_string($rule) && \strpos($rule, ',')) {
-            [$rule, $param] = \explode(',', $rule);
-        } elseif (\is_array($rule)) {
+        if (is_string($rule) && strpos($rule, ',')) {
+            [$rule, $param] = explode(',', $rule);
+        } elseif (is_array($rule)) {
             $param = $rule[1] ?? 0;
             $rule = $rule[0];
         } else {
             $param = 0;
         }
-        return false !== \filter_var($value, \is_int($rule) ? $rule : \filter_id($rule), $param);
+        return false !== filter_var($value, is_int($rule) ? $rule : filter_id($rule), $param);
     }
 
     /**
@@ -135,12 +163,12 @@ class Validate
      */
     public static function regex(mixed $value, string $rule): bool
     {
-        if (!\str_starts_with($rule, '/') && !\preg_match('/\/[imsU]{0,4}$/', $rule)) {
+        if (!str_starts_with($rule, '/') && !preg_match('/\/[imsU]{0,4}$/', $rule)) {
             // 不是正则表达式则两端补上/
             $rule = '/^' . $rule . '$/';
         }
 
-        return \is_scalar($value) && 1 === \preg_match($rule, (string)$value);
+        return is_scalar($value) && 1 === preg_match($rule, (string)$value);
     }
 
     /**
@@ -170,7 +198,7 @@ class Validate
      */
     public static function in(mixed $value, ...$rule): bool
     {
-        return \in_array($value, isset($rule[0]) && \is_array($rule[0]) ? $rule[0] : $rule);
+        return in_array($value, isset($rule[0]) && is_array($rule[0]) ? $rule[0] : $rule);
     }
 
     /**
@@ -190,7 +218,7 @@ class Validate
      */
     public static function between(mixed $value, ...$rule): bool
     {
-        [$min, $max] = \is_array($rule[0]) ? $rule[0] : $rule;
+        [$min, $max] = is_array($rule[0]) ? $rule[0] : $rule;
         $value = static::getSize($value);
         return $value >= $min && $value <= $max;
     }
@@ -221,10 +249,10 @@ class Validate
      */
     protected static function getSize(mixed $value): int|float
     {
-        if (\is_array($value)) {
-            $value = \count($value);
-        } else if (\is_string($value)) {
-            $value = \mb_strlen($value);
+        if (is_array($value)) {
+            $value = count($value);
+        } else if (is_string($value)) {
+            $value = mb_strlen($value);
         }
         return $value;
     }

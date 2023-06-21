@@ -10,6 +10,7 @@ use Larmias\Utils\Helper;
 use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
 use Larmias\Contracts\Http\ResponseEmitterInterface;
 use function method_exists;
+use function rawurlencode;
 
 class ResponseEmitter implements ResponseEmitterInterface
 {
@@ -38,7 +39,7 @@ class ResponseEmitter implements ResponseEmitterInterface
                         if (Helper::isMethodsExists($cookie, [
                             'isRaw', 'getValue', 'getName', 'getExpiresTime', 'getPath', 'getDomain', 'isSecure', 'isHttpOnly', 'getSameSite',
                         ])) {
-                            $value = $cookie->isRaw() ? $cookie->getValue() : \rawurlencode($cookie->getValue());
+                            $value = $cookie->isRaw() ? $cookie->getValue() : rawurlencode($cookie->getValue());
                             $serverResponse->cookie(
                                 $cookie->getName(), $value, $cookie->getExpiresTime(), $cookie->getPath(), $cookie->getDomain(),
                                 $cookie->isSecure(), $cookie->isHttpOnly(), $cookie->getSameSite()

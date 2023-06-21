@@ -28,7 +28,7 @@ class Server extends BaseServer
             $connection = new Connection($tcpConnection);
             $this->trigger(Event::ON_OPEN, [$connection, $data]);
         } catch (Throwable $e) {
-            $this->exceptionHandler($e);
+            $this->handleException($e);
         }
     }
 
@@ -43,7 +43,7 @@ class Server extends BaseServer
             $connection = new Connection($tcpConnection);
             $this->trigger(Event::ON_MESSAGE, [$connection, $data]);
         } catch (Throwable $e) {
-            $this->exceptionHandler($e);
+            $this->handleException($e);
         }
     }
 
@@ -57,7 +57,7 @@ class Server extends BaseServer
             $connection = new Connection($tcpConnection);
             $this->trigger(Event::ON_CLOSE, [$connection]);
         } catch (Throwable $e) {
-            $this->exceptionHandler($e);
+            $this->handleException($e);
         }
     }
 }

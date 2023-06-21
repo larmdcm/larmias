@@ -257,7 +257,6 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
      * 获取容器中的对象实例
      *
      * @param string $id
-     *
      * @return object
      * @throws ReflectionException
      */

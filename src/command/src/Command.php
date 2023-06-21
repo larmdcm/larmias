@@ -10,7 +10,10 @@ use Larmias\Command\Events\AfterHandle;
 use Larmias\Command\Events\BeforeHandle;
 use Larmias\Command\Events\FailToHandle;
 use Larmias\Command\Exceptions\Handler\ExceptionHandler;
+use Larmias\Contracts\ConfigInterface;
 use Larmias\Contracts\ContainerInterface;
+use Larmias\ExceptionHandler\Contracts\ExceptionHandlerDispatcherInterface;
+use Larmias\Utils\Arr;
 use Symfony\Component\Console\Command\Command as SymfonyCommand;
 use Symfony\Component\Console\Exception\ExceptionInterface;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
@@ -25,6 +28,7 @@ use Symfony\Component\Console\Question\Question;
 use Larmias\Utils\Contracts\Arrayable;
 use Larmias\Utils\Str;
 use Psr\EventDispatcher\EventDispatcherInterface;
+use Throwable;
 use function method_exists;
 use function call_user_func_array;
 
@@ -399,10 +403,17 @@ abstract class Command extends SymfonyCommand
     }
 
     /**
+     * @return void
+     */
+    public function exit(): void
+    {
+    }
+
+    /**
      * @param InputInterface $input
      * @param OutputInterface $output
      * @return int
-     * @throws \Throwable
+     * @throws Throwable
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
@@ -410,13 +421,18 @@ abstract class Command extends SymfonyCommand
             $this->eventDispatcher && $this->eventDispatcher->dispatch(new BeforeHandle($this));
             $this->container->invoke([$this, 'handle']);
             $this->eventDispatcher && $this->eventDispatcher->dispatch(new AfterHandle($this));
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->eventDispatcher && $this->eventDispatcher->dispatch(new FailToHandle($this, $e));
-            /** @var ExceptionHandlerInterface $exceptionHandler */
-            $exceptionHandler = $this->container->get(ExceptionHandler::class);
-            $exceptionHandler->report($e);
-            $exceptionHandler->render($this, $e);
-            return $e->getCode();
+            $handlers = [];
+
+            $config = $this->container->has(ConfigInterface::class) ? $this->container->get(ConfigInterface::class) : null;
+            if ($config) {
+                $handlers = array_merge($handlers, Arr::wrap($config->get('exceptions.handler.command', [])));
+            }
+            $handlers[] = ExceptionHandler::class;
+            /** @var ExceptionHandlerDispatcherInterface $dispatcher */
+            $dispatcher = $this->container->get(ExceptionHandlerDispatcherInterface::class);
+            return (int)$dispatcher->dispatch($e, $handlers, $this);
         } finally {
             $this->eventDispatcher && $this->eventDispatcher->dispatch(new AfterExecute($this));
         }

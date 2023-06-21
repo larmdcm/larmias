@@ -23,7 +23,7 @@ abstract class Worker extends BaseWorker implements WorkerInterface
         try {
             $this->start($workerId);
         } catch (Throwable $e) {
-            $this->exceptionHandler($e);
+            $this->handleException($e);
         }
     }
 
@@ -56,7 +56,7 @@ abstract class Worker extends BaseWorker implements WorkerInterface
      * @param Throwable $e
      * @return void
      */
-    public function exceptionHandler(Throwable $e): void
+    public function handleException(Throwable $e): void
     {
         $this->printException($e);
         if (function_exists('posix_getppid')) {

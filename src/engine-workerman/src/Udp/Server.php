@@ -27,7 +27,7 @@ class Server extends BaseServer
             $connection = new Connection($udpConnection);
             $this->trigger(Event::ON_PACKET, [$connection, $data]);
         } catch (Throwable $e) {
-            $this->exceptionHandler($e);
+            $this->handleException($e);
         }
     }
 }

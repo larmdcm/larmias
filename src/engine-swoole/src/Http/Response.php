@@ -103,9 +103,12 @@ class Response implements ResponseInterface
     /**
      * {@inheritdoc}
      */
-    public function cookie(string $name, string $value = '', int $expire = 0, string $path = '/', string $domain = '', bool $secure = false, bool $httpOnly = true, ?string $sameSite = null): ResponseInterface
+    public function cookie(
+        string $name, string $value = '', int $expire = 0, string $path = '/', string $domain = '',
+        bool   $secure = false, bool $httpOnly = true, ?string $sameSite = null
+    ): ResponseInterface
     {
-        $this->response->cookie($name, $value, $expire, $path, $domain, $secure, $httpOnly, $sameSite);
+        $this->response->cookie($name, $value, $expire, $path, $domain, $secure, $httpOnly, $sameSite ?: '');
         return $this;
     }
 

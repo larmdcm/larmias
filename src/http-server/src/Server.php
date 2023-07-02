@@ -7,9 +7,9 @@ namespace Larmias\HttpServer;
 use Larmias\Contracts\ConfigInterface;
 use Larmias\Contracts\ContextInterface;
 use Larmias\Contracts\Http\OnRequestInterface;
-use Larmias\Contracts\Http\RequestInterface as HttpRequestInterface;
+use Larmias\Contracts\Http\RequestInterface as RawRequestInterface;
 use Larmias\Contracts\Http\ResponseEmitterInterface;
-use Larmias\Contracts\Http\ResponseInterface as HttpResponseInterface;
+use Larmias\Contracts\Http\ResponseInterface as RawResponseInterface;
 use Larmias\ExceptionHandler\Contracts\ExceptionHandlerDispatcherInterface;
 use Larmias\Http\Message\ServerRequest;
 use Larmias\HttpServer\Events\HttpRequestStart;
@@ -57,25 +57,25 @@ class Server implements OnRequestInterface
     }
 
     /**
-     * @param HttpRequestInterface $request
-     * @param HttpResponseInterface $response
+     * @param RawRequestInterface $rawRequest
+     * @param RawResponseInterface $rawResponse
      */
-    public function onRequest(HttpRequestInterface $request, HttpResponseInterface $response): void
+    public function onRequest(RawRequestInterface $rawRequest, RawResponseInterface $rawResponse): void
     {
-        $psrRequest = $this->makeRequest($request, $response);
-        $this->eventDispatcher->dispatch(new HttpRequestStart($psrRequest));
+        $request = $this->makeRequest($rawRequest, $rawResponse);
+        $this->eventDispatcher->dispatch(new HttpRequestStart($request));
         try {
-            $psrResponse = $this->runWithRequest($psrRequest);
+            $psrResponse = $this->runWithRequest($request);
         } catch (Throwable $e) {
             try {
-                $psrResponse = $this->getExceptionResponse($psrRequest, $e);
+                $psrResponse = $this->getExceptionResponse($request, $e);
             } catch (Throwable $exception) {
                 println(format_exception($exception));
             }
         } finally {
             if (isset($psrResponse)) {
-                $this->eventDispatcher->dispatch(new HttpRequestEnd($psrRequest, $psrResponse));
-                $this->responseEmitter->emit($psrResponse, $response, $psrRequest->getMethod() !== 'HEAD');
+                $this->eventDispatcher->dispatch(new HttpRequestEnd($request, $psrResponse));
+                $this->responseEmitter->emit($psrResponse, $rawResponse, $request->getMethod() !== 'HEAD');
             }
         }
     }
@@ -132,18 +132,21 @@ class Server implements OnRequestInterface
     protected function getExceptionResponse(RequestInterface $request, Throwable $e): PsrResponseInterface
     {
         $handlers = Arr::wrap($this->config->get('exceptions.handler.http', []));
-        $handlers[] = ExceptionHandler::class;
+        $check = !empty(array_filter($handlers, fn($handler) => is_subclass_of($handler, ExceptionHandler::class)));
+        if (!$check) {
+            $handlers[] = ExceptionHandler::class;
+        }
         /** @var ExceptionHandlerDispatcherInterface $dispatcher */
         $dispatcher = $this->container->get(ExceptionHandlerDispatcherInterface::class);
         return $dispatcher->dispatch($e, $handlers, $request);
     }
 
     /**
-     * @param HttpRequestInterface $httpRequest
-     * @param HttpResponseInterface $response
+     * @param RawRequestInterface $httpRequest
+     * @param RawResponseInterface $response
      * @return RequestInterface
      */
-    protected function makeRequest(HttpRequestInterface $httpRequest, HttpResponseInterface $response): RequestInterface
+    protected function makeRequest(RawRequestInterface $httpRequest, RawResponseInterface $response): RequestInterface
     {
         $psrResponse = new PsrResponse();
         $psrResponse->setRawResponse($response);

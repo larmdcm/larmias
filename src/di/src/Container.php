@@ -18,6 +18,7 @@ use ArrayIterator;
 use IteratorAggregate;
 use Countable;
 use Throwable;
+use ReflectionParameter;
 use Larmias\Di\Invoker\InvokeResolver;
 use function is_object;
 use function get_class;
@@ -60,7 +61,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
      */
     public function __construct()
     {
-        $this->invoker = new Invoker(new Parameter(makeClassHandler: function (string $className, \ReflectionParameter $parameter) {
+        $this->invoker = new Invoker(new Parameter(makeClassHandler: function (string $className, ReflectionParameter $parameter) {
             try {
                 return $this->make($className);
             } catch (Throwable $e) {

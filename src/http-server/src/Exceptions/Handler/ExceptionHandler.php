@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\HttpServer\Exceptions\Handler;
 
+use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\SessionInterface;
 use Larmias\ExceptionHandler\ExceptionHandler as BaseExceptionHandler;
 use Larmias\ExceptionHandler\Render\HtmlRender;
@@ -23,6 +24,13 @@ use function str_contains;
 
 class ExceptionHandler extends BaseExceptionHandler implements ExceptionHandlerInterface
 {
+    /**
+     * @param ContainerInterface $container
+     */
+    public function __construct(protected ContainerInterface $container)
+    {
+    }
+
     /**
      * @param RequestInterface $request
      * @param Throwable $e

@@ -10,9 +10,9 @@ interface ResponseEmitterInterface
 {
     /**
      * @param PsrResponseInterface $response
-     * @param ResponseInterface $serverResponse
+     * @param ResponseInterface $rawResponse
      * @param bool $withContent
      * @return void
      */
-    public function emit(PsrResponseInterface $response, ResponseInterface $serverResponse, bool $withContent = true): void;
+    public function emit(PsrResponseInterface $response, ResponseInterface $rawResponse, bool $withContent = true): void;
 }

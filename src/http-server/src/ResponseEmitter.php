@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Larmias\HttpServer;
 
 use Larmias\Contracts\FileInterface;
-use Larmias\Contracts\Http\ResponseInterface;
+use Larmias\Contracts\Http\ResponseInterface as RawResponseInterface;
 use Larmias\Utils\Helper;
 use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
 use Larmias\Contracts\Http\ResponseEmitterInterface;
@@ -16,19 +16,19 @@ class ResponseEmitter implements ResponseEmitterInterface
 {
     /**
      * @param PsrResponseInterface $response
-     * @param ResponseInterface $serverResponse
+     * @param RawResponseInterface $rawResponse
      * @param bool $withContent
      * @return void
      */
-    public function emit(PsrResponseInterface $response, ResponseInterface $serverResponse, bool $withContent = true): void
+    public function emit(PsrResponseInterface $response, RawResponseInterface $rawResponse, bool $withContent = true): void
     {
         $content = $response->getBody();
 
-        $serverResponse = $serverResponse->withHeaders($response->getHeaders())
+        $rawResponse = $rawResponse->withHeaders($response->getHeaders())
             ->status($response->getStatusCode(), $response->getReasonPhrase());
 
         if ($content instanceof FileInterface) {
-            $serverResponse->sendFile($content->getFilename());
+            $rawResponse->sendFile($content->getFilename());
             return;
         }
 
@@ -40,7 +40,7 @@ class ResponseEmitter implements ResponseEmitterInterface
                             'isRaw', 'getValue', 'getName', 'getExpiresTime', 'getPath', 'getDomain', 'isSecure', 'isHttpOnly', 'getSameSite',
                         ])) {
                             $value = $cookie->isRaw() ? $cookie->getValue() : rawurlencode($cookie->getValue());
-                            $serverResponse->cookie(
+                            $rawResponse->cookie(
                                 $cookie->getName(), $value, $cookie->getExpiresTime(), $cookie->getPath(), $cookie->getDomain(),
                                 $cookie->isSecure(), $cookie->isHttpOnly(), $cookie->getSameSite()
                             );
@@ -51,9 +51,9 @@ class ResponseEmitter implements ResponseEmitterInterface
         }
 
         if ($withContent) {
-            $serverResponse->end((string)$content);
+            $rawResponse->end((string)$content);
         } else {
-            $serverResponse->end();
+            $rawResponse->end();
         }
     }
 }

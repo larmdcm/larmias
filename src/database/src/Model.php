@@ -132,7 +132,7 @@ abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, Js
      * @var bool
      */
     protected bool $exists = false;
-    
+
     /**
      * @param array $data
      */
@@ -193,7 +193,7 @@ abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, Js
      * @param bool $force
      * @return bool
      */
-    public static function destroy(array|string|Closure $id, bool $force = false): bool
+    public static function destroy(array|string|int|Closure $id, bool $force = false): bool
     {
         if (empty($id)) {
             return false;
@@ -206,6 +206,8 @@ abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, Js
         } else {
             if (is_string($id)) {
                 $id = str_contains($id, ',') ? explode(',', $id) : [$id];
+            } else if (is_int($id)) {
+                $id = [$id];
             }
 
             $model->query()->whereIn($model->getPrimaryKey(), $id);

@@ -34,7 +34,6 @@ class ExceptionHandlerDispatcher implements ExceptionHandlerDispatcherInterface
             if (!($instance instanceof ExceptionHandlerInterface) || !$instance->isValid($e)) {
                 continue;
             }
-            $instance->report($e);
             $result = $instance->handle($e, $result, $args);
             if ($instance->isPropagationStopped()) {
                 break;

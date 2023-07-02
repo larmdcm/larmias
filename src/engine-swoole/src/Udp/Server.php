@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-
 namespace Larmias\Engine\Swoole\Udp;
 
 use Larmias\Engine\Swoole\Server as BaseServer;

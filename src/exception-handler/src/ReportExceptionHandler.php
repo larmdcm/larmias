@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Larmias\ExceptionHandler;
 
-use Larmias\Contracts\ExceptionReportInterface;
 use Psr\Log\LoggerInterface;
 use Throwable;
 

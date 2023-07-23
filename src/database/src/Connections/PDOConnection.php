@@ -24,6 +24,7 @@ use function microtime;
 use function str_starts_with;
 use function number_format;
 use function gettype;
+use function is_array;
 
 abstract class PDOConnection extends Connection
 {
@@ -153,6 +154,7 @@ abstract class PDOConnection extends Connection
     }
 
     /**
+     * 构建SQL语句
      * @param string $sql
      * @param array $bindings
      * @return string
@@ -164,6 +166,11 @@ abstract class PDOConnection extends Connection
             if ($type === PDO::PARAM_STR) {
                 $value = '\'' . addcslashes((string)$value, "'") . '\'';
             }
+
+            if (!is_array($value)) {
+                $value = (string)$value;
+            }
+
             $sql = is_numeric($key) ?
                 substr_replace($sql, $value, strpos($sql, '?'), 1) :
                 substr_replace($sql, $value, strpos($sql, ':' . $key), strlen(':' . $key));

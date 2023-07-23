@@ -6,7 +6,6 @@ namespace Larmias\Tests\Database;
 
 use Larmias\Database\Model;
 use Larmias\Database\Model\Concerns\SoftDelete;
-use Larmias\Database\Model\Concerns\HasUuid;
 
 /**
  * @property int $id
@@ -16,10 +15,14 @@ use Larmias\Database\Model\Concerns\HasUuid;
 class UserTModel extends Model
 {
     use SoftDelete;
-    use HasUuid;
 
     /**
      * @var string|null
      */
     protected ?string $table = 't_user';
+
+    public function generateUniqueId(): string
+    {
+        return uniqid();
+    }
 }

@@ -11,6 +11,7 @@ use function str_contains;
 class MysqlBuilder extends Builder
 {
     /**
+     * 转义
      * @param string $str
      * @return string
      */

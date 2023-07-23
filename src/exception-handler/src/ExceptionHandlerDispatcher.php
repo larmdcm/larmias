@@ -20,10 +20,12 @@ class ExceptionHandlerDispatcher implements ExceptionHandlerDispatcherInterface
     }
 
     /**
+     * 异常调度.
      * @param Throwable $e
-     * @param ExceptionHandlerInterface|string[] $handlers
-     * @param mixed $args
+     * @param array $handlers
+     * @param mixed|null $args
      * @return mixed
+     * @throws Throwable
      */
     public function dispatch(Throwable $e, array $handlers, mixed $args = null): mixed
     {

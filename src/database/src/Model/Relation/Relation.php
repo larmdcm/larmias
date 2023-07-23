@@ -9,31 +9,37 @@ use Larmias\Database\Model;
 abstract class Relation
 {
     /**
+     * 父级模型
      * @var Model
      */
     protected Model $parent;
 
     /**
+     * 关联模型
      * @var Model
      */
     protected Model $model;
 
     /**
+     * 关联模型类名
      * @var string
      */
     protected string $modelClass;
 
     /**
+     * 关联外键
      * @var string
      */
     protected string $foreignKey;
 
     /**
+     * 关联主键
      * @var string
      */
     protected string $localKey;
 
     /**
+     * 是否已初始化模型
      * @var bool
      */
     protected bool $initModel = false;

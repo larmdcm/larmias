@@ -6,7 +6,7 @@ use Larmias\Config\Config;
 use Larmias\Contracts\ConfigInterface;
 use Larmias\Di\Container;
 use Larmias\Contracts\ContainerInterface;
-use Larmias\Timer\Timer;
+use Larmias\Engine\Timer;
 use Larmias\Utils\ApplicationContext;
 use PHPUnit\TextUI\Command;
 

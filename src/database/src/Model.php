@@ -11,6 +11,7 @@ use Larmias\Database\Contracts\TransactionInterface;
 use Larmias\Database\Model\Collection;
 use Larmias\Database\Model\Concerns\Attribute;
 use Larmias\Database\Model\Concerns\Conversion;
+use Larmias\Database\Model\Concerns\ModelRelationQuery;
 use Larmias\Database\Model\Concerns\RelationShip;
 use Larmias\Database\Model\Concerns\Timestamp;
 use Larmias\Utils\Contracts\Arrayable;
@@ -19,12 +20,14 @@ use Closure;
 use ArrayAccess;
 use Stringable;
 use JsonSerializable;
+use RuntimeException;
 use function Larmias\Utils\class_basename;
 use function method_exists;
 
 /**
  * @method Model table(string $name)
  * @method string getTable()
+ * @method string getName()
  * @method Model alias(string|array $name)
  * @method Model name(string $name)
  * @method Model fieldRaw(string $field, array $bindings = [])
@@ -83,6 +86,7 @@ abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, Js
     use Conversion;
     use Timestamp;
     use RelationShip;
+    use ModelRelationQuery;
 
     /**
      * 主键
@@ -149,6 +153,10 @@ abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, Js
         foreach (static::$maker as $maker) {
             $maker($this);
         }
+
+        if ($this->getPrimaryValue()) {
+            $this->setExists(true);
+        }
     }
 
     /**
@@ -169,6 +177,7 @@ abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, Js
     }
 
     /**
+     * 实例化模型
      * @param array $data
      * @return static
      */
@@ -178,6 +187,7 @@ abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, Js
     }
 
     /**
+     * 创建数据
      * @param array $data
      * @return static
      */
@@ -189,7 +199,8 @@ abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, Js
     }
 
     /**
-     * @param array|string|Closure $id
+     * 删除数据
+     * @param array|string|int|Closure $id
      * @param bool $force
      * @return bool
      */
@@ -227,6 +238,7 @@ abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, Js
     }
 
     /**
+     * 保存数据
      * @param array $data
      * @return bool
      */
@@ -240,6 +252,7 @@ abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, Js
     }
 
     /**
+     * 删除模型数据
      * @return bool
      */
     public function delete(): bool
@@ -290,7 +303,7 @@ abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, Js
      */
     public function generateUniqueId(): string
     {
-        throw new \RuntimeException('Method not implemented.');
+        throw new RuntimeException('Method not implemented.');
     }
 
     /**
@@ -380,7 +393,13 @@ abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, Js
             return $this->setQuery($result);
         }
 
-        return $this->toResult($result);
+        $result = $this->toResult($result);
+
+        if ($this->isWithSet()) {
+            return $this->withQuery($result);
+        }
+
+        return $result;
     }
 
     /**
@@ -402,6 +421,7 @@ abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, Js
     }
 
     /**
+     * 获取当前模型数据是否存在
      * @return bool
      */
     public function isExists(): bool
@@ -410,6 +430,7 @@ abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, Js
     }
 
     /**
+     * 设置当前模型数据是否存在
      * @param bool $exists
      * @return self
      */

@@ -346,7 +346,10 @@ abstract class Paginator implements PaginatorInterface, ArrayAccess, Countable, 
         return $this->options['fragment'] ? '#' . $this->options['fragment'] : '';
     }
 
-    public function items()
+    /**
+     * @return array
+     */
+    public function items(): array
     {
         return $this->items->all();
     }
@@ -438,7 +441,7 @@ abstract class Paginator implements PaginatorInterface, ArrayAccess, Countable, 
      * @since  5.0.0
      */
     #[\ReturnTypeWillChange]
-    public function offsetUnset($offset): void
+    public function offsetUnset(mixed $offset): void
     {
         $this->items->offsetUnset($offset);
     }

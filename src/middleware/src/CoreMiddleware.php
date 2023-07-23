@@ -110,6 +110,7 @@ class CoreMiddleware implements CoreMiddlewareInterface
     }
 
     /**
+     * 构建中间件
      * @param string|Closure $middleware
      * @return array
      */
@@ -137,6 +138,7 @@ class CoreMiddleware implements CoreMiddlewareInterface
     }
 
     /**
+     * 调度中间件
      * @param mixed $passable
      * @param Closure $closure
      * @return mixed

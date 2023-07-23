@@ -21,6 +21,7 @@ class HasMany extends Relation
     }
 
     /**
+     * 初始化模型查询
      * @return void
      */
     protected function initModel(): void
@@ -29,6 +30,7 @@ class HasMany extends Relation
     }
 
     /**
+     * 获取关联数据
      * @return Collection
      */
     public function getRelation(): Collection
@@ -37,6 +39,7 @@ class HasMany extends Relation
     }
 
     /**
+     * 保存关联数据
      * @param array $data
      * @return Model|null
      */

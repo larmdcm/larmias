@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Larmias\Tests\Database;
 
 use Larmias\Database\Model;
+use Larmias\Database\Model\Relation\BelongsTo;
 
 /**
  * @property int $user_id
@@ -25,4 +26,12 @@ class UserInfoModel extends Model
      * @var string|null
      */
     protected ?string $table = 't_user_info';
+
+    /**
+     * @return BelongsTo
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(UserModel::class, 'user_id', 'id');
+    }
 }

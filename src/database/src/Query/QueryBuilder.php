@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Larmias\Database\Query;
 
 use Larmias\Contracts\CollectionInterface;
+use Larmias\Contracts\PaginatorInterface;
 use Larmias\Database\Contracts\BuilderInterface;
 use Larmias\Database\Contracts\ConnectionInterface;
 use Larmias\Database\Contracts\ExecuteResultInterface;
@@ -17,6 +18,7 @@ use Larmias\Database\Query\Concerns\AggregateQuery;
 use Larmias\Database\Query\Concerns\JoinQuery;
 use Larmias\Database\Query\Concerns\Transaction;
 use Larmias\Database\Query\Concerns\WhereQuery;
+use Larmias\Paginator\Paginator;
 use Larmias\Utils\Collection;
 use function array_map;
 use function array_merge;
@@ -39,7 +41,7 @@ class QueryBuilder implements QueryInterface
      * @var array
      */
     protected array $options = [
-        'primaryKey' => 'id',
+        'primary_key' => 'id',
         'data' => [],
         'table' => '',
         'alias' => [],
@@ -87,6 +89,7 @@ class QueryBuilder implements QueryInterface
     }
 
     /**
+     * 获取表名称
      * @return string
      */
     public function getTable(): string
@@ -109,6 +112,7 @@ class QueryBuilder implements QueryInterface
     }
 
     /**
+     * 设置表名称
      * @param string $name
      * @return QueryInterface
      */
@@ -255,6 +259,7 @@ class QueryBuilder implements QueryInterface
     }
 
     /**
+     * 设置递增
      * @param string $field
      * @param float $step
      * @return QueryInterface
@@ -266,6 +271,7 @@ class QueryBuilder implements QueryInterface
     }
 
     /**
+     * 设置递减
      * @param string $field
      * @param float $step
      * @return QueryInterface
@@ -276,6 +282,7 @@ class QueryBuilder implements QueryInterface
     }
 
     /**
+     * 设置软删除
      * @param string $field
      * @param array $condition
      * @return QueryInterface
@@ -287,6 +294,7 @@ class QueryBuilder implements QueryInterface
     }
 
     /**
+     * 构建SQL语句
      * @param int $buildType
      * @return string
      */
@@ -303,12 +311,13 @@ class QueryBuilder implements QueryInterface
     }
 
     /**
+     * 执行查询
      * @param string $method
      * @param array|null $data
      * @param mixed $condition
      * @return ExecuteResultInterface
      */
-    public function executeResult(string $method, ?array $data = null, mixed $condition = null): ExecuteResultInterface
+    public function execute(string $method, ?array $data = null, mixed $condition = null): ExecuteResultInterface
     {
         if ($data !== null) {
             $this->data($data);
@@ -326,52 +335,58 @@ class QueryBuilder implements QueryInterface
     }
 
     /**
+     * 插入数据
      * @param array|null $data
      * @return int
      */
     public function insert(?array $data = null): int
     {
-        return $this->executeResult(__FUNCTION__, $data)->getRowCount();
+        return $this->execute(__FUNCTION__, $data)->getRowCount();
     }
 
     /**
+     * 插入数据返回新增ID
      * @param array|null $data
      * @return string
      */
     public function insertGetId(?array $data = null): string
     {
-        return $this->executeResult('insert', $data)->getInsertId();
+        return $this->execute('insert', $data)->getInsertId();
     }
 
     /**
+     * 批量插入数据
      * @param array|null $data
      * @return int
      */
     public function insertAll(?array $data = null): int
     {
-        return $this->executeResult(__FUNCTION__, $data)->getRowCount();
+        return $this->execute(__FUNCTION__, $data)->getRowCount();
     }
 
     /**
+     * 更新数据
      * @param array|null $data
      * @param mixed $condition
      * @return int
      */
     public function update(?array $data = null, mixed $condition = null): int
     {
-        return $this->executeResult(__FUNCTION__, $data, $condition)->getRowCount();
+        return $this->execute(__FUNCTION__, $data, $condition)->getRowCount();
     }
 
     /**
+     * 删除数据
      * @param mixed $condition
      * @return int
      */
     public function delete(mixed $condition = null): int
     {
-        return $this->executeResult(__FUNCTION__, condition: $condition)->getRowCount();
+        return $this->execute(__FUNCTION__, condition: $condition)->getRowCount();
     }
 
     /**
+     * 获取数据集合
      * @return CollectionInterface
      */
     public function get(): CollectionInterface
@@ -382,17 +397,16 @@ class QueryBuilder implements QueryInterface
     }
 
     /**
+     * 获取第一条数据
      * @return array|null
      */
     public function first(): ?array
     {
-        if (!$this->options['limit']) {
-            $this->limit(1);
-        }
-        return $this->get()->first();
+        return $this->limit(1)->get()->first();
     }
 
     /**
+     * 获取第一条数据 查询失败抛出异常
      * @return array|null
      */
     public function firstOrFail(): ?array
@@ -405,6 +419,7 @@ class QueryBuilder implements QueryInterface
     }
 
     /**
+     * 根据主键查询数据
      * @param int|string $id
      * @return array|null
      */
@@ -414,6 +429,7 @@ class QueryBuilder implements QueryInterface
     }
 
     /**
+     * 根据主键查询数据 查询失败抛出异常
      * @param int|string $id
      * @return array|null
      */
@@ -427,6 +443,7 @@ class QueryBuilder implements QueryInterface
     }
 
     /**
+     * 查询单列值
      * @param string $name
      * @param mixed|null $default
      * @return mixed
@@ -438,6 +455,7 @@ class QueryBuilder implements QueryInterface
     }
 
     /**
+     * 查询单列值列表
      * @param string $value
      * @param string|null $key
      * @return CollectionInterface
@@ -445,6 +463,44 @@ class QueryBuilder implements QueryInterface
     public function pluck(string $value, ?string $key = null): CollectionInterface
     {
         return $this->get()->pluck($value, $key);
+    }
+
+    /**
+     * 分页查询
+     * @param array $config
+     * @return PaginatorInterface
+     */
+    public function paginate(array $config = []): PaginatorInterface
+    {
+        $defaultConfig = [
+            'query' => [], //url额外参数
+            'fragment' => '', //url锚点
+            'var_page' => 'page', //分页变量
+            'page' => 1,// 页码
+            'list_rows' => 15, //每页数量
+            'total' => null, // 总页数
+            'simple' => false, // 分页简单模式
+        ];
+
+        $config = array_merge($defaultConfig, $config);
+        $page = max($config['page'], 1);
+        $listRows = $config['list_rows'];
+        $total = $config['total'];
+        $results = new Collection();
+        $offset = ($page - 1) * $listRows;
+
+        if (!$total && !$config['simple']) {
+            $options = $this->getOptions();
+            unset($this->options['order'], $this->options['limit'], $this->options['field']);
+            $total = $this->count();
+            if ($total > 0) {
+                $results = $this->setOptions($options)->offset($offset)->limit($listRows)->get();
+            }
+        } else {
+            $results = $this->offset($offset)->limit($listRows)->get();
+        }
+
+        return Paginator::make($results, $listRows, $page, $total, $config['simple'], $config);
     }
 
     /**
@@ -467,11 +523,21 @@ class QueryBuilder implements QueryInterface
     }
 
     /**
+     * @param array $options
+     * @return QueryInterface
+     */
+    public function setOptions(array $options): QueryInterface
+    {
+        $this->options = $options;
+        return $this;
+    }
+
+    /**
      * @return string
      */
     public function getPrimaryKey(): string
     {
-        return $this->options['primaryKey'];
+        return $this->options['primary_key'];
     }
 
     /**
@@ -480,7 +546,7 @@ class QueryBuilder implements QueryInterface
      */
     public function setPrimaryKey(string $primaryKey): QueryInterface
     {
-        $this->options['primaryKey'] = $primaryKey;
+        $this->options['primary_key'] = $primaryKey;
         return $this;
     }
 

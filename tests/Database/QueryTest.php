@@ -20,7 +20,7 @@ class QueryTest extends TestCase
                 $query->where('password', '<>', '');
             });
         })->buildSql();
-        $this->assertSame($result, "SELECT * FROM `t_user` WHERE `id` = '1' AND `username` = 'test' AND ( `status` = '1' AND `integral` > '1' AND ( `password` <> '' ) )");
+        $this->assertSame($result, "SELECT * FROM `t_user` WHERE `id` = 1 AND `username` = 'test' AND ( `status` = 1 AND `integral` > 1 AND ( `password` <> '' ) )");
     }
 
     /**
@@ -40,8 +40,7 @@ class QueryTest extends TestCase
             ->whereNotExists('id', 'test')
             ->whereColumn('create_time', '>', 'update_time')
             ->buildSql();
-        var_dump($result);
-        $this->assertSame($result, "");
+        $this->assertSame($result, "SELECT * FROM `t_user` WHERE id = 1 AND `info` = 'NULL' AND `update_time` = 'NOT NULL' AND `id` IN (1,2,3) AND `id` NOT IN ('4','5') AND `id` BETWEEN 1 AND 2 AND `id` NOT BETWEEN 4 AND 5 AND `name` LIKE '%test%' AND `name` NOT LIKE '%test%' AND `id` EXISTS ( test ) AND `id` NOT EXISTS ( test ) AND (`create_time` > `update_time`)");
     }
 
     /**
@@ -71,9 +70,9 @@ class QueryTest extends TestCase
     {
         $query = $this->newQuery();
         $query->table('test')->field('id,name')->where('id', 1);
-        $this->assertSame($query->buildSql(), 'SELECT`id`,`name` FROM `test` WHERE `id` = \'1\'');
+        $this->assertSame($query->buildSql(), 'SELECT `id`,`name` FROM `test` WHERE `id` = 1');
         $query->where('integral', '>', 100);
-        $this->assertSame($query->buildSql(), 'SELECT`id`,`name` FROM `test` WHERE `id` = \'1\' AND `integral` > \'100\'');
+        $this->assertSame($query->buildSql(), 'SELECT `id`,`name` FROM `test` WHERE `id` = 1 AND `integral` > 100');
     }
 
     /**
@@ -129,7 +128,7 @@ class QueryTest extends TestCase
     public function testUpdate(): void
     {
         $query = $this->newQuery();
-        $result = $query->table('t_user')->where('id', 1)->update([
+        $result = $query->table('t_user')->where('id', $query->table('t_user')->orderBy('id')->value('id'))->update([
             'password' => md5('123456789'),
             'update_time' => date('Y-m-d H:i:s')
         ]);
@@ -142,7 +141,17 @@ class QueryTest extends TestCase
     public function testDelete(): void
     {
         $query = $this->newQuery();
-        $result = $query->table('t_user')->where('id', 10)->delete();
+        $result = $query->table('t_user')->where('id', $query->table('t_user')->orderBy('id')->value('id'))->delete();
         $this->assertTrue($result > 0);
+    }
+
+    /**
+     * @return void
+     */
+    public function testPaginate(): void
+    {
+        $query = $this->newQuery();
+        $page = $query->table('t_user')->paginate(['page' => 2]);
+        $this->assertTrue($page->count() > 0);
     }
 }

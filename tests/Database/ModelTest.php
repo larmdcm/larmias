@@ -121,4 +121,21 @@ class ModelTest extends TestCase
         $model->userInfo->save(['age' => $age]);
         $this->assertSame($age, $model->userInfo->age);
     }
+
+    /**
+     * @return void
+     */
+    public function testUserInfoWith(): void
+    {
+        $list = UserModel::new()->with(['userInfo' => function ($model) {
+            $model->field('id,user_id');
+        }])->get();
+        $this->assertSame($list[0]->id, $list[0]->userInfo->user_id);
+
+        $data = UserModel::new()->with(['userInfo' => function ($model) {
+            $model->field('id,user_id');
+        }])->first();
+
+        $this->assertSame($data->id, $data->userInfo->user_id);
+    }
 }

@@ -19,7 +19,6 @@ class DbQueryExecutedListener implements ListenerInterface
     public function process(object $event): void
     {
         /** @var QueryExecuted $event */
-
         $sql = $event->sql;
         foreach ($event->bindings as $value) {
             $value = is_array($value) ? json_encode($value) : "'{$value}'";

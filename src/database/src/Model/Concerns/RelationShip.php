@@ -8,6 +8,7 @@ use Larmias\Database\Model;
 use Larmias\Database\Model\Relation\HasOne;
 use Larmias\Database\Model\Relation\BelongsTo;
 use Larmias\Database\Model\Relation\HasMany;
+use Larmias\Database\Model\Relation\BelongsToMany;
 use Larmias\Utils\Str;
 use function Larmias\Utils\class_basename;
 use function str_contains;
@@ -18,7 +19,7 @@ use function str_contains;
 trait RelationShip
 {
     /**
-     * has one
+     * 一对一关联
      * @param string $modelClass
      * @param string $foreignKey
      * @param string $localKey
@@ -32,7 +33,7 @@ trait RelationShip
     }
 
     /**
-     * belongs to
+     * 反向一对一关联
      * @param string $modelClass
      * @param string $foreignKey
      * @param string $localKey
@@ -40,13 +41,13 @@ trait RelationShip
      */
     public function belongsTo(string $modelClass, string $foreignKey = '', string $localKey = ''): BelongsTo
     {
-        $foreignKey = $foreignKey ?: $this->getForeignKey($this->name);
-        $localKey = $localKey ?: $this->getPrimaryKey();
+        $foreignKey = $foreignKey ?: $this->getForeignKey($modelClass);
+        $localKey = $localKey ?: (new $modelClass)->getPrimaryKey();
         return new BelongsTo($this, $modelClass, $foreignKey, $localKey);
     }
 
     /**
-     * has many
+     * 一对多关联
      * @param string $modelClass
      * @param string $foreignKey
      * @param string $localKey
@@ -60,6 +61,22 @@ trait RelationShip
     }
 
     /**
+     * 多对多关联
+     * @param string $modelClass
+     * @param string $middleClass
+     * @param string $foreignKey
+     * @param string $localKey
+     * @return BelongsToMany
+     */
+    public function belongsToMany(string $modelClass, string $middleClass, string $foreignKey = '', string $localKey = ''): BelongsToMany
+    {
+        $foreignKey = $foreignKey ?: Str::snake(class_basename($modelClass)) . '_id';
+        $localKey = $localKey ?: $this->getForeignKey($this->name);
+        return new BelongsToMany($this, $modelClass, $middleClass, $foreignKey, $localKey);
+    }
+
+    /**
+     * 是否为关联属性
      * @param string $name
      * @return string|null
      */
@@ -74,6 +91,7 @@ trait RelationShip
     }
 
     /**
+     * 获取外键key
      * @param string $name
      * @return string
      */

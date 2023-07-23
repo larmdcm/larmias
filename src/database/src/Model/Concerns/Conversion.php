@@ -54,9 +54,7 @@ trait Conversion
      */
     public function toResult(mixed $result): mixed
     {
-        $check = $result instanceof CollectionInterface || $result instanceof Arrayable || is_array($result);
-
-        if (!$check) {
+        if (!$this->isResultSet($result)) {
             return $result;
         }
 
@@ -72,5 +70,14 @@ trait Conversion
         $model = new static($result);
         $model->setExists(true);
         return $model;
+    }
+
+    /**
+     * @param mixed $result
+     * @return bool
+     */
+    protected function isResultSet(mixed $result): bool
+    {
+        return $result instanceof CollectionInterface || $result instanceof Arrayable || is_array($result);
     }
 }

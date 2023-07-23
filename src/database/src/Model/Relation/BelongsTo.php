@@ -9,6 +9,7 @@ use Larmias\Database\Model;
 class BelongsTo extends OneToOne
 {
     /**
+     * 初始化模型查询
      * @return void
      */
     public function initModel(): void
@@ -17,6 +18,7 @@ class BelongsTo extends OneToOne
     }
 
     /**
+     * 获取关联数据
      * @return Model|null
      */
     public function getRelation(): ?Model

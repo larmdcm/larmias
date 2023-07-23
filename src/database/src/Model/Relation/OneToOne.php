@@ -20,6 +20,7 @@ abstract class OneToOne extends Relation
     }
 
     /**
+     * 保存关联数据
      * @param array $data
      * @return Model|null
      */

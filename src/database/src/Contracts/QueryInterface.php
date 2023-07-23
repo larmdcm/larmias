@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Larmias\Database\Contracts;
 
 use Larmias\Contracts\CollectionInterface;
+use Larmias\Contracts\PaginatorInterface;
 
 interface QueryInterface
 {
@@ -394,6 +395,13 @@ interface QueryInterface
     public function pluck(string $value, ?string $key = null): CollectionInterface;
 
     /**
+     * 分页查询
+     * @param array $config
+     * @return PaginatorInterface
+     */
+    public function paginate(array $config): PaginatorInterface;
+
+    /**
      * @return TransactionInterface
      */
     public function beginTransaction(): TransactionInterface;
@@ -408,6 +416,12 @@ interface QueryInterface
      * @return array
      */
     public function getOptions(): array;
+
+    /**
+     * @param array $options
+     * @return QueryInterface
+     */
+    public function setOptions(array $options): QueryInterface;
 
     /**
      * @return string

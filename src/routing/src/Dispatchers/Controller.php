@@ -47,7 +47,7 @@ class Controller extends Dispatcher
             if ($option['namespace'] !== '') {
                 $className = $option['namespace'] . "\\" . $className;
             }
-            $instance = $this->container->make($className, [], true);
+            $instance = $this->container->get($className);
         } else {
             $instance = $className;
         }

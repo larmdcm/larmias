@@ -38,6 +38,7 @@ use function is_scalar;
 class Server implements OnRequestInterface
 {
     /**
+     * 初始化
      * @param ContainerInterface $container
      * @param EventDispatcherInterface $eventDispatcher
      * @param ResponseEmitter $responseEmitter
@@ -57,10 +58,11 @@ class Server implements OnRequestInterface
     }
 
     /**
+     * 请求回调事件
      * @param RawRequestInterface $rawRequest
      * @param RawResponseInterface $rawResponse
      */
-    public function onRequest(RawRequestInterface $rawRequest, RawResponseInterface $rawResponse): void
+    public function onRequest(RawRequestInterface  , RawResponseInterface $rawResponse): void
     {
         $request = $this->makeRequest($rawRequest, $rawResponse);
         $this->eventDispatcher->dispatch(new HttpRequestStart($request));
@@ -81,6 +83,7 @@ class Server implements OnRequestInterface
     }
 
     /**
+     * 运行请求方法
      * @param RequestInterface $request
      * @return PsrResponseInterface
      * @throws Throwable
@@ -93,6 +96,7 @@ class Server implements OnRequestInterface
     }
 
     /**
+     * 路由调度
      * @param RequestInterface $request
      * @return PsrResponseInterface
      * @throws Throwable
@@ -110,6 +114,7 @@ class Server implements OnRequestInterface
     }
 
     /**
+     * 包装返回结果响应
      * @param mixed $result
      * @return PsrResponseInterface
      */
@@ -124,6 +129,7 @@ class Server implements OnRequestInterface
     }
 
     /**
+     * 获取异常响应对象
      * @param RequestInterface $request
      * @param Throwable $e
      * @return PsrResponseInterface
@@ -142,15 +148,16 @@ class Server implements OnRequestInterface
     }
 
     /**
-     * @param RawRequestInterface $httpRequest
-     * @param RawResponseInterface $response
+     * 创建请求
+     * @param RawRequestInterface $rawRequest
+     * @param RawResponseInterface $rawResponse
      * @return RequestInterface
      */
-    protected function makeRequest(RawRequestInterface $httpRequest, RawResponseInterface $response): RequestInterface
+    protected function makeRequest(RawRequestInterface $rawRequest, RawResponseInterface $rawResponse): RequestInterface
     {
         $psrResponse = new PsrResponse();
-        $psrResponse->setRawResponse($response);
-        $this->context->set(ServerRequestInterface::class, ServerRequest::loadFromRequest($httpRequest));
+        $psrResponse->setRawResponse($rawResponse);
+        $this->context->set(ServerRequestInterface::class, ServerRequest::loadFromRequest($rawRequest));
         $this->context->set(PsrResponseInterface::class, $psrResponse);
         $this->context->set(RequestInterface::class, new Request($this->context));
         $this->context->set(ResponseInterface::class, new Response($this->context));

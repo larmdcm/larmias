@@ -12,6 +12,7 @@ use Larmias\Database\Query\QueryBuilder;
 trait AggregateQuery
 {
     /**
+     * 聚合查询条数
      * @param string $field
      * @return int
      */
@@ -21,6 +22,7 @@ trait AggregateQuery
     }
 
     /**
+     * 聚合查询求和
      * @param string $field
      * @return float
      */
@@ -30,6 +32,7 @@ trait AggregateQuery
     }
 
     /**
+     * 聚合查询求最小值
      * @param string $field
      * @return float
      */
@@ -39,6 +42,7 @@ trait AggregateQuery
     }
 
     /**
+     * 聚合查询求最大值
      * @param string $field
      * @return float
      */
@@ -48,6 +52,7 @@ trait AggregateQuery
     }
 
     /**
+     * 聚合查询求平均值
      * @param string $field
      * @return float
      */
@@ -57,6 +62,7 @@ trait AggregateQuery
     }
 
     /**
+     * 聚合查询
      * @param string $type
      * @param string $field
      * @return mixed

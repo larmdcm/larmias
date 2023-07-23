@@ -6,6 +6,7 @@ namespace Larmias\Database\Model\Concerns;
 
 use InvalidArgumentException;
 use Larmias\Database\Model\Relation\Relation;
+use Larmias\Utils\Arr;
 use Larmias\Utils\Str;
 use Larmias\Database\Model;
 use function array_udiff_assoc;
@@ -119,6 +120,26 @@ trait Attribute
     public function refreshOrigin(): void
     {
         $this->origin = $this->data;
+    }
+
+    /**
+     * @param array $data
+     * @return Model|Attribute
+     */
+    public function data(array $data = []): self
+    {
+        $this->data = $data;
+        return $this;
+    }
+
+    /**
+     * 获取主键值
+     * @return int|string|null
+     */
+    public function getPrimaryValue(): int|string|null
+    {
+        $primaryKey = $this->getPrimaryKey();
+        return array_key_exists($primaryKey, $this->data) ? $this->data[$primaryKey] : null;
     }
 
     /**

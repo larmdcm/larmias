@@ -36,7 +36,7 @@ class ConnectionTest extends TestCase
 
             // 测试事务嵌套
             $this->actionUpdateUser(2);
-            $this->actionUpdateUser(6);
+            $this->actionUpdateUser(3);
 
             $ctx->commit();
         } catch (\Throwable $e) {

@@ -174,13 +174,15 @@ abstract class Builder implements BuilderInterface
             $this->parseWhere($options['where']),
             $this->parseGroup($options['group']),
             $this->parseHaving($options['having']),
-            $this->parseOrder($options['order']),
-            $this->parseLimit($options['limit'], $options['offset']),
+            $this->parseOrder($options['order'] ?? []),
+            $this->parseLimit($options['limit'] ?? null, $options['offset'] ?? null),
         ], $this->selectSql);
+
         return $this->createSqlPrepare($sql);
     }
 
     /**
+     * 聚合查询
      * @param string $type
      * @param string $field
      * @param string $name
@@ -188,7 +190,7 @@ abstract class Builder implements BuilderInterface
      */
     public function aggregate(string $type, string $field, string $name): string
     {
-        return $this->buildAlias(sprintf('%s(%s)', strtoupper($type), $field), $name);
+        return sprintf('%s(%s)', strtoupper($type), $field) . ' ' . $this->escape($name);
     }
 
     /**
@@ -211,7 +213,7 @@ abstract class Builder implements BuilderInterface
         $values = [];
         foreach ($fields as $field) {
             if ($field instanceof ExpressionInterface) {
-                $values[] = $this->escape($this->parseExpression($field));
+                $values[] = $this->parseExpression($field);
             } else {
                 if (!is_array($field)) {
                     $field = explode(',', (string)$field);
@@ -356,7 +358,7 @@ abstract class Builder implements BuilderInterface
                     if (str_contains($key, ',')) {
                         $key = implode(',', array_map(fn($item) => $this->escape($item), explode(',', $key)));
                     }
-                    $values[] = $this->escape($key) . ' Builder.php' . $value;
+                    $values[] = $this->escape($key) . ' ' . $value;
                 }
             } else {
                 $values[] = $order;

@@ -59,12 +59,12 @@ class Server implements OnRequestInterface
 
     /**
      * 请求回调事件
-     * @param RawRequestInterface $rawRequest
-     * @param RawResponseInterface $rawResponse
+     * @param RawRequestInterface $request
+     * @param RawResponseInterface $response
      */
-    public function onRequest(RawRequestInterface  , RawResponseInterface $rawResponse): void
+    public function onRequest(RawRequestInterface $request, RawResponseInterface $response): void
     {
-        $request = $this->makeRequest($rawRequest, $rawResponse);
+        $request = $this->makeRequest($request, $response);
         $this->eventDispatcher->dispatch(new HttpRequestStart($request));
         try {
             $psrResponse = $this->runWithRequest($request);
@@ -77,7 +77,7 @@ class Server implements OnRequestInterface
         } finally {
             if (isset($psrResponse)) {
                 $this->eventDispatcher->dispatch(new HttpRequestEnd($request, $psrResponse));
-                $this->responseEmitter->emit($psrResponse, $rawResponse, $request->getMethod() !== 'HEAD');
+                $this->responseEmitter->emit($psrResponse, $response, $request->getMethod() !== 'HEAD');
             }
         }
     }

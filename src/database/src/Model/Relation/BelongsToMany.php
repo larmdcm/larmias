@@ -4,22 +4,19 @@ declare(strict_types=1);
 
 namespace Larmias\Database\Model\Relation;
 
+use Larmias\Contracts\CollectionInterface;
 use Larmias\Database\Model;
 use Larmias\Utils\Arr;
 use Larmias\Database\Model\Collection;
+use Larmias\Database\Model\Pivot;
 use RuntimeException;
+use Closure;
 use function is_array;
 use function is_numeric;
 use function is_string;
 
 class BelongsToMany extends Relation
 {
-    /**
-     * 中间表模型
-     * @var Model
-     */
-    protected Model $pivot;
-
     /**
      * @param Model $parent
      * @param string $modelClass
@@ -33,7 +30,6 @@ class BelongsToMany extends Relation
     )
     {
         $this->model = $this->newModel();
-        $this->pivot = $this->newPivot();
     }
 
     /**
@@ -42,8 +38,7 @@ class BelongsToMany extends Relation
      */
     protected function initModel(): void
     {
-        $ids = $this->pivot->where($this->localKey, $this->parent->getPrimaryValue())->pluck($this->foreignKey);
-        $this->model->whereIn($this->model->getPrimaryKey(), $ids);
+        $this->model = $this->belongsToManyQuery();
     }
 
     /**
@@ -56,23 +51,62 @@ class BelongsToMany extends Relation
     }
 
     /**
-     * 保存关联数据
+     * 向中间表中附加数据
      * @param mixed $data
      * @param array $pivot
-     * @return array
+     * @return array|Pivot
      */
-    public function save(mixed $data, array $pivot): array
+    public function save(mixed $data, array $pivot = []): array|Pivot
     {
         return $this->attach($data, $pivot);
+    }
+
+    /**
+     * 关联预查询
+     * @param CollectionInterface|Model $resultSet
+     * @param string $relation
+     * @param mixed $option
+     * @return void
+     */
+    public function eagerlyResultSet(CollectionInterface|Model $resultSet, string $relation, mixed $option): void
+    {
+        $model = $this->newModel();
+
+        if ($resultSet instanceof Model) {
+            $resultSet = new Collection([$resultSet]);
+        }
+
+        $localKeyValues = $resultSet->filter(fn(Model $item) => isset($item->{$this->localKey}))->map(fn(Model $item) => $item->{$this->localKey})
+            ->unique()
+            ->toArray();
+
+        if (empty($localKeyValues)) {
+            return;
+        }
+
+        if ($option instanceof Closure) {
+            $option($model);
+        } else if (is_array($option) && !empty($option)) {
+            $model->with($option);
+        }
+
+        $data = $model->whereIn($this->foreignKey, $localKeyValues)->get();
+
+        if ($data->isNotEmpty()) {
+            /** @var Model $result */
+            foreach ($resultSet as $result) {
+                $result->{$relation} = $data->where($this->foreignKey, $result->{$this->localKey});
+            }
+        }
     }
 
     /**
      * 向中间表中附加数据
      * @param mixed $data
      * @param array $pivot
-     * @return array
+     * @return Pivot[]|Pivot
      */
-    public function attach(mixed $data, array $pivot = []): array
+    public function attach(mixed $data, array $pivot = []): array|Pivot
     {
         $id = null;
         if (is_array($data)) {
@@ -98,7 +132,10 @@ class BelongsToMany extends Relation
         $result = [];
         foreach ($ids as $id) {
             $pivot[$this->foreignKey] = $id;
-            $result[] = $this->pivot->setExists(false)->data([])->save($pivot);
+            $newPivot = $this->newPivot($pivot);
+            if ($newPivot->save()) {
+                $result[] = $newPivot;
+            }
         }
 
         if (count($result) == 1) {
@@ -111,9 +148,9 @@ class BelongsToMany extends Relation
     /**
      * 是否存在关联数据
      * @param mixed $data
-     * @return Model|null
+     * @return Pivot|null
      */
-    public function attached(mixed $data): ?Model
+    public function attached(mixed $data): ?Pivot
     {
         if ($data instanceof Model) {
             $id = $data->getPrimaryValue();
@@ -121,10 +158,13 @@ class BelongsToMany extends Relation
             $id = $data;
         }
 
-        return $this->pivot->where([
+        /** @var Pivot|null $pivot */
+        $pivot = $this->newPivot()->where([
             $this->localKey => $this->parent->getPrimaryValue(),
             $this->foreignKey => $id
         ])->first();
+
+        return $pivot;
     }
 
     /**
@@ -150,7 +190,7 @@ class BelongsToMany extends Relation
             $where[] = [$this->foreignKey, is_array($id) ? 'in' : '=', $id];
         }
 
-        $result = $this->pivot->newQuery()->where($where)->delete();
+        $result = $this->newPivot()->newQuery()->where($where)->delete();
 
         if (!$emptyId && $relationDel) {
             $this->model::destroy($id);
@@ -160,12 +200,27 @@ class BelongsToMany extends Relation
     }
 
     /**
-     * 实例化中间模型
-     * @param array $data
      * @return Model
      */
-    public function newPivot(array $data = []): Model
+    public function belongsToManyQuery(): Model
     {
+        $model = $this->newModel();
+        $ids = $this->newPivot()->where($this->localKey, $this->parent->getPrimaryValue())->pluck($this->foreignKey)->toArray();
+        $model->whereIn($model->getPrimaryKey(), $ids);
+        return $model;
+    }
+
+    /**
+     * 实例化中间模型
+     * @param array $data
+     * @return Pivot
+     */
+    public function newPivot(array $data = []): Pivot
+    {
+        if (!class_exists($this->middleClass)) {
+            return new Pivot($data, $this->middleClass);
+        }
+
         return new $this->middleClass($data);
     }
 }

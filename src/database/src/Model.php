@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\Database;
 
+use Larmias\Contracts\PaginatorInterface;
 use Larmias\Database\Contracts\ExpressionInterface;
 use Larmias\Database\Contracts\ManagerInterface;
 use Larmias\Database\Contracts\QueryInterface;
@@ -58,6 +59,7 @@ use function method_exists;
  * @method Model orHaving(string $expression, array $bindings = [])
  * @method Model offset(int $offset)
  * @method Model limit(int $limit)
+ * @method Model page(int $page, int $listRows = 25)
  * @method Model incr(string $field, float $step)
  * @method Model decr(string $field, float $step)
  * @method int count(string $field = '*')
@@ -77,6 +79,8 @@ use function method_exists;
  * @method Model findOrFail(int|string $id)
  * @method mixed value(string $name, mixed $default = null)
  * @method Collection pluck(string $value, ?string $key = null)
+ * @method PaginatorInterface paginate(array $config = [])
+ * @method bool chunk(int $count, callable $callback, string $column = 'id', string $order = 'asc')
  * @method TransactionInterface beginTransaction()
  * @method mixed transaction(\Closure $callback)
  */
@@ -95,6 +99,7 @@ abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, Js
     protected string $primaryKey = 'id';
 
     /**
+     * 主键是否自增
      * @var bool
      */
     protected bool $incrementing = true;
@@ -122,6 +127,7 @@ abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, Js
     protected ?string $table = null;
 
     /**
+     * 默认连接
      * @var string|null
      */
     protected ?string $connection = null;
@@ -136,6 +142,12 @@ abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, Js
      * @var bool
      */
     protected bool $exists = false;
+
+    /**
+     * 当前是否处理Query
+     * @var bool
+     */
+    protected bool $dealQuery = false;
 
     /**
      * @param array $data
@@ -284,21 +296,20 @@ abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, Js
         }
 
         $primaryKey = $this->getPrimaryKey();
+        $this->setExists($exists);
 
         if ($exists) {
             if (!isset($this->data[$primaryKey]) || $this->data[$primaryKey] === '') {
                 $this->data[$primaryKey] = $id;
             }
-            $this->setExists(true);
-            if (empty($this->origin)) {
-                $this->refreshOrigin();
-            }
+            $this->refreshOrigin();
         }
 
         return $exists;
     }
 
     /**
+     * 生成唯一id
      * @return string
      */
     public function generateUniqueId(): string
@@ -314,18 +325,29 @@ abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, Js
     {
         $data = $this->getChangedData();
 
-        return $this->query()->update($data, $this->getWhere()) > 0;
+        if (empty($data)) {
+            return true;
+        }
+
+        $result = $this->query()->update($data, $this->getWhere()) > 0;
+
+        if ($result) {
+            $this->refreshOrigin($data);
+        }
+
+        return $result;
     }
 
     /**
+     * 获取更新条件
      * @return array
      */
     protected function getWhere(): array
     {
         $where = [];
         $primaryKey = $this->getPrimaryKey();
-        if (isset($this->data[$primaryKey])) {
-            $where[$primaryKey] = $this->data[$primaryKey];
+        if (isset($this->origin[$primaryKey])) {
+            $where[$primaryKey] = $this->origin[$primaryKey];
         }
         return $where;
     }
@@ -336,7 +358,7 @@ abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, Js
     public function query(): QueryInterface
     {
         if (!isset($this->query)) {
-            $this->query = $this->newQuery();
+            $this->resetQuery();
         }
 
         return $this->query;
@@ -349,6 +371,15 @@ abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, Js
     public function setQuery(QueryInterface $query): self
     {
         $this->query = $query;
+        return $this;
+    }
+
+    /**
+     * @return self
+     */
+    public function resetQuery(): self
+    {
+        $this->setQuery($this->newQuery());
         return $this;
     }
 
@@ -369,6 +400,7 @@ abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, Js
     }
 
     /**
+     * 设置查询条件
      * @param QueryInterface $query
      * @return void
      */
@@ -384,25 +416,38 @@ abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, Js
      * @param array $args
      * @return mixed
      */
-    public function __call(string $name, array $args): mixed
+    public function __call(string $name, array $args)
     {
         $query = $this->query();
         $result = $query->{$name}(...$args);
 
-        if ($result instanceof QueryInterface) {
+        $this->dealQuery = $result instanceof QueryInterface;
+
+        if ($this->dealQuery) {
             return $this->setQuery($result);
         }
 
         $result = $this->toResult($result);
 
         if ($this->isWithSet()) {
-            return $this->withQuery($result);
+            $result = $this->withQuery($result);
         }
 
         return $result;
     }
 
     /**
+     * @param string $name
+     * @param array $args
+     * @return mixed
+     */
+    public static function __callStatic(string $name, array $args)
+    {
+        return call_user_func_array([static::new(), $name], $args);
+    }
+
+    /**
+     * 获取主键key
      * @return string
      */
     public function getPrimaryKey(): string
@@ -411,6 +456,7 @@ abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, Js
     }
 
     /**
+     * 设置主键key
      * @param string $primaryKey
      * @return self
      */
@@ -441,6 +487,15 @@ abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, Js
     }
 
     /**
+     * 是否处理query
+     * @return bool
+     */
+    public function isDealQuery(): bool
+    {
+        return $this->dealQuery;
+    }
+
+    /**
      * @param string $name
      * @return mixed
      */
@@ -465,7 +520,7 @@ abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, Js
      */
     public function __isset(string $name): bool
     {
-        return $this->getAttribute($name, false) !== null;
+        return $this->hasAttribute($name);
     }
 
     /**

@@ -14,6 +14,7 @@ use Closure;
 trait Transaction
 {
     /**
+     * 开启事务
      * @return TransactionInterface
      */
     public function beginTransaction(): TransactionInterface
@@ -22,6 +23,7 @@ trait Transaction
     }
 
     /**
+     * 事务处理回调
      * @param Closure $callback
      * @return mixed
      */

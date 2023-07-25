@@ -29,6 +29,7 @@ use function is_array;
 abstract class PDOConnection extends Connection
 {
     /**
+     * 连接配置
      * @var array
      */
     protected array $config = [
@@ -50,6 +51,7 @@ abstract class PDOConnection extends Connection
     protected PDO $pdo;
 
     /**
+     * PDO选项
      * @var array
      */
     protected array $options = [
@@ -93,6 +95,7 @@ abstract class PDOConnection extends Connection
     public function query(string $sql, array $bindings = []): ExecuteResultInterface
     {
         $statement = $this->executeStatement($sql, $bindings);
+
         return new ExecuteResult(
             executeSql: $this->executeSql,
             executeBindings: $this->executeBindings,

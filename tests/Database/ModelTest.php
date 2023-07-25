@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace Larmias\Tests\Database;
 
+use Larmias\Tests\Database\Model\UserModel;
+use Larmias\Tests\Database\Model\UserTModel;
+use Larmias\Tests\Database\Model\UserInfoModel;
+
 class ModelTest extends TestCase
 {
     /**
@@ -125,7 +129,7 @@ class ModelTest extends TestCase
     /**
      * @return void
      */
-    public function testUserInfoWith(): void
+    public function testHasOneWith(): void
     {
         $list = UserModel::new()->with(['userInfo' => function ($model) {
             $model->field('id,user_id');
@@ -135,7 +139,71 @@ class ModelTest extends TestCase
         $data = UserModel::new()->with(['userInfo' => function ($model) {
             $model->field('id,user_id');
         }])->first();
-
         $this->assertSame($data->id, $data->userInfo->user_id);
+    }
+
+    /**
+     * @return void
+     */
+    public function testBelongsToWith(): void
+    {
+        $list = UserInfoModel::new()->with(['user' => function ($model) {
+            $model->field('id');
+        }])->get();
+        $this->assertSame($list[0]->user_id, $list[0]->user->id);
+
+        $data = UserInfoModel::new()->with(['user' => function ($model) {
+            $model->field('id');
+        }])->first();
+        $this->assertSame($data->user_id, $data->user->id);
+    }
+
+    /**
+     * @return void
+     */
+    public function testHasManyWith(): void
+    {
+        $list = UserModel::new()->with(['messages' => function ($model) {
+            $model->field('id,user_id');
+        }])->get();
+        $this->assertSame($list[0]->id, $list[0]->messages[0]->user_id);
+
+        $data = UserModel::new()->with(['messages' => function ($model) {
+            $model->field('id,user_id');
+        }])->first();
+        $this->assertSame($data->id, $data->messages[0]->user_id);
+    }
+
+    /**
+     * @return void
+     */
+    public function testBelongsToManySave(): void
+    {
+        /** @var UserModel $user */
+        $user = UserModel::new()->find(1);
+        $pivotList = $user->roles()->save([1, 2, 3]);
+        $this->assertTrue(count($pivotList) > 0);
+        $this->assertSame($user->id, $pivotList[0]->user_id);
+    }
+
+    /**
+     * @return void
+     */
+    public function testBelongsToManyGet(): void
+    {
+        /** @var UserModel $user */
+        $user = UserModel::new()->find(1);
+        $this->assertTrue($user->roles->isNotEmpty());
+    }
+
+    /**
+     * @return void
+     */
+    public function testBelongsToManyDel(): void
+    {
+        /** @var UserModel $user */
+        $user = UserModel::new()->find(1);
+        $count = $user->roles()->detach();
+        $this->assertTrue($count > 0);
     }
 }

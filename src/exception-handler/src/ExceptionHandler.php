@@ -36,6 +36,7 @@ abstract class ExceptionHandler implements ExceptionHandlerInterface
     }
 
     /**
+     * 停止异常传播
      * @return void
      */
     public function stopPropagation(): void

@@ -157,7 +157,7 @@ abstract class Relation
 
         $result = $model->{$method}(...$args);
 
-        if ($result instanceof $model && !$result->isExists()) {
+        if ($result instanceof $model && $result->isDealQuery()) {
             return $this->setModel($result);
         }
 

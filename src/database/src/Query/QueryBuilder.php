@@ -259,6 +259,17 @@ class QueryBuilder implements QueryInterface
     }
 
     /**
+     * 设置分页查询
+     * @param int $page
+     * @param int $listRows
+     * @return QueryInterface
+     */
+    public function page(int $page, int $listRows = 25): QueryInterface
+    {
+        return $this->offset(($page - 1) * $listRows)->limit($listRows);
+    }
+
+    /**
      * 设置递增
      * @param string $field
      * @param float $step
@@ -477,7 +488,7 @@ class QueryBuilder implements QueryInterface
             'fragment' => '', //url锚点
             'var_page' => 'page', //分页变量
             'page' => 1,// 页码
-            'list_rows' => 15, //每页数量
+            'list_rows' => 25, //每页数量
             'total' => null, // 总页数
             'simple' => false, // 分页简单模式
         ];
@@ -487,20 +498,50 @@ class QueryBuilder implements QueryInterface
         $listRows = $config['list_rows'];
         $total = $config['total'];
         $results = new Collection();
-        $offset = ($page - 1) * $listRows;
 
         if (!$total && !$config['simple']) {
             $options = $this->getOptions();
             unset($this->options['order'], $this->options['limit'], $this->options['field']);
             $total = $this->count();
             if ($total > 0) {
-                $results = $this->setOptions($options)->offset($offset)->limit($listRows)->get();
+                $results = $this->setOptions($options)->page($page, $listRows)->get();
             }
         } else {
-            $results = $this->offset($offset)->limit($listRows)->get();
+            $results = $this->page($page, $listRows)->get();
         }
 
         return Paginator::make($results, $listRows, $page, $total, $config['simple'], $config);
+    }
+
+    /**
+     * 数据分块查询
+     * @param int $count
+     * @param callable $callback
+     * @param string $column
+     * @param string $order
+     * @return bool
+     */
+    public function chunk(int $count, callable $callback, string $column = 'id', string $order = 'asc'): bool
+    {
+        $order = strtolower($order);
+        unset($this->options['order']);
+        $resultSet = $this->orderBy($column, $order)->limit($count)->get();
+
+        if (str_contains($column, '.')) {
+            $key = explode('.', $column)[1];
+        } else {
+            $key = $column;
+        }
+
+        while ($resultSet->isNotEmpty()) {
+            if (call_user_func($callback, $resultSet) === false) {
+                return false;
+            }
+            $lastId = $resultSet->pop()[$key];
+            $resultSet = $this->where($column, $order == 'asc' ? '>' : '<', $lastId)->get();
+        }
+
+        return true;
     }
 
     /**

@@ -6,6 +6,7 @@ namespace Larmias\Database\Model\Relation;
 
 use Larmias\Contracts\CollectionInterface;
 use Larmias\Database\Model;
+use Larmias\Database\Model\Collection;
 use Closure;
 
 class HasOne extends OneToOne
@@ -28,8 +29,10 @@ class HasOne extends OneToOne
      */
     public function eagerlyResultSet(CollectionInterface|Model $resultSet, string $relation, mixed $option): void
     {
+        $model = $this->newModel();
+
         if ($resultSet instanceof Model) {
-            $resultSet = new Model\Collection([$resultSet]);
+            $resultSet = new Collection([$resultSet]);
         }
 
         $localKeyValues = $resultSet->filter(fn(Model $item) => isset($item->{$this->localKey}))->map(fn(Model $item) => $item->{$this->localKey})
@@ -41,12 +44,12 @@ class HasOne extends OneToOne
         }
 
         if ($option instanceof Closure) {
-            $option($this->model);
+            $option($model);
         } else if (is_array($option) && !empty($option)) {
-            $this->model->with($option);
+            $model->with($option);
         }
 
-        $data = $this->model->whereIn($this->foreignKey, $localKeyValues)->get()->pluck(null, $this->foreignKey);
+        $data = $model->whereIn($this->foreignKey, $localKeyValues)->get()->pluck(null, $this->foreignKey);
 
         if ($data->isNotEmpty()) {
             /** @var Model $result */

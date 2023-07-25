@@ -26,26 +26,31 @@ use function str_contains;
 trait Attribute
 {
     /**
+     * 数据
      * @var array
      */
     protected array $data = [];
 
     /**
+     * 原始数据
      * @var array
      */
     protected array $origin = [];
 
     /**
+     * 数据转换
      * @var array
      */
     protected array $cast = [];
 
     /**
+     * 关联数据
      * @var array
      */
     protected array $relation = [];
 
     /**
+     * 获取属性数据
      * @param string $name
      * @param bool $strict
      * @return mixed
@@ -83,6 +88,7 @@ trait Attribute
     }
 
     /**
+     * 设置属性数据
      * @param string $name
      * @param mixed $value
      * @return void
@@ -104,6 +110,7 @@ trait Attribute
     }
 
     /**
+     * 批量设置属性数据
      * @param array $data
      * @return void
      */
@@ -115,20 +122,38 @@ trait Attribute
     }
 
     /**
-     * @return void
+     * 获取数据属性是否存在
+     * @param string $name
+     * @return bool
      */
-    public function refreshOrigin(): void
+    public function hasAttribute(string $name): bool
     {
-        $this->origin = $this->data;
+        return $this->getAttribute($name, false) !== null;
     }
 
     /**
+     * 刷新原始数据
+     * @param array|null $data
+     * @return void
+     */
+    public function refreshOrigin(?array $data = null): void
+    {
+        if ($data !== null) {
+            $this->origin = array_merge($this->data, $data);
+        } else {
+            $this->origin = $this->data;
+        }
+    }
+
+    /**
+     * 设置数据
      * @param array $data
      * @return Model|Attribute
      */
     public function data(array $data = []): self
     {
         $this->data = $data;
+        $this->refreshOrigin();
         return $this;
     }
 

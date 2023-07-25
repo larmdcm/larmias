@@ -266,6 +266,14 @@ interface QueryInterface
     public function limit(int $limit): QueryInterface;
 
     /**
+     * 设置分页查询
+     * @param int $page
+     * @param int $listRows
+     * @return QueryInterface
+     */
+    public function page(int $page, int $listRows): QueryInterface;
+
+    /**
      * @param string $field
      * @param float $step
      * @return QueryInterface
@@ -400,6 +408,16 @@ interface QueryInterface
      * @return PaginatorInterface
      */
     public function paginate(array $config): PaginatorInterface;
+
+    /**
+     * 数据分块查询
+     * @param int $count
+     * @param callable $callback
+     * @param string $column
+     * @param string $order
+     * @return bool
+     */
+    public function chunk(int $count, callable $callback, string $column = 'id', string $order = 'acs'): bool;
 
     /**
      * @return TransactionInterface

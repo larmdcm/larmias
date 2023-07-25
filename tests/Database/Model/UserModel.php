@@ -2,10 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Tests\Database;
+namespace Larmias\Tests\Database\Model;
 
 use Larmias\Database\Model;
 use Larmias\Database\Model\Relation\HasOne;
+use Larmias\Database\Model\Relation\HasMany;
+use Larmias\Database\Model\Relation\BelongsToMany;
 
 /**
  * @property int $id
@@ -52,5 +54,21 @@ class UserModel extends Model
     public function userInfo(): HasOne
     {
         return $this->hasOne(UserInfoModel::class, 'user_id', 'id');
+    }
+
+    /**
+     * @return HasMany
+     */
+    public function messages(): HasMany
+    {
+        return $this->hasMany(UserMessageModel::class, 'user_id', 'id');
+    }
+
+    /**
+     * @return BelongsToMany
+     */
+    public function roles(): BelongsToMany
+    {
+        return $this->belongsToMany(RoleModel::class, 'user_role', 'role_id', 'user_id');
     }
 }

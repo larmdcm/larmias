@@ -18,6 +18,7 @@ use function explode;
 use function implode;
 use function is_array;
 use function is_numeric;
+use function Larmias\Utils\is_empty;
 use function str_contains;
 use function sprintf;
 use function str_replace;
@@ -479,7 +480,9 @@ abstract class Builder implements BuilderInterface
      */
     protected function parseWhereIn(string $field, mixed $value, string $op = 'IN'): string
     {
-        if (is_string($value)) {
+        if (is_empty($value)) {
+            $value = [''];
+        } else if (is_string($value)) {
             $value = str_contains($value, ',') ? explode(',', $value) : [$value];
         }
 

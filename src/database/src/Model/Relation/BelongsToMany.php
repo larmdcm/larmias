@@ -38,7 +38,9 @@ class BelongsToMany extends Relation
      */
     protected function initModel(): void
     {
-        $this->model = $this->belongsToManyQuery();
+        $this->model = $this->belongsToManyQuery([
+            ['pivot.' . $this->localKey, '=', $this->parent->getPrimaryValue()]
+        ]);
     }
 
     /**
@@ -70,19 +72,27 @@ class BelongsToMany extends Relation
      */
     public function eagerlyResultSet(CollectionInterface|Model $resultSet, string $relation, mixed $option): void
     {
-        $model = $this->newModel();
-
         if ($resultSet instanceof Model) {
             $resultSet = new Collection([$resultSet]);
         }
 
-        $localKeyValues = $resultSet->filter(fn(Model $item) => isset($item->{$this->localKey}))->map(fn(Model $item) => $item->{$this->localKey})
+        if ($resultSet->isEmpty()) {
+            return;
+        }
+
+        $primaryKey = $resultSet[0]->getPrimaryKey();
+
+        $primaryValues = $resultSet->filter(fn(Model $item) => isset($item->{$primaryKey}))->map(fn(Model $item) => $item->{$primaryKey})
             ->unique()
             ->toArray();
 
-        if (empty($localKeyValues)) {
+        if (empty($primaryValues)) {
             return;
         }
+
+        $model = $this->belongsToManyQuery([
+            ['pivot.' . $this->localKey, 'in', $primaryValues]
+        ]);
 
         if ($option instanceof Closure) {
             $option($model);
@@ -90,12 +100,12 @@ class BelongsToMany extends Relation
             $model->with($option);
         }
 
-        $data = $model->whereIn($this->foreignKey, $localKeyValues)->get();
+        $data = $model->get();
 
         if ($data->isNotEmpty()) {
             /** @var Model $result */
             foreach ($resultSet as $result) {
-                $result->{$relation} = $data->where($this->foreignKey, $result->{$this->localKey});
+                $result->{$relation} = $data->where($this->localKey, $result->{$primaryKey});
             }
         }
     }
@@ -202,12 +212,14 @@ class BelongsToMany extends Relation
     /**
      * @return Model
      */
-    public function belongsToManyQuery(): Model
+    public function belongsToManyQuery(array $where): Model
     {
         $model = $this->newModel();
-        $ids = $this->newPivot()->where($this->localKey, $this->parent->getPrimaryValue())->pluck($this->foreignKey)->toArray();
-        $model->whereIn($model->getPrimaryKey(), $ids);
-        return $model;
+        $pivot = $this->newPivot();
+        return $model->alias($model->getTable())
+            ->field(sprintf('%s.*,pivot.%s,pivot.%s', $model->getTable(), $this->foreignKey, $this->localKey))
+            ->join([$pivot->getTable() => 'pivot'], sprintf('pivot.%s = %s.%s', $this->foreignKey, $model->getTable(), $model->getPrimaryKey()))
+            ->where($where);
     }
 
     /**

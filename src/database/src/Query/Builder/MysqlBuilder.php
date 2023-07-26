@@ -22,7 +22,7 @@ class MysqlBuilder extends Builder
         foreach ($separator as $item) {
             if (str_contains($str, $item)) {
                 $strSplit = explode($item, $str);
-                return sprintf('`%s`%s`%s`', $strSplit[0], $item, $strSplit[1]);
+                return sprintf('`%s`%s%s', $strSplit[0], $item, $strSplit[1] == '*' ? $strSplit[1] : '`' . $strSplit[1] . '`');
             }
         }
         return sprintf('`%s`', $str);

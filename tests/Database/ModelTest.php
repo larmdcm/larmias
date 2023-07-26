@@ -199,6 +199,15 @@ class ModelTest extends TestCase
     /**
      * @return void
      */
+    public function testBelongsToManyWith(): void
+    {
+        $userList = UserModel::new()->with(['roles'])->get();
+        $this->assertTrue($userList[0]->roles->isNotEmpty());
+    }
+
+    /**
+     * @return void
+     */
     public function testBelongsToManyDel(): void
     {
         /** @var UserModel $user */

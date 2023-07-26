@@ -34,7 +34,7 @@ trait ModelRelationQuery
      * 是否设置了关联预载入
      * @return bool
      */
-    public function isWithSet(): bool
+    protected function isWithSet(): bool
     {
         return !empty($this->options['with']);
     }
@@ -44,7 +44,7 @@ trait ModelRelationQuery
      * @param mixed $result
      * @return mixed
      */
-    public function withQuery(mixed $result): mixed
+    protected function withQuery(mixed $result): mixed
     {
         $check = $this->isResultSet($result);
         if (!$check && !($result instanceof Model)) {

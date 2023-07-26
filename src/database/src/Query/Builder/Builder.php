@@ -31,31 +31,37 @@ use function is_string;
 abstract class Builder implements BuilderInterface
 {
     /**
+     * 查询语句
      * @var string
      */
     protected string $selectSql = 'SELECT <FIELD> FROM <TABLE><JOIN><WHERE><GROUP><HAVING><ORDER><LIMIT>';
 
     /**
+     * 新增语句
      * @var string
      */
     protected string $insertSql = 'INSERT INTO <TABLE>(<FIELD>) VALUES (<DATA>)';
 
     /**
+     * 批量新增语句
      * @var string
      */
     protected string $insertAllSql = 'INSERT INTO <TABLE>(<FIELD>) VALUES <DATA>';
 
     /**
+     * 修改语句
      * @var string
      */
     protected string $updateSql = 'UPDATE <TABLE> SET <SET><JOIN><WHERE><ORDER><LIMIT>';
 
     /**
+     * 删除语句
      * @var string
      */
     protected string $deleteSql = 'DELETE FROM <TABLE><JOIN><WHERE><ORDER><LIMIT>';
 
     /**
+     * 绑定的参数
      * @var array
      */
     protected array $bindings = [];

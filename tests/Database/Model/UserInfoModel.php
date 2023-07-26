@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Larmias\Tests\Database\Model;
 
 use Larmias\Database\Model;
-use Larmias\Database\Model\Relation\BelongsTo;
+use Larmias\Database\Model\Relations\BelongsTo;
 
 /**
  * @property int $user_id

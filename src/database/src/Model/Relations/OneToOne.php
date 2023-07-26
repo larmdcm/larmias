@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Database\Model\Relation;
+namespace Larmias\Database\Model\Relations;
 
 use Larmias\Database\Model;
 

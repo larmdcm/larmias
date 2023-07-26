@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Larmias\Tests\Database\Model;
 
 use Larmias\Database\Model;
-use Larmias\Database\Model\Relation\HasOne;
-use Larmias\Database\Model\Relation\HasMany;
-use Larmias\Database\Model\Relation\BelongsToMany;
+use Larmias\Database\Model\Relations\HasOne;
+use Larmias\Database\Model\Relations\HasMany;
+use Larmias\Database\Model\Relations\BelongsToMany;
 
 /**
  * @property int $id

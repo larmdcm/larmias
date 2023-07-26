@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Larmias\Database\Model\Concerns;
 
 use Larmias\Database\Model;
-use Larmias\Database\Model\Relation\HasOne;
-use Larmias\Database\Model\Relation\BelongsTo;
-use Larmias\Database\Model\Relation\HasMany;
-use Larmias\Database\Model\Relation\BelongsToMany;
+use Larmias\Database\Model\Relations\HasOne;
+use Larmias\Database\Model\Relations\BelongsTo;
+use Larmias\Database\Model\Relations\HasMany;
+use Larmias\Database\Model\Relations\BelongsToMany;
 use Larmias\Utils\Str;
 use function Larmias\Utils\class_basename;
 use function str_contains;

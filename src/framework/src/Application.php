@@ -112,8 +112,8 @@ class Application implements ApplicationInterface
 
     /**
      * 初始化
-     *
      * @return void
+     * @throws \Throwable
      */
     public function initialize(): void
     {

@@ -95,7 +95,8 @@
         "larmias/utils": "self.version",
         "larmias/validation": "self.version",
         "larmias/view": "self.version",
-        "larmias/constants": "self.version"
+        "larmias/constants": "self.version",
+        "larmias/facade": "self.version"
     },
     "suggest": {
         "ext-swoole": "Required to use swoole (^4.6.*)."
@@ -177,6 +178,7 @@
                 "Larmias\\Engine\\WorkerMan\\Providers\\WorkerManServiceProvider",
                 "Larmias\\Event\\Providers\\EventServiceProvider",
                 "Larmias\\ExceptionHandler\\Providers\\ExceptionHandlerServiceProvider",
+                "Larmias\\Facade\\Providers\\FacadeServiceProvider",
                 "Larmias\\FileWatcher\\Providers\\FileWatcherServiceProvider",
                 "Larmias\\Framework\\Providers\\BootServiceProvider",
                 "Larmias\\Http\\CSRF\\Providers\\CsrfServiceProvider",

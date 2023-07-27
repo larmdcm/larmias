@@ -22,7 +22,8 @@
         "larmias/contracts": "^1.0",
         "larmias/pool": "^1.0",
         "larmias/utils": "^1.0",
-        "larmias/paginator": "^1.0"
+        "larmias/paginator": "^1.0",
+        "larmias/facade": "^1.0"
     },
     "autoload": {
         "psr-4": {

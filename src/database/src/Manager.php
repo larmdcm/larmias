@@ -14,13 +14,14 @@ use Larmias\Database\Contracts\QueryInterface;
 use Larmias\Database\Pool\DbProxy;
 use Larmias\Database\Query\QueryBuilder;
 use RuntimeException;
-use function array_merge;
 use function class_exists;
 use function Larmias\Utils\data_get;
+use function Larmias\Utils\throw_unless;
 
 class Manager implements ManagerInterface
 {
     /**
+     * 数据库配置
      * @var array
      */
     protected array $config = [];
@@ -41,10 +42,11 @@ class Manager implements ManagerInterface
      */
     public function __construct(protected ContainerInterface $container, array $config = [])
     {
-        $this->config = array_merge($this->config, $config);
+        $this->setConfig($config);
     }
 
     /**
+     * 获取数据库连接
      * @param string|null $name
      * @return ConnectionInterface
      * @throws \Throwable
@@ -54,9 +56,7 @@ class Manager implements ManagerInterface
         $name = $name ?: 'default';
 
         if (!isset($this->proxies[$name])) {
-            if (!isset($this->config[$name])) {
-                throw new RuntimeException('config not set:' . $name);
-            }
+            throw_unless(isset($this->config[$name]), RuntimeException::class, 'config not set:' . $name);
             $this->config[$name]['name'] = $name;
             $proxy = new DbProxy($this->container, $this->config[$name]);
             $proxy->setEventDispatcher($this->getEventDispatcher());
@@ -67,6 +67,7 @@ class Manager implements ManagerInterface
     }
 
     /**
+     * 实例化查询
      * @param ConnectionInterface $connection
      * @return QueryInterface
      */
@@ -84,6 +85,8 @@ class Manager implements ManagerInterface
     }
 
     /**
+     * 实例化构造器
+     * @param ConnectionInterface $connection
      * @return BuilderInterface
      */
     public function newBuilder(ConnectionInterface $connection): BuilderInterface
@@ -136,7 +139,19 @@ class Manager implements ManagerInterface
      */
     public function setConfig(array $config): self
     {
-        $this->config = $config;
+        $this->config = $this;
         return $this;
+    }
+
+    /**
+     * Manager __call.
+     * @param string $name
+     * @param array $args
+     * @return mixed
+     * @throws \Throwable
+     */
+    public function __call(string $name, array $args): mixed
+    {
+        return call_user_func_array([$this->newQuery($this->connection()), $name], $args);
     }
 }

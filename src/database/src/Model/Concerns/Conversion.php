@@ -5,11 +5,15 @@ declare(strict_types=1);
 namespace Larmias\Database\Model\Concerns;
 
 use Larmias\Contracts\CollectionInterface;
+use Larmias\Database\Model;
 use Larmias\Database\Model\Collection;
 use Larmias\Utils\Contracts\Arrayable;
 use function is_array;
 use function json_encode;
 
+/**
+ * @mixin Model
+ */
 trait Conversion
 {
     /**

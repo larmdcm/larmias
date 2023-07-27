@@ -55,6 +55,7 @@ class QueryBuilder implements QueryInterface
         'having' => [],
         'incr' => [],
         'soft_delete' => [],
+        'model' => null,
     ];
 
     /**
@@ -650,21 +651,31 @@ class QueryBuilder implements QueryInterface
         if ($this->options['soft_delete']) {
             [$field, $condition] = $this->options['soft_delete'];
             if ($condition) {
-                if (count($condition) > 1) {
-                    $value = $condition[1];
-                } else {
-                    $value = $condition[0];
-                    if ($value === null || (is_string($value) && in_array(strtoupper($value), ['NULL', 'IS NULL']))) {
-                        $value = null;
-                    }
-                }
-                $this->data([
-                    $field => $value,
-                ]);
-                return $this->builder->update($this->getOptions());
+                return $this->buildSoftDelete($field, $condition);
             }
         }
 
         return $this->builder->delete($this->getOptions());
+    }
+
+    /**
+     * @param string $field
+     * @param array $condition
+     * @return SqlPrepareInterface
+     */
+    protected function buildSoftDelete(string $field, array $condition): SqlPrepareInterface
+    {
+        if (count($condition) > 1) {
+            $value = $condition[1];
+        } else {
+            $value = $condition[0];
+            if ($value === null || (is_string($value) && in_array(strtoupper($value), ['NULL', 'IS NULL']))) {
+                $value = null;
+            }
+        }
+        $this->data([
+            $field => $value,
+        ]);
+        return $this->builder->update($this->getOptions());
     }
 }

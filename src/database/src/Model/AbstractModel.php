@@ -2,95 +2,94 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Database;
+namespace Larmias\Database\Model;
 
+use Closure;
+use JsonSerializable;
 use Larmias\Contracts\PaginatorInterface;
 use Larmias\Database\Contracts\ExpressionInterface;
 use Larmias\Database\Contracts\ManagerInterface;
+use Larmias\Database\Contracts\ModelInterface;
 use Larmias\Database\Contracts\QueryInterface;
 use Larmias\Database\Contracts\TransactionInterface;
-use Larmias\Database\Model\Collection;
 use Larmias\Database\Model\Concerns\Attribute;
 use Larmias\Database\Model\Concerns\Conversion;
-use Larmias\Database\Model\Concerns\ModelRelationQuery;
 use Larmias\Database\Model\Concerns\RelationShip;
 use Larmias\Database\Model\Concerns\Timestamp;
 use Larmias\Utils\Contracts\Arrayable;
 use Larmias\Utils\Contracts\Jsonable;
-use Closure;
-use ArrayAccess;
-use Stringable;
-use JsonSerializable;
 use RuntimeException;
+use Stringable;
 use function Larmias\Utils\class_basename;
 use function method_exists;
+use function str_contains;
 
 /**
- * @method Model table(string $name)
- * @method string getTable()
- * @method string getName()
- * @method Model alias(string|array $name)
- * @method Model name(string $name)
- * @method Model fieldRaw(string $field, array $bindings = [])
- * @method Model field(string|array|ExpressionInterface $field)
- * @method Model where(mixed $field, mixed $op = null, mixed $value = null, string $logic = 'AND')
- * @method Model orWhere(mixed $field, mixed $op = null, mixed $value = null)
- * @method Model whereRaw(string $expression, array $bindings = [])
- * @method Model whereNull(string $field, string $logic = 'AND')
- * @method Model whereNotNull(string $field, string $logic = 'AND')
- * @method Model whereIn(string $field, mixed $value, string $logic = 'AND')
- * @method Model whereNotIn(string $field, mixed $value, string $logic = 'AND')
- * @method Model whereBetween(string $field, mixed $value, string $logic = 'AND')
- * @method Model whereNotBetween(string $field, mixed $value, string $logic = 'AND')
- * @method Model whereLike(string $field, mixed $value, string $logic = 'AND')
- * @method Model whereNotLike(string $field, mixed $value, string $logic = 'AND')
- * @method Model whereExists(string $field, mixed $value, string $logic = 'AND')
- * @method Model whereNotExists(string $field, mixed $value, string $logic = 'AND')
- * @method Model whereColumn(string $field, mixed $value, string $logic = 'AND')
- * @method Model join(array|string $table, mixed $condition, string $joinType = 'INNER')
- * @method Model innerJoin(array|string $table, mixed $condition)
- * @method Model leftJoin(array|string $table, mixed $condition)
- * @method Model rightJoin(array|string $table, mixed $condition)
- * @method Model groupBy(array|string $field)
- * @method Model groupByRaw(string $expression, array $bindings = [])
- * @method Model orderBy(array|string $field, string $order = 'DESC')
- * @method Model orderByRaw(string $expression, array $bindings = [])
- * @method Model having(string $expression, array $bindings = [])
- * @method Model orHaving(string $expression, array $bindings = [])
- * @method Model offset(int $offset)
- * @method Model limit(int $limit)
- * @method Model page(int $page, int $listRows = 25)
- * @method Model incr(string $field, float $step)
- * @method Model decr(string $field, float $step)
- * @method int count(string $field = '*')
- * @method float sum(string $field)
- * @method float min(string $field)
- * @method float max(string $field)
- * @method float avg(string $field)
- * @method string buildSql(int $buildType = QueryInterface::BUILD_SQL_SELECT)
- * @method int insert(?array $data = null)
- * @method string insertGetId(?array $data = null)
- * @method int insertAll(?array $data = null)
- * @method int update(?array $data = null, mixed $condition = null)
- * @method Collection get()
- * @method Model|null first()
- * @method Model firstOrFail()
- * @method Model|null find(int|string $id)
- * @method Model findOrFail(int|string $id)
- * @method mixed value(string $name, mixed $default = null)
- * @method Collection pluck(string $value, ?string $key = null)
- * @method PaginatorInterface paginate(array $config = [])
- * @method bool chunk(int $count, callable $callback, string $column = 'id', string $order = 'asc')
- * @method TransactionInterface beginTransaction()
- * @method mixed transaction(\Closure $callback)
+ * @method static QueryInterface table(string $name)
+ * @method static string getTable()
+ * @method static string getName()
+ * @method static QueryInterface alias(string|array $name)
+ * @method static QueryInterface name(string $name)
+ * @method static QueryInterface fieldRaw(string $field, array $bindings = [])
+ * @method static QueryInterface field(string|array|ExpressionInterface $field)
+ * @method static QueryInterface where(mixed $field, mixed $op = null, mixed $value = null, string $logic = 'AND')
+ * @method static QueryInterface orWhere(mixed $field, mixed $op = null, mixed $value = null)
+ * @method static QueryInterface whereRaw(string $expression, array $bindings = [])
+ * @method static QueryInterface whereNull(string $field, string $logic = 'AND')
+ * @method static QueryInterface whereNotNull(string $field, string $logic = 'AND')
+ * @method static QueryInterface whereIn(string $field, mixed $value, string $logic = 'AND')
+ * @method static QueryInterface whereNotIn(string $field, mixed $value, string $logic = 'AND')
+ * @method static QueryInterface whereBetween(string $field, mixed $value, string $logic = 'AND')
+ * @method static QueryInterface whereNotBetween(string $field, mixed $value, string $logic = 'AND')
+ * @method static QueryInterface whereLike(string $field, mixed $value, string $logic = 'AND')
+ * @method static QueryInterface whereNotLike(string $field, mixed $value, string $logic = 'AND')
+ * @method static QueryInterface whereExists(string $field, mixed $value, string $logic = 'AND')
+ * @method static QueryInterface whereNotExists(string $field, mixed $value, string $logic = 'AND')
+ * @method static QueryInterface whereColumn(string $field, mixed $value, string $logic = 'AND')
+ * @method static QueryInterface join(array|string $table, mixed $condition, string $joinType = 'INNER')
+ * @method static QueryInterface innerJoin(array|string $table, mixed $condition)
+ * @method static QueryInterface leftJoin(array|string $table, mixed $condition)
+ * @method static QueryInterface rightJoin(array|string $table, mixed $condition)
+ * @method static QueryInterface groupBy(array|string $field)
+ * @method static QueryInterface groupByRaw(string $expression, array $bindings = [])
+ * @method static QueryInterface orderBy(array|string $field, string $order = 'DESC')
+ * @method static QueryInterface orderByRaw(string $expression, array $bindings = [])
+ * @method static QueryInterface having(string $expression, array $bindings = [])
+ * @method static QueryInterface orHaving(string $expression, array $bindings = [])
+ * @method static QueryInterface offset(int $offset)
+ * @method static QueryInterface limit(int $limit)
+ * @method static QueryInterface page(int $page, int $listRows = 25)
+ * @method static QueryInterface incr(string $field, float $step)
+ * @method static QueryInterface decr(string $field, float $step)
+ * @method static QueryInterface with(string|array $with)
+ * @method static int count(string $field = '*')
+ * @method static float sum(string $field)
+ * @method static float min(string $field)
+ * @method static float max(string $field)
+ * @method static float avg(string $field)
+ * @method static string buildSql(int $buildType = QueryInterface::BUILD_SQL_SELECT)
+ * @method static int insert(?array $data = null)
+ * @method static string insertGetId(?array $data = null)
+ * @method static int insertAll(?array $data = null)
+ * @method static int update(?array $data = null, mixed $condition = null)
+ * @method static Collection get()
+ * @method static ModelInterface|null first()
+ * @method static ModelInterface firstOrFail()
+ * @method static ModelInterface|null find(int|string $id)
+ * @method static ModelInterface findOrFail(int|string $id)
+ * @method static mixed value(string $name, mixed $default = null)
+ * @method static Collection pluck(string $value, ?string $key = null)
+ * @method static PaginatorInterface paginate(array $config = [])
+ * @method static bool chunk(int $count, callable $callback, string $column = 'id', string $order = 'asc')
+ * @method static TransactionInterface beginTransaction()
+ * @method static mixed transaction(\Closure $callback)
  */
-abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, JsonSerializable
+abstract class AbstractModel implements ModelInterface, Arrayable, Jsonable, Stringable, JsonSerializable
 {
     use Attribute;
     use Conversion;
     use Timestamp;
     use RelationShip;
-    use ModelRelationQuery;
 
     /**
      * 主键
@@ -133,21 +132,10 @@ abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, Js
     protected ?string $connection = null;
 
     /**
-     * @var QueryInterface
-     */
-    protected QueryInterface $query;
-
-    /**
      * 数据是否存在
      * @var bool
      */
     protected bool $exists = false;
-
-    /**
-     * 当前是否处理Query
-     * @var bool
-     */
-    protected bool $dealQuery = false;
 
     /**
      * @param array $data
@@ -205,7 +193,7 @@ abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, Js
      */
     public static function create(array $data): static
     {
-        $model = new static($data);
+        $model = static::new($data);
         $model->save();
         return $model;
     }
@@ -225,7 +213,7 @@ abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, Js
         $model = new static();
 
         if ($id instanceof Closure) {
-            $model->query()->where($id);
+            $model->newQuery()->where($id);
         } else {
             if (is_string($id)) {
                 $id = str_contains($id, ',') ? explode(',', $id) : [$id];
@@ -233,12 +221,12 @@ abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, Js
                 $id = [$id];
             }
 
-            $model->query()->whereIn($model->getPrimaryKey(), $id);
+            $model->newQuery()->whereIn($model->getPrimaryKey(), $id);
         }
 
-        $resultSet = $model->get();
+        $resultSet = $model->newQuery()->get();
 
-        /** @var Model $item */
+        /** @var AbstractModel $item */
         foreach ($resultSet as $item) {
             if (method_exists($item, 'force')) {
                 $item->force($force);
@@ -273,7 +261,7 @@ abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, Js
             return false;
         }
 
-        $result = $this->query()->delete($this->getWhere()) > 0;
+        $result = $this->newQuery()->delete($this->getWhere()) > 0;
         if ($result) {
             $this->setExists(false);
         }
@@ -288,11 +276,11 @@ abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, Js
     protected function insertData(): bool
     {
         if ($this->incrementing) {
-            $id = $this->query()->insertGetId($this->data);
+            $id = $this->newQuery()->insertGetId($this->data);
             $exists = !empty($id);
         } else {
             $id = $this->generateUniqueId();
-            $exists = $this->query()->insert($this->data) > 0;
+            $exists = $this->newQuery()->insert($this->data) > 0;
         }
 
         $primaryKey = $this->getPrimaryKey();
@@ -329,7 +317,7 @@ abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, Js
             return true;
         }
 
-        $result = $this->query()->update($data, $this->getWhere()) > 0;
+        $result = $this->newQuery()->update($data, $this->getWhere()) > 0;
 
         if ($result) {
             $this->refreshOrigin($data);
@@ -355,32 +343,9 @@ abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, Js
     /**
      * @return QueryInterface
      */
-    public function query(): QueryInterface
+    public static function query(): QueryInterface
     {
-        if (!isset($this->query)) {
-            $this->resetQuery();
-        }
-
-        return $this->query;
-    }
-
-    /**
-     * @param QueryInterface $query
-     * @return self
-     */
-    public function setQuery(QueryInterface $query): self
-    {
-        $this->query = $query;
-        return $this;
-    }
-
-    /**
-     * @return self
-     */
-    public function resetQuery(): self
-    {
-        $this->setQuery($this->newQuery());
-        return $this;
+        return static::new()->newQuery();
     }
 
     /**
@@ -390,7 +355,9 @@ abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, Js
     {
         $connection = $this->manager->connection($this->connection);
         $query = $this->manager->newQuery($connection);
-        $query->name($this->name)->setPrimaryKey($this->getPrimaryKey());
+        $query->name($this->name)->setPrimaryKey($this->getPrimaryKey())
+            ->setModel($this);
+
         if ($this->table) {
             $query->table($this->table);
         }
@@ -413,38 +380,25 @@ abstract class Model implements ArrayAccess, Arrayable, Jsonable, Stringable, Js
     }
 
     /**
+     * AbstractModel __call.
      * @param string $name
      * @param array $args
      * @return mixed
      */
     public function __call(string $name, array $args)
     {
-        $query = $this->query();
-        $result = $query->{$name}(...$args);
-
-        $this->dealQuery = $result instanceof QueryInterface;
-
-        if ($this->dealQuery) {
-            return $this->setQuery($result);
-        }
-
-        $result = $this->toResult($result);
-
-        if ($this->isWithSet()) {
-            $result = $this->withQuery($result);
-        }
-
-        return $result;
+        return $this->newQuery()->{$name}(...$args);
     }
 
     /**
+     * AbstractModel __callStatic.
      * @param string $name
      * @param array $args
      * @return mixed
      */
     public static function __callStatic(string $name, array $args)
     {
-        return call_user_func_array([static::new(), $name], $args);
+        return call_user_func_array([static::query(), $name], $args);
     }
 
     /**

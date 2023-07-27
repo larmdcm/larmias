@@ -96,7 +96,7 @@ abstract class Builder implements BuilderInterface
         $fields = array_keys($data);
         $sql = str_replace(['<TABLE>', '<FIELD>', '<DATA>'], [
             $this->parseTable($options['table']),
-            implode(',', array_map(fn($field) => $this->escape($field), $fields)),
+            implode(',', array_map(fn($field) => $this->escapeField($field), $fields)),
             rtrim(str_repeat("?,", count($data)), ',')
         ], $this->insertSql);
         $this->bind(array_values($data));
@@ -119,7 +119,7 @@ abstract class Builder implements BuilderInterface
         }
         $sql = str_replace(['<TABLE>', '<FIELD>', '<DATA>'], [
             $this->parseTable($options['table']),
-            implode(',', array_map(fn($field) => $this->escape($field), $fields)),
+            implode(',', array_map(fn($field) => $this->escapeField($field), $fields)),
             implode(',', $sqlValues)
         ], $this->insertAllSql);
         return $this->createSqlPrepare($sql);
@@ -197,7 +197,7 @@ abstract class Builder implements BuilderInterface
      */
     public function aggregate(string $type, string $field, string $name): string
     {
-        return sprintf('%s(%s)', strtoupper($type), $field) . ' ' . $this->escape($name);
+        return sprintf('%s(%s)', strtoupper($type), $field) . ' ' . $this->escapeField($name);
     }
 
     /**
@@ -212,6 +212,7 @@ abstract class Builder implements BuilderInterface
     }
 
     /**
+     * 解析字段
      * @param array $fields
      * @return string
      */
@@ -269,11 +270,11 @@ abstract class Builder implements BuilderInterface
     {
         $fields = array_keys($data);
         $this->bind(array_values($data));
-        $set = array_map(fn($field) => $this->escape($field) . ' = ?', $fields);
+        $set = array_map(fn($field) => $this->escapeField($field) . ' = ?', $fields);
         foreach ($incr as $item) {
             [$field, $value] = $item;
             if ($value != 0) {
-                $field = $this->escape($field);
+                $field = $this->escapeField($field);
                 $set[] = sprintf('%s = %s %s ?', $field, $field, $value > 0 ? '+' : '-');
                 $this->bind(abs($value));
             }
@@ -295,7 +296,7 @@ abstract class Builder implements BuilderInterface
             $table = $this->parseTable($table, $alias);
             if (str_contains($on, '=')) {
                 $onSplit = explode('=', $on, 2);
-                $on = $this->escape($onSplit[0]) . ' = ' . $this->escape($onSplit[1]);
+                $on = $this->escapeField($onSplit[0]) . ' = ' . $this->escapeField($onSplit[1]);
             }
             $values[] = $this->buildJoin($table, $on, $type);
         }
@@ -335,10 +336,10 @@ abstract class Builder implements BuilderInterface
                 $values[] = $this->parseExpression($group);
             } else if (is_array($group)) {
                 foreach ($group as $item) {
-                    $values[] = $this->escape($item);
+                    $values[] = $this->escapeField($item);
                 }
             } else {
-                $values[] = $this->escape((string)$group);
+                $values[] = $this->escapeField((string)$group);
             }
         }
 
@@ -363,9 +364,9 @@ abstract class Builder implements BuilderInterface
             } else if (is_array($order)) {
                 foreach ($order as $key => $value) {
                     if (str_contains($key, ',')) {
-                        $key = implode(',', array_map(fn($item) => $this->escape($item), explode(',', $key)));
+                        $key = implode(',', array_map(fn($item) => $this->escapeField($item), explode(',', $key)));
                     }
-                    $values[] = $this->escape($key) . ' ' . $value;
+                    $values[] = $this->escapeField($key) . ' ' . $value;
                 }
             } else {
                 $values[] = $order;
@@ -448,7 +449,7 @@ abstract class Builder implements BuilderInterface
             $op = '=';
         }
 
-        $field = $this->escape($field);
+        $field = $this->escapeField($field);
         $op = $this->optimizeOp($op, $value);
 
         switch ($op) {
@@ -544,7 +545,7 @@ abstract class Builder implements BuilderInterface
      */
     protected function parseWhereColumn(string $field, mixed $value): string
     {
-        return $this->buildWhereColumn($field, $value[0], $this->escape($value[1]));
+        return $this->buildWhereColumn($field, $value[0], $this->escapeField($value[1]));
     }
 
 
@@ -592,10 +593,10 @@ abstract class Builder implements BuilderInterface
     public function buildAlias(string $field, string $alias = ''): string
     {
         if (empty($alias)) {
-            return $this->escape($field);
+            return $this->escapeField($field);
         }
 
-        return sprintf('%s %s', $this->escape($field), $this->escape($alias));
+        return sprintf('%s %s', $this->escapeField($field), $this->escapeField($alias));
     }
 
     /**
@@ -749,11 +750,12 @@ abstract class Builder implements BuilderInterface
     }
 
     /**
-     * @param string $str
+     * 转义查询字段
+     * @param string $field
      * @return string
      */
-    public function escape(string $str): string
+    public function escapeField(string $field): string
     {
-        return $str;
+        return $field;
     }
 }

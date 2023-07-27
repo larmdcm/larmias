@@ -124,6 +124,7 @@ class Manager implements ManagerInterface
     }
 
     /**
+     * 获取数据库配置
      * @param string|null $name
      * @param mixed|null $default
      * @return array
@@ -134,12 +135,13 @@ class Manager implements ManagerInterface
     }
 
     /**
+     * 设置数据库配置
      * @param array $config
      * @return self
      */
     public function setConfig(array $config): self
     {
-        $this->config = $this;
+        $this->config = $config;
         return $this;
     }
 

@@ -4,21 +4,21 @@ declare(strict_types=1);
 
 namespace Larmias\Database\Model\Relations;
 
-use Larmias\Database\Model;
+use Larmias\Database\Model\AbstractModel;
+use Larmias\Database\Contracts\QueryInterface;
 
 abstract class Relation
 {
     /**
      * 父级模型
-     * @var Model
+     * @var AbstractModel
      */
-    protected Model $parent;
+    protected AbstractModel $parent;
 
     /**
-     * 关联模型
-     * @var Model
+     * @var QueryInterface
      */
-    protected Model $model;
+    protected QueryInterface $query;
 
     /**
      * 关联模型类名
@@ -39,48 +39,25 @@ abstract class Relation
     protected string $localKey;
 
     /**
-     * 是否已初始化模型
+     * 是否已初始化查询
      * @var bool
      */
-    protected bool $initModel = false;
+    protected bool $initQuery = false;
 
     /**
-     * @return Model
+     * @return AbstractModel
      */
-    public function getParent(): Model
+    public function getParent(): AbstractModel
     {
         return $this->parent;
     }
 
     /**
-     * @param Model $parent
+     * @param AbstractModel $parent
      */
-    public function setParent(Model $parent): void
+    public function setParent(AbstractModel $parent): void
     {
         $this->parent = $parent;
-    }
-
-    /**
-     * @return Model
-     */
-    public function getModel(): Model
-    {
-        if (!$this->initModel) {
-            $this->initModel();
-            $this->initModel = true;
-        }
-
-        return $this->model;
-    }
-
-    /**
-     * @param Model $model
-     * @return self
-     */
-    public function setModel(Model $model): self
-    {
-        $this->model = $model;
-        return $this;
     }
 
     /**
@@ -134,16 +111,30 @@ abstract class Relation
     /**
      * @return void
      */
-    protected function initModel(): void
+    protected function initQuery(): void
     {
     }
 
     /**
-     * @return Model
+     * 实例化模型
+     * @param array $data
+     * @return AbstractModel
      */
-    protected function newModel(): Model
+    protected function newModel(array $data = []): AbstractModel
     {
-        return new $this->modelClass;
+        return new $this->modelClass($data);
+    }
+
+    /**
+     * @return QueryInterface
+     */
+    public function query(): QueryInterface
+    {
+        if (!$this->initQuery) {
+            $this->initQuery();
+        }
+
+        return $this->query;
     }
 
     /**
@@ -153,12 +144,12 @@ abstract class Relation
      */
     public function __call(string $method, array $args): mixed
     {
-        $model = $this->getModel();
+        $query = $this->query();
 
-        $result = $model->{$method}(...$args);
+        $result = $query->{$method}(...$args);
 
-        if ($result instanceof $model && $result->isDealQuery()) {
-            return $this->setModel($result);
+        if ($result instanceof $query) {
+            return $this;
         }
 
         return $result;

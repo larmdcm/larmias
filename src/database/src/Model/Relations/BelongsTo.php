@@ -4,38 +4,34 @@ declare(strict_types=1);
 
 namespace Larmias\Database\Model\Relations;
 
-use Larmias\Contracts\CollectionInterface;
-use Larmias\Database\Model;
-use Larmias\Database\Model\Collection;
 use Closure;
+use Larmias\Contracts\CollectionInterface;
+use Larmias\Database\Model\AbstractModel;
 
 class BelongsTo extends OneToOne
 {
     /**
-     * 初始化模型查询
+     * 初始化查询
      * @return void
      */
-    public function initModel(): void
+    public function initQuery(): void
     {
-        $this->model->where($this->getLocalKey(), $this->parent->getAttribute($this->getForeignKey()));
+        $this->query->where($this->getLocalKey(), $this->parent->getAttribute($this->getForeignKey()));
     }
 
     /**
      * 关联预查询
-     * @param CollectionInterface|Model $resultSet
+     * @param CollectionInterface $resultSet
      * @param string $relation
      * @param mixed $option
      * @return void
      */
-    public function eagerlyResultSet(CollectionInterface|Model $resultSet, string $relation, mixed $option): void
+    public function eagerlyResultSet(CollectionInterface $resultSet, string $relation, mixed $option): void
     {
         $model = $this->newModel();
 
-        if ($resultSet instanceof Model) {
-            $resultSet = new Collection([$resultSet]);
-        }
-
-        $foreignKeyValues = $resultSet->filter(fn(Model $item) => isset($item->{$this->foreignKey}))->map(fn(Model $item) => $item->{$this->foreignKey})
+        $foreignKeyValues = $resultSet->filter(fn(AbstractModel $item) => isset($item->{$this->foreignKey}))
+            ->map(fn(AbstractModel $item) => $item->{$this->foreignKey})
             ->unique()
             ->toArray();
 
@@ -52,20 +48,22 @@ class BelongsTo extends OneToOne
         $data = $model->whereIn($this->localKey, $foreignKeyValues)->get()->pluck(null, $this->localKey);
 
         if ($data->isNotEmpty()) {
-            /** @var Model $result */
+            /** @var AbstractModel $result */
             foreach ($resultSet as $result) {
                 $key = $result->{$this->foreignKey};
-                $result->{$relation} = $data[$key] ?? null;
+                $result->setRelation($relation, $data[$key] ?? null);
             }
         }
     }
 
     /**
      * 获取关联数据
-     * @return Model|null
+     * @return AbstractModel|null
      */
-    public function getRelation(): ?Model
+    public function getRelation(): ?AbstractModel
     {
-        return $this->getModel()->first();
+        /** @var AbstractModel $model */
+        $model = $this->query()->first();
+        return $model;
     }
 }

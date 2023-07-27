@@ -4,52 +4,56 @@ declare(strict_types=1);
 
 namespace Larmias\Database\Model\Relations;
 
-use Larmias\Contracts\CollectionInterface;
-use Larmias\Database\Model;
-use Larmias\Utils\Arr;
-use Larmias\Database\Model\Collection;
-use Larmias\Database\Model\Pivot;
-use RuntimeException;
 use Closure;
+use Larmias\Contracts\CollectionInterface;
+use Larmias\Database\Contracts\QueryInterface;
+use Larmias\Database\Contracts\ModelCollectionInterface;
+use Larmias\Database\Model\AbstractModel;
+use Larmias\Database\Model\Pivot;
+use Larmias\Utils\Arr;
+use RuntimeException;
 use function is_array;
 use function is_numeric;
 use function is_string;
+use function method_exists;
 
 class BelongsToMany extends Relation
 {
     /**
-     * @param Model $parent
+     * @param AbstractModel $parent
      * @param string $modelClass
      * @param string $middleClass
      * @param string $foreignKey
      * @param string $localKey
      */
     public function __construct(
-        protected Model  $parent, protected string $modelClass, protected string $middleClass,
-        protected string $foreignKey, protected string $localKey
+        protected AbstractModel $parent, protected string $modelClass, protected string $middleClass,
+        protected string        $foreignKey, protected string $localKey
     )
     {
-        $this->model = $this->newModel();
+        $this->query = $this->newModel()->newQuery();
     }
 
     /**
      * 初始化模型查询
      * @return void
      */
-    protected function initModel(): void
+    protected function initQuery(): void
     {
-        $this->model = $this->belongsToManyQuery([
+        $this->query = $this->belongsToManyQuery([
             ['pivot.' . $this->localKey, '=', $this->parent->getPrimaryValue()]
         ]);
     }
 
     /**
      * 获取关联数据
-     * @return Collection
+     * @return ModelCollectionInterface
      */
-    public function getRelation(): Collection
+    public function getRelation(): ModelCollectionInterface
     {
-        return $this->getModel()->get();
+        /** @var ModelCollectionInterface $collect */
+        $collect = $this->query()->get();
+        return $this->matchPivot($collect);
     }
 
     /**
@@ -65,24 +69,21 @@ class BelongsToMany extends Relation
 
     /**
      * 关联预查询
-     * @param CollectionInterface|Model $resultSet
+     * @param CollectionInterface $resultSet
      * @param string $relation
      * @param mixed $option
      * @return void
      */
-    public function eagerlyResultSet(CollectionInterface|Model $resultSet, string $relation, mixed $option): void
+    public function eagerlyResultSet(CollectionInterface $resultSet, string $relation, mixed $option): void
     {
-        if ($resultSet instanceof Model) {
-            $resultSet = new Collection([$resultSet]);
-        }
-
         if ($resultSet->isEmpty()) {
             return;
         }
 
         $primaryKey = $resultSet[0]->getPrimaryKey();
 
-        $primaryValues = $resultSet->filter(fn(Model $item) => isset($item->{$primaryKey}))->map(fn(Model $item) => $item->{$primaryKey})
+        $primaryValues = $resultSet->filter(fn(AbstractModel $item) => isset($item->{$primaryKey}))
+            ->map(fn(AbstractModel $item) => $item->{$primaryKey})
             ->unique()
             ->toArray();
 
@@ -90,22 +91,22 @@ class BelongsToMany extends Relation
             return;
         }
 
-        $model = $this->belongsToManyQuery([
+        $query = $this->belongsToManyQuery([
             ['pivot.' . $this->localKey, 'in', $primaryValues]
         ]);
 
         if ($option instanceof Closure) {
-            $option($model);
+            $option($query);
         } else if (is_array($option) && !empty($option)) {
-            $model->with($option);
+            $query->with($option);
         }
 
-        $data = $model->get();
+        $data = $query->get();
 
         if ($data->isNotEmpty()) {
-            /** @var Model $result */
+            /** @var AbstractModel $result */
             foreach ($resultSet as $result) {
-                $result->{$relation} = $data->where($this->localKey, $result->{$primaryKey});
+                $result->setRelation($relation, $this->matchPivot($data->where($this->localKey, $result->{$primaryKey})));
             }
         }
     }
@@ -123,13 +124,13 @@ class BelongsToMany extends Relation
             if (Arr::isList($data)) {
                 $id = $data;
             } else {
-                $model = $this->newModel();
-                $model->save($data);
+                $model = $this->newModel($data);
+                $model->save();
                 $id = $model->getPrimaryValue();
             }
         } else if (is_numeric($data) || is_string($data)) {
             $id = $data;
-        } else if ($data instanceof Model) {
+        } else if ($data instanceof AbstractModel) {
             $id = $data->getPrimaryValue();
         }
 
@@ -162,7 +163,7 @@ class BelongsToMany extends Relation
      */
     public function attached(mixed $data): ?Pivot
     {
-        if ($data instanceof Model) {
+        if ($data instanceof AbstractModel) {
             $id = $data->getPrimaryValue();
         } else {
             $id = $data;
@@ -188,7 +189,7 @@ class BelongsToMany extends Relation
         $id = null;
         if (is_array($data) || is_string($data) || is_numeric($data)) {
             $id = $data;
-        } else if ($data instanceof Model) {
+        } else if ($data instanceof AbstractModel) {
             $id = $data->getPrimaryValue();
         }
 
@@ -202,24 +203,55 @@ class BelongsToMany extends Relation
 
         $result = $this->newPivot()->newQuery()->where($where)->delete();
 
-        if (!$emptyId && $relationDel) {
-            $this->model::destroy($id);
+        if (!$emptyId && $relationDel && method_exists($this->modelClass, 'destroy')) {
+            $this->modelClass::destroy($id);
         }
 
         return $result;
     }
 
     /**
-     * @return Model
+     * @param array $where
+     * @return QueryInterface
      */
-    public function belongsToManyQuery(array $where): Model
+    public function belongsToManyQuery(array $where): QueryInterface
     {
         $model = $this->newModel();
         $pivot = $this->newPivot();
+        $field = sprintf('%s.*,pivot.%s pivot__%s,pivot.%s pivot__%s', $model->getTable(),
+            $this->foreignKey, $this->foreignKey, $this->localKey, $this->localKey);
         return $model->alias($model->getTable())
-            ->field(sprintf('%s.*,pivot.%s,pivot.%s', $model->getTable(), $this->foreignKey, $this->localKey))
+            ->field($field)
             ->join([$pivot->getTable() => 'pivot'], sprintf('pivot.%s = %s.%s', $this->foreignKey, $model->getTable(), $model->getPrimaryKey()))
             ->where($where);
+    }
+
+    /**
+     * 匹配中间模型
+     * @param ModelCollectionInterface $collect
+     * @return ModelCollectionInterface
+     */
+    protected function matchPivot(ModelCollectionInterface $collect): ModelCollectionInterface
+    {
+        /** @var ModelCollectionInterface $collect */
+        $collect = $collect->each(function (AbstractModel $model) {
+            $pivot = [];
+            $data = $model->getData();
+
+            foreach ($data as $field => $value) {
+                if (str_contains($field, '__')) {
+                    [$name, $attr] = explode('__', $field);
+                    if ($name == 'pivot') {
+                        $pivot[$attr] = $value;
+                    }
+                    unset($model->{$field});
+                }
+            }
+
+            $model->setRelation('pivot', $this->newPivot($pivot));
+        });
+
+        return $collect;
     }
 
     /**

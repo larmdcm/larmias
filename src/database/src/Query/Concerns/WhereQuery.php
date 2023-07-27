@@ -18,6 +18,7 @@ use function is_array;
 trait WhereQuery
 {
     /**
+     * WHERE查询
      * @param mixed $field
      * @param mixed|null $op
      * @param mixed|null $value
@@ -44,6 +45,7 @@ trait WhereQuery
     }
 
     /**
+     * WHERE OR 查询
      * @param mixed $field
      * @param mixed|null $op
      * @param mixed|null $value

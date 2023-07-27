@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace Larmias\Database\Providers;
 
+use Larmias\Contracts\ApplicationInterface;
 use Larmias\Contracts\ConfigInterface;
 use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\ServiceProviderInterface;
-use Larmias\Database\Contracts\ManagerInterface;
-use Larmias\Database\Model;
-use Psr\EventDispatcher\EventDispatcherInterface;
-use Larmias\Database\Manager;
-use Larmias\Contracts\ApplicationInterface;
 use Larmias\Contracts\VendorPublishInterface;
+use Larmias\Database\Contracts\ManagerInterface;
+use Larmias\Database\Manager;
+use Larmias\Database\Model\Model;
+use Psr\EventDispatcher\EventDispatcherInterface;
 
 class DatabaseServiceProvider implements ServiceProviderInterface
 {

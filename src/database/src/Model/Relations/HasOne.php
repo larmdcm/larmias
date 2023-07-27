@@ -4,38 +4,34 @@ declare(strict_types=1);
 
 namespace Larmias\Database\Model\Relations;
 
-use Larmias\Contracts\CollectionInterface;
-use Larmias\Database\Model;
-use Larmias\Database\Model\Collection;
 use Closure;
+use Larmias\Contracts\CollectionInterface;
+use Larmias\Database\Model\AbstractModel;
 
 class HasOne extends OneToOne
 {
     /**
-     * 初始化模型查询
+     * 初始化查询
      * @return void
      */
-    protected function initModel(): void
+    protected function initQuery(): void
     {
-        $this->model->where($this->getForeignKey(), $this->parent->getAttribute($this->getLocalKey()));
+        $this->query->where($this->getForeignKey(), $this->parent->getAttribute($this->getLocalKey()));
     }
 
     /**
      * 关联预查询
-     * @param CollectionInterface|Model $resultSet
+     * @param CollectionInterface $resultSet
      * @param string $relation
      * @param mixed $option
      * @return void
      */
-    public function eagerlyResultSet(CollectionInterface|Model $resultSet, string $relation, mixed $option): void
+    public function eagerlyResultSet(CollectionInterface $resultSet, string $relation, mixed $option): void
     {
-        $model = $this->newModel();
+        $query = $this->newModel()->newQuery();
 
-        if ($resultSet instanceof Model) {
-            $resultSet = new Collection([$resultSet]);
-        }
-
-        $localKeyValues = $resultSet->filter(fn(Model $item) => isset($item->{$this->localKey}))->map(fn(Model $item) => $item->{$this->localKey})
+        $localKeyValues = $resultSet->filter(fn(AbstractModel $item) => isset($item->{$this->localKey}))
+            ->map(fn(AbstractModel $item) => $item->{$this->localKey})
             ->unique()
             ->toArray();
 
@@ -44,28 +40,30 @@ class HasOne extends OneToOne
         }
 
         if ($option instanceof Closure) {
-            $option($model);
+            $option($query);
         } else if (is_array($option) && !empty($option)) {
-            $model->with($option);
+            $query->with($option);
         }
 
-        $data = $model->whereIn($this->foreignKey, $localKeyValues)->get()->pluck(null, $this->foreignKey);
+        $data = $query->whereIn($this->foreignKey, $localKeyValues)->get()->pluck(null, $this->foreignKey);
 
         if ($data->isNotEmpty()) {
-            /** @var Model $result */
+            /** @var AbstractModel $result */
             foreach ($resultSet as $result) {
                 $pk = $result->{$this->localKey};
-                $result->{$relation} = $data[$pk] ?? null;
+                $result->setRelation($relation, $data[$pk] ?? null);
             }
         }
     }
 
     /**
      * 获取关联数据
-     * @return Model|null
+     * @return AbstractModel|null
      */
-    public function getRelation(): ?Model
+    public function getRelation(): ?AbstractModel
     {
-        return $this->getModel()->first();
+        /** @var AbstractModel $model */
+        $model = $this->query()->first();
+        return $model;
     }
 }

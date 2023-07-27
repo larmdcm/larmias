@@ -35,6 +35,13 @@ interface QueryInterface
     public const BUILD_SQL_SELECT = 5;
 
     /**
+     * 设置查询模型
+     * @param ModelInterface $model
+     * @return QueryInterface
+     */
+    public function setModel(ModelInterface $model): QueryInterface;
+
+    /**
      * 设置表名称
      * @param string $name
      * @return QueryInterface
@@ -367,26 +374,26 @@ interface QueryInterface
     public function get(): CollectionInterface;
 
     /**
-     * @return array|null
+     * @return array|ModelInterface|null
      */
-    public function first(): ?array;
+    public function first(): array|ModelInterface|null;
 
     /**
-     * @return array|null
+     * @return array|ModelInterface|null
      */
-    public function firstOrFail(): ?array;
-
-    /**
-     * @param int|string $id
-     * @return array|null
-     */
-    public function find(int|string $id): ?array;
+    public function firstOrFail(): array|ModelInterface|null;
 
     /**
      * @param int|string $id
-     * @return array|null
+     * @return array|ModelInterface|null
      */
-    public function findOrFail(int|string $id): ?array;
+    public function find(int|string $id): array|ModelInterface|null;
+
+    /**
+     * @param int|string $id
+     * @return array|ModelInterface|null
+     */
+    public function findOrFail(int|string $id): array|ModelInterface|null;
 
     /**
      * @param string $name

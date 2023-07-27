@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\Tests\Database\Model;
 
-use Larmias\Database\Model;
+use Larmias\Database\Model\AbstractModel;
 use Larmias\Database\Model\Relations\BelongsTo;
 
 /**
@@ -13,7 +13,7 @@ use Larmias\Database\Model\Relations\BelongsTo;
  * @property int $age
  * @property string $address
  */
-class UserInfoModel extends Model
+class UserInfoModel extends AbstractModel
 {
     /**
      * @var array|string[]

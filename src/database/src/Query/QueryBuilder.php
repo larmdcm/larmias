@@ -10,12 +10,14 @@ use Larmias\Database\Contracts\BuilderInterface;
 use Larmias\Database\Contracts\ConnectionInterface;
 use Larmias\Database\Contracts\ExecuteResultInterface;
 use Larmias\Database\Contracts\ExpressionInterface;
+use Larmias\Database\Contracts\ModelInterface;
 use Larmias\Database\Contracts\QueryInterface;
 use Larmias\Database\Contracts\SqlPrepareInterface;
 use Larmias\Database\Entity\Expression;
 use Larmias\Database\Exceptions\ResourceNotFoundException;
 use Larmias\Database\Query\Concerns\AggregateQuery;
 use Larmias\Database\Query\Concerns\JoinQuery;
+use Larmias\Database\Query\Concerns\ModelRelationQuery;
 use Larmias\Database\Query\Concerns\Transaction;
 use Larmias\Database\Query\Concerns\WhereQuery;
 use Larmias\Paginator\Paginator;
@@ -36,6 +38,7 @@ class QueryBuilder implements QueryInterface
     use JoinQuery;
     use AggregateQuery;
     use Transaction;
+    use ModelRelationQuery;
 
     /**
      * @var array
@@ -55,7 +58,6 @@ class QueryBuilder implements QueryInterface
         'having' => [],
         'incr' => [],
         'soft_delete' => [],
-        'model' => null,
     ];
 
     /**
@@ -113,7 +115,7 @@ class QueryBuilder implements QueryInterface
     }
 
     /**
-     * 设置表名称
+     * 设置表名称不含前缀
      * @param string $name
      * @return QueryInterface
      */
@@ -123,6 +125,7 @@ class QueryBuilder implements QueryInterface
     }
 
     /**
+     * 设置查询字段RAW
      * @param string $field
      * @param array $bindings
      * @return QueryInterface
@@ -134,6 +137,7 @@ class QueryBuilder implements QueryInterface
     }
 
     /**
+     * 设置查询字段
      * @param string|array|ExpressionInterface $field
      * @return QueryInterface
      */
@@ -160,6 +164,7 @@ class QueryBuilder implements QueryInterface
     }
 
     /**
+     * 设置分组查询
      * @param array|string $field
      * @return QueryInterface
      */
@@ -173,6 +178,7 @@ class QueryBuilder implements QueryInterface
     }
 
     /**
+     * 设置分组查询RAW
      * @param string $expression
      * @param array $bindings
      * @return QueryInterface
@@ -184,6 +190,7 @@ class QueryBuilder implements QueryInterface
     }
 
     /**
+     * 设置排序查询
      * @param array|string $field
      * @param string $order
      * @return QueryInterface
@@ -207,6 +214,7 @@ class QueryBuilder implements QueryInterface
     }
 
     /**
+     * 设置排序查询RAW
      * @param string $expression
      * @param array $bindings
      * @return QueryInterface
@@ -405,23 +413,26 @@ class QueryBuilder implements QueryInterface
     {
         $sqlPrepare = $this->buildSelect();
         $items = $this->connection->query($sqlPrepare->getSql(), $sqlPrepare->getBindings())->getResultSet();
+        if ($this->isToModelCollection()) {
+            return $this->toModelCollection($items);
+        }
         return Collection::make($items);
     }
 
     /**
      * 获取第一条数据
-     * @return array|null
+     * @return array|ModelInterface|null
      */
-    public function first(): ?array
+    public function first(): array|ModelInterface|null
     {
         return $this->limit(1)->get()->first();
     }
 
     /**
      * 获取第一条数据 查询失败抛出异常
-     * @return array|null
+     * @return array|ModelInterface|null
      */
-    public function firstOrFail(): ?array
+    public function firstOrFail(): array|ModelInterface|null
     {
         $data = $this->first();
         if ($data === null) {
@@ -433,9 +444,9 @@ class QueryBuilder implements QueryInterface
     /**
      * 根据主键查询数据
      * @param int|string $id
-     * @return array|null
+     * @return array|ModelInterface|null
      */
-    public function find(int|string $id): ?array
+    public function find(int|string $id): array|ModelInterface|null
     {
         return $this->where($this->getPrimaryKey(), $id)->first();
     }
@@ -443,9 +454,9 @@ class QueryBuilder implements QueryInterface
     /**
      * 根据主键查询数据 查询失败抛出异常
      * @param int|string $id
-     * @return array|null
+     * @return array|ModelInterface|null
      */
-    public function findOrFail(int|string $id): ?array
+    public function findOrFail(int|string $id): array|ModelInterface|null
     {
         $data = $this->find($id);
         if ($data === null) {

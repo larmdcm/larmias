@@ -13,6 +13,7 @@ use Larmias\Database\Query\QueryBuilder;
 trait JoinQuery
 {
     /**
+     * JOIN查询
      * @param array|string $table
      * @param mixed $condition
      * @param string $joinType
@@ -25,6 +26,7 @@ trait JoinQuery
     }
 
     /**
+     * INNER JOIN查询
      * @param array|string $table
      * @param mixed $condition
      * @return QueryInterface
@@ -35,6 +37,7 @@ trait JoinQuery
     }
 
     /**
+     * LEFT JOIN查询
      * @param array|string $table
      * @param mixed $condition
      * @return QueryInterface
@@ -45,6 +48,7 @@ trait JoinQuery
     }
 
     /**
+     * RIGHT JOIN查询
      * @param array|string $table
      * @param mixed $condition
      * @return QueryInterface

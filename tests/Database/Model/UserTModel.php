@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace Larmias\Tests\Database\Model;
 
-use Larmias\Database\Model;
 use Larmias\Database\Model\Concerns\SoftDelete;
+use Larmias\Database\Model\AbstractModel;
 
 /**
  * @property int $id
  * @property string $username
  * @property int $integral
  */
-class UserTModel extends Model
+class UserTModel extends AbstractModel
 {
     use SoftDelete;
 
@@ -23,6 +23,6 @@ class UserTModel extends Model
 
     public function generateUniqueId(): string
     {
-        return uniqid();
+        return md5(uniqid());
     }
 }

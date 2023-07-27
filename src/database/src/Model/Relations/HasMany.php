@@ -4,49 +4,46 @@ declare(strict_types=1);
 
 namespace Larmias\Database\Model\Relations;
 
-use Larmias\Contracts\CollectionInterface;
-use Larmias\Database\Model;
-use Larmias\Database\Model\Collection;
 use Closure;
+use Larmias\Contracts\CollectionInterface;
+use Larmias\Database\Contracts\ModelCollectionInterface;
+use Larmias\Database\Model\AbstractModel;
 
 class HasMany extends Relation
 {
     /**
-     * @param Model $parent
+     * @param AbstractModel $parent
      * @param string $modelClass
      * @param string $foreignKey
      * @param string $localKey
      */
-    public function __construct(protected Model $parent, protected string $modelClass, protected string $foreignKey, protected string $localKey)
+    public function __construct(protected AbstractModel $parent, protected string $modelClass, protected string $foreignKey, protected string $localKey)
     {
-        $this->model = $this->newModel();
+        $this->query = $this->newModel()->newQuery();
     }
 
     /**
-     * 初始化模型查询
+     * 初始化查询
      * @return void
      */
-    protected function initModel(): void
+    protected function initQuery(): void
     {
-        $this->model->where($this->getForeignKey(), $this->parent->getAttribute($this->getLocalKey()));
+        $this->query->where($this->getForeignKey(), $this->parent->getAttribute($this->getLocalKey()));
     }
 
     /**
      * 关联预查询
-     * @param CollectionInterface|Model $resultSet
+     * @param CollectionInterface $resultSet
      * @param string $relation
      * @param mixed $option
      * @return void
      */
-    public function eagerlyResultSet(CollectionInterface|Model $resultSet, string $relation, mixed $option): void
+    public function eagerlyResultSet(CollectionInterface $resultSet, string $relation, mixed $option): void
     {
         $model = $this->newModel();
 
-        if ($resultSet instanceof Model) {
-            $resultSet = new Collection([$resultSet]);
-        }
-
-        $localKeyValues = $resultSet->filter(fn(Model $item) => isset($item->{$this->localKey}))->map(fn(Model $item) => $item->{$this->localKey})
+        $localKeyValues = $resultSet->filter(fn(AbstractModel $item) => isset($item->{$this->localKey}))
+            ->map(fn(AbstractModel $item) => $item->{$this->localKey})
             ->unique()
             ->toArray();
 
@@ -63,31 +60,33 @@ class HasMany extends Relation
         $data = $model->whereIn($this->foreignKey, $localKeyValues)->get();
 
         if ($data->isNotEmpty()) {
-            /** @var Model $result */
+            /** @var AbstractModel $result */
             foreach ($resultSet as $result) {
-                $result->{$relation} = $data->where($this->foreignKey, $result->{$this->localKey});
+                $result->setRelation($relation, $data->where($this->foreignKey, $result->{$this->localKey}));
             }
         }
     }
 
     /**
      * 获取关联数据
-     * @return Collection
+     * @return ModelCollectionInterface
      */
-    public function getRelation(): Collection
+    public function getRelation(): ModelCollectionInterface
     {
-        return $this->getModel()->get();
+        /** @var ModelCollectionInterface $collect */
+        $collect = $this->query()->get();
+        return $collect;
     }
 
     /**
      * 保存关联数据
      * @param array $data
-     * @return Model|null
+     * @return AbstractModel|null
      */
-    public function save(array $data = []): ?Model
+    public function save(array $data = []): ?AbstractModel
     {
-        $model = $this->newModel();
+        $model = $this->newModel($data);
         $model->setAttribute($this->getForeignKey(), $this->parent->getAttribute($this->getLocalKey()));
-        return $model->save($data) ? $model : null;
+        return $model->save() ? $model : null;
     }
 }

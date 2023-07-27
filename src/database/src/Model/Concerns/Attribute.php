@@ -5,23 +5,23 @@ declare(strict_types=1);
 namespace Larmias\Database\Model\Concerns;
 
 use InvalidArgumentException;
-use Larmias\Database\Model\Relation\Relation;
-use Larmias\Utils\Arr;
+use Larmias\Database\Contracts\ModelCollectionInterface;
+use Larmias\Database\Model\AbstractModel;
+use Larmias\Database\Model\Relations\Relation;
 use Larmias\Utils\Str;
-use Larmias\Database\Model;
-use function array_udiff_assoc;
-use function is_object;
-use function method_exists;
 use function array_key_exists;
-use function is_numeric;
-use function strtotime;
+use function array_udiff_assoc;
 use function date;
+use function is_numeric;
+use function is_object;
 use function json_encode;
+use function method_exists;
 use function serialize;
 use function str_contains;
+use function strtotime;
 
 /**
- * @mixin Model
+ * @mixin AbstractModel
  */
 trait Attribute
 {
@@ -132,6 +132,18 @@ trait Attribute
     }
 
     /**
+     * 设置关联属性
+     * @param string $name
+     * @param AbstractModel|ModelCollectionInterface $relation
+     * @return Attribute|AbstractModel
+     */
+    public function setRelation(string $name, AbstractModel|ModelCollectionInterface $relation): self
+    {
+        $this->relation[$name] = $relation;
+        return $this;
+    }
+
+    /**
      * 刷新原始数据
      * @param array|null $data
      * @return void
@@ -148,13 +160,22 @@ trait Attribute
     /**
      * 设置数据
      * @param array $data
-     * @return Model|Attribute
+     * @return AbstractModel|Attribute
      */
     public function data(array $data = []): self
     {
         $this->data = $data;
         $this->refreshOrigin();
         return $this;
+    }
+
+    /**
+     * 获取数据
+     * @return array
+     */
+    public function getData(): array
+    {
+        return $this->data;
     }
 
     /**

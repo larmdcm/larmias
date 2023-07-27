@@ -11,6 +11,24 @@ class BuilderTest extends TestCase
     /**
      * @return void
      */
+    public function testEscape(): void
+    {
+        $builder = $this->newBuilder();
+        $str = $builder->escapeField('name');
+        $this->assertSame($str, '`name`');
+        $str = $builder->escapeField('t1.name');
+        $this->assertSame($str, '`t1`.`name`');
+        $str = $builder->escapeField('t1.name as tname');
+        $this->assertSame($str, '`t1`.`name` as `tname`');
+        $str = $builder->escapeField('*');
+        $this->assertSame($str, '*');
+        $str = $builder->escapeField('t1.*');
+        $this->assertSame($str, '`t1`.*');
+    }
+
+    /**
+     * @return void
+     */
     public function testParseField(): void
     {
         $builder = $this->newBuilder();
@@ -21,7 +39,7 @@ class BuilderTest extends TestCase
             1,
             ['a12' => 'as12', 'a16' => 'as19']
         ]);
-        $this->assertSame($field, '`?`,`a6`,`a9`,`s1`,`1`,`as12` `a12`,`as19` `a16`');
+        $this->assertSame($field, '?,`a6`,`a9`,`s1`,1,`as12` `a12`,`as19` `a16`');
     }
 
     /**

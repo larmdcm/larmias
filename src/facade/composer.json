@@ -1,0 +1,33 @@
+{
+    "name": "larmias/facade",
+    "description": "facade mode.",
+    "type": "library",
+    "keywords": [
+        "larmias",
+        "facade"
+    ],
+    "homepage": "https://larmias.com/",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "clow",
+            "email": "mdcm98@163.com"
+        }
+    ],
+    "require": {
+        "php": ">=8.0",
+        "psr/container": "^2.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Larmias\\Facade\\": "src/"
+        }
+    },
+    "extra": {
+        "larmias": {
+            "providers": [
+                "Larmias\\Facade\\Providers\\FacadeServiceProvider"
+            ]
+        }
+    }
+}

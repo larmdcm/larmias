@@ -41,6 +41,7 @@ class QueryBuilder implements QueryInterface
     use ModelRelationQuery;
 
     /**
+     * 查询选项
      * @var array
      */
     protected array $options = [

@@ -6,7 +6,7 @@ namespace Larmias\Facade\Providers;
 
 use Larmias\Contracts\ServiceProviderInterface;
 use Larmias\Facade\AbstractFacade;
-use Psr\Container\ContainerInterface;
+use Larmias\Contracts\ContainerInterface;
 
 class FacadeServiceProvider implements ServiceProviderInterface
 {

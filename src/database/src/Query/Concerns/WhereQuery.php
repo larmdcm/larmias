@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Larmias\Database\Query\Concerns;
 
 use Larmias\Database\Entity\Expression;
-use Larmias\Database\Query\QueryBuilder;
+use Larmias\Database\Query\BaseQuery;
 use Larmias\Database\Contracts\QueryInterface;
 use Larmias\Database\Contracts\ExpressionInterface;
 use Closure;
@@ -13,7 +13,7 @@ use function strtoupper;
 use function is_array;
 
 /**
- * @mixin QueryBuilder
+ * @mixin BaseQuery
  */
 trait WhereQuery
 {
@@ -23,9 +23,9 @@ trait WhereQuery
      * @param mixed|null $op
      * @param mixed|null $value
      * @param string $logic
-     * @return QueryInterface
+     * @return static
      */
-    public function where(mixed $field, mixed $op = null, mixed $value = null, string $logic = 'AND'): QueryInterface
+    public function where(mixed $field, mixed $op = null, mixed $value = null, string $logic = 'AND'): static
     {
         if (is_array($field)) {
             $conditions = $this->parseWhereArray($field);
@@ -49,9 +49,9 @@ trait WhereQuery
      * @param mixed $field
      * @param mixed|null $op
      * @param mixed|null $value
-     * @return QueryInterface
+     * @return static
      */
-    public function orWhere(mixed $field, mixed $op = null, mixed $value = null): QueryInterface
+    public function orWhere(mixed $field, mixed $op = null, mixed $value = null): static
     {
         return $this->where($field, $op, $value, 'OR');
     }
@@ -59,9 +59,9 @@ trait WhereQuery
     /**
      * @param string $expression
      * @param array $bindings
-     * @return QueryInterface
+     * @return static
      */
-    public function whereRaw(string $expression, array $bindings = []): QueryInterface
+    public function whereRaw(string $expression, array $bindings = []): static
     {
         return $this->where(new Expression($expression, $bindings));
     }
@@ -69,9 +69,9 @@ trait WhereQuery
     /**
      * @param string $field
      * @param string $logic
-     * @return QueryInterface
+     * @return static
      */
-    public function whereNull(string $field, string $logic = 'AND'): QueryInterface
+    public function whereNull(string $field, string $logic = 'AND'): static
     {
         return $this->where($field, 'NULL', null, $logic);
     }
@@ -79,9 +79,9 @@ trait WhereQuery
     /**
      * @param string $field
      * @param string $logic
-     * @return QueryInterface
+     * @return static
      */
-    public function whereNotNull(string $field, string $logic = 'AND'): QueryInterface
+    public function whereNotNull(string $field, string $logic = 'AND'): static
     {
         return $this->where($field, 'NOT NULL', null, $logic);
     }
@@ -90,9 +90,9 @@ trait WhereQuery
      * @param string $field
      * @param mixed $value
      * @param string $logic
-     * @return QueryInterface
+     * @return static
      */
-    public function whereIn(string $field, mixed $value, string $logic = 'AND'): QueryInterface
+    public function whereIn(string $field, mixed $value, string $logic = 'AND'): static
     {
         return $this->where($field, 'IN', $value, $logic);
     }
@@ -101,9 +101,9 @@ trait WhereQuery
      * @param string $field
      * @param mixed $value
      * @param string $logic
-     * @return QueryInterface
+     * @return static
      */
-    public function whereNotIn(string $field, mixed $value, string $logic = 'AND'): QueryInterface
+    public function whereNotIn(string $field, mixed $value, string $logic = 'AND'): static
     {
         return $this->where($field, 'NOT IN', $value, $logic);
     }
@@ -112,9 +112,9 @@ trait WhereQuery
      * @param string $field
      * @param mixed $value
      * @param string $logic
-     * @return QueryInterface
+     * @return static
      */
-    public function whereBetween(string $field, mixed $value, string $logic = 'AND'): QueryInterface
+    public function whereBetween(string $field, mixed $value, string $logic = 'AND'): static
     {
         return $this->where($field, 'BETWEEN', $value, $logic);
     }
@@ -123,9 +123,9 @@ trait WhereQuery
      * @param string $field
      * @param mixed $value
      * @param string $logic
-     * @return QueryInterface
+     * @return static
      */
-    public function whereNotBetween(string $field, mixed $value, string $logic = 'AND'): QueryInterface
+    public function whereNotBetween(string $field, mixed $value, string $logic = 'AND'): static
     {
         return $this->where($field, 'NOT BETWEEN', $value, $logic);
     }
@@ -134,9 +134,9 @@ trait WhereQuery
      * @param string $field
      * @param mixed $value
      * @param string $logic
-     * @return QueryInterface
+     * @return static
      */
-    public function whereLike(string $field, mixed $value, string $logic = 'AND'): QueryInterface
+    public function whereLike(string $field, mixed $value, string $logic = 'AND'): static
     {
         return $this->where($field, 'LIKE', $value, $logic);
     }
@@ -145,9 +145,9 @@ trait WhereQuery
      * @param string $field
      * @param mixed $value
      * @param string $logic
-     * @return QueryInterface
+     * @return static
      */
-    public function whereNotLike(string $field, mixed $value, string $logic = 'AND'): QueryInterface
+    public function whereNotLike(string $field, mixed $value, string $logic = 'AND'): static
     {
         return $this->where($field, 'NOT LIKE', $value, $logic);
     }
@@ -156,9 +156,9 @@ trait WhereQuery
      * @param string $field
      * @param mixed $value
      * @param string $logic
-     * @return QueryInterface
+     * @return static
      */
-    public function whereExists(string $field, mixed $value, string $logic = 'AND'): QueryInterface
+    public function whereExists(string $field, mixed $value, string $logic = 'AND'): static
     {
         return $this->where($field, 'EXISTS', $value, $logic);
     }
@@ -167,9 +167,9 @@ trait WhereQuery
      * @param string $field
      * @param mixed $value
      * @param string $logic
-     * @return QueryInterface
+     * @return static
      */
-    public function whereNotExists(string $field, mixed $value, string $logic = 'AND'): QueryInterface
+    public function whereNotExists(string $field, mixed $value, string $logic = 'AND'): static
     {
         return $this->where($field, 'NOT EXISTS', $value, $logic);
     }
@@ -179,9 +179,9 @@ trait WhereQuery
      * @param string $op
      * @param string|null $value
      * @param string $logic
-     * @return QueryInterface
+     * @return static
      */
-    public function whereColumn(string $field, string $op, string $value = null, string $logic = 'AND'): QueryInterface
+    public function whereColumn(string $field, string $op, string $value = null, string $logic = 'AND'): static
     {
         if ($value === null) {
             $value = $op;

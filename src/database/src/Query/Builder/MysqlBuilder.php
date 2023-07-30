@@ -9,7 +9,7 @@ use function sprintf;
 use function str_contains;
 use function is_numeric;
 
-class MysqlBuilder extends Builder
+class MysqlBuilder extends SqlBuilder
 {
     /**
      * 转义查询字段

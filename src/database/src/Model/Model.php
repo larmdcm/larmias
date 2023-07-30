@@ -9,8 +9,8 @@ use JsonSerializable;
 use Larmias\Contracts\PaginatorInterface;
 use Larmias\Database\Contracts\ExpressionInterface;
 use Larmias\Database\Contracts\ManagerInterface;
-use Larmias\Database\Contracts\ModelInterface;
-use Larmias\Database\Contracts\QueryInterface;
+use Larmias\Database\Model\Contracts\ModelInterface;
+use Larmias\Database\Model\Contracts\QueryInterface;
 use Larmias\Database\Contracts\TransactionInterface;
 use Larmias\Database\Model\Concerns\Attribute;
 use Larmias\Database\Model\Concerns\Conversion;
@@ -73,10 +73,10 @@ use function str_contains;
  * @method static int insertAll(?array $data = null)
  * @method static int update(?array $data = null, mixed $condition = null)
  * @method static Collection get()
- * @method static ModelInterface first()
- * @method static ModelInterface firstOrFail()
- * @method static ModelInterface find(int|string $id)
- * @method static ModelInterface findOrFail(int|string $id)
+ * @method static static first()
+ * @method static static firstOrFail()
+ * @method static static find(int|string $id)
+ * @method static static findOrFail(int|string $id)
  * @method static mixed value(string $name, mixed $default = null)
  * @method static Collection pluck(string $value, ?string $key = null)
  * @method static PaginatorInterface paginate(array $config = [])
@@ -84,7 +84,7 @@ use function str_contains;
  * @method static TransactionInterface beginTransaction()
  * @method static mixed transaction(\Closure $callback)
  */
-abstract class AbstractModel implements ModelInterface, Arrayable, Jsonable, Stringable, JsonSerializable
+abstract class Model implements ModelInterface, Arrayable, Jsonable, Stringable, JsonSerializable
 {
     use Attribute;
     use Conversion;
@@ -226,7 +226,7 @@ abstract class AbstractModel implements ModelInterface, Arrayable, Jsonable, Str
 
         $resultSet = $model->newQuery()->get();
 
-        /** @var AbstractModel $item */
+        /** @var Model $item */
         foreach ($resultSet as $item) {
             if (method_exists($item, 'force')) {
                 $item->force($force);
@@ -354,7 +354,7 @@ abstract class AbstractModel implements ModelInterface, Arrayable, Jsonable, Str
     public function newQuery(): QueryInterface
     {
         $connection = $this->manager->connection($this->connection);
-        $query = $this->manager->newQuery($connection);
+        $query = $this->manager->newModelQuery($connection);
         $query->name($this->name)->setPrimaryKey($this->getPrimaryKey())
             ->setModel($this);
 
@@ -380,7 +380,7 @@ abstract class AbstractModel implements ModelInterface, Arrayable, Jsonable, Str
     }
 
     /**
-     * AbstractModel __call.
+     * Model __call.
      * @param string $name
      * @param array $args
      * @return mixed
@@ -391,7 +391,7 @@ abstract class AbstractModel implements ModelInterface, Arrayable, Jsonable, Str
     }
 
     /**
-     * AbstractModel __callStatic.
+     * Model __callStatic.
      * @param string $name
      * @param array $args
      * @return mixed

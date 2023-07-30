@@ -4,16 +4,19 @@ declare(strict_types=1);
 
 namespace Larmias\Database\Model\Relations;
 
-use Larmias\Database\Model\AbstractModel;
-use Larmias\Database\Contracts\QueryInterface;
+use Larmias\Database\Model\Model;
+use Larmias\Database\Model\Contracts\QueryInterface;
 
+/**
+ * @method QueryInterface with(string|array $with)
+ */
 abstract class Relation
 {
     /**
      * 父级模型
-     * @var AbstractModel
+     * @var Model
      */
-    protected AbstractModel $parent;
+    protected Model $parent;
 
     /**
      * @var QueryInterface
@@ -45,17 +48,17 @@ abstract class Relation
     protected bool $initQuery = false;
 
     /**
-     * @return AbstractModel
+     * @return Model
      */
-    public function getParent(): AbstractModel
+    public function getParent(): Model
     {
         return $this->parent;
     }
 
     /**
-     * @param AbstractModel $parent
+     * @param Model $parent
      */
-    public function setParent(AbstractModel $parent): void
+    public function setParent(Model $parent): void
     {
         $this->parent = $parent;
     }
@@ -118,9 +121,9 @@ abstract class Relation
     /**
      * 实例化模型
      * @param array $data
-     * @return AbstractModel
+     * @return Model
      */
-    protected function newModel(array $data = []): AbstractModel
+    protected function newModel(array $data = []): Model
     {
         return new $this->modelClass($data);
     }

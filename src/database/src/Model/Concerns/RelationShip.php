@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\Database\Model\Concerns;
 
-use Larmias\Database\Model\AbstractModel;
+use Larmias\Database\Model\Model;
 use Larmias\Database\Model\Relations\BelongsTo;
 use Larmias\Database\Model\Relations\BelongsToMany;
 use Larmias\Database\Model\Relations\HasMany;
@@ -14,7 +14,7 @@ use function Larmias\Utils\class_basename;
 use function str_contains;
 
 /**
- * @mixin AbstractModel
+ * @mixin Model
  */
 trait RelationShip
 {
@@ -83,7 +83,7 @@ trait RelationShip
     public function isRelationAttr(string $name): ?string
     {
         $name = Str::camel($name);
-        if (method_exists($this, $name) && !method_exists(AbstractModel::class, $name)) {
+        if (method_exists($this, $name) && !method_exists(Model::class, $name)) {
             return $name;
         }
 

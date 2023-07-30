@@ -4,15 +4,17 @@ declare(strict_types=1);
 
 namespace Larmias\Database;
 
+use Larmias\Database\Query\Contracts\QueryInterface;
+use Larmias\Database\Query\Query;
+use Larmias\Database\Model\Contracts\QueryInterface as ModelQueryInterface;
+use Larmias\Database\Model\Query as ModelQuery;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Larmias\Contracts\ContainerInterface;
 use Larmias\Database\Query\Builder\MysqlBuilder;
-use Larmias\Database\Contracts\BuilderInterface;
+use Larmias\Database\Contracts\SqlBuilderInterface;
 use Larmias\Database\Contracts\ConnectionInterface;
 use Larmias\Database\Contracts\ManagerInterface;
-use Larmias\Database\Contracts\QueryInterface;
 use Larmias\Database\Pool\DbProxy;
-use Larmias\Database\Query\QueryBuilder;
 use RuntimeException;
 use function class_exists;
 use function Larmias\Utils\data_get;
@@ -73,11 +75,31 @@ class Manager implements ManagerInterface
      */
     public function newQuery(ConnectionInterface $connection): QueryInterface
     {
-        $queryClass = $connection->getConfig('query', QueryBuilder::class);
+        $queryClass = $connection->getConfig('query_class', Query::class);
         if (!class_exists($queryClass)) {
             throw new RuntimeException('query class not exists:' . $queryClass);
         }
+
         /** @var QueryInterface $query */
+        $query = new $queryClass();
+        $query->setConnection($connection);
+        $query->setBuilder($this->newBuilder($connection));
+        return $query;
+    }
+
+    /**
+     * 实例化模型查询
+     * @param ConnectionInterface $connection
+     * @return ModelQueryInterface
+     */
+    public function newModelQuery(ConnectionInterface $connection): ModelQueryInterface
+    {
+        $queryClass = $connection->getConfig('model_query_class', ModelQuery::class);
+        if (!class_exists($queryClass)) {
+            throw new RuntimeException('model query class not exists:' . $queryClass);
+        }
+
+        /** @var ModelQueryInterface $query */
         $query = new $queryClass();
         $query->setConnection($connection);
         $query->setBuilder($this->newBuilder($connection));
@@ -87,11 +109,11 @@ class Manager implements ManagerInterface
     /**
      * 实例化构造器
      * @param ConnectionInterface $connection
-     * @return BuilderInterface
+     * @return SqlBuilderInterface
      */
-    public function newBuilder(ConnectionInterface $connection): BuilderInterface
+    public function newBuilder(ConnectionInterface $connection): SqlBuilderInterface
     {
-        $builderClass = $connection->getConfig('builder', '');
+        $builderClass = $connection->getConfig('builder_class', '');
         if (!$builderClass) {
             $builderClass = match ($connection->getConfig('type')) {
                 'mysql' => MysqlBuilder::class,
@@ -116,11 +138,12 @@ class Manager implements ManagerInterface
 
     /**
      * @param EventDispatcherInterface $eventDispatcher
-     * @return void
+     * @return ManagerInterface
      */
-    public function setEventDispatcher(EventDispatcherInterface $eventDispatcher): void
+    public function setEventDispatcher(EventDispatcherInterface $eventDispatcher): ManagerInterface
     {
         $this->eventDispatcher = $eventDispatcher;
+        return $this;
     }
 
     /**
@@ -137,9 +160,9 @@ class Manager implements ManagerInterface
     /**
      * 设置数据库配置
      * @param array $config
-     * @return self
+     * @return ManagerInterface
      */
-    public function setConfig(array $config): self
+    public function setConfig(array $config): ManagerInterface
     {
         $this->config = $config;
         return $this;

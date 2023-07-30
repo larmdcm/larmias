@@ -105,7 +105,6 @@ class ModelTest extends TestCase
      */
     public function testUserInfoGet(): void
     {
-        /** @var UserModel $model */
         $model = UserModel::first();
         $this->assertSame($model->id, $model->userInfo->user_id);
         $userInfo = $model->userInfo()->field('id,user_id,address')->where('user_id', $model->id)->first();
@@ -131,13 +130,13 @@ class ModelTest extends TestCase
      */
     public function testHasOneWith(): void
     {
-        $list = UserModel::with(['userInfo' => function ($model) {
-            $model->field('id,user_id');
+        $list = UserModel::with(['userInfo' => function ($query) {
+            $query->field('id,user_id');
         }])->get();
         $this->assertSame($list[0]->id, $list[0]->userInfo->user_id);
 
-        $data = UserModel::with(['userInfo' => function ($model) {
-            $model->field('id,user_id');
+        $data = UserModel::with(['userInfo' => function ($query) {
+            $query->field('id,user_id');
         }])->first();
         $this->assertSame($data->id, $data->userInfo->user_id);
     }
@@ -147,8 +146,8 @@ class ModelTest extends TestCase
      */
     public function testBelongsToWith(): void
     {
-        $list = UserInfoModel::new()->with(['user' => function ($model) {
-            $model->field('id');
+        $list = UserInfoModel::new()->with(['user' => function ($query) {
+            $query->field('id');
         }])->get();
         $this->assertSame($list[0]->user_id, $list[0]->user->id);
 
@@ -179,7 +178,6 @@ class ModelTest extends TestCase
      */
     public function testBelongsToManySave(): void
     {
-        /** @var UserModel $user */
         $user = UserModel::find(1);
         $pivotList = $user->roles()->save([1, 2, 3]);
         $this->assertTrue(count($pivotList) > 0);
@@ -191,7 +189,6 @@ class ModelTest extends TestCase
      */
     public function testBelongsToManyGet(): void
     {
-        /** @var UserModel $user */
         $user = UserModel::find(1);
         var_dump($user->roles[0]->toArray());
         $this->assertTrue($user->roles->isNotEmpty());
@@ -211,7 +208,6 @@ class ModelTest extends TestCase
      */
     public function testBelongsToManyDel(): void
     {
-        /** @var UserModel $user */
         $user = UserModel::find(1);
         $count = $user->roles()->detach();
         $this->assertTrue($count > 0);

@@ -6,18 +6,15 @@ namespace Larmias\Database\Query;
 
 use Larmias\Contracts\CollectionInterface;
 use Larmias\Contracts\PaginatorInterface;
-use Larmias\Database\Contracts\BuilderInterface;
+use Larmias\Database\Contracts\SqlBuilderInterface;
 use Larmias\Database\Contracts\ConnectionInterface;
 use Larmias\Database\Contracts\ExecuteResultInterface;
 use Larmias\Database\Contracts\ExpressionInterface;
-use Larmias\Database\Contracts\ModelInterface;
 use Larmias\Database\Contracts\QueryInterface;
 use Larmias\Database\Contracts\SqlPrepareInterface;
 use Larmias\Database\Entity\Expression;
-use Larmias\Database\Exceptions\ResourceNotFoundException;
 use Larmias\Database\Query\Concerns\AggregateQuery;
 use Larmias\Database\Query\Concerns\JoinQuery;
-use Larmias\Database\Query\Concerns\ModelRelationQuery;
 use Larmias\Database\Query\Concerns\Transaction;
 use Larmias\Database\Query\Concerns\WhereQuery;
 use Larmias\Paginator\Paginator;
@@ -32,13 +29,12 @@ use function is_string;
 use function preg_match;
 use const SORT_REGULAR;
 
-class QueryBuilder implements QueryInterface
+abstract class BaseQuery implements QueryInterface
 {
     use WhereQuery;
     use JoinQuery;
     use AggregateQuery;
     use Transaction;
-    use ModelRelationQuery;
 
     /**
      * 查询选项
@@ -67,15 +63,15 @@ class QueryBuilder implements QueryInterface
     protected ConnectionInterface $connection;
 
     /**
-     * @var BuilderInterface
+     * @var SqlBuilderInterface
      */
-    protected BuilderInterface $builder;
+    protected SqlBuilderInterface $builder;
 
     /**
      * @param array $data
-     * @return QueryInterface
+     * @return static
      */
-    public function data(array $data): QueryInterface
+    public function data(array $data): static
     {
         $this->options['data'] = $data;
         return $this;
@@ -84,9 +80,9 @@ class QueryBuilder implements QueryInterface
     /**
      * 设置表名称
      * @param string $name
-     * @return QueryInterface
+     * @return static
      */
-    public function table(string $name): QueryInterface
+    public function table(string $name): static
     {
         $this->options['table'] = $name;
         return $this;
@@ -104,9 +100,9 @@ class QueryBuilder implements QueryInterface
     /**
      * 设置表别名
      * @param string|array $name
-     * @return QueryInterface
+     * @return static
      */
-    public function alias(string|array $name): QueryInterface
+    public function alias(string|array $name): static
     {
         if (is_string($name)) {
             $name = [$this->getTable() => $name];
@@ -118,9 +114,9 @@ class QueryBuilder implements QueryInterface
     /**
      * 设置表名称不含前缀
      * @param string $name
-     * @return QueryInterface
+     * @return static
      */
-    public function name(string $name): QueryInterface
+    public function name(string $name): static
     {
         return $this->table($this->connection->getConfig('prefix', '') . $name);
     }
@@ -129,9 +125,9 @@ class QueryBuilder implements QueryInterface
      * 设置查询字段RAW
      * @param string $field
      * @param array $bindings
-     * @return QueryInterface
+     * @return static
      */
-    public function fieldRaw(string $field, array $bindings = []): QueryInterface
+    public function fieldRaw(string $field, array $bindings = []): static
     {
         $this->options['field'][] = new Expression($field, $bindings);
         return $this;
@@ -140,9 +136,9 @@ class QueryBuilder implements QueryInterface
     /**
      * 设置查询字段
      * @param string|array|ExpressionInterface $field
-     * @return QueryInterface
+     * @return static
      */
-    public function field(string|array|ExpressionInterface $field): QueryInterface
+    public function field(string|array|ExpressionInterface $field): static
     {
         if ($field instanceof ExpressionInterface) {
             $this->options['field'][] = $field;
@@ -167,9 +163,9 @@ class QueryBuilder implements QueryInterface
     /**
      * 设置分组查询
      * @param array|string $field
-     * @return QueryInterface
+     * @return static
      */
-    public function groupBy(array|string $field): QueryInterface
+    public function groupBy(array|string $field): static
     {
         if (is_string($field)) {
             $field = explode(',', $field);
@@ -182,9 +178,9 @@ class QueryBuilder implements QueryInterface
      * 设置分组查询RAW
      * @param string $expression
      * @param array $bindings
-     * @return QueryInterface
+     * @return static
      */
-    public function groupByRaw(string $expression, array $bindings = []): QueryInterface
+    public function groupByRaw(string $expression, array $bindings = []): static
     {
         $this->options['group'][] = new Expression($expression, $bindings);
         return $this;
@@ -194,9 +190,9 @@ class QueryBuilder implements QueryInterface
      * 设置排序查询
      * @param array|string $field
      * @param string $order
-     * @return QueryInterface
+     * @return static
      */
-    public function orderBy(array|string $field, string $order = 'DESC'): QueryInterface
+    public function orderBy(array|string $field, string $order = 'DESC'): static
     {
         if (is_string($field)) {
             if (empty($order)) {
@@ -218,9 +214,9 @@ class QueryBuilder implements QueryInterface
      * 设置排序查询RAW
      * @param string $expression
      * @param array $bindings
-     * @return QueryInterface
+     * @return static
      */
-    public function orderByRaw(string $expression, array $bindings = []): QueryInterface
+    public function orderByRaw(string $expression, array $bindings = []): static
     {
         $this->options['order'][] = new Expression($expression, $bindings);
         return $this;
@@ -229,9 +225,9 @@ class QueryBuilder implements QueryInterface
     /**
      * @param string $expression
      * @param array $bindings
-     * @return QueryInterface
+     * @return static
      */
-    public function having(string $expression, array $bindings = []): QueryInterface
+    public function having(string $expression, array $bindings = []): static
     {
         $this->options['having']['AND'][] = new Expression($expression, $bindings);
         return $this;
@@ -240,9 +236,9 @@ class QueryBuilder implements QueryInterface
     /**
      * @param string $expression
      * @param array $bindings
-     * @return QueryInterface
+     * @return static
      */
-    public function orHaving(string $expression, array $bindings = []): QueryInterface
+    public function orHaving(string $expression, array $bindings = []): static
     {
         $this->options['having']['OR'][] = new Expression($expression, $bindings);
         return $this;
@@ -250,9 +246,9 @@ class QueryBuilder implements QueryInterface
 
     /**
      * @param int $offset
-     * @return QueryInterface
+     * @return static
      */
-    public function offset(int $offset): QueryInterface
+    public function offset(int $offset): static
     {
         $this->options['offset'] = $offset;
         return $this;
@@ -260,9 +256,9 @@ class QueryBuilder implements QueryInterface
 
     /**
      * @param int $limit
-     * @return QueryInterface
+     * @return static
      */
-    public function limit(int $limit): QueryInterface
+    public function limit(int $limit): static
     {
         $this->options['limit'] = $limit;
         return $this;
@@ -272,9 +268,9 @@ class QueryBuilder implements QueryInterface
      * 设置分页查询
      * @param int $page
      * @param int $perPage
-     * @return QueryInterface
+     * @return static
      */
-    public function page(int $page, int $perPage = 25): QueryInterface
+    public function page(int $page, int $perPage = 25): static
     {
         return $this->offset(($page - 1) * $perPage)->limit($perPage);
     }
@@ -283,9 +279,9 @@ class QueryBuilder implements QueryInterface
      * 设置递增
      * @param string $field
      * @param float $step
-     * @return QueryInterface
+     * @return static
      */
-    public function incr(string $field, float $step = 1.0): QueryInterface
+    public function incr(string $field, float $step = 1.0): static
     {
         $this->options['incr'][] = [$field, $step];
         return $this;
@@ -295,9 +291,9 @@ class QueryBuilder implements QueryInterface
      * 设置递减
      * @param string $field
      * @param float $step
-     * @return QueryInterface
+     * @return static
      */
-    public function decr(string $field, float $step = 1.0): QueryInterface
+    public function decr(string $field, float $step = 1.0): static
     {
         return $this->incr($field, -$step);
     }
@@ -306,12 +302,97 @@ class QueryBuilder implements QueryInterface
      * 设置软删除
      * @param string $field
      * @param array $condition
-     * @return QueryInterface
+     * @return static
      */
-    public function useSoftDelete(string $field, array $condition): QueryInterface
+    public function useSoftDelete(string $field, array $condition): static
     {
         $this->options['soft_delete'] = [$field, $condition];
         return $this;
+    }
+
+    /**
+     * 插入数据
+     * @param array|null $data
+     * @return int
+     */
+    public function insert(?array $data = null): int
+    {
+        return $this->buildExecute(__FUNCTION__, $data)->getRowCount();
+    }
+
+    /**
+     * 插入数据返回新增ID
+     * @param array|null $data
+     * @return string|null
+     */
+    public function insertGetId(?array $data = null): ?string
+    {
+        return $this->buildExecute('insert', $data)->getInsertId();
+    }
+
+    /**
+     * 批量插入数据
+     * @param array|null $data
+     * @return int
+     */
+    public function insertAll(?array $data = null): int
+    {
+        return $this->buildExecute(__FUNCTION__, $data)->getRowCount();
+    }
+
+    /**
+     * 更新数据
+     * @param array|null $data
+     * @param mixed $condition
+     * @return int
+     */
+    public function update(?array $data = null, mixed $condition = null): int
+    {
+        return $this->buildExecute(__FUNCTION__, $data, $condition)->getRowCount();
+    }
+
+    /**
+     * 删除数据
+     * @param mixed $condition
+     * @return int
+     */
+    public function delete(mixed $condition = null): int
+    {
+        return $this->buildExecute(__FUNCTION__, condition: $condition)->getRowCount();
+    }
+
+    /**
+     * 构建执行
+     * @param string $method
+     * @param array|null $data
+     * @param mixed $condition
+     * @return ExecuteResultInterface
+     */
+    public function buildExecute(string $method, ?array $data = null, mixed $condition = null): ExecuteResultInterface
+    {
+        if ($data !== null) {
+            $this->data($data);
+        }
+        if ($condition !== null) {
+            $this->where($condition);
+        }
+        if ($method === 'delete') {
+            $sqlPrepare = $this->buildDelete();
+        } else {
+            $options = $this->getOptions();
+            $sqlPrepare = $this->builder->{$method}($options);
+        }
+        return $this->connection->execute($sqlPrepare->getSql(), $sqlPrepare->getBindings());
+    }
+
+    /**
+     * 构建查询
+     * @return ExecuteResultInterface
+     */
+    public function buildQuery(): ExecuteResultInterface
+    {
+        $sqlPrepare = $this->buildSelect();
+        return $this->connection->query($sqlPrepare->getSql(), $sqlPrepare->getBindings());
     }
 
     /**
@@ -332,161 +413,150 @@ class QueryBuilder implements QueryInterface
     }
 
     /**
-     * 执行查询
-     * @param string $method
-     * @param array|null $data
-     * @param mixed $condition
-     * @return ExecuteResultInterface
+     * @return static
      */
-    public function execute(string $method, ?array $data = null, mixed $condition = null): ExecuteResultInterface
+    public function newQuery(): static
     {
-        if ($data !== null) {
-            $this->data($data);
-        }
-        if ($condition !== null) {
-            $this->where($condition);
-        }
-        if ($method === 'delete') {
-            $sqlPrepare = $this->buildDelete();
-        } else {
-            $options = $this->getOptions();
-            $sqlPrepare = $this->builder->{$method}($options);
-        }
-        return $this->connection->execute($sqlPrepare->getSql(), $sqlPrepare->getBindings());
+        $query = new static();
+        $query->setConnection($this->connection);
+        $query->setBuilder($this->builder);
+        return $query;
     }
 
     /**
-     * 插入数据
-     * @param array|null $data
-     * @return int
+     * @return array
      */
-    public function insert(?array $data = null): int
+    public function getOptions(): array
     {
-        return $this->execute(__FUNCTION__, $data)->getRowCount();
+        return $this->options;
     }
 
     /**
-     * 插入数据返回新增ID
-     * @param array|null $data
+     * @param array $options
+     * @return static
+     */
+    public function setOptions(array $options): static
+    {
+        $this->options = $options;
+        return $this;
+    }
+
+    /**
      * @return string
      */
-    public function insertGetId(?array $data = null): string
+    public function getPrimaryKey(): string
     {
-        return $this->execute('insert', $data)->getInsertId();
+        return $this->options['primary_key'];
     }
 
     /**
-     * 批量插入数据
-     * @param array|null $data
-     * @return int
+     * @param string $primaryKey
+     * @return static
      */
-    public function insertAll(?array $data = null): int
+    public function setPrimaryKey(string $primaryKey): static
     {
-        return $this->execute(__FUNCTION__, $data)->getRowCount();
+        $this->options['primary_key'] = $primaryKey;
+        return $this;
     }
 
     /**
-     * 更新数据
-     * @param array|null $data
-     * @param mixed $condition
-     * @return int
+     * @return ConnectionInterface
      */
-    public function update(?array $data = null, mixed $condition = null): int
+    public function getConnection(): ConnectionInterface
     {
-        return $this->execute(__FUNCTION__, $data, $condition)->getRowCount();
+        return $this->connection;
     }
 
     /**
-     * 删除数据
-     * @param mixed $condition
-     * @return int
+     * @param ConnectionInterface $connection
+     * @return static
      */
-    public function delete(mixed $condition = null): int
+    public function setConnection(ConnectionInterface $connection): static
     {
-        return $this->execute(__FUNCTION__, condition: $condition)->getRowCount();
+        $this->connection = $connection;
+        return $this;
     }
 
     /**
-     * 获取数据集合
+     * @return SqlBuilderInterface
+     */
+    public function getBuilder(): SqlBuilderInterface
+    {
+        return $this->builder;
+    }
+
+    /**
+     * @param SqlBuilderInterface $builder
+     * @return static
+     */
+    public function setBuilder(SqlBuilderInterface $builder): static
+    {
+        $this->builder = $builder;
+        return $this;
+    }
+
+    /**
+     * 构建查询
+     * @return SqlPrepareInterface
+     */
+    protected function buildSelect(): SqlPrepareInterface
+    {
+        if ($this->options['soft_delete']) {
+            [$field, $condition] = $this->options['soft_delete'];
+            $this->where([
+                [$field, ...$condition]
+            ]);
+        }
+
+        return $this->builder->select($this->getOptions());
+    }
+
+    /**
+     * 构建删除
+     * @return SqlPrepareInterface
+     */
+    protected function buildDelete(): SqlPrepareInterface
+    {
+        if ($this->options['soft_delete']) {
+            [$field, $condition] = $this->options['soft_delete'];
+            if ($condition) {
+                return $this->buildSoftDelete($field, $condition);
+            }
+        }
+
+        return $this->builder->delete($this->getOptions());
+    }
+
+    /**
+     * 构建软删除
+     * @param string $field
+     * @param array $condition
+     * @return SqlPrepareInterface
+     */
+    protected function buildSoftDelete(string $field, array $condition): SqlPrepareInterface
+    {
+        if (count($condition) > 1) {
+            $value = $condition[1];
+        } else {
+            $value = $condition[0];
+            if ($value === null || (is_string($value) && in_array(strtoupper($value), ['NULL', 'IS NULL']))) {
+                $value = null;
+            }
+        }
+        $this->data([
+            $field => $value,
+        ]);
+        return $this->builder->update($this->getOptions());
+    }
+
+    /**
+     * 实例化集合
+     * @param mixed $items
      * @return CollectionInterface
      */
-    public function get(): CollectionInterface
+    protected function newCollection(mixed $items = []): CollectionInterface
     {
-        $sqlPrepare = $this->buildSelect();
-        $items = $this->connection->query($sqlPrepare->getSql(), $sqlPrepare->getBindings())->getResultSet();
-        if ($this->isToModelCollection()) {
-            return $this->toModelCollection($items);
-        }
-        return Collection::make($items);
-    }
-
-    /**
-     * 获取第一条数据
-     * @return array|ModelInterface|null
-     */
-    public function first(): array|ModelInterface|null
-    {
-        return $this->limit(1)->get()->first();
-    }
-
-    /**
-     * 获取第一条数据 查询失败抛出异常
-     * @return array|ModelInterface|null
-     */
-    public function firstOrFail(): array|ModelInterface|null
-    {
-        $data = $this->first();
-        if ($data === null) {
-            throw new ResourceNotFoundException();
-        }
-        return $data;
-    }
-
-    /**
-     * 根据主键查询数据
-     * @param int|string $id
-     * @return array|ModelInterface|null
-     */
-    public function find(int|string $id): array|ModelInterface|null
-    {
-        return $this->where($this->getPrimaryKey(), $id)->first();
-    }
-
-    /**
-     * 根据主键查询数据 查询失败抛出异常
-     * @param int|string $id
-     * @return array|ModelInterface|null
-     */
-    public function findOrFail(int|string $id): array|ModelInterface|null
-    {
-        $data = $this->find($id);
-        if ($data === null) {
-            throw new ResourceNotFoundException();
-        }
-        return $data;
-    }
-
-    /**
-     * 查询单列值
-     * @param string $name
-     * @param mixed|null $default
-     * @return mixed
-     */
-    public function value(string $name, mixed $default = null): mixed
-    {
-        $data = $this->first();
-        return $data ? $data[$name] ?? $default : $default;
-    }
-
-    /**
-     * 查询单列值列表
-     * @param string $value
-     * @param string|null $key
-     * @return CollectionInterface
-     */
-    public function pluck(string $value, ?string $key = null): CollectionInterface
-    {
-        return $this->get()->pluck($value, $key);
+        return new Collection($items);
     }
 
     /**
@@ -518,7 +588,7 @@ class QueryBuilder implements QueryInterface
         $page = max($config['page'], 1);
         $perPage = $config['per_page'];
         $total = $config['total'];
-        $results = new Collection();
+        $results = $this->newCollection();
 
         if (!$total && !$config['simple']) {
             $options = $this->getOptions();
@@ -554,148 +624,16 @@ class QueryBuilder implements QueryInterface
             $key = $column;
         }
 
+        $options = $this->getOptions();
+
         while ($resultSet->isNotEmpty()) {
             if (call_user_func($callback, $resultSet) === false) {
                 return false;
             }
             $lastId = $resultSet->pop()[$key];
-            $resultSet = $this->where($column, $order == 'asc' ? '>' : '<', $lastId)->get();
+            $resultSet = $this->setOptions($options)->where($column, $order == 'asc' ? '>' : '<', $lastId)->get();
         }
 
         return true;
-    }
-
-    /**
-     * @return QueryInterface
-     */
-    public function newQuery(): QueryInterface
-    {
-        $query = new static();
-        $query->setConnection($this->connection);
-        $query->setBuilder($this->builder);
-        return $query;
-    }
-
-    /**
-     * @return array
-     */
-    public function getOptions(): array
-    {
-        return $this->options;
-    }
-
-    /**
-     * @param array $options
-     * @return QueryInterface
-     */
-    public function setOptions(array $options): QueryInterface
-    {
-        $this->options = $options;
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getPrimaryKey(): string
-    {
-        return $this->options['primary_key'];
-    }
-
-    /**
-     * @param string $primaryKey
-     * @return QueryInterface
-     */
-    public function setPrimaryKey(string $primaryKey): QueryInterface
-    {
-        $this->options['primary_key'] = $primaryKey;
-        return $this;
-    }
-
-    /**
-     * @return ConnectionInterface
-     */
-    public function getConnection(): ConnectionInterface
-    {
-        return $this->connection;
-    }
-
-    /**
-     * @param ConnectionInterface $connection
-     * @return QueryInterface
-     */
-    public function setConnection(ConnectionInterface $connection): QueryInterface
-    {
-        $this->connection = $connection;
-        return $this;
-    }
-
-    /**
-     * @return BuilderInterface
-     */
-    public function getBuilder(): BuilderInterface
-    {
-        return $this->builder;
-    }
-
-    /**
-     * @param BuilderInterface $builder
-     * @return QueryInterface
-     */
-    public function setBuilder(BuilderInterface $builder): QueryInterface
-    {
-        $this->builder = $builder;
-        return $this;
-    }
-
-    /**
-     * @return SqlPrepareInterface
-     */
-    protected function buildSelect(): SqlPrepareInterface
-    {
-        if ($this->options['soft_delete']) {
-            [$field, $condition] = $this->options['soft_delete'];
-            $this->where([
-                [$field, ...$condition]
-            ]);
-        }
-
-        return $this->builder->select($this->getOptions());
-    }
-
-    /**
-     * @return SqlPrepareInterface
-     */
-    protected function buildDelete(): SqlPrepareInterface
-    {
-        if ($this->options['soft_delete']) {
-            [$field, $condition] = $this->options['soft_delete'];
-            if ($condition) {
-                return $this->buildSoftDelete($field, $condition);
-            }
-        }
-
-        return $this->builder->delete($this->getOptions());
-    }
-
-    /**
-     * @param string $field
-     * @param array $condition
-     * @return SqlPrepareInterface
-     */
-    protected function buildSoftDelete(string $field, array $condition): SqlPrepareInterface
-    {
-        if (count($condition) > 1) {
-            $value = $condition[1];
-        } else {
-            $value = $condition[0];
-            if ($value === null || (is_string($value) && in_array(strtoupper($value), ['NULL', 'IS NULL']))) {
-                $value = null;
-            }
-        }
-        $this->data([
-            $field => $value,
-        ]);
-        return $this->builder->update($this->getOptions());
     }
 }

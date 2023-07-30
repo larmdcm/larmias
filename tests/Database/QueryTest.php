@@ -151,7 +151,17 @@ class QueryTest extends TestCase
     public function testPaginate(): void
     {
         $query = $this->newQuery();
-        $page = $query->table('t_user')->paginate(['page' => 2]);
+        $page = $query->table('t_user')->paginate(page: 2);
         $this->assertTrue($page->count() > 0);
+    }
+
+    public function testChunk(): void
+    {
+        $query = $this->newQuery();
+        $result = $query->table('t_user')->chunk(10, function () {
+            return true;
+        });
+
+        $this->assertTrue($result);
     }
 }

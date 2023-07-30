@@ -2,19 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Database\Query\Concerns;
+namespace Larmias\Database\Model\Concerns;
 
-use Larmias\Database\Contracts\ModelCollectionInterface;
-use Larmias\Database\Contracts\ModelInterface;
-use Larmias\Database\Query\QueryBuilder;
+use Larmias\Database\Model\Contracts\CollectionInterface;
+use Larmias\Database\Model\Model;
+use Larmias\Database\Query\BaseQuery;
 use Larmias\Utils\Arr;
 use Larmias\Database\Model\Collection as ModelCollection;
 use function array_shift;
 use function explode;
 
-/**
- * @mixin QueryBuilder
- */
 trait ModelRelationQuery
 {
     /**
@@ -23,16 +20,16 @@ trait ModelRelationQuery
     protected array $modelOptions = [];
 
     /**
-     * @var ModelInterface|null
+     * @var Model
      */
-    protected ?ModelInterface $model = null;
+    protected Model $model;
 
     /**
      * 设置查询模型
-     * @param ModelInterface $model
-     * @return QueryBuilder|ModelRelationQuery
+     * @param Model $model
+     * @return BaseQuery|ModelRelationQuery
      */
-    public function setModel(ModelInterface $model): self
+    public function setModel(Model $model): self
     {
         $this->model = $model;
         return $this;
@@ -41,7 +38,7 @@ trait ModelRelationQuery
     /**
      * 关联预载入In方式
      * @param array|string $with
-     * @return QueryBuilder|ModelRelationQuery
+     * @return BaseQuery|ModelRelationQuery
      */
     public function with(array|string $with): self
     {
@@ -60,10 +57,10 @@ trait ModelRelationQuery
 
     /**
      * 预载入查询
-     * @param ModelCollectionInterface $resultSet
-     * @return ModelCollectionInterface
+     * @param CollectionInterface $resultSet
+     * @return CollectionInterface
      */
-    protected function modelWithQuery(ModelCollectionInterface $resultSet): ModelCollectionInterface
+    protected function modelWithQuery(CollectionInterface $resultSet): CollectionInterface
     {
         $with = $this->parseModelWith($this->modelOptions['with']);
 
@@ -104,9 +101,9 @@ trait ModelRelationQuery
     /**
      * 返回模型集合
      * @param array $items
-     * @return ModelCollectionInterface
+     * @return CollectionInterface
      */
-    public function toModelCollection(array $items): ModelCollectionInterface
+    public function toModelCollection(array $items): CollectionInterface
     {
         $resultSet = new ModelCollection($items);
         $resultSet = $resultSet->map(function ($item) {
@@ -118,14 +115,5 @@ trait ModelRelationQuery
         }
 
         return $resultSet;
-    }
-
-    /**
-     * 是否可返回模型集合
-     * @return bool
-     */
-    protected function isToModelCollection(): bool
-    {
-        return $this->model !== null;
     }
 }

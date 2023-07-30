@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Larmias\Tests\Database;
 
 use Larmias\Database\Contracts\ConnectionInterface;
-use Larmias\Database\Contracts\QueryInterface;
 use Larmias\Database\Manager;
-use Larmias\Database\Model\AbstractModel;
-use Larmias\Database\Query\Builder\Builder;
+use Larmias\Database\Model\Model;
+use Larmias\Database\Query\Builder\SqlBuilder;
+use Larmias\Database\Query\Contracts\QueryInterface;
 use Larmias\Event\EventDispatcherFactory;
 use Larmias\Event\ListenerProviderFactory;
 use PHPUnit\Framework\TestCase as BaseTestCase;
@@ -35,7 +35,7 @@ class TestCase extends BaseTestCase
         $this->manager = new Manager($container, require __DIR__ . '/database.php');
         $this->manager->setEventDispatcher(EventDispatcherFactory::make($container));
 
-        AbstractModel::maker(function (AbstractModel $model) {
+        Model::maker(function (Model $model) {
             $model->setManager($this->manager);
         });
     }
@@ -57,9 +57,9 @@ class TestCase extends BaseTestCase
     }
 
     /**
-     * @return Builder
+     * @return SqlBuilder
      */
-    public function newBuilder(): Builder
+    public function newBuilder(): SqlBuilder
     {
         return $this->manager->newBuilder($this->manager->connection());
     }

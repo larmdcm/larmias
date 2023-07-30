@@ -5,19 +5,18 @@ declare(strict_types=1);
 namespace Larmias\Database\Model\Relations;
 
 use Closure;
-use Larmias\Contracts\CollectionInterface;
-use Larmias\Database\Contracts\ModelCollectionInterface;
-use Larmias\Database\Model\AbstractModel;
+use Larmias\Database\Model\Contracts\CollectionInterface;
+use Larmias\Database\Model\Model;
 
 class HasMany extends Relation
 {
     /**
-     * @param AbstractModel $parent
+     * @param Model $parent
      * @param string $modelClass
      * @param string $foreignKey
      * @param string $localKey
      */
-    public function __construct(protected AbstractModel $parent, protected string $modelClass, protected string $foreignKey, protected string $localKey)
+    public function __construct(protected Model $parent, protected string $modelClass, protected string $foreignKey, protected string $localKey)
     {
         $this->query = $this->newModel()->newQuery();
     }
@@ -42,8 +41,8 @@ class HasMany extends Relation
     {
         $model = $this->newModel();
 
-        $localKeyValues = $resultSet->filter(fn(AbstractModel $item) => isset($item->{$this->localKey}))
-            ->map(fn(AbstractModel $item) => $item->{$this->localKey})
+        $localKeyValues = $resultSet->filter(fn(Model $item) => isset($item->{$this->localKey}))
+            ->map(fn(Model $item) => $item->{$this->localKey})
             ->unique()
             ->toArray();
 
@@ -60,7 +59,7 @@ class HasMany extends Relation
         $data = $model->whereIn($this->foreignKey, $localKeyValues)->get();
 
         if ($data->isNotEmpty()) {
-            /** @var AbstractModel $result */
+            /** @var Model $result */
             foreach ($resultSet as $result) {
                 $result->setRelation($relation, $data->where($this->foreignKey, $result->{$this->localKey}));
             }
@@ -69,21 +68,19 @@ class HasMany extends Relation
 
     /**
      * 获取关联数据
-     * @return ModelCollectionInterface
+     * @return CollectionInterface
      */
-    public function getRelation(): ModelCollectionInterface
+    public function getRelation(): CollectionInterface
     {
-        /** @var ModelCollectionInterface $collect */
-        $collect = $this->query()->get();
-        return $collect;
+        return $this->query()->get();
     }
 
     /**
      * 保存关联数据
      * @param array $data
-     * @return AbstractModel|null
+     * @return Model|null
      */
-    public function save(array $data = []): ?AbstractModel
+    public function save(array $data = []): ?Model
     {
         $model = $this->newModel($data);
         $model->setAttribute($this->getForeignKey(), $this->parent->getAttribute($this->getLocalKey()));

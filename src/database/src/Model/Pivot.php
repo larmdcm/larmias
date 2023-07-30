@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\Database\Model;
 
-class Pivot extends AbstractModel
+class Pivot extends Model
 {
     /**
      * 不自动写入时间

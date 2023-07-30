@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace Larmias\Database\Model\Concerns;
 
-use Larmias\Database\Contracts\ModelCollectionInterface;
-use Larmias\Database\Contracts\ModelInterface;
-use Larmias\Database\Model\AbstractModel;
+use Larmias\Database\Model\Contracts\CollectionInterface;
+use Larmias\Database\Model\Model;
 use function json_encode;
 
 /**
- * @mixin AbstractModel
+ * @mixin Model
  */
 trait Conversion
 {
@@ -22,7 +21,7 @@ trait Conversion
         $data = array_merge($this->data, $this->relation);
         $result = [];
         foreach ($data as $name => $value) {
-            if ($value instanceof ModelInterface || $value instanceof ModelCollectionInterface) {
+            if ($value instanceof Model || $value instanceof CollectionInterface) {
                 $result[$name] = $value->toArray();
             } else {
                 $result[$name] = $this->getAttribute($name);

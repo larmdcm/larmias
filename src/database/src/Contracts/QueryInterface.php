@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\Database\Contracts;
 
-use Larmias\Contracts\CollectionInterface;
+use Closure;
 use Larmias\Contracts\PaginatorInterface;
 
 interface QueryInterface
@@ -35,20 +35,14 @@ interface QueryInterface
     public const BUILD_SQL_SELECT = 5;
 
     /**
-     * 设置查询模型
-     * @param ModelInterface $model
-     * @return QueryInterface
-     */
-    public function setModel(ModelInterface $model): QueryInterface;
-
-    /**
      * 设置表名称
      * @param string $name
-     * @return QueryInterface
+     * @return static
      */
-    public function table(string $name): QueryInterface;
+    public function table(string $name): static;
 
     /**
+     * 获取表名称
      * @return string
      */
     public function getTable(): string;
@@ -56,306 +50,278 @@ interface QueryInterface
     /**
      * 设置表别名
      * @param string|array $name
-     * @return QueryInterface
+     * @return static
      */
-    public function alias(string|array $name): QueryInterface;
+    public function alias(string|array $name): static;
 
     /**
+     * 设置表名不含前缀
      * @param string $name
-     * @return QueryInterface
+     * @return static
      */
-    public function name(string $name): QueryInterface;
+    public function name(string $name): static;
 
     /**
      * @param string $field
      * @param array $bindings
-     * @return QueryInterface
+     * @return static
      */
-    public function fieldRaw(string $field, array $bindings = []): QueryInterface;
+    public function fieldRaw(string $field, array $bindings = []): static;
 
     /**
      * @param string|array|ExpressionInterface $field
-     * @return QueryInterface
+     * @return static
      */
-    public function field(string|array|ExpressionInterface $field): QueryInterface;
+    public function field(string|array|ExpressionInterface $field): static;
 
     /**
      * @param mixed $field
      * @param mixed|null $op
      * @param mixed|null $value
      * @param string $logic
-     * @return QueryInterface
+     * @return static
      */
-    public function where(mixed $field, mixed $op = null, mixed $value = null, string $logic = 'AND'): QueryInterface;
+    public function where(mixed $field, mixed $op = null, mixed $value = null, string $logic = 'AND'): static;
 
     /**
      * @param mixed $field
      * @param mixed|null $op
      * @param mixed|null $value
-     * @return QueryInterface
+     * @return static
      */
-    public function orWhere(mixed $field, mixed $op = null, mixed $value = null): QueryInterface;
+    public function orWhere(mixed $field, mixed $op = null, mixed $value = null): static;
 
     /**
      * @param string $expression
      * @param array $bindings
-     * @return QueryInterface
+     * @return static
      */
-    public function whereRaw(string $expression, array $bindings = []): QueryInterface;
+    public function whereRaw(string $expression, array $bindings = []): static;
 
     /**
      * @param string $field
      * @param string $logic
-     * @return QueryInterface
+     * @return static
      */
-    public function whereNull(string $field, string $logic = 'AND'): QueryInterface;
+    public function whereNull(string $field, string $logic = 'AND'): static;
 
     /**
      * @param string $field
      * @param string $logic
-     * @return QueryInterface
+     * @return static
      */
-    public function whereNotNull(string $field, string $logic = 'AND'): QueryInterface;
-
-    /**
-     * @param string $field
-     * @param mixed $value
-     * @param string $logic
-     * @return QueryInterface
-     */
-    public function whereIn(string $field, mixed $value, string $logic = 'AND'): QueryInterface;
+    public function whereNotNull(string $field, string $logic = 'AND'): static;
 
     /**
      * @param string $field
      * @param mixed $value
      * @param string $logic
-     * @return QueryInterface
+     * @return static
      */
-    public function whereNotIn(string $field, mixed $value, string $logic = 'AND'): QueryInterface;
+    public function whereIn(string $field, mixed $value, string $logic = 'AND'): static;
 
     /**
      * @param string $field
      * @param mixed $value
      * @param string $logic
-     * @return QueryInterface
+     * @return static
      */
-    public function whereBetween(string $field, mixed $value, string $logic = 'AND'): QueryInterface;
+    public function whereNotIn(string $field, mixed $value, string $logic = 'AND'): static;
 
     /**
      * @param string $field
      * @param mixed $value
      * @param string $logic
-     * @return QueryInterface
+     * @return static
      */
-    public function whereNotBetween(string $field, mixed $value, string $logic = 'AND'): QueryInterface;
+    public function whereBetween(string $field, mixed $value, string $logic = 'AND'): static;
 
     /**
      * @param string $field
      * @param mixed $value
      * @param string $logic
-     * @return QueryInterface
+     * @return static
      */
-    public function whereLike(string $field, mixed $value, string $logic = 'AND'): QueryInterface;
+    public function whereNotBetween(string $field, mixed $value, string $logic = 'AND'): static;
 
     /**
      * @param string $field
      * @param mixed $value
      * @param string $logic
-     * @return QueryInterface
+     * @return static
      */
-    public function whereNotLike(string $field, mixed $value, string $logic = 'AND'): QueryInterface;
+    public function whereLike(string $field, mixed $value, string $logic = 'AND'): static;
 
     /**
      * @param string $field
      * @param mixed $value
      * @param string $logic
-     * @return QueryInterface
+     * @return static
      */
-    public function whereExists(string $field, mixed $value, string $logic = 'AND'): QueryInterface;
+    public function whereNotLike(string $field, mixed $value, string $logic = 'AND'): static;
 
     /**
      * @param string $field
      * @param mixed $value
      * @param string $logic
-     * @return QueryInterface
+     * @return static
      */
-    public function whereNotExists(string $field, mixed $value, string $logic = 'AND'): QueryInterface;
+    public function whereExists(string $field, mixed $value, string $logic = 'AND'): static;
+
+    /**
+     * @param string $field
+     * @param mixed $value
+     * @param string $logic
+     * @return static
+     */
+    public function whereNotExists(string $field, mixed $value, string $logic = 'AND'): static;
 
     /**
      * @param string $field
      * @param string $op
      * @param string|null $value
      * @param string $logic
-     * @return QueryInterface
+     * @return static
      */
-    public function whereColumn(string $field, string $op, string $value = null, string $logic = 'AND'): QueryInterface;
+    public function whereColumn(string $field, string $op, string $value = null, string $logic = 'AND'): static;
 
     /**
      * @param array|string $table
      * @param mixed $condition
      * @param string $joinType
-     * @return QueryInterface
+     * @return static
      */
-    public function join(array|string $table, mixed $condition, string $joinType = 'INNER'): QueryInterface;
+    public function join(array|string $table, mixed $condition, string $joinType = 'INNER'): static;
 
     /**
      * @param array|string $table
      * @param mixed $condition
-     * @return QueryInterface
+     * @return static
      */
-    public function innerJoin(array|string $table, mixed $condition): QueryInterface;
+    public function innerJoin(array|string $table, mixed $condition): static;
 
     /**
      * @param array|string $table
      * @param mixed $condition
-     * @return QueryInterface
+     * @return static
      */
-    public function leftJoin(array|string $table, mixed $condition): QueryInterface;
+    public function leftJoin(array|string $table, mixed $condition): static;
 
     /**
      * @param array|string $table
      * @param mixed $condition
-     * @return QueryInterface
+     * @return static
      */
-    public function rightJoin(array|string $table, mixed $condition): QueryInterface;
+    public function rightJoin(array|string $table, mixed $condition): static;
 
     /**
      * @param array|string $field
-     * @return QueryInterface
+     * @return static
      */
-    public function groupBy(array|string $field): QueryInterface;
+    public function groupBy(array|string $field): static;
 
     /**
      * @param string $expression
      * @param array $bindings
-     * @return QueryInterface
+     * @return static
      */
-    public function groupByRaw(string $expression, array $bindings = []): QueryInterface;
+    public function groupByRaw(string $expression, array $bindings = []): static;
 
     /**
      * @param array|string $field
      * @param string $order
-     * @return QueryInterface
+     * @return static
      */
-    public function orderBy(array|string $field, string $order = 'DESC'): QueryInterface;
+    public function orderBy(array|string $field, string $order = 'DESC'): static;
 
     /**
      * @param string $expression
      * @param array $bindings
-     * @return QueryInterface
+     * @return static
      */
-    public function orderByRaw(string $expression, array $bindings = []): QueryInterface;
+    public function orderByRaw(string $expression, array $bindings = []): static;
 
     /**
      * @param string $expression
      * @param array $bindings
-     * @return QueryInterface
+     * @return static
      */
-    public function having(string $expression, array $bindings = []): QueryInterface;
+    public function having(string $expression, array $bindings = []): static;
 
     /**
      * @param string $expression
      * @param array $bindings
-     * @return QueryInterface
+     * @return static
      */
-    public function orHaving(string $expression, array $bindings = []): QueryInterface;
+    public function orHaving(string $expression, array $bindings = []): static;
 
     /**
      * @param int $offset
-     * @return QueryInterface
+     * @return static
      */
-    public function offset(int $offset): QueryInterface;
+    public function offset(int $offset): static;
 
     /**
      * @param int $limit
-     * @return QueryInterface
+     * @return static
      */
-    public function limit(int $limit): QueryInterface;
+    public function limit(int $limit): static;
 
     /**
      * 设置分页查询
      * @param int $page
      * @param int $perPage
-     * @return QueryInterface
+     * @return static
      */
-    public function page(int $page, int $perPage): QueryInterface;
+    public function page(int $page, int $perPage): static;
 
     /**
+     * 设置递增
      * @param string $field
      * @param float $step
-     * @return QueryInterface
+     * @return static
      */
-    public function incr(string $field, float $step = 1.0): QueryInterface;
+    public function incr(string $field, float $step = 1.0): static;
 
     /**
+     * 设置递减
      * @param string $field
      * @param float $step
-     * @return QueryInterface
+     * @return static
      */
-    public function decr(string $field, float $step = 1.0): QueryInterface;
+    public function decr(string $field, float $step = 1.0): static;
 
     /**
+     * 设置软删除
      * @param string $field
      * @param array $condition
-     * @return QueryInterface
+     * @return static
      */
-    public function useSoftDelete(string $field, array $condition): QueryInterface;
+    public function useSoftDelete(string $field, array $condition): static;
 
     /**
-     * @param string $field
-     * @return int
-     */
-    public function count(string $field = '*'): int;
-
-    /**
-     * @param string $field
-     * @return float
-     */
-    public function sum(string $field): float;
-
-    /**
-     * @param string $field
-     * @return float
-     */
-    public function min(string $field): float;
-
-    /**
-     * @param string $field
-     * @return float
-     */
-    public function max(string $field): float;
-
-    /**
-     * @param string $field
-     * @return float
-     */
-    public function avg(string $field): float;
-
-    /**
-     * @param int $buildType
-     * @return string
-     */
-    public function buildSql(int $buildType = self::BUILD_SQL_SELECT): string;
-
-    /**
+     * 插入数据返回影响条数
      * @param array|null $data
      * @return int
      */
     public function insert(?array $data = null): int;
 
     /**
+     * 插入数据返回新增id
      * @param array|null $data
-     * @return string
+     * @return string|null
      */
-    public function insertGetId(?array $data = null): string;
+    public function insertGetId(?array $data = null): ?string;
 
     /**
+     * 插入数据集返回影响条数
      * @param array|null $data
      * @return int
      */
     public function insertAll(?array $data = null): int;
 
     /**
+     * 根据条件更新数据
      * @param array|null $data
      * @param mixed $condition
      * @return int
@@ -363,51 +329,11 @@ interface QueryInterface
     public function update(?array $data = null, mixed $condition = null): int;
 
     /**
+     * 根据条件删除数据
      * @param mixed $condition
      * @return int
      */
     public function delete(mixed $condition = null): int;
-
-    /**
-     * @return CollectionInterface
-     */
-    public function get(): CollectionInterface;
-
-    /**
-     * @return array|ModelInterface|null
-     */
-    public function first(): array|ModelInterface|null;
-
-    /**
-     * @return array|ModelInterface|null
-     */
-    public function firstOrFail(): array|ModelInterface|null;
-
-    /**
-     * @param int|string $id
-     * @return array|ModelInterface|null
-     */
-    public function find(int|string $id): array|ModelInterface|null;
-
-    /**
-     * @param int|string $id
-     * @return array|ModelInterface|null
-     */
-    public function findOrFail(int|string $id): array|ModelInterface|null;
-
-    /**
-     * @param string $name
-     * @param mixed|null $default
-     * @return mixed
-     */
-    public function value(string $name, mixed $default = null): mixed;
-
-    /**
-     * @param string $value
-     * @param string|null $key
-     * @return CollectionInterface
-     */
-    public function pluck(string $value, ?string $key = null): CollectionInterface;
 
     /**
      * 分页查询
@@ -430,15 +356,59 @@ interface QueryInterface
     public function chunk(int $count, callable $callback, string $column = 'id', string $order = 'acs'): bool;
 
     /**
+     * 聚合查询条数
+     * @param string $field
+     * @return int
+     */
+    public function count(string $field = '*'): int;
+
+    /**
+     * 聚合查询求和
+     * @param string $field
+     * @return float
+     */
+    public function sum(string $field): float;
+
+    /**
+     * 聚合查询求最小值
+     * @param string $field
+     * @return float
+     */
+    public function min(string $field): float;
+
+    /**
+     * 聚合查询求最大值
+     * @param string $field
+     * @return float
+     */
+    public function max(string $field): float;
+
+    /**
+     * 聚合查询求平均值
+     * @param string $field
+     * @return float
+     */
+    public function avg(string $field): float;
+
+    /**
+     * 构建SQL
+     * @param int $buildType
+     * @return string
+     */
+    public function buildSql(int $buildType = self::BUILD_SQL_SELECT): string;
+
+    /**
+     * 开启事务
      * @return TransactionInterface
      */
     public function beginTransaction(): TransactionInterface;
 
     /**
-     * @param \Closure $callback
+     * 事务闭包
+     * @param Closure $callback
      * @return mixed
      */
-    public function transaction(\Closure $callback): mixed;
+    public function transaction(Closure $callback): mixed;
 
     /**
      * @return array
@@ -447,9 +417,9 @@ interface QueryInterface
 
     /**
      * @param array $options
-     * @return QueryInterface
+     * @return static
      */
-    public function setOptions(array $options): QueryInterface;
+    public function setOptions(array $options): static;
 
     /**
      * @return string
@@ -458,9 +428,9 @@ interface QueryInterface
 
     /**
      * @param string $primaryKey
-     * @return QueryInterface
+     * @return static
      */
-    public function setPrimaryKey(string $primaryKey): QueryInterface;
+    public function setPrimaryKey(string $primaryKey): static;
 
     /**
      * @return ConnectionInterface
@@ -469,18 +439,18 @@ interface QueryInterface
 
     /**
      * @param ConnectionInterface $connection
-     * @return QueryInterface
+     * @return static
      */
-    public function setConnection(ConnectionInterface $connection): QueryInterface;
+    public function setConnection(ConnectionInterface $connection): static;
 
     /**
-     * @return BuilderInterface
+     * @return SqlBuilderInterface
      */
-    public function getBuilder(): BuilderInterface;
+    public function getBuilder(): SqlBuilderInterface;
 
     /**
-     * @param BuilderInterface $builder
-     * @return QueryInterface
+     * @param SqlBuilderInterface $builder
+     * @return static
      */
-    public function setBuilder(BuilderInterface $builder): QueryInterface;
+    public function setBuilder(SqlBuilderInterface $builder): static;
 }

@@ -6,7 +6,7 @@ namespace Larmias\Database\Model\Relations;
 
 use Closure;
 use Larmias\Contracts\CollectionInterface;
-use Larmias\Database\Model\AbstractModel;
+use Larmias\Database\Model\Model;
 
 class BelongsTo extends OneToOne
 {
@@ -30,8 +30,8 @@ class BelongsTo extends OneToOne
     {
         $model = $this->newModel();
 
-        $foreignKeyValues = $resultSet->filter(fn(AbstractModel $item) => isset($item->{$this->foreignKey}))
-            ->map(fn(AbstractModel $item) => $item->{$this->foreignKey})
+        $foreignKeyValues = $resultSet->filter(fn(Model $item) => isset($item->{$this->foreignKey}))
+            ->map(fn(Model $item) => $item->{$this->foreignKey})
             ->unique()
             ->toArray();
 
@@ -48,7 +48,7 @@ class BelongsTo extends OneToOne
         $data = $model->whereIn($this->localKey, $foreignKeyValues)->get()->pluck(null, $this->localKey);
 
         if ($data->isNotEmpty()) {
-            /** @var AbstractModel $result */
+            /** @var Model $result */
             foreach ($resultSet as $result) {
                 $key = $result->{$this->foreignKey};
                 $result->setRelation($relation, $data[$key] ?? null);
@@ -58,11 +58,11 @@ class BelongsTo extends OneToOne
 
     /**
      * 获取关联数据
-     * @return AbstractModel|null
+     * @return Model|null
      */
-    public function getRelation(): ?AbstractModel
+    public function getRelation(): ?Model
     {
-        /** @var AbstractModel $model */
+        /** @var Model $model */
         $model = $this->query()->first();
         return $model;
     }

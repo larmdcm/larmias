@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace Larmias\Tests\Database\Model;
 
 use Larmias\Database\Model\Concerns\SoftDelete;
-use Larmias\Database\Model\AbstractModel;
+use Larmias\Database\Model\Model;
 
 /**
  * @property int $id
  * @property string $username
  * @property int $integral
  */
-class UserTModel extends AbstractModel
+class UserTModel extends Model
 {
     use SoftDelete;
 

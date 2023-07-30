@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Larmias\Database\Model\Concerns;
 
 use InvalidArgumentException;
-use Larmias\Database\Contracts\ModelCollectionInterface;
-use Larmias\Database\Model\AbstractModel;
+use Larmias\Database\Model\Contracts\CollectionInterface;
+use Larmias\Database\Model\Model;
 use Larmias\Database\Model\Relations\Relation;
 use Larmias\Utils\Str;
 use function array_key_exists;
@@ -21,7 +21,7 @@ use function str_contains;
 use function strtotime;
 
 /**
- * @mixin AbstractModel
+ * @mixin Model
  */
 trait Attribute
 {
@@ -134,10 +134,10 @@ trait Attribute
     /**
      * 设置关联属性
      * @param string $name
-     * @param AbstractModel|ModelCollectionInterface $relation
-     * @return Attribute|AbstractModel
+     * @param Model|CollectionInterface|null $relation
+     * @return Attribute|Model
      */
-    public function setRelation(string $name, AbstractModel|ModelCollectionInterface $relation): self
+    public function setRelation(string $name, Model|CollectionInterface|null $relation): self
     {
         $this->relation[$name] = $relation;
         return $this;
@@ -160,7 +160,7 @@ trait Attribute
     /**
      * 设置数据
      * @param array $data
-     * @return AbstractModel|Attribute
+     * @return Model|Attribute
      */
     public function data(array $data = []): self
     {

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\Tests\Database\Model;
 
-use Larmias\Database\Model\AbstractModel;
+use Larmias\Database\Model\Model;
 use Larmias\Database\Model\Relations\BelongsToMany;
 use Larmias\Database\Model\Relations\HasMany;
 use Larmias\Database\Model\Relations\HasOne;
@@ -15,7 +15,7 @@ use Larmias\Database\Model\Relations\HasOne;
  * @property string $username
  * @property int $integral
  */
-class UserModel extends AbstractModel
+class UserModel extends Model
 {
     /**
      * @var array|string[]

@@ -183,6 +183,7 @@ abstract class PDOConnection extends Connection
     }
 
     /**
+     * 获取绑定类型
      * @param mixed $value
      * @return int
      */
@@ -222,6 +223,7 @@ abstract class PDOConnection extends Connection
     }
 
     /**
+     * 开启事务
      * @return TransactionInterface
      */
     public function beginTransaction(): TransactionInterface
@@ -233,6 +235,7 @@ abstract class PDOConnection extends Connection
     }
 
     /**
+     * 事务闭包
      * @param Closure $callback
      * @return mixed
      * @throws Throwable

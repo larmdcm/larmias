@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Larmias\Database\Model\Concerns;
 
 use Larmias\Database\Contracts\QueryInterface;
-use Larmias\Database\Model\AbstractModel;
+use Larmias\Database\Model\Model;
 use RuntimeException;
 use function date;
 use function time;
 
 /**
- * @mixin AbstractModel
+ * @mixin Model
  */
 trait SoftDelete
 {

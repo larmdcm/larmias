@@ -41,7 +41,7 @@ interface ConnectionInterface
     public function inTransaction(): bool;
 
     /**
-     * 查询
+     * 执行语句
      * @param string $sql
      * @param array $bindings
      * @return ExecuteResultInterface

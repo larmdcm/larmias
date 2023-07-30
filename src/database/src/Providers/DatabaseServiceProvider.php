@@ -11,7 +11,7 @@ use Larmias\Contracts\ServiceProviderInterface;
 use Larmias\Contracts\VendorPublishInterface;
 use Larmias\Database\Contracts\ManagerInterface;
 use Larmias\Database\Manager;
-use Larmias\Database\Model\AbstractModel;
+use Larmias\Database\Model\Model;
 use Psr\EventDispatcher\EventDispatcherInterface;
 
 class DatabaseServiceProvider implements ServiceProviderInterface
@@ -48,7 +48,7 @@ class DatabaseServiceProvider implements ServiceProviderInterface
         $manager = $this->container->make(ManagerInterface::class, ['config' => $this->config->get('database', [])]);
         $manager->setEventDispatcher($this->container->get(EventDispatcherInterface::class));
 
-        AbstractModel::maker(function (AbstractModel $model) use ($manager) {
+        Model::maker(function (Model $model) use ($manager) {
             $model->setManager($manager);
         });
     }

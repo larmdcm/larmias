@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\Database\Query\Builder;
 
-use Larmias\Database\Contracts\BuilderInterface;
+use Larmias\Database\Contracts\SqlBuilderInterface;
 use Larmias\Database\Contracts\ConnectionInterface;
 use Larmias\Database\Contracts\ExpressionInterface;
 use Larmias\Database\Contracts\SqlPrepareInterface;
@@ -28,7 +28,7 @@ use function str_repeat;
 use function rtrim;
 use function is_string;
 
-abstract class Builder implements BuilderInterface
+abstract class SqlBuilder implements SqlBuilderInterface
 {
     /**
      * 查询语句

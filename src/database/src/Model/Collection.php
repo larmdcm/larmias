@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Larmias\Database\Model;
 
-use Larmias\Database\Contracts\ModelCollectionInterface;
 use Larmias\Utils\Collection as BaseCollection;
+use Larmias\Database\Model\Contracts\CollectionInterface;
 
-class Collection extends BaseCollection implements ModelCollectionInterface
+class Collection extends BaseCollection implements CollectionInterface
 {
 }

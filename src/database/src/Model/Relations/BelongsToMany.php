@@ -5,10 +5,9 @@ declare(strict_types=1);
 namespace Larmias\Database\Model\Relations;
 
 use Closure;
-use Larmias\Contracts\CollectionInterface;
-use Larmias\Database\Contracts\QueryInterface;
-use Larmias\Database\Contracts\ModelCollectionInterface;
-use Larmias\Database\Model\AbstractModel;
+use Larmias\Database\Model\Contracts\QueryInterface;
+use Larmias\Database\Model\Contracts\CollectionInterface;
+use Larmias\Database\Model\Model;
 use Larmias\Database\Model\Pivot;
 use Larmias\Utils\Arr;
 use RuntimeException;
@@ -20,15 +19,15 @@ use function method_exists;
 class BelongsToMany extends Relation
 {
     /**
-     * @param AbstractModel $parent
+     * @param Model $parent
      * @param string $modelClass
      * @param string $middleClass
      * @param string $foreignKey
      * @param string $localKey
      */
     public function __construct(
-        protected AbstractModel $parent, protected string $modelClass, protected string $middleClass,
-        protected string        $foreignKey, protected string $localKey
+        protected Model  $parent, protected string $modelClass, protected string $middleClass,
+        protected string $foreignKey, protected string $localKey
     )
     {
         $this->query = $this->newModel()->newQuery();
@@ -47,11 +46,11 @@ class BelongsToMany extends Relation
 
     /**
      * 获取关联数据
-     * @return ModelCollectionInterface
+     * @return CollectionInterface
      */
-    public function getRelation(): ModelCollectionInterface
+    public function getRelation(): CollectionInterface
     {
-        /** @var ModelCollectionInterface $collect */
+        /** @var CollectionInterface $collect */
         $collect = $this->query()->get();
         return $this->matchPivot($collect);
     }
@@ -82,8 +81,8 @@ class BelongsToMany extends Relation
 
         $primaryKey = $resultSet[0]->getPrimaryKey();
 
-        $primaryValues = $resultSet->filter(fn(AbstractModel $item) => isset($item->{$primaryKey}))
-            ->map(fn(AbstractModel $item) => $item->{$primaryKey})
+        $primaryValues = $resultSet->filter(fn(Model $item) => isset($item->{$primaryKey}))
+            ->map(fn(Model $item) => $item->{$primaryKey})
             ->unique()
             ->toArray();
 
@@ -104,7 +103,7 @@ class BelongsToMany extends Relation
         $data = $query->get();
 
         if ($data->isNotEmpty()) {
-            /** @var AbstractModel $result */
+            /** @var Model $result */
             foreach ($resultSet as $result) {
                 $result->setRelation($relation, $this->matchPivot($data->where($this->localKey, $result->{$primaryKey})));
             }
@@ -130,7 +129,7 @@ class BelongsToMany extends Relation
             }
         } else if (is_numeric($data) || is_string($data)) {
             $id = $data;
-        } else if ($data instanceof AbstractModel) {
+        } else if ($data instanceof Model) {
             $id = $data->getPrimaryValue();
         }
 
@@ -163,7 +162,7 @@ class BelongsToMany extends Relation
      */
     public function attached(mixed $data): ?Pivot
     {
-        if ($data instanceof AbstractModel) {
+        if ($data instanceof Model) {
             $id = $data->getPrimaryValue();
         } else {
             $id = $data;
@@ -189,7 +188,7 @@ class BelongsToMany extends Relation
         $id = null;
         if (is_array($data) || is_string($data) || is_numeric($data)) {
             $id = $data;
-        } else if ($data instanceof AbstractModel) {
+        } else if ($data instanceof Model) {
             $id = $data->getPrimaryValue();
         }
 
@@ -228,13 +227,13 @@ class BelongsToMany extends Relation
 
     /**
      * 匹配中间模型
-     * @param ModelCollectionInterface $collect
-     * @return ModelCollectionInterface
+     * @param CollectionInterface $collect
+     * @return CollectionInterface
      */
-    protected function matchPivot(ModelCollectionInterface $collect): ModelCollectionInterface
+    protected function matchPivot(CollectionInterface $collect): CollectionInterface
     {
-        /** @var ModelCollectionInterface $collect */
-        $collect = $collect->each(function (AbstractModel $model) {
+        /** @var CollectionInterface $collect */
+        $collect = $collect->each(function (Model $model) {
             $pivot = [];
             $data = $model->getData();
 

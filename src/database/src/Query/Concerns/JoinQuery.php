@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace Larmias\Database\Query\Concerns;
 
-use Larmias\Database\Contracts\QueryInterface;
-use Larmias\Database\Query\QueryBuilder;
+use Larmias\Database\Query\BaseQuery;
 
 /**
- * @mixin QueryBuilder
+ * @mixin BaseQuery
  */
 trait JoinQuery
 {
@@ -17,9 +16,9 @@ trait JoinQuery
      * @param array|string $table
      * @param mixed $condition
      * @param string $joinType
-     * @return QueryInterface
+     * @return static
      */
-    public function join(array|string $table, mixed $condition, string $joinType = 'INNER'): QueryInterface
+    public function join(array|string $table, mixed $condition, string $joinType = 'INNER'): static
     {
         $this->options['join'][] = [$table, $condition, $joinType];
         return $this;
@@ -29,9 +28,9 @@ trait JoinQuery
      * INNER JOIN查询
      * @param array|string $table
      * @param mixed $condition
-     * @return QueryInterface
+     * @return static
      */
-    public function innerJoin(array|string $table, mixed $condition): QueryInterface
+    public function innerJoin(array|string $table, mixed $condition): static
     {
         return $this->join($table, $condition);
     }
@@ -40,9 +39,9 @@ trait JoinQuery
      * LEFT JOIN查询
      * @param array|string $table
      * @param mixed $condition
-     * @return QueryInterface
+     * @return static
      */
-    public function leftJoin(array|string $table, mixed $condition): QueryInterface
+    public function leftJoin(array|string $table, mixed $condition): static
     {
         return $this->join($table, $condition, 'LEFT');
     }
@@ -51,9 +50,9 @@ trait JoinQuery
      * RIGHT JOIN查询
      * @param array|string $table
      * @param mixed $condition
-     * @return QueryInterface
+     * @return static
      */
-    public function rightJoin(array|string $table, mixed $condition): QueryInterface
+    public function rightJoin(array|string $table, mixed $condition): static
     {
         return $this->join($table, $condition, 'RIGHT');
     }

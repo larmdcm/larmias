@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Database\Contracts;
+namespace Larmias\Database\Model\Contracts;
 
 use ArrayAccess;
 

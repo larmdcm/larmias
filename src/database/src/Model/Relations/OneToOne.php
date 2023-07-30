@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 namespace Larmias\Database\Model\Relations;
 
-use Larmias\Database\Model\AbstractModel;
+use Larmias\Database\Model\Model;
 
 abstract class OneToOne extends Relation
 {
     /**
-     * @param AbstractModel $parent
+     * @param Model $parent
      * @param string $modelClass
      * @param string $foreignKey
      * @param string $localKey
      */
-    public function __construct(protected AbstractModel $parent, protected string $modelClass, protected string $foreignKey, protected string $localKey)
+    public function __construct(protected Model $parent, protected string $modelClass, protected string $foreignKey, protected string $localKey)
     {
         $this->query = $this->newModel()->newQuery();
     }
@@ -22,9 +22,9 @@ abstract class OneToOne extends Relation
     /**z
      * 保存关联数据
      * @param array $data
-     * @return AbstractModel|null
+     * @return Model|null
      */
-    public function save(array $data = []): ?AbstractModel
+    public function save(array $data = []): ?Model
     {
         $model = $this->newModel($data);
         $model->setAttribute($this->getForeignKey(), $this->parent->getAttribute($this->getLocalKey()));

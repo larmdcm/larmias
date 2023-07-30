@@ -4,11 +4,6 @@ declare(strict_types=1);
 
 namespace Larmias\Database\Query\Concerns;
 
-use Larmias\Database\Query\QueryBuilder;
-
-/**
- * @mixin QueryBuilder
- */
 trait AggregateQuery
 {
     /**

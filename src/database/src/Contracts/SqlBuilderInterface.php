@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\Database\Contracts;
 
-interface BuilderInterface
+interface SqlBuilderInterface
 {
     /**
      * @param array $options

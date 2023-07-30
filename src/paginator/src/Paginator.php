@@ -127,12 +127,12 @@ abstract class Paginator implements PaginatorInterface, ArrayAccess, Countable, 
      * @param mixed $items
      * @param int $listRows
      * @param int $currentPage
-     * @param int $total
+     * @param int|null $total
      * @param bool $simple
      * @param array $options
      * @return Paginator
      */
-    public static function make(array|CollectionInterface $items, int $listRows, int $currentPage = 1, int $total = null, bool $simple = false, array $options = []): PaginatorInterface
+    public static function make(array|CollectionInterface $items, int $listRows, int $currentPage = 1, ?int $total = null, bool $simple = false, array $options = []): PaginatorInterface
     {
         if (isset(static::$maker)) {
             return call_user_func(static::$maker, $items, $listRows, $currentPage, $total, $simple, $options);

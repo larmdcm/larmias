@@ -271,12 +271,12 @@ class QueryBuilder implements QueryInterface
     /**
      * 设置分页查询
      * @param int $page
-     * @param int $listRows
+     * @param int $perPage
      * @return QueryInterface
      */
-    public function page(int $page, int $listRows = 25): QueryInterface
+    public function page(int $page, int $perPage = 25): QueryInterface
     {
-        return $this->offset(($page - 1) * $listRows)->limit($listRows);
+        return $this->offset(($page - 1) * $perPage)->limit($perPage);
     }
 
     /**
@@ -491,24 +491,32 @@ class QueryBuilder implements QueryInterface
 
     /**
      * 分页查询
+     * @param int $perPage
+     * @param string $pageName
+     * @param int|null $page
      * @param array $config
      * @return PaginatorInterface
      */
-    public function paginate(array $config = []): PaginatorInterface
+    public function paginate(int $perPage = 25, string $pageName = 'page', ?int $page = null, array $config = []): PaginatorInterface
     {
         $defaultConfig = [
             'query' => [], //url额外参数
             'fragment' => '', //url锚点
-            'var_page' => 'page', //分页变量
-            'page' => 1,// 页码
-            'list_rows' => 25, //每页数量
+            'page_name' => $pageName, //分页变量
+            'page' => $page,// 页码
+            'per_page' => $perPage, //每页数量
             'total' => null, // 总页数
             'simple' => false, // 分页简单模式
         ];
 
         $config = array_merge($defaultConfig, $config);
+
+        if (!$config['page']) {
+            $config['page'] = Paginator::getCurrentPage($config['page_name']);
+        }
+
         $page = max($config['page'], 1);
-        $listRows = $config['list_rows'];
+        $perPage = $config['per_page'];
         $total = $config['total'];
         $results = new Collection();
 
@@ -517,13 +525,13 @@ class QueryBuilder implements QueryInterface
             unset($this->options['order'], $this->options['limit'], $this->options['field']);
             $total = $this->count();
             if ($total > 0) {
-                $results = $this->setOptions($options)->page($page, $listRows)->get();
+                $results = $this->setOptions($options)->page($page, $perPage)->get();
             }
         } else {
-            $results = $this->page($page, $listRows)->get();
+            $results = $this->page($page, $perPage)->get();
         }
 
-        return Paginator::make($results, $listRows, $page, $total, $config['simple'], $config);
+        return Paginator::make($results, $perPage, $page, $total, $config['simple'], $config);
     }
 
     /**

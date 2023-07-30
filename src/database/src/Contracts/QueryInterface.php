@@ -275,10 +275,10 @@ interface QueryInterface
     /**
      * 设置分页查询
      * @param int $page
-     * @param int $listRows
+     * @param int $perPage
      * @return QueryInterface
      */
-    public function page(int $page, int $listRows): QueryInterface;
+    public function page(int $page, int $perPage): QueryInterface;
 
     /**
      * @param string $field
@@ -411,10 +411,13 @@ interface QueryInterface
 
     /**
      * 分页查询
+     * @param int $perPage
+     * @param string $pageName
+     * @param int|null $page
      * @param array $config
      * @return PaginatorInterface
      */
-    public function paginate(array $config): PaginatorInterface;
+    public function paginate(int $perPage = 25, string $pageName = 'page', ?int $page = null, array $config = []): PaginatorInterface;
 
     /**
      * 数据分块查询

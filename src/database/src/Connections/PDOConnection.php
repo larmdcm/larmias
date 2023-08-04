@@ -225,6 +225,7 @@ abstract class PDOConnection extends Connection
     /**
      * 开启事务
      * @return TransactionInterface
+     * @throws Throwable
      */
     public function beginTransaction(): TransactionInterface
     {
@@ -262,20 +263,11 @@ abstract class PDOConnection extends Connection
     }
 
     /**
-     * @param array $config
-     * @return array
-     */
-    public function getOptions(array $config): array
-    {
-        return $this->options + $config['options'];
-    }
-
-    /**
      * @return bool
      */
     public function connect(): bool
     {
-        $this->pdo = new PDO($this->parseDsn($this->config), $this->config['username'], $this->config['password'], $this->getOptions($this->config));
+        $this->pdo = new PDO($this->parseDsn($this->config), $this->config['username'], $this->config['password'], $this->getOptions());
         return true;
     }
 
@@ -323,5 +315,13 @@ abstract class PDOConnection extends Connection
     public function getPdo(): PDO
     {
         return $this->pdo;
+    }
+
+    /**
+     * @return array
+     */
+    protected function getOptions(): array
+    {
+        return $this->options + $this->config['options'];
     }
 }

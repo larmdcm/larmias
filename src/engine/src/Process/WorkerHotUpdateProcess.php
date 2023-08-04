@@ -21,6 +21,7 @@ class WorkerHotUpdateProcess
     protected bool $enabled = false;
 
     /**
+     * @param ContainerInterface $container
      * @param WorkerInterface $worker
      */
     public function __construct(protected ContainerInterface $container, protected WorkerInterface $worker)

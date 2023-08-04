@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Larmias\Contracts;
 
+use Closure;
+
 interface PipelineInterface
 {
     /**
@@ -25,10 +27,10 @@ interface PipelineInterface
     /**
      * 执行
      *
-     * @param \Closure $destination
+     * @param Closure $destination
      * @return mixed
      */
-    public function then(\Closure $destination): mixed;
+    public function then(Closure $destination): mixed;
 
     /**
      * 设置异常处理器

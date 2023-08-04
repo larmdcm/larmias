@@ -185,6 +185,7 @@
                 "Larmias\\HttpServer\\Providers\\HttpServiceProvider",
                 "Larmias\\Lock\\Providers\\LockerServiceProvider",
                 "Larmias\\Log\\Providers\\LogServiceProvider",
+                "Larmias\\Paginator\\Providers\\PaginatorServiceProvider",
                 "Larmias\\Process\\Providers\\ProcessServiceProvider",
                 "Larmias\\Redis\\Providers\\RedisServiceProvider",
                 "Larmias\\Session\\Providers\\SessionServiceProvider",

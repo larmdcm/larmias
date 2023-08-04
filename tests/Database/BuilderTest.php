@@ -39,7 +39,7 @@ class BuilderTest extends TestCase
             1,
             ['a12' => 'as12', 'a16' => 'as19']
         ]);
-        $this->assertSame($field, '?,`a6`,`a9`,`s1`,1,`as12` `a12`,`as19` `a16`');
+        $this->assertSame($field, '?,`a6`,`a9`,`s1`,1,`as12` AS `a12`,`as19` AS `a16`');
     }
 
     /**
@@ -51,8 +51,8 @@ class BuilderTest extends TestCase
         $table = $builder->parseTable('test');
         $this->assertSame($table, '`test`');
         $tableAlias = $builder->parseTable('test', ['test' => 't']);
-        $this->assertSame($tableAlias, '`test` `t`');
-        $this->assertSame($builder->parseTable(['a' => 'b', 'test' => 't']), '`a` `b`,`test` `t`');
+        $this->assertSame($tableAlias, '`test` AS `t`');
+        $this->assertSame($builder->parseTable(['a' => 'b', 'test' => 't']), '`a` AS `b`,`test` AS `t`');
         $this->assertSame($builder->parseTable(['a', 'b', 'c']), '`a`,`b`,`c`');
     }
 
@@ -104,7 +104,7 @@ class BuilderTest extends TestCase
     public function testParseOrder(): void
     {
         $builder = $this->newBuilder();
-        $result = $builder->parseorder([
+        $result = $builder->parseOrder([
             ['a' => 'DESC'],
             ['b' => 'ASC'],
         ]);
@@ -136,7 +136,7 @@ class BuilderTest extends TestCase
     {
         $builder = $this->newBuilder();
         $result = $builder->parseLimit(10, 20);
-        $this->assertSame($result, ' LIMIT 20,10');
-        $this->assertSame($builder->parseLimit(10), ' LIMIT 10');
+        $this->assertSame($result, ' LIMIT ?,?');
+        $this->assertSame($builder->parseLimit(10), ' LIMIT ?');
     }
 }

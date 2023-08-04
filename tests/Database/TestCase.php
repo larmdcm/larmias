@@ -7,7 +7,7 @@ namespace Larmias\Tests\Database;
 use Larmias\Database\Contracts\ConnectionInterface;
 use Larmias\Database\Manager;
 use Larmias\Database\Model\Model;
-use Larmias\Database\Query\Builder\SqlBuilder;
+use Larmias\Database\Query\Builder\Builder;
 use Larmias\Database\Query\Contracts\QueryInterface;
 use Larmias\Event\EventDispatcherFactory;
 use Larmias\Event\ListenerProviderFactory;
@@ -57,9 +57,9 @@ class TestCase extends BaseTestCase
     }
 
     /**
-     * @return SqlBuilder
+     * @return Builder
      */
-    public function newBuilder(): SqlBuilder
+    public function newBuilder(): Builder
     {
         return $this->manager->newBuilder($this->manager->connection());
     }

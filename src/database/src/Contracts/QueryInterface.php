@@ -300,6 +300,30 @@ interface QueryInterface
     public function useSoftDelete(string $field, array $condition): static;
 
     /**
+     * 构建原生表达式
+     * @param string $sql
+     * @param array $bindings
+     * @return ExpressionInterface
+     */
+    public function raw(string $sql, array $bindings = []): ExpressionInterface;
+
+    /**
+     * 执行增改查语句
+     * @param string $sql
+     * @param array $bindings
+     * @return int
+     */
+    public function execute(string $sql, array $bindings = []): int;
+
+    /**
+     * 执行查询语句
+     * @param string $sql
+     * @param array $bindings
+     * @return array
+     */
+    public function query(string $sql, array $bindings = []): array;
+
+    /**
      * 插入数据返回影响条数
      * @param array|null $data
      * @return int
@@ -444,13 +468,13 @@ interface QueryInterface
     public function setConnection(ConnectionInterface $connection): static;
 
     /**
-     * @return SqlBuilderInterface
+     * @return BuilderInterface
      */
-    public function getBuilder(): SqlBuilderInterface;
+    public function getBuilder(): BuilderInterface;
 
     /**
-     * @param SqlBuilderInterface $builder
+     * @param BuilderInterface $builder
      * @return static
      */
-    public function setBuilder(SqlBuilderInterface $builder): static;
+    public function setBuilder(BuilderInterface $builder): static;
 }

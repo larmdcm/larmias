@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Larmias\Contracts;
 
+use Closure;
+
 interface ContextInterface
 {
     /**
@@ -24,11 +26,11 @@ interface ContextInterface
 
     /**
      * @param string $id
-     * @param \Closure $closure
+     * @param Closure $closure
      * @param int|null $cid
      * @return mixed
      */
-    public function remember(string $id, \Closure $closure, ?int $cid = null): mixed;
+    public function remember(string $id, Closure $closure, ?int $cid = null): mixed;
 
     /**
      * @param string $id

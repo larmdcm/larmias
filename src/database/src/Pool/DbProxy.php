@@ -107,7 +107,9 @@ class DbProxy implements ConnectionInterface
     }
 
     /**
+     * 开启事务
      * @return TransactionInterface
+     * @throws Throwable
      */
     public function beginTransaction(): TransactionInterface
     {

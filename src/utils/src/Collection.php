@@ -153,6 +153,7 @@ class Collection implements CollectionInterface, ArrayAccess, Arrayable, Countab
         if ($count = $items->count()) {
             return $items->sum() / $count;
         }
+        return null;
     }
 
     /**
@@ -178,7 +179,7 @@ class Collection implements CollectionInterface, ArrayAccess, Arrayable, Countab
         })->sort()->values();
         $count = $values->count();
         if ($count == 0) {
-            return;
+            return null;
         }
         $middle = (int)($count / 2);
         if ($count % 2) {

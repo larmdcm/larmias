@@ -13,7 +13,7 @@ use function is_array;
 use function str_starts_with;
 
 /**
- * make
+ * 用容器创建对象
  *
  * @param string $abstract
  * @param array $params

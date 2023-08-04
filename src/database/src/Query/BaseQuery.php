@@ -6,7 +6,7 @@ namespace Larmias\Database\Query;
 
 use Larmias\Contracts\CollectionInterface;
 use Larmias\Contracts\PaginatorInterface;
-use Larmias\Database\Contracts\SqlBuilderInterface;
+use Larmias\Database\Contracts\BuilderInterface;
 use Larmias\Database\Contracts\ConnectionInterface;
 use Larmias\Database\Contracts\ExecuteResultInterface;
 use Larmias\Database\Contracts\ExpressionInterface;
@@ -14,9 +14,9 @@ use Larmias\Database\Contracts\QueryInterface;
 use Larmias\Database\Contracts\SqlPrepareInterface;
 use Larmias\Database\Entity\Expression;
 use Larmias\Database\Query\Concerns\AggregateQuery;
-use Larmias\Database\Query\Concerns\JoinQuery;
 use Larmias\Database\Query\Concerns\Transaction;
 use Larmias\Database\Query\Concerns\WhereQuery;
+use Larmias\Database\Query\Concerns\JoinQuery;
 use Larmias\Paginator\Paginator;
 use Larmias\Utils\Collection;
 use function array_map;
@@ -27,6 +27,7 @@ use function implode;
 use function is_array;
 use function is_string;
 use function preg_match;
+use function call_user_func;
 use const SORT_REGULAR;
 
 abstract class BaseQuery implements QueryInterface
@@ -63,9 +64,9 @@ abstract class BaseQuery implements QueryInterface
     protected ConnectionInterface $connection;
 
     /**
-     * @var SqlBuilderInterface
+     * @var BuilderInterface
      */
-    protected SqlBuilderInterface $builder;
+    protected BuilderInterface $builder;
 
     /**
      * @param array $data
@@ -368,7 +369,7 @@ abstract class BaseQuery implements QueryInterface
      * @param mixed $condition
      * @return ExecuteResultInterface
      */
-    public function buildExecute(string $method, ?array $data = null, mixed $condition = null): ExecuteResultInterface
+    protected function buildExecute(string $method, ?array $data = null, mixed $condition = null): ExecuteResultInterface
     {
         if ($data !== null) {
             $this->data($data);
@@ -389,10 +390,43 @@ abstract class BaseQuery implements QueryInterface
      * 构建查询
      * @return ExecuteResultInterface
      */
-    public function buildQuery(): ExecuteResultInterface
+    protected function buildQuery(): ExecuteResultInterface
     {
         $sqlPrepare = $this->buildSelect();
         return $this->connection->query($sqlPrepare->getSql(), $sqlPrepare->getBindings());
+    }
+
+    /**
+     * 执行增改查语句
+     * @param string $sql
+     * @param array $bindings
+     * @return int
+     */
+    public function execute(string $sql, array $bindings = []): int
+    {
+        return $this->connection->execute($sql, $bindings)->getRowCount();
+    }
+
+    /**
+     * 执行查询语句
+     * @param string $sql
+     * @param array $bindings
+     * @return array
+     */
+    public function query(string $sql, array $bindings = []): array
+    {
+        return $this->connection->query($sql, $bindings)->getResultSet();
+    }
+
+    /**
+     * 构建原生表达式
+     * @param string $sql
+     * @param array $bindings
+     * @return ExpressionInterface
+     */
+    public function raw(string $sql, array $bindings = []): ExpressionInterface
+    {
+        return new Expression($sql,$bindings);
     }
 
     /**
@@ -409,7 +443,12 @@ abstract class BaseQuery implements QueryInterface
             self::BUILD_SQL_DELETE => $this->buildDelete(),
             default => $this->buildSelect()
         };
-        return $this->connection->buildSql($sqlPrepare->getSql(), $sqlPrepare->getBindings());
+
+        $sql = $this->connection->buildSql($sqlPrepare->getSql(), $sqlPrepare->getBindings());
+        if ($buildType === self::BUILD_SQL_SELECT) {
+            $sql = '( ' . $sql . ' )';
+        }
+        return $sql;
     }
 
     /**
@@ -478,18 +517,18 @@ abstract class BaseQuery implements QueryInterface
     }
 
     /**
-     * @return SqlBuilderInterface
+     * @return BuilderInterface
      */
-    public function getBuilder(): SqlBuilderInterface
+    public function getBuilder(): BuilderInterface
     {
         return $this->builder;
     }
 
     /**
-     * @param SqlBuilderInterface $builder
+     * @param BuilderInterface $builder
      * @return static
      */
-    public function setBuilder(SqlBuilderInterface $builder): static
+    public function setBuilder(BuilderInterface $builder): static
     {
         $this->builder = $builder;
         return $this;
@@ -585,9 +624,9 @@ abstract class BaseQuery implements QueryInterface
             $config['page'] = Paginator::getCurrentPage($config['page_name']);
         }
 
-        $page = max($config['page'], 1);
-        $perPage = $config['per_page'];
-        $total = $config['total'];
+        $page = (int)max($config['page'], 1);
+        $perPage = (int)$config['per_page'];
+        $total = (int)$config['total'];
         $results = $this->newCollection();
 
         if (!$total && !$config['simple']) {
@@ -601,7 +640,7 @@ abstract class BaseQuery implements QueryInterface
             $results = $this->page($page, $perPage)->get();
         }
 
-        return Paginator::make($results, $perPage, $page, $total, $config['simple'], $config);
+        return Paginator::make($results, $perPage, $page, $total, (bool)$config['simple'], $config);
     }
 
     /**

@@ -210,7 +210,7 @@ abstract class Model implements ModelInterface, Arrayable, Jsonable, Stringable,
             return false;
         }
 
-        $model = new static();
+        $model = static::new();
 
         if ($id instanceof Closure) {
             $model->newQuery()->where($id);

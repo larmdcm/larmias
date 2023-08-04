@@ -9,10 +9,10 @@ use function sprintf;
 use function str_contains;
 use function is_numeric;
 
-class MysqlBuilder extends SqlBuilder
+class MysqlBuilder extends Builder
 {
     /**
-     * 转义查询字段
+     * 转义字段
      * @param string $field
      * @return string
      */

@@ -7,6 +7,7 @@ namespace Larmias\Database\Pool;
 use Larmias\Database\Connections\Connection;
 use Larmias\Database\Contracts\TransactionInterface;
 use Larmias\Database\Exceptions\TransactionException;
+use function Larmias\Utils\throw_if;
 
 class Transaction implements TransactionInterface
 {
@@ -28,15 +29,15 @@ class Transaction implements TransactionInterface
     }
 
     /**
+     * 开启事务
      * @return TransactionInterface
+     * @throws \Throwable
      */
     public function beginTransaction(): TransactionInterface
     {
         $this->transCount++;
         if ($this->transCount === 1) {
-            if ($this->getConnection()->inTransaction()) {
-                throw new TransactionException('Already in transaction');
-            }
+            throw_if($this->getConnection()->inTransaction(), TransactionException::class, 'Already in transaction');
             $this->transaction = $this->getConnection()->beginTransaction();
         }
 
@@ -44,6 +45,7 @@ class Transaction implements TransactionInterface
     }
 
     /**
+     * 提交事务
      * @return void
      */
     public function commit(): void
@@ -62,6 +64,7 @@ class Transaction implements TransactionInterface
     }
 
     /**
+     * 回滚事务
      * @return void
      */
     public function rollback(): void
@@ -80,6 +83,7 @@ class Transaction implements TransactionInterface
     }
 
     /**
+     * 释放连接资源
      * @return void
      */
     public function release(): void

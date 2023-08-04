@@ -6,12 +6,13 @@ namespace Larmias\Database;
 
 use Larmias\Database\Query\Contracts\QueryInterface;
 use Larmias\Database\Query\Query;
+use Larmias\Database\Contracts\QueryInterface as BaseQueryInterface;
 use Larmias\Database\Model\Contracts\QueryInterface as ModelQueryInterface;
 use Larmias\Database\Model\Query as ModelQuery;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Larmias\Contracts\ContainerInterface;
 use Larmias\Database\Query\Builder\MysqlBuilder;
-use Larmias\Database\Contracts\SqlBuilderInterface;
+use Larmias\Database\Contracts\BuilderInterface;
 use Larmias\Database\Contracts\ConnectionInterface;
 use Larmias\Database\Contracts\ManagerInterface;
 use Larmias\Database\Pool\DbProxy;
@@ -75,15 +76,8 @@ class Manager implements ManagerInterface
      */
     public function newQuery(ConnectionInterface $connection): QueryInterface
     {
-        $queryClass = $connection->getConfig('query_class', Query::class);
-        if (!class_exists($queryClass)) {
-            throw new RuntimeException('query class not exists:' . $queryClass);
-        }
-
         /** @var QueryInterface $query */
-        $query = new $queryClass();
-        $query->setConnection($connection);
-        $query->setBuilder($this->newBuilder($connection));
+        $query = $this->newBaseQuery($connection, 'query_class', Query::class);
         return $query;
     }
 
@@ -94,12 +88,26 @@ class Manager implements ManagerInterface
      */
     public function newModelQuery(ConnectionInterface $connection): ModelQueryInterface
     {
-        $queryClass = $connection->getConfig('model_query_class', ModelQuery::class);
+        /** @var ModelQueryInterface $query */
+        $query = $this->newBaseQuery($connection, 'model_query_class', ModelQuery::class);
+        return $query;
+    }
+
+    /**
+     * 实例化基础查询
+     * @param ConnectionInterface $connection
+     * @param string $name
+     * @param string $defaultQueryClass
+     * @return BaseQueryInterface
+     */
+    protected function newBaseQuery(ConnectionInterface $connection, string $name, string $defaultQueryClass): BaseQueryInterface
+    {
+        $queryClass = $connection->getConfig($name, $defaultQueryClass);
         if (!class_exists($queryClass)) {
-            throw new RuntimeException('model query class not exists:' . $queryClass);
+            throw new RuntimeException('query class not exists:' . $queryClass);
         }
 
-        /** @var ModelQueryInterface $query */
+        /** @var BaseQueryInterface $query */
         $query = new $queryClass();
         $query->setConnection($connection);
         $query->setBuilder($this->newBuilder($connection));
@@ -109,9 +117,9 @@ class Manager implements ManagerInterface
     /**
      * 实例化构造器
      * @param ConnectionInterface $connection
-     * @return SqlBuilderInterface
+     * @return BuilderInterface
      */
-    public function newBuilder(ConnectionInterface $connection): SqlBuilderInterface
+    public function newBuilder(ConnectionInterface $connection): BuilderInterface
     {
         $builderClass = $connection->getConfig('builder_class', '');
         if (!$builderClass) {

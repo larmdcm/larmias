@@ -141,7 +141,7 @@ abstract class Paginator implements PaginatorInterface, ArrayAccess, Countable, 
         return new Bootstrap($items, $listRows, $currentPage, $total, $simple, $options);
     }
 
-    public static function maker(Closure $resolver)
+    public static function maker(Closure $resolver): void
     {
         static::$maker = $resolver;
     }
@@ -402,7 +402,7 @@ abstract class Paginator implements PaginatorInterface, ArrayAccess, Countable, 
     }
 
     /**
-     * Whether a offset exists
+     * Whether offset exists
      * @param mixed $offset
      * @return bool
      */

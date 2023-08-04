@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace Larmias\Database\Query\Builder;
 
-use Larmias\Database\Contracts\SqlBuilderInterface;
+use Larmias\Database\Contracts\BuilderInterface;
 use Larmias\Database\Contracts\ConnectionInterface;
 use Larmias\Database\Contracts\ExpressionInterface;
 use Larmias\Database\Contracts\SqlPrepareInterface;
 use Larmias\Database\Entity\SqlPrepare;
 use Larmias\Database\Exceptions\QueryException;
 use Closure;
+use Larmias\Utils\Contracts\Arrayable;
 use function array_map;
 use function array_values;
 use function array_keys;
@@ -28,7 +29,7 @@ use function str_repeat;
 use function rtrim;
 use function is_string;
 
-abstract class SqlBuilder implements SqlBuilderInterface
+abstract class Builder implements BuilderInterface
 {
     /**
      * 查询语句
@@ -74,6 +75,7 @@ abstract class SqlBuilder implements SqlBuilderInterface
     }
 
     /**
+     * 绑定参数
      * @param mixed $value
      * @return void
      */
@@ -87,6 +89,7 @@ abstract class SqlBuilder implements SqlBuilderInterface
     }
 
     /**
+     * 新增
      * @param array $options
      * @return SqlPrepareInterface
      */
@@ -95,7 +98,7 @@ abstract class SqlBuilder implements SqlBuilderInterface
         $data = $options['data'];
         $fields = array_keys($data);
         $sql = str_replace(['<TABLE>', '<FIELD>', '<DATA>'], [
-            $this->parseTable($options['table']),
+            $this->parseTable($options['table'], $options['alias']),
             implode(',', array_map(fn($field) => $this->escapeField($field), $fields)),
             rtrim(str_repeat("?,", count($data)), ',')
         ], $this->insertSql);
@@ -104,6 +107,7 @@ abstract class SqlBuilder implements SqlBuilderInterface
     }
 
     /**
+     * 批量新增
      * @param array $options
      * @return SqlPrepareInterface
      */
@@ -126,6 +130,7 @@ abstract class SqlBuilder implements SqlBuilderInterface
     }
 
     /**
+     * 修改
      * @param array $options
      * @return SqlPrepareInterface
      */
@@ -148,6 +153,7 @@ abstract class SqlBuilder implements SqlBuilderInterface
     }
 
     /**
+     * 删除
      * @param array $options
      * @return SqlPrepareInterface
      */
@@ -169,6 +175,7 @@ abstract class SqlBuilder implements SqlBuilderInterface
     }
 
     /**
+     * 查询
      * @param array $options
      * @return SqlPrepareInterface
      */
@@ -240,6 +247,7 @@ abstract class SqlBuilder implements SqlBuilderInterface
     }
 
     /**
+     * 解析表名
      * @param string|array $table
      * @param array $alias
      * @return string
@@ -262,6 +270,7 @@ abstract class SqlBuilder implements SqlBuilderInterface
     }
 
     /**
+     * 解析修改字段
      * @param array $data
      * @param array $incr
      * @return string
@@ -284,6 +293,7 @@ abstract class SqlBuilder implements SqlBuilderInterface
     }
 
     /**
+     * 解析JOIN
      * @param array $joins
      * @param array $alias
      * @return string
@@ -304,6 +314,7 @@ abstract class SqlBuilder implements SqlBuilderInterface
     }
 
     /**
+     * 解析WHERE
      * @param array $where
      * @param bool $firstLogic
      * @return string
@@ -325,6 +336,7 @@ abstract class SqlBuilder implements SqlBuilderInterface
     }
 
     /**
+     * 解析分组查询
      * @param array $groups
      * @return string
      */
@@ -351,6 +363,7 @@ abstract class SqlBuilder implements SqlBuilderInterface
     }
 
     /**
+     * 解析排序查询
      * @param array $orders
      * @return string
      */
@@ -381,6 +394,7 @@ abstract class SqlBuilder implements SqlBuilderInterface
     }
 
     /**
+     * 解析HAVING
      * @param array $having
      * @return string
      */
@@ -401,6 +415,7 @@ abstract class SqlBuilder implements SqlBuilderInterface
     }
 
     /**
+     * 解析LIMIT
      * @param int|null $limit
      * @param int|null $offset
      * @return string
@@ -411,10 +426,18 @@ abstract class SqlBuilder implements SqlBuilderInterface
             return '';
         }
 
-        return $this->buildLimit($limit, $offset);
+        if (!$offset) {
+            $this->bind($limit);
+            return $this->buildLimit('?');
+        }
+
+        $this->bind([$limit, $offset]);
+
+        return $this->buildLimit('?', '?');
     }
 
     /**
+     * 解析WHERE ITEM
      * @param array $where
      * @return string
      */
@@ -425,8 +448,7 @@ abstract class SqlBuilder implements SqlBuilderInterface
         }
 
         if ($where instanceof ExpressionInterface) {
-            $this->bind($where->getBindings());
-            return $where->getValue();
+            return $this->parseExpression($where);
         }
 
         if ($where instanceof Closure) {
@@ -437,6 +459,7 @@ abstract class SqlBuilder implements SqlBuilderInterface
     }
 
     /**
+     * 解析WHERE OP
      * @param array $where
      * @return string
      */
@@ -450,7 +473,7 @@ abstract class SqlBuilder implements SqlBuilderInterface
         }
 
         $field = $this->escapeField($field);
-        $op = $this->optimizeOp($op, $value);
+        [$op, $value] = $this->optimize($op, $value);
 
         switch ($op) {
             case 'NULL':
@@ -480,6 +503,7 @@ abstract class SqlBuilder implements SqlBuilderInterface
     }
 
     /**
+     * 解析WHERE IN
      * @param string $field
      * @param mixed $value
      * @param string $op
@@ -490,7 +514,7 @@ abstract class SqlBuilder implements SqlBuilderInterface
         if (is_empty($value)) {
             $value = [''];
         } else if (is_string($value)) {
-            $value = str_contains($value, ',') ? explode(',', $value) : [$value];
+            $value = explode(',', $value);
         }
 
         $this->bind($value);
@@ -499,6 +523,7 @@ abstract class SqlBuilder implements SqlBuilderInterface
     }
 
     /**
+     * 解析WHERE BETWEEN
      * @param string $field
      * @param mixed $value
      * @param string $op
@@ -516,6 +541,7 @@ abstract class SqlBuilder implements SqlBuilderInterface
     }
 
     /**
+     * 解析WHERE LIKE
      * @param string $field
      * @param mixed $value
      * @param string $op
@@ -528,6 +554,7 @@ abstract class SqlBuilder implements SqlBuilderInterface
     }
 
     /**
+     * 解析WHERE EXISTS
      * @param string $field
      * @param mixed $value
      * @param string $op
@@ -539,6 +566,7 @@ abstract class SqlBuilder implements SqlBuilderInterface
     }
 
     /**
+     * 解析WHERE 字段比对
      * @param string $field
      * @param mixed $value
      * @return string
@@ -550,32 +578,67 @@ abstract class SqlBuilder implements SqlBuilderInterface
 
 
     /**
-     * @param string|null $op
+     * 优化操作符和操作值
+     * @param string $op
      * @param mixed $value
-     * @return string
+     * @return array
      */
-    protected function optimizeOp(?string $op, mixed $value): string
+    protected function optimize(string $op, mixed $value): array
     {
-        if (!$op) {
-            $op = '=';
-        }
-
         $op = trim(strtoupper($op));
 
         switch ($op) {
             case '=':
+            case '!=':
+            case '<>':
                 if ($value === null) {
-                    $op = 'NULL';
-                } else if (is_array($value)) {
-                    $op = 'IN';
+                    $op = $op == '=' ? 'NULL' : 'NOT NULL';
+                } else if (is_array($value) || $value instanceof Arrayable) {
+                    $op = $op == '=' ? 'IN' : 'NOT IN';
+                    return $this->optimize($op, $value);
+                }
+                break;
+            case 'IN':
+            case 'NOT IN':
+                $value = $this->valueToArray($value);
+                if (count($value) == 1) {
+                    $op = $op == 'IN' ? '=' : '<>';
+                    $value = current($value) ?: '';
                 }
                 break;
         }
 
-        return $op;
+        return [$op, $value];
     }
 
     /**
+     * 转数组
+     * @param mixed $value
+     * @return array
+     */
+    protected function valueToArray(mixed $value): array
+    {
+        if (is_empty($value)) {
+            return [];
+        }
+
+        if (is_array($value)) {
+            return $value;
+        }
+
+        if (is_string($value)) {
+            return explode(',', $value);
+        }
+
+        if ($value instanceof Arrayable) {
+            return $value->toArray();
+        }
+
+        return [$value];
+    }
+
+    /**
+     * 解析原生表达式
      * @param ExpressionInterface $expression
      * @return string
      */
@@ -586,6 +649,7 @@ abstract class SqlBuilder implements SqlBuilderInterface
     }
 
     /**
+     * 构建字段别名
      * @param string $field
      * @param string $alias
      * @return string
@@ -596,10 +660,11 @@ abstract class SqlBuilder implements SqlBuilderInterface
             return $this->escapeField($field);
         }
 
-        return sprintf('%s %s', $this->escapeField($field), $this->escapeField($alias));
+        return sprintf('%s AS %s', $this->escapeField($field), $this->escapeField($alias));
     }
 
     /**
+     * 构建WHERE
      * @param string $condition
      * @return string
      */
@@ -667,16 +732,18 @@ abstract class SqlBuilder implements SqlBuilderInterface
     }
 
     /**
-     * @param int $limit
-     * @param int|null $offset
+     * 构建LIMIT
+     * @param string $limit
+     * @param string|null $offset
      * @return string
      */
-    public function buildLimit(int $limit, ?int $offset = null): string
+    public function buildLimit(string $limit, ?string $offset = null): string
     {
         return ' LIMIT ' . ($offset ? ($offset . ',' . $limit) : $limit);
     }
 
     /**
+     * 构建WHERE NULL
      * @param string $field
      * @return string
      */
@@ -686,6 +753,7 @@ abstract class SqlBuilder implements SqlBuilderInterface
     }
 
     /**
+     * 构建WHERE NOT NULL
      * @param string $field
      * @return string
      */
@@ -695,6 +763,7 @@ abstract class SqlBuilder implements SqlBuilderInterface
     }
 
     /**
+     * 构建语句WHERE IN
      * @param string $field
      * @param string $value
      * @param string $op
@@ -750,12 +819,9 @@ abstract class SqlBuilder implements SqlBuilderInterface
     }
 
     /**
-     * 转义查询字段
+     * 转义字段
      * @param string $field
      * @return string
      */
-    public function escapeField(string $field): string
-    {
-        return $field;
-    }
+    abstract public function escapeField(string $field): string;
 }

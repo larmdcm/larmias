@@ -57,6 +57,7 @@ trait WhereQuery
     }
 
     /**
+     * WHERE 原生条件查询
      * @param string $expression
      * @param array $bindings
      * @return static

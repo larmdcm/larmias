@@ -9,6 +9,7 @@ use Larmias\Database\Contracts\ConnectionInterface;
 use Larmias\Pool\Connection as PoolConnection;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use function array_merge;
+use function Larmias\Utils\data_get;
 
 abstract class Connection extends PoolConnection implements ConnectionInterface, PoolConnectionInterface
 {
@@ -56,7 +57,7 @@ abstract class Connection extends PoolConnection implements ConnectionInterface,
         if ($name === null) {
             return $this->config;
         }
-        return $this->config[$name] ?? $default;
+        return data_get($this->config, $name, $default);
     }
 
     /**

@@ -57,7 +57,6 @@ trait Attribute
      */
     public function getAttribute(string $name, bool $strict = true): mixed
     {
-        $name = $this->getRealAttrName($name);
         $method = 'get' . Str::studly($name) . 'Attr';
         $relationAttr = $this->isRelationAttr($name);
         $propertyExists = array_key_exists($name, $this->data);
@@ -95,7 +94,6 @@ trait Attribute
      */
     public function setAttribute(string $name, mixed $value): void
     {
-        $name = $this->getRealAttrName($name);
         $method = 'set' . Str::studly($name) . 'Attr';
 
         if (method_exists($this, $method)) {
@@ -166,6 +164,9 @@ trait Attribute
     {
         $this->data = $data;
         $this->refreshOrigin();
+        if ($this->getPrimaryValue()) {
+            $this->setExists(true);
+        }
         return $this;
     }
 
@@ -217,6 +218,9 @@ trait Attribute
             case 'int':
             case 'integer':
                 $value = (int)$value;
+                break;
+            case 'string':
+                $value = (string)$value;
                 break;
             case 'double':
             case 'float':

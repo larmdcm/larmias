@@ -16,6 +16,9 @@ abstract class ServiceProvider implements ServiceProviderInterface
      */
     public function __construct(protected ApplicationInterface $app, protected ServiceDiscoverInterface $serviceDiscover)
     {
+        if (method_exists($this, 'initialize')) {
+            $this->app->getContainer()->invoke([$this, 'initialize']);
+        }
     }
 
     /**
@@ -33,6 +36,15 @@ abstract class ServiceProvider implements ServiceProviderInterface
     }
 
     /**
+     * @param string|array $commands
+     * @return void
+     */
+    public function commands(string|array $commands): void
+    {
+        $this->serviceDiscover->commands($commands);
+    }
+
+    /**
      * @param string $process
      * @param string $name
      * @param int $count
@@ -44,11 +56,11 @@ abstract class ServiceProvider implements ServiceProviderInterface
     }
 
     /**
-     * @param string|array $commands
+     * @param string|array $listeners
      * @return void
      */
-    public function commands(string|array $commands): void
+    public function listener(string|array $listeners): void
     {
-        $this->serviceDiscover->commands($commands);
+        $this->serviceDiscover->listener($listeners);
     }
 }

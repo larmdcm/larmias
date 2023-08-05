@@ -20,9 +20,11 @@ use Larmias\Event\EventDispatcherFactory;
 use Larmias\Event\ListenerProviderFactory;
 use Larmias\Command\Application as ConsoleApplication;
 use Larmias\Contracts\ServiceDiscoverInterface;
+use Larmias\Framework\Listeners\WorkerStartListener;
 use Larmias\Framework\Logger\StdoutLogger;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\EventDispatcher\ListenerProviderInterface;
+use Throwable;
 use function rtrim;
 use function dirname;
 use function date_default_timezone_set;
@@ -36,11 +38,6 @@ use function is_object;
 
 class Application implements ApplicationInterface
 {
-    /**
-     * @var int
-     */
-    protected int $status = self::STATUS_NORMAL;
-
     /**
      * @var string
      */
@@ -102,7 +99,9 @@ class Application implements ApplicationInterface
             ServiceDiscoverInterface::class => ServiceDiscover::class,
             DotEnvInterface::class => DotEnv::class,
             ListenerProviderInterface::class => function () {
-                return ListenerProviderFactory::make($this->container, $this->loadServiceConfig('listeners'));
+                return ListenerProviderFactory::make($this->container, [
+                    WorkerStartListener::class
+                ]);
             },
             EventDispatcherInterface::class => function () {
                 return EventDispatcherFactory::make($this->container);
@@ -113,14 +112,14 @@ class Application implements ApplicationInterface
     /**
      * 初始化
      * @return void
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function initialize(): void
     {
         if ($this->isInit) {
             return;
         }
-        $this->container->bindIf($this->loadServiceConfig('dependencies'));
+        $this->container->bindIf($this->getServiceConfig('dependencies'));
         $this->loadConfig();
         date_default_timezone_set($this->config->get('app.default_timezone', 'Asia/Shanghai'));
         $this->container->bindIf($this->config->get('dependencies', []));
@@ -130,7 +129,6 @@ class Application implements ApplicationInterface
 
     /**
      * 加载环境变量配置
-     *
      * @return void
      */
     protected function loadEnv(): void
@@ -145,9 +143,8 @@ class Application implements ApplicationInterface
 
     /**
      * 加载配置
-     *
      * @return void
-     * @throws \Throwable
+     * @throws Throwable
      */
     protected function loadConfig(): void
     {
@@ -165,10 +162,11 @@ class Application implements ApplicationInterface
 
     /**
      * @return void
+     * @throws Throwable
      */
     protected function boot(): void
     {
-        $bootProviders = array_merge($this->config->get('app.providers', []), $this->loadServiceConfig(ServiceDiscoverInterface::SERVICE_PROVIDER));
+        $bootProviders = array_merge($this->config->get('app.providers', []), $this->getServiceConfig(ServiceDiscoverInterface::SERVICE_PROVIDER));
 
         foreach ($bootProviders as $provider) {
             $this->register($provider);
@@ -186,6 +184,7 @@ class Application implements ApplicationInterface
     }
 
     /**
+     * 注册服务提供者
      * @param string $provider
      * @param bool $force
      * @return ApplicationInterface
@@ -202,8 +201,10 @@ class Application implements ApplicationInterface
     }
 
     /**
+     * 获取服务提供者
      * @param string $provider
      * @return ServiceProviderInterface|null
+     * @throws Throwable
      */
     public function getServiceProvider(string $provider): ?ServiceProviderInterface
     {
@@ -219,7 +220,8 @@ class Application implements ApplicationInterface
     }
 
     /**
-     * @throws \Throwable
+     * 运行
+     * @throws Throwable
      */
     public function run(): void
     {
@@ -229,7 +231,7 @@ class Application implements ApplicationInterface
             $this->discoverConfig = $this->serviceDiscover->services();
             /** @var ConsoleInterface $console */
             $console = $this->container->get(ConsoleInterface::class);
-            $commands = $this->loadServiceConfig(ServiceDiscoverInterface::SERVICE_COMMAND, true);
+            $commands = $this->getServiceConfig(ServiceDiscoverInterface::SERVICE_COMMAND, true);
             foreach ($commands as $command) {
                 $console->addCommand($command);
             }
@@ -330,11 +332,12 @@ class Application implements ApplicationInterface
     }
 
     /**
+     * 获取服务配置
      * @param string $name
      * @param bool $loadConfigPath
      * @return array
      */
-    public function loadServiceConfig(string $name, bool $loadConfigPath = false): array
+    public function getServiceConfig(string $name, bool $loadConfigPath = false): array
     {
         $getConfig = function () use ($name, $loadConfigPath) {
             $files = [__DIR__ . '/../config/' . $name . '.php'];
@@ -356,6 +359,7 @@ class Application implements ApplicationInterface
         switch ($name) {
             case 'providers':
             case 'commands':
+            case 'listeners':
                 $config = array_merge($config, isset($this->discoverConfig[$name]) ? array_column($this->discoverConfig[$name], 'class') : []);
                 break;
             case 'worker':
@@ -374,23 +378,5 @@ class Application implements ApplicationInterface
                 break;
         }
         return $config;
-    }
-
-    /**
-     * @return int
-     */
-    public function getStatus(): int
-    {
-        return $this->status;
-    }
-
-    /**
-     * @param int $status
-     * @return ApplicationInterface
-     */
-    public function setStatus(int $status): ApplicationInterface
-    {
-        $this->status = $status;
-        return $this;
     }
 }

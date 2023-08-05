@@ -146,6 +146,7 @@ abstract class Render implements RenderInterface
     {
         $traces = [];
         $nextException = $exception;
+
         do {
             $traces[] = [
                 'name' => get_class($nextException),

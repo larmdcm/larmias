@@ -107,7 +107,10 @@ trait ModelRelationQuery
     {
         $resultSet = new ModelCollection($items);
         $resultSet = $resultSet->map(function ($item) {
-            return $this->model::new($item);
+            if ($item instanceof $this->model) {
+                return $item;
+            }
+            return $this->model::new()->data($item);
         });
 
         if ($this->isModelWithSet()) {

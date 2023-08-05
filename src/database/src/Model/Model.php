@@ -210,10 +210,10 @@ abstract class Model implements ModelInterface, Arrayable, Jsonable, Stringable,
             return false;
         }
 
-        $model = static::new();
+        $query = static::query();
 
         if ($id instanceof Closure) {
-            $model->newQuery()->where($id);
+            $query->where($id);
         } else {
             if (is_string($id)) {
                 $id = str_contains($id, ',') ? explode(',', $id) : [$id];
@@ -221,10 +221,10 @@ abstract class Model implements ModelInterface, Arrayable, Jsonable, Stringable,
                 $id = [$id];
             }
 
-            $model->newQuery()->whereIn($model->getPrimaryKey(), $id);
+            $query->whereIn($query->getPrimaryKey(), $id);
         }
 
-        $resultSet = $model->newQuery()->get();
+        $resultSet = $query->get();
 
         /** @var Model $item */
         foreach ($resultSet as $item) {
@@ -280,6 +280,7 @@ abstract class Model implements ModelInterface, Arrayable, Jsonable, Stringable,
             $exists = !empty($id);
         } else {
             $id = $this->generateUniqueId();
+            $this->setAttribute($this->getPrimaryKey(), $id);
             $exists = $this->newQuery()->insert($this->data) > 0;
         }
 

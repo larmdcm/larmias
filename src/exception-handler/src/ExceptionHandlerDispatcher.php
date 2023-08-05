@@ -20,7 +20,7 @@ class ExceptionHandlerDispatcher implements ExceptionHandlerDispatcherInterface
     }
 
     /**
-     * 异常调度.
+     * 异常处理调度.
      * @param Throwable $e
      * @param array $handlers
      * @param mixed|null $args

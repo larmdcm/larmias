@@ -155,6 +155,9 @@ class QueryTest extends TestCase
         $this->assertTrue($page->count() > 0);
     }
 
+    /**
+     * @return void
+     */
     public function testChunk(): void
     {
         $query = $this->newQuery();
@@ -163,5 +166,21 @@ class QueryTest extends TestCase
         });
 
         $this->assertTrue($result);
+    }
+
+    /**
+     * @return void
+     */
+    public function testSubQuery(): void
+    {
+
+    }
+
+    /**
+     * @return void
+     */
+    public function testGroupCount(): void
+    {
+
     }
 }

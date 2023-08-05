@@ -228,13 +228,15 @@ interface QueryInterface
     public function groupByRaw(string $expression, array $bindings = []): static;
 
     /**
+     * 设置排序查询
      * @param array|string $field
-     * @param string $order
+     * @param string|null $order
      * @return static
      */
-    public function orderBy(array|string $field, string $order = 'DESC'): static;
+    public function orderBy(array|string $field, ?string $order = null): static;
 
     /**
+     * 设置原生排序查询
      * @param string $expression
      * @param array $bindings
      * @return static

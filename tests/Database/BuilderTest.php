@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\Tests\Database;
 
+use Couchbase\ViewOptions;
 use Larmias\Database\Entity\Expression;
 
 class BuilderTest extends TestCase
@@ -54,6 +55,17 @@ class BuilderTest extends TestCase
         $this->assertSame($tableAlias, '`test` AS `t`');
         $this->assertSame($builder->parseTable(['a' => 'b', 'test' => 't']), '`a` AS `b`,`test` AS `t`');
         $this->assertSame($builder->parseTable(['a', 'b', 'c']), '`a`,`b`,`c`');
+    }
+
+    /**
+     * @return void
+     */
+    public function testParseSubTable(): void
+    {
+        $builder = $this->newBuilder();
+        $table = $builder->parseTable([
+
+        ]);
     }
 
     /**

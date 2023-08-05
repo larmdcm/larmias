@@ -15,8 +15,8 @@ trait WorkerConfig
      */
     protected function getWorkerConfig(): array
     {
-        if (method_exists($this->app, 'loadServiceConfig')) {
-            $config = $this->app->loadServiceConfig('worker', true);
+        if (method_exists($this->app, 'getServiceConfig')) {
+            $config = $this->app->getServiceConfig('worker', true);
         } else {
             $configFile = $this->app->getConfigPath() . 'worker.php';
             if (!is_file($configFile)) {

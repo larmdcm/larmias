@@ -4,16 +4,31 @@ declare(strict_types=1);
 
 namespace Larmias\Framework\Providers;
 
+use Larmias\Contracts\ConfigInterface;
 use Larmias\Event\ListenerProviderFactory;
 use Larmias\Framework\ServiceProvider;
 use Psr\EventDispatcher\ListenerProviderInterface;
 use Larmias\Contracts\VendorPublishInterface;
-use function Larmias\Framework\config;
 use function is_int;
 use function is_string;
 
 class BootServiceProvider extends ServiceProvider
 {
+    /**
+     * @var ConfigInterface
+     */
+    protected ConfigInterface $config;
+
+    /**
+     * 初始化
+     * @param ConfigInterface $config
+     * @return void
+     */
+    public function initialize(ConfigInterface $config): void
+    {
+        $this->config = $config;
+    }
+
     /**
      * @return void
      */
@@ -37,16 +52,21 @@ class BootServiceProvider extends ServiceProvider
         $this->app->getContainer()->get(VendorPublishInterface::class)->publishes(static::class, [
             __DIR__ . '/../../publish/app.php' => $this->app->getConfigPath() . 'app.php',
         ]);
-        $this->listeners();
+        $this->registerListener();
     }
 
     /**
      * @return void
      * @throws \Throwable
      */
-    protected function listeners(): void
+    protected function registerListener(): void
     {
-        $listeners = config('listeners', []);
+        $listeners = $this->config->get('listeners', []);
+
+        if (method_exists($this->app, 'getServiceConfig')) {
+            $listeners = array_merge($listeners, $this->app->getServiceConfig('listeners'));
+        }
+
         $provider = $this->app->getContainer()->get(ListenerProviderInterface::class);
         foreach ($listeners as $listener => $priority) {
             if (is_int($listener)) {

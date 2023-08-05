@@ -100,7 +100,7 @@ class BladeCompiler extends Compiler implements CompilerInterface
      *
      * @return string
      */
-    public function getPath()
+    public function getPath(): string
     {
         return $this->path;
     }
@@ -111,7 +111,7 @@ class BladeCompiler extends Compiler implements CompilerInterface
      * @param string $path
      * @return void
      */
-    public function setPath($path)
+    public function setPath($path): void
     {
         $this->path = $path;
     }
@@ -122,7 +122,7 @@ class BladeCompiler extends Compiler implements CompilerInterface
      * @param string $value
      * @return string
      */
-    public function compileString($value)
+    public function compileString(string $value): string
     {
         $result = '';
 
@@ -139,7 +139,8 @@ class BladeCompiler extends Compiler implements CompilerInterface
         // add them here at the end of the template. This gets used mainly for the
         // template inheritance via the extends keyword that should be appended.
         if (count($this->footer) > 0) {
-            $result = BladeCompiler . phpltrim($result, PHP_EOL) . implode(PHP_EOL, array_reverse($this->footer));
+            $result = ltrim($result, PHP_EOL)
+                . PHP_EOL . implode(PHP_EOL, array_reverse($this->footer));
         }
 
         return $result;

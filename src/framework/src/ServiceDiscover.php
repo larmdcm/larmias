@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace Larmias\Framework;
 
+use Larmias\Command\Annotation\Command;
 use Larmias\Contracts\ApplicationInterface;
 use Larmias\Contracts\ServiceDiscoverInterface;
 use Closure;
+use Larmias\Event\Annotation\Listener;
 use Larmias\Framework\Annotation\Provider;
+use Larmias\Process\Annotation\Process;
 use RuntimeException;
 use function class_exists;
 use function extension_loaded;
@@ -29,17 +32,21 @@ class ServiceDiscover implements ServiceDiscoverInterface
      * @var string[]
      */
     protected array $annotationCollect = [
-        'Larmias\Process\Annotation\Process' => [
-            'name' => ServiceDiscoverInterface::SERVICE_PROCESS,
+        Provider::class => [
+            'name' => self::SERVICE_PROVIDER,
+            'method' => 'collectClass',
+        ],
+        Command::class => [
+            'name' => self::SERVICE_COMMAND,
+            'method' => 'collectClass',
+        ],
+        Process::class => [
+            'name' => self::SERVICE_PROCESS,
             'method' => 'collectProcess',
         ],
-        'Larmias\Command\Annotation\Command' => [
-            'name' => ServiceDiscoverInterface::SERVICE_COMMAND,
-            'method' => 'collectCommand',
-        ],
-        Provider::class => [
-            'name' => ServiceDiscoverInterface::SERVICE_PROVIDER,
-            'method' => 'collectProvider',
+        Listener::class => [
+            'name' => self::SERVICE_LISTENER,
+            'method' => 'collectClass',
         ],
     ];
 
@@ -56,20 +63,21 @@ class ServiceDiscover implements ServiceDiscoverInterface
     }
 
     /**
+     * 发现服务
      * @param Closure $callback
      * @return void
      */
     public function discover(Closure $callback): void
     {
         if (extension_loaded('pcntl')) {
-            $pid = pcntl_fork();
+            $pid = \pcntl_fork();
             if ($pid === -1) {
                 throw new RuntimeException('fork process error.');
             } else if ($pid === 0) {
                 $this->handle();
                 exit(0);
             }
-            pcntl_wait($status, WUNTRACED);
+            \pcntl_wait($status, \WUNTRACED);
         } else {
             $this->handle();
         }
@@ -77,6 +85,7 @@ class ServiceDiscover implements ServiceDiscoverInterface
     }
 
     /**
+     * 注册服务
      * @param string $name
      * @param string $class
      * @param array $args
@@ -92,6 +101,7 @@ class ServiceDiscover implements ServiceDiscoverInterface
 
 
     /**
+     * 获取注册的服务
      * @return array
      */
     public function services(): array
@@ -105,6 +115,27 @@ class ServiceDiscover implements ServiceDiscoverInterface
     }
 
     /**
+     * 添加服务提供者
+     * @param string|array $providers
+     * @return void
+     */
+    public function providers(string|array $providers): void
+    {
+        $this->batchRegister(self::SERVICE_PROVIDER, $providers);
+    }
+
+    /**
+     * 添加命令服务
+     * @param string|array $commands
+     * @return void
+     */
+    public function commands(string|array $commands): void
+    {
+        $this->batchRegister(self::SERVICE_COMMAND, $commands);
+    }
+
+    /**
+     * 添加进程服务
      * @param string $process
      * @param string $name
      * @param int $count
@@ -112,17 +143,29 @@ class ServiceDiscover implements ServiceDiscoverInterface
      */
     public function addProcess(string $process, string $name, int $count = 1): void
     {
-        $this->register(ServiceDiscoverInterface::SERVICE_PROCESS, $process, ['name' => $name, 'count' => $count]);
+        $this->register(self::SERVICE_PROCESS, $process, ['name' => $name, 'count' => $count]);
     }
 
     /**
-     * @param string|array $commands
+     * 添加事件监听服务
+     * @param string|array $listeners
      * @return void
      */
-    public function commands(string|array $commands): void
+    public function listener(string|array $listeners): void
     {
-        foreach ((array)$commands as $command) {
-            $this->register(ServiceDiscoverInterface::SERVICE_COMMAND, $command);
+        $this->batchRegister(self::SERVICE_LISTENER, $listeners);
+    }
+
+    /**
+     * 批量注册服务
+     * @param string $name
+     * @param string|array $services
+     * @return void
+     */
+    protected function batchRegister(string $name, string|array $services): void
+    {
+        foreach ((array)$services as $service) {
+            $this->register($name, $service);
         }
     }
 
@@ -132,7 +175,7 @@ class ServiceDiscover implements ServiceDiscoverInterface
     protected function handle(): void
     {
         $this->serviceProvider();
-        $this->app->setStatus(ApplicationInterface::STATUS_PRELOAD)->initialize();
+        $this->app->initialize();
         $this->annotation();
         $this->generate();
     }
@@ -180,7 +223,7 @@ class ServiceDiscover implements ServiceDiscoverInterface
                 if (!empty($extra['providers'])) {
                     $providers = (array)$extra['providers'];
                     foreach ($providers as $provider) {
-                        $this->register(ServiceDiscoverInterface::SERVICE_PROVIDER, $provider);
+                        $this->register(self::SERVICE_PROVIDER, $provider);
                         $this->app->register($provider);
                     }
                 }
@@ -208,6 +251,18 @@ class ServiceDiscover implements ServiceDiscoverInterface
      * @param array $item
      * @return array
      */
+    protected function collectClass(array $item): array
+    {
+        return [
+            'class' => $item['class'],
+            'args' => [],
+        ];
+    }
+
+    /**
+     * @param array $item
+     * @return array
+     */
     protected function collectProcess(array $item): array
     {
         return [
@@ -216,30 +271,6 @@ class ServiceDiscover implements ServiceDiscoverInterface
                 'name' => $item['value'][0]->name,
                 'count' => $item['value'][0]->count,
             ]
-        ];
-    }
-
-    /**
-     * @param array $item
-     * @return array
-     */
-    protected function collectCommand(array $item): array
-    {
-        return [
-            'class' => $item['class'],
-            'args' => [],
-        ];
-    }
-
-    /**
-     * @param array $item
-     * @return array
-     */
-    protected function collectProvider(array $item): array
-    {
-        return [
-            'class' => $item['class'],
-            'args' => [],
         ];
     }
 }

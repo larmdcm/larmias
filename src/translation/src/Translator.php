@@ -159,6 +159,12 @@ class Translator implements TranslatorInterface
         if (!isset($this->lang[$locale])) {
             $path = rtrim($this->config['path'], DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $locale . DIRECTORY_SEPARATOR . '*';
             $list = glob($path);
+
+            if (empty($list)) {
+                $this->lang[$locale] = [];
+                return;
+            }
+
             foreach ($list as $item) {
                 if (is_dir($item)) {
                     $this->load(glob($item . DIRECTORY_SEPARATOR . '*.*'), $locale, \basename($item));

@@ -13,6 +13,10 @@ trait AggregateQuery
      */
     public function count(string $field = '*'): int
     {
+        if (!empty($this->options['group'])) {
+
+        }
+
         return (int)$this->aggregate(__FUNCTION__, $field);
     }
 

@@ -190,23 +190,15 @@ abstract class BaseQuery implements QueryInterface
     /**
      * 设置排序查询
      * @param array|string $field
-     * @param string $order
+     * @param string|null $order
      * @return static
      */
-    public function orderBy(array|string $field, string $order = 'DESC'): static
+    public function orderBy(array|string $field, ?string $order = null): static
     {
-        if (is_string($field)) {
-            if (empty($order)) {
-                $this->options['order'][] = $field;
-            } else {
-                $this->options['order'][] = [$field => $order];
-            }
+        if (empty($order)) {
+            $this->options['order'][] = $field;
         } else {
-            if (empty($order)) {
-                $this->options['order'][] = $field;
-            } else {
-                $this->options['order'][] = [implode(',', $field) => $order];
-            }
+            $this->options['order'][] = is_string($field) ? [$field => $order] : [implode(',', $field) => $order];
         }
         return $this;
     }
@@ -426,7 +418,7 @@ abstract class BaseQuery implements QueryInterface
      */
     public function raw(string $sql, array $bindings = []): ExpressionInterface
     {
-        return new Expression($sql,$bindings);
+        return new Expression($sql, $bindings);
     }
 
     /**

@@ -68,6 +68,7 @@ abstract class PDOConnection extends Connection
     protected ?TransactionInterface $transaction = null;
 
     /**
+     * 执行语句
      * @param string $sql
      * @param array $bindings
      * @return ExecuteResultInterface
@@ -87,6 +88,7 @@ abstract class PDOConnection extends Connection
     }
 
     /**
+     * 查询结果集
      * @param string $sql
      * @param array $bindings
      * @return ExecuteResultInterface
@@ -130,7 +132,7 @@ abstract class PDOConnection extends Connection
 
             return $prepare;
         } catch (\PDOException $e) {
-            throw new PDOException($e);
+            throw new PDOException($e, $this->config, $this->buildSql($sql, $bindings));
         }
     }
 

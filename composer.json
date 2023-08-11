@@ -49,8 +49,9 @@
         "symfony/finder": "^4.3.2|^5.1"
     },
     "require-dev": {
-        "swoole/ide-helper": "^4.5",
-        "phpunit/phpunit": "^9.6"
+        "phpstan/phpstan": "^1.10",
+        "phpunit/phpunit": "^9.6",
+        "swoole/ide-helper": "^4.5"
     },
     "replace": {
         "larmias/async-queue": "self.version",
@@ -153,7 +154,8 @@
             "Larmias\\FileWatcher\\": "src/file-watcher/src/",
             "Larmias\\Database\\": "src/database/src/",
             "Larmias\\Paginator\\": "src/paginator/src/",
-            "Larmias\\Constants\\": "src/constants/src/"
+            "Larmias\\Constants\\": "src/constants/src/",
+            "Larmias\\Facade\\": "src/facade/src"
         }
     },
     "autoload-dev": {

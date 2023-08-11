@@ -32,6 +32,7 @@ class Throttle implements ThrottleInterface
 
     /**
      * @param ContainerInterface $container
+     * @param ContextInterface $context
      * @param ConfigInterface $config
      */
     public function __construct(protected ContainerInterface $container, protected ContextInterface $context, ConfigInterface $config)

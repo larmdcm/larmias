@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Larmias\Tests\Database;
 
 use Larmias\Database\Contracts\QueryInterface;
+use Larmias\Database\Exceptions\DBException;
 
 class QueryTest extends TestCase
 {
@@ -128,7 +129,7 @@ class QueryTest extends TestCase
     public function testUpdate(): void
     {
         $query = $this->newQuery();
-        $result = $query->table('t_user')->where('id', $query->table('t_user')->orderBy('id')->value('id'))->update([
+        $result = $query->table('t_user')->where('id', $query->table('t_user')->orderBy('id', 'DESC')->value('id'))->update([
             'password' => md5('123456789'),
             'update_time' => date('Y-m-d H:i:s')
         ]);
@@ -141,7 +142,7 @@ class QueryTest extends TestCase
     public function testDelete(): void
     {
         $query = $this->newQuery();
-        $result = $query->table('t_user')->where('id', $query->table('t_user')->orderBy('id')->value('id'))->delete();
+        $result = $query->table('t_user')->where('id', $query->table('t_user')->orderBy('id', 'DESC')->value('id'))->delete();
         $this->assertTrue($result > 0);
     }
 
@@ -151,7 +152,7 @@ class QueryTest extends TestCase
     public function testPaginate(): void
     {
         $query = $this->newQuery();
-        $page = $query->table('t_user')->paginate(page: 2);
+        $page = $query->table('t_user')->paginate(page: 1);
         $this->assertTrue($page->count() > 0);
     }
 
@@ -173,7 +174,18 @@ class QueryTest extends TestCase
      */
     public function testSubQuery(): void
     {
+        $this->handleException(function () {
+            $query = $this->newQuery();
+            $subTable = $this->newQuery()->table('t_user')->buildSql(sub: true);
+            $list = $query->table([$subTable => 'user'])->get();
+            $this->assertTrue($list->isNotEmpty());
 
+            $list = $this->newQuery()->table('t_user')->whereIn('id', function (QueryInterface $query) {
+                $query->table('t_user')->field('id')->where('id', '>', 1);
+            })->get();
+
+            $this->assertTrue($list->isNotEmpty());
+        });
     }
 
     /**
@@ -181,6 +193,13 @@ class QueryTest extends TestCase
      */
     public function testGroupCount(): void
     {
-
+        $query = $this->newQuery()->table('t_user');
+        try {
+            $count = $query->groupBy('id')->count();
+        } catch (DBException $exception) {
+            var_dump($exception->getSql());
+            throw $exception;
+        }
+        $this->assertTrue($count > 0);
     }
 }

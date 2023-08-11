@@ -38,7 +38,7 @@ class InvokeResolver
      * @return mixed
      * @throws \Throwable
      */
-    public static function process(Closure $process, array $args)
+    public static function process(Closure $process, array $args): mixed
     {
         $pipes = [];
         foreach (static::$collect as $handlerClass => $handler) {

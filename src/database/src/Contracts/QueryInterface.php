@@ -36,10 +36,10 @@ interface QueryInterface
 
     /**
      * 设置表名称
-     * @param string $name
+     * @param string|array $name
      * @return static
      */
-    public function table(string $name): static;
+    public function table(string|array $name): static;
 
     /**
      * 获取表名称
@@ -419,9 +419,10 @@ interface QueryInterface
     /**
      * 构建SQL
      * @param int $buildType
+     * @param bool $sub
      * @return string
      */
-    public function buildSql(int $buildType = self::BUILD_SQL_SELECT): string;
+    public function buildSql(int $buildType = self::BUILD_SQL_SELECT, bool $sub = false): string;
 
     /**
      * 开启事务

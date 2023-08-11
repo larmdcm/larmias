@@ -208,6 +208,7 @@ abstract class Builder implements BuilderInterface
     }
 
     /**
+     * 创建SQL预处理
      * @param string $sql
      * @return SqlPrepareInterface
      */
@@ -452,7 +453,7 @@ abstract class Builder implements BuilderInterface
         }
 
         if ($where instanceof Closure) {
-            return '( ' . $this->parseWhere($where(), false) . ' )';
+            return '( ' . $this->parseWhere($where()->getOptions()['where'], false) . ' )';
         }
 
         return $this->parseWhereOp($where);
@@ -497,8 +498,13 @@ abstract class Builder implements BuilderInterface
             case 'COLUMN':
                 return $this->parseWhereColumn($field, $value);
             default:
-                $this->bind($value);
-                return sprintf('%s %s ?', $field, $op);
+                $val = '?';
+                if ($value instanceof Closure) {
+                    $val = $this->parseClosureBuildSql($value);
+                } else {
+                    $this->bind($value);
+                }
+                return sprintf('%s %s %s', $field, $op, $val);
         }
     }
 
@@ -511,6 +517,10 @@ abstract class Builder implements BuilderInterface
      */
     protected function parseWhereIn(string $field, mixed $value, string $op = 'IN'): string
     {
+        if ($value instanceof Closure) {
+            return $this->buildWhereIn($field, $this->parseClosureBuildSql($value, false), $op);
+        }
+
         if (is_empty($value)) {
             $value = [''];
         } else if (is_string($value)) {
@@ -562,6 +572,10 @@ abstract class Builder implements BuilderInterface
      */
     protected function parseWhereExists(string $field, mixed $value, string $op = 'EXISTS'): string
     {
+        if ($value instanceof Closure) {
+            $value = $this->parseClosureBuildSql($value, false);
+        }
+
         return $this->buildWhereExists($field, $value, $op);
     }
 
@@ -600,10 +614,12 @@ abstract class Builder implements BuilderInterface
                 break;
             case 'IN':
             case 'NOT IN':
-                $value = $this->valueToArray($value);
-                if (count($value) == 1) {
-                    $op = $op == 'IN' ? '=' : '<>';
-                    $value = current($value) ?: '';
+                if (!($value instanceof Closure)) {
+                    $value = $this->valueToArray($value);
+                    if (count($value) == 1) {
+                        $op = $op == 'IN' ? '=' : '<>';
+                        $value = current($value) ?: '';
+                    }
                 }
                 break;
         }
@@ -824,4 +840,15 @@ abstract class Builder implements BuilderInterface
      * @return string
      */
     abstract public function escapeField(string $field): string;
+
+    /**
+     * 解析闭包构建子SQL
+     * @param Closure $closure
+     * @param bool $sub
+     * @return string
+     */
+    protected function parseClosureBuildSql(Closure $closure, bool $sub = true): string
+    {
+        return $closure()->buildSql(sub: $sub);
+    }
 }

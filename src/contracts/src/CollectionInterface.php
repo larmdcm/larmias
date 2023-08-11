@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Larmias\Contracts;
 
+use CachingIterator;
+
 interface CollectionInterface
 {
     /**

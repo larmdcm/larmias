@@ -300,7 +300,7 @@ class Factory
      * @param string $content
      * @return void
      */
-    public function startSection($section, $content = '')
+    public function startSection($section, $content = ''): void
     {
         if ($content === '') {
             if (ob_start()) {
@@ -318,9 +318,9 @@ class Factory
      * @param string $content
      * @return void
      */
-    public function inject($section, $content)
+    public function inject($section, $content): void
     {
-        return $this->startSection($section, $content);
+        $this->startSection($section, $content);
     }
 
     /**
@@ -542,7 +542,7 @@ class Factory
      */
     public function addLoop($data)
     {
-        $length = is_array($data) || $data instanceof Countable ? count($data) : null;
+        $length = is_array($data) || $data instanceof \Countable ? count($data) : null;
 
         $parent = end($this->loopsStack);
 

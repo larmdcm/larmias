@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Larmias\Database\Query\Concerns;
 
+use Larmias\Database\Query\BaseQuery;
+
 trait AggregateQuery
 {
     /**
@@ -14,10 +16,13 @@ trait AggregateQuery
     public function count(string $field = '*'): int
     {
         if (!empty($this->options['group'])) {
-
+            $subSql = $this->aggregateQuery(__FUNCTION__, $field, 'larmias_count')->buildSql(sub: true);
+            $count = $this->newQuery()->table([$subSql => '_group_count_'])->aggregate(__FUNCTION__, '*');
+        } else {
+            $count = $this->aggregate(__FUNCTION__, $field);
         }
 
-        return (int)$this->aggregate(__FUNCTION__, $field);
+        return (int)$count;
     }
 
     /**
@@ -69,6 +74,18 @@ trait AggregateQuery
     protected function aggregate(string $type, string $field): mixed
     {
         $name = 'larmias_' . $type;
-        return $this->fieldRaw($this->builder->aggregate($type, $field, $name))->value($name);
+        return $this->aggregateQuery($type, $field, $name)->value($name);
+    }
+
+    /**
+     * 聚合查询Query
+     * @param string $type
+     * @param string $field
+     * @param string $name
+     * @return BaseQuery|AggregateQuery
+     */
+    protected function aggregateQuery(string $type, string $field, string $name): self
+    {
+        return $this->fieldRaw($this->builder->aggregate($type, $field, $name));
     }
 }

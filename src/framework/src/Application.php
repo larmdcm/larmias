@@ -161,6 +161,7 @@ class Application implements ApplicationInterface
     }
 
     /**
+     * 注册启动服务提供者
      * @return void
      * @throws Throwable
      */

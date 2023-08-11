@@ -142,20 +142,14 @@ abstract class Model implements ModelInterface, Arrayable, Jsonable, Stringable,
      */
     public function __construct(array $data = [])
     {
-        $this->setAttributes($data);
-
-        $this->refreshOrigin();
-
         if ($this->name === null) {
             $this->name = class_basename(static::class);
         }
 
+        $this->fill($data);
+
         foreach (static::$maker as $maker) {
             $maker($this);
-        }
-
-        if ($this->getPrimaryValue()) {
-            $this->setExists(true);
         }
     }
 

@@ -424,7 +424,6 @@ abstract class Command extends SymfonyCommand
         } catch (Throwable $e) {
             $this->eventDispatcher && $this->eventDispatcher->dispatch(new FailToHandle($this, $e));
             $handlers = [];
-
             $config = $this->container->has(ConfigInterface::class) ? $this->container->get(ConfigInterface::class) : null;
             if ($config) {
                 $handlers = array_merge($handlers, Arr::wrap($config->get('exceptions.handler.command', [])));

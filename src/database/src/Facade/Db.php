@@ -6,14 +6,14 @@ namespace Larmias\Database\Facade;
 
 use Larmias\Contracts\CollectionInterface;
 use Larmias\Contracts\PaginatorInterface;
+use Larmias\Database\Contracts\ManagerInterface;
 use Larmias\Database\Contracts\QueryInterface;
 use Larmias\Database\Contracts\TransactionInterface;
-use Larmias\Database\Manager;
 use Larmias\Facade\AbstractFacade;
 use Larmias\Database\Contracts\ExpressionInterface;
 
 /**
- * @method static QueryInterface table(string $name)
+ * @method static QueryInterface table(string|array $name)
  * @method static string getTable()
  * @method static string getName()
  * @method static QueryInterface alias(string|array $name)
@@ -49,7 +49,7 @@ use Larmias\Database\Contracts\ExpressionInterface;
  * @method static QueryInterface page(int $page, int $listRows = 25)
  * @method static QueryInterface incr(string $field, float $step)
  * @method static QueryInterface decr(string $field, float $step)
- * @method static string buildSql(int $buildType = QueryInterface::BUILD_SQL_SELECT)
+ * @method static string buildSql(int $buildType = QueryInterface::BUILD_SQL_SELECT, bool $sub = false)
  * @method static int count(string $field = '*')
  * @method static float sum(string $field)
  * @method static float min(string $field)
@@ -78,6 +78,6 @@ class Db extends AbstractFacade
      */
     public static function getFacadeAccessor(): string|object
     {
-        return Manager::class;
+        return ManagerInterface::class;
     }
 }

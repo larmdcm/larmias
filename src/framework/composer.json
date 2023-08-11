@@ -20,10 +20,12 @@
         "larmias/contracts": "^1.0",
         "larmias/engine": "^1.0",
         "larmias/command": "^1.0",
+        "larmias/config": "^1.0",
         "larmias/event": "^1.0",
         "larmias/utils": "^1.0",
         "larmias/env": "^1.0",
-        "larmias/process": "^1.0"
+        "larmias/process": "^1.0",
+        "larmias/pipeline": "^1.0"
     },
     "autoload": {
         "psr-4": {

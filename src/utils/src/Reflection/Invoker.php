@@ -116,7 +116,7 @@ class Invoker
 
     /**
      * @param string $type
-     * @param \Closure $handler
+     * @param Closure $handler
      * @param array $args
      * @return mixed
      */

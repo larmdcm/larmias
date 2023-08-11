@@ -55,6 +55,8 @@ class BuilderTest extends TestCase
         $this->assertSame($tableAlias, '`test` AS `t`');
         $this->assertSame($builder->parseTable(['a' => 'b', 'test' => 't']), '`a` AS `b`,`test` AS `t`');
         $this->assertSame($builder->parseTable(['a', 'b', 'c']), '`a`,`b`,`c`');
+        $this->assertSame($builder->parseTable(['a a1', 'b b1']), '`a` `a1`,`b` `b1`');
+        $this->assertSame($builder->parseTable(['(select * from a)' => 'a1']), '(select * from a) AS `a1`');
     }
 
     /**
@@ -64,8 +66,10 @@ class BuilderTest extends TestCase
     {
         $builder = $this->newBuilder();
         $table = $builder->parseTable([
-
+            '(select * from `page`)' => 'page'
         ]);
+
+        $this->assertSame($table, '(select * from `page`) AS `page`');
     }
 
     /**

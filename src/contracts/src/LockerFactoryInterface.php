@@ -7,6 +7,7 @@ namespace Larmias\Contracts;
 interface LockerFactoryInterface
 {
     /**
+     * 创建Locker
      * @param string $name
      * @param int $ttl
      * @return LockerInterface

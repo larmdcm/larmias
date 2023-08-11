@@ -56,6 +56,7 @@ abstract class BaseQuery implements QueryInterface
         'having' => [],
         'incr' => [],
         'soft_delete' => [],
+        'lock' => false,
     ];
 
     /**
@@ -80,12 +81,28 @@ abstract class BaseQuery implements QueryInterface
 
     /**
      * 设置表名称
-     * @param string $name
+     * @param string|array $name
      * @return static
      */
-    public function table(string $name): static
+    public function table(string|array $name): static
     {
-        $this->options['table'] = $name;
+        $table = [];
+
+        if (is_string($name)) {
+            $name = str_ends_with($name, ')') ? [$name] : explode(',', $name);
+        }
+
+        foreach ($name as $key => $value) {
+            if (is_numeric($key)) {
+                $table[] = $value;
+            } else {
+                $table[$key] = $value;
+                $this->alias([$key => $value]);
+            }
+        }
+
+        $this->options['table'] = $table;
+
         return $this;
     }
 
@@ -304,6 +321,31 @@ abstract class BaseQuery implements QueryInterface
     }
 
     /**
+     * 设置悲观锁
+     * @return static
+     */
+    public function lockForUpdate(): static
+    {
+        $this->options['lock'] = __FUNCTION__;
+        return $this;
+    }
+
+    /**
+     * 设置乐观锁
+     * @return static
+     */
+    public function sharedLock(): static
+    {
+        $this->options['lock'] = __FUNCTION__;
+        return $this;
+    }
+
+    public function union(): static
+    {
+        return $this;
+    }
+
+    /**
      * 插入数据
      * @param array|null $data
      * @return int
@@ -424,9 +466,10 @@ abstract class BaseQuery implements QueryInterface
     /**
      * 构建SQL语句
      * @param int $buildType
+     * @param bool $sub
      * @return string
      */
-    public function buildSql(int $buildType = self::BUILD_SQL_SELECT): string
+    public function buildSql(int $buildType = self::BUILD_SQL_SELECT, bool $sub = false): string
     {
         $sqlPrepare = match ($buildType) {
             self::BUILD_SQL_INSERT => $this->builder->insert($this->getOptions()),
@@ -437,10 +480,7 @@ abstract class BaseQuery implements QueryInterface
         };
 
         $sql = $this->connection->buildSql($sqlPrepare->getSql(), $sqlPrepare->getBindings());
-        if ($buildType === self::BUILD_SQL_SELECT) {
-            $sql = '( ' . $sql . ' )';
-        }
-        return $sql;
+        return $sub ? '( ' . $sql . ' )' : $sql;
     }
 
     /**

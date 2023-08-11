@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Larmias\Database\Query\Builder;
 
 use function explode;
-use function sprintf;
-use function str_contains;
 use function is_numeric;
+use function str_contains;
+use function str_ends_with;
 
 class MysqlBuilder extends Builder
 {
@@ -18,7 +18,7 @@ class MysqlBuilder extends Builder
      */
     public function escapeField(string $field): string
     {
-        if (!$field || is_numeric($field) || $field == '*') {
+        if (!$field || is_numeric($field) || $field == '*' || str_ends_with($field, ')')) {
             return $field;
         }
 

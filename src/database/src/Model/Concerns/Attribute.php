@@ -80,7 +80,7 @@ trait Attribute
         }
 
         if (isset($this->cast[$name])) {
-            $value = $this->castValue($this->cast[$name], $value, true);
+            $value = $this->transformValue($this->cast[$name], $value, true);
         }
 
         return $value;
@@ -101,7 +101,7 @@ trait Attribute
         }
 
         if (isset($this->cast[$name])) {
-            $value = $this->castValue($this->cast[$name], $value);
+            $value = $this->transformValue($this->cast[$name], $value);
         }
 
         $this->data[$name] = $value;
@@ -162,11 +162,28 @@ trait Attribute
      */
     public function data(array $data = []): self
     {
-        $this->data = $data;
+        return $this->fill($data,true);
+    }
+
+    /**
+     * 填充数据
+     * @param  array $data 
+     * @param  bool $raw  
+     * @return Model|Attribute           
+     */
+    public function fill(array $data,bool $raw = false): self
+    {
+        if ($raw) {
+            $this->data = $data;
+        } else {
+            $this->setAttributes($data);
+        }
+
         $this->refreshOrigin();
         if ($this->getPrimaryValue()) {
             $this->setExists(true);
         }
+
         return $this;
     }
 
@@ -190,6 +207,7 @@ trait Attribute
     }
 
     /**
+     * 获取关联值
      * @param string $name
      * @return mixed
      */
@@ -203,12 +221,13 @@ trait Attribute
     }
 
     /**
+     * 值类型转换
      * @param string $type
      * @param mixed $value
      * @param bool $isGet
      * @return mixed
      */
-    protected function castValue(string $type, mixed $value, bool $isGet = false): mixed
+    protected function transformValue(string $type, mixed $value, bool $isGet = false): mixed
     {
         if ($value === null) {
             return null;
@@ -281,6 +300,7 @@ trait Attribute
     }
 
     /**
+     * 获取改变的数据
      * @return array
      */
     protected function getChangedData(): array
@@ -291,14 +311,5 @@ trait Attribute
             }
             return is_object($a) || $a != $b ? 1 : 0;
         });
-    }
-
-    /**
-     * @param string $name
-     * @return string
-     */
-    protected function getRealAttrName(string $name): string
-    {
-        return Str::snake($name);
     }
 }

@@ -219,6 +219,9 @@ trait WhereQuery
         if ($op === null) {
             $condition = $field;
         } else {
+            if ($value instanceof Closure) {
+                $value = $this->parseWhereClosure($value);
+            }
             $condition = [$field, $op, $value];
         }
 
@@ -231,13 +234,13 @@ trait WhereQuery
      */
     protected function parseWhereClosure(Closure $closure): Closure
     {
-        $query = $this->newQuery();
-        $result = $closure($query);
-        if ($result instanceof QueryInterface) {
-            $query = $result;
-        }
-        return function () use ($query) {
-            return $query->getOptions()['where'];
+        return function () use ($closure): QueryInterface {
+            $query = $this->newQuery();
+            $result = $closure($query);
+            if ($result instanceof QueryInterface) {
+                $query = $result;
+            }
+            return $query;
         };
     }
 }

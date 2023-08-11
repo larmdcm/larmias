@@ -11,6 +11,9 @@ use function is_array;
 use function pathinfo;
 use function parse_ini_file;
 use function json_decode;
+use function function_exists;
+use function file_get_contents;
+use const INI_SCANNER_TYPED;
 
 class Config implements ArrayAccess, ConfigInterface
 {

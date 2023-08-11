@@ -30,7 +30,6 @@ class Pipeline implements PipelineInterface
 
     /**
      * 初始数据
-     *
      * @param mixed $passable
      * @return self
      */
@@ -42,7 +41,6 @@ class Pipeline implements PipelineInterface
 
     /**
      * 调用栈
-     *
      * @param array $pipes
      * @return self
      */
@@ -54,7 +52,6 @@ class Pipeline implements PipelineInterface
 
     /**
      * 执行
-     *
      * @param Closure $destination
      * @return mixed
      * @throws Throwable
@@ -78,7 +75,6 @@ class Pipeline implements PipelineInterface
 
     /**
      * 设置异常处理器
-     *
      * @param callable $handler
      * @return self
      */
@@ -106,7 +102,6 @@ class Pipeline implements PipelineInterface
 
     /**
      * 异常处理
-     *
      * @param mixed $passable
      * @param Throwable $e
      * @return mixed

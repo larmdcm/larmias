@@ -55,8 +55,12 @@ abstract class BaseQuery implements QueryInterface
         'limit' => null,
         'having' => [],
         'incr' => [],
+        'union' => [],
         'soft_delete' => [],
         'lock' => false,
+        'distinct' => null,
+        'force' => null,
+        'comment' => null,
     ];
 
     /**
@@ -340,8 +344,65 @@ abstract class BaseQuery implements QueryInterface
         return $this;
     }
 
-    public function union(): static
+    /**
+     * 设置UNION
+     * @param mixed $union
+     * @param bool $all
+     * @return static
+     */
+    public function union(mixed $union, bool $all = false): static
     {
+        $this->options['union']['type'] = $all ? 'unionAll' : 'union';
+
+        if (is_array($union)) {
+            $this->options['union'] = array_merge($this->options['union'], $union);
+        } else {
+            $this->options['union'][] = $union;
+        }
+
+        return $this;
+    }
+
+    /**
+     * 设置UNION ALL
+     * @param mixed $union
+     * @return static
+     */
+    public function unionAll(mixed $union): static
+    {
+        return $this->union($union, true);
+    }
+
+    /**
+     * 指定distinct查询
+     * @param bool $distinct
+     * @return static
+     */
+    public function distinct(bool $distinct = true): static
+    {
+        $this->options['distinct'] = $distinct;
+        return $this;
+    }
+
+    /**
+     * 指定强制索引
+     * @param string $force
+     * @return static
+     */
+    public function force(string $force): static
+    {
+        $this->options['force'] = $force;
+        return $this;
+    }
+
+    /**
+     * 查询注释
+     * @param string $comment
+     * @return static
+     */
+    public function comment(string $comment): static
+    {
+        $this->options['comment'] = $comment;
         return $this;
     }
 

@@ -302,6 +302,54 @@ interface QueryInterface
     public function useSoftDelete(string $field, array $condition): static;
 
     /**
+     * 设置悲观锁
+     * @return static
+     */
+    public function lockForUpdate(): static;
+
+    /**
+     * 设置乐观锁
+     * @return static
+     */
+    public function sharedLock(): static;
+
+    /**
+     * 设置UNION
+     * @param mixed $union
+     * @param bool $all
+     * @return static
+     */
+    public function union(mixed $union, bool $all = false): static;
+
+    /**
+     * 设置UNION ALL
+     * @param mixed $union
+     * @return static
+     */
+    public function unionAll(mixed $union): static;
+
+    /**
+     * 指定distinct查询
+     * @param bool $distinct
+     * @return static
+     */
+    public function distinct(bool $distinct = true): static;
+
+    /**
+     * 指定强制索引
+     * @param string $force
+     * @return static
+     */
+    public function force(string $force): static;
+
+    /**
+     * 查询注释
+     * @param string $comment
+     * @return static
+     */
+    public function comment(string $comment): static;
+
+    /**
      * 构建原生表达式
      * @param string $sql
      * @param array $bindings

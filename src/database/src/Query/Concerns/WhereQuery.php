@@ -30,7 +30,7 @@ trait WhereQuery
         if (is_array($field)) {
             $conditions = $this->parseWhereArray($field);
         } else if ($field instanceof Closure) {
-            $conditions = [$this->parseWhereClosure($field)];
+            $conditions = [$this->parseClosure($field)];
         } else if ($field instanceof ExpressionInterface) {
             $conditions = [$field];
         } else {
@@ -192,6 +192,36 @@ trait WhereQuery
     }
 
     /**
+     * 按条件设置查询
+     * @param mixed $condition
+     * @param mixed $query
+     * @param mixed|null $otherwise
+     * @return static
+     */
+    public function when(mixed $condition, mixed $query, mixed $otherwise = null): static
+    {
+        if ($condition instanceof Closure) {
+            $condition = $condition($this);
+        }
+
+        if ($condition) {
+            if ($query instanceof Closure) {
+                $query($this, $condition);
+            } else {
+                $this->where($query);
+            }
+        } elseif ($otherwise) {
+            if ($otherwise instanceof Closure) {
+                $otherwise($this, $condition);
+            } else {
+                $this->where($otherwise);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
      * @param array $where
      * @return array
      */
@@ -220,27 +250,11 @@ trait WhereQuery
             $condition = $field;
         } else {
             if ($value instanceof Closure) {
-                $value = $this->parseWhereClosure($value);
+                $value = $this->parseClosure($value);
             }
             $condition = [$field, $op, $value];
         }
 
         return $condition;
-    }
-
-    /**
-     * @param Closure $closure
-     * @return Closure
-     */
-    protected function parseWhereClosure(Closure $closure): Closure
-    {
-        return function () use ($closure): QueryInterface {
-            $query = $this->newQuery();
-            $result = $closure($query);
-            if ($result instanceof QueryInterface) {
-                $query = $result;
-            }
-            return $query;
-        };
     }
 }

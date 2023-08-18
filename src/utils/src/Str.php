@@ -11,6 +11,21 @@ class Str
     use Macroable;
 
     /**
+     * @var string
+     */
+    public const CONVERT_SNAKE = 1;
+
+    /**
+     * @var string
+     */
+    public const CONVERT_CAMEL = 2;
+
+    /**
+     * @var string
+     */
+    public const CONVERT_STUDLY = 3;
+
+    /**
      * @var array
      */
     protected static array $snakeCache = [];
@@ -229,6 +244,23 @@ class Str
         $value = ucwords(str_replace(['-', '_'], ' ', $value));
 
         return static::$studlyCache[$key] = str_replace(' ', '', $value);
+    }
+
+    /**
+     * 名称转换
+     *
+     * @param string $value
+     * @param int $type
+     * @return string
+     */
+    public static function convertNameByType(string $value, int $type): string
+    {
+        return match ($type) {
+            self::CONVERT_SNAKE => self::snake($value),
+            self::CONVERT_CAMEL => self::camel($value),
+            self::CONVERT_STUDLY => self::studly($value),
+            default => $value,
+        };
     }
 
     /**

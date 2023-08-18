@@ -5,11 +5,58 @@ declare(strict_types=1);
 namespace Larmias\Tests\Database;
 
 use Larmias\Tests\Database\Model\UserModel;
+use Larmias\Tests\Database\Model\UserScopeModel;
 use Larmias\Tests\Database\Model\UserTModel;
 use Larmias\Tests\Database\Model\UserInfoModel;
 
 class ModelTest extends TestCase
 {
+    /**
+     * @return void
+     */
+    public function testInsert(): void
+    {
+        $username = 'test' . mt_rand(100, 999);
+        $result = UserModel::insert([
+            'username' => $username,
+            'password' => '123456'
+        ]);
+
+        $this->assertTrue($result > 0);
+
+        $username = 'test' . mt_rand(100, 999);
+        $result = UserModel::insertGetId([
+            'username' => $username,
+            'password' => '123456'
+        ]);
+
+        var_dump($result);
+
+        $this->assertNotEmpty($result);
+
+        $result = UserModel::insertAll([
+            ['username' => 'test' . mt_rand(100, 999), 'password' => '123456'],
+            ['username' => 'test' . mt_rand(100, 999), 'password' => '123456'],
+            ['username' => 'test' . mt_rand(100, 999), 'password' => '123456'],
+        ]);
+
+        $this->assertTrue($result > 0);
+    }
+
+    /**
+     * @return void
+     */
+    public function testUpdate(): void
+    {
+        $username = 'test' . mt_rand(100, 999);
+        $result = UserModel::where('id', 1)->update([
+            'username' => $username,
+            'password' => '123456'
+        ]);
+
+        $this->assertTrue($result > 0);
+    }
+
     /**
      * @return void
      */
@@ -32,7 +79,7 @@ class ModelTest extends TestCase
         $model = UserModel::find(1);
         $this->assertNotEmpty($model);
         $this->assertSame($model->id, 1);
-        $this->assertNotSame(-1, $model->integral);
+        $this->assertNotSame(0, $model->integral);
     }
 
     /**
@@ -61,7 +108,7 @@ class ModelTest extends TestCase
      */
     public function testDelete(): void
     {
-        $model = UserModel::orderBy('id')->firstOrFail();
+        $model = UserModel::orderBy('id', 'DESC')->firstOrFail();
         $this->assertTrue($model->delete());
         $this->assertFalse($model->isExists());
     }
@@ -81,10 +128,26 @@ class ModelTest extends TestCase
      */
     public function testSoftDelete(): void
     {
-        $model = UserTModel::where('id', '>', 0)->orderBy('id')->first();
+        $model = UserTModel::where('id', '>', 0)->orderBy('id', 'DESC')->first();
         $this->assertTrue($model->isExists());
         $model->delete();
         $this->assertFalse($model->isExists());
+    }
+
+    /**
+     * @return void
+     */
+    public function testHiddenAndGuard(): void
+    {
+        $model = UserTModel::create([
+            'username' => mt_rand(111111, 666666),
+            'password' => '123456',
+            'status' => 0,
+        ]);
+
+        var_dump($model->toArray());
+
+        $this->assertNotEquals(0, UserTModel::find($model->id)->status);
     }
 
     /**
@@ -149,6 +212,7 @@ class ModelTest extends TestCase
         $list = UserInfoModel::new()->with(['user' => function ($query) {
             $query->field('id');
         }])->get();
+
         $this->assertSame($list[0]->user_id, $list[0]->user->id);
 
         $data = UserInfoModel::new()->with(['user' => function ($model) {
@@ -199,7 +263,7 @@ class ModelTest extends TestCase
      */
     public function testBelongsToManyWith(): void
     {
-        $userList = UserModel::with(['roles'])->get();
+        $userList = UserModel::with(['roles'])->where('id', 1)->get();
         $this->assertTrue($userList[0]->roles->isNotEmpty());
     }
 
@@ -211,5 +275,14 @@ class ModelTest extends TestCase
         $user = UserModel::find(1);
         $count = $user->roles()->detach();
         $this->assertTrue($count > 0);
+    }
+
+    /**
+     * @return void
+     */
+    public function testScope(): void
+    {
+        $user = UserScopeModel::scope('username', 'test363')->first();
+        $this->assertSame($user->username, 'test363');
     }
 }

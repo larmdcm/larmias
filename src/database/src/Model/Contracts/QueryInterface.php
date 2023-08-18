@@ -7,9 +7,23 @@ namespace Larmias\Database\Model\Contracts;
 use Larmias\Database\Contracts\QueryInterface as BaseQueryInterface;
 use Larmias\Database\Exceptions\ResourceNotFoundException;
 use Larmias\Database\Model\Model;
+use Closure;
 
 interface QueryInterface extends BaseQueryInterface
 {
+    /**
+     * 设置查询作用域
+     * @param array|string|Closure $scope
+     * @param ...$args
+     * @return static
+     */
+    public function scope(array|string|Closure $scope, ...$args): static;
+
+    /**
+     * @return Model
+     */
+    public function getModel(): Model;
+
     /**
      * 查询数据集合
      * @return CollectionInterface

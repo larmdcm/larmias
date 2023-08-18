@@ -36,6 +36,15 @@ trait ModelRelationQuery
     }
 
     /**
+     * 获取查询模型
+     * @return Model
+     */
+    public function getModel(): Model
+    {
+        return $this->model;
+    }
+
+    /**
      * 关联预载入In方式
      * @param array|string $with
      * @return BaseQuery|ModelRelationQuery

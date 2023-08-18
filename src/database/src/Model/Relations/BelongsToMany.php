@@ -50,7 +50,6 @@ class BelongsToMany extends Relation
      */
     public function getRelation(): CollectionInterface
     {
-        /** @var CollectionInterface $collect */
         $collect = $this->query()->get();
         return $this->matchPivot($collect);
     }
@@ -105,7 +104,7 @@ class BelongsToMany extends Relation
         if ($data->isNotEmpty()) {
             /** @var Model $result */
             foreach ($resultSet as $result) {
-                $result->setRelation($relation, $this->matchPivot($data->where($this->localKey, $result->{$primaryKey})));
+                $result->setRelation($relation, $this->matchPivot($data->where('pivot__' . $this->localKey, $result->{$primaryKey})));
             }
         }
     }

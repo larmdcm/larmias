@@ -53,7 +53,7 @@ class Run
         ]));
 
         $this->kernel->addWorker(WorkerConfig::build([
-            'name' => 'runProcess',
+            'name' => 'mainProcess',
             'type' => WorkerType::WORKER_PROCESS,
             'callbacks' => [
                 Event::ON_WORKER_START => function ($worker) use ($args) {

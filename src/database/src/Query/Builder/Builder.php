@@ -35,31 +35,31 @@ abstract class Builder implements BuilderInterface
      * 查询语句
      * @var string
      */
-    protected string $selectSql = 'SELECT <FIELD> FROM <TABLE><JOIN><WHERE><GROUP><HAVING><ORDER><LIMIT>';
+    protected string $selectSql = 'SELECT<DISTINCT> <FIELD> FROM <TABLE><FORCE><JOIN><WHERE><GROUP><HAVING><UNION><ORDER><LIMIT> <LOCK><COMMENT>';
 
     /**
      * 新增语句
      * @var string
      */
-    protected string $insertSql = 'INSERT INTO <TABLE>(<FIELD>) VALUES (<DATA>)';
+    protected string $insertSql = 'INSERT INTO <TABLE>(<FIELD>) VALUES (<DATA>) <COMMENT>';
 
     /**
      * 批量新增语句
      * @var string
      */
-    protected string $insertAllSql = 'INSERT INTO <TABLE>(<FIELD>) VALUES <DATA>';
+    protected string $insertAllSql = 'INSERT INTO <TABLE>(<FIELD>) VALUES <DATA> <COMMENT>';
 
     /**
      * 修改语句
      * @var string
      */
-    protected string $updateSql = 'UPDATE <TABLE> SET <SET><JOIN><WHERE><ORDER><LIMIT>';
+    protected string $updateSql = 'UPDATE <TABLE> SET <SET><JOIN><WHERE><ORDER><LIMIT> <LOCK><COMMENT>';
 
     /**
      * 删除语句
      * @var string
      */
-    protected string $deleteSql = 'DELETE FROM <TABLE><JOIN><WHERE><ORDER><LIMIT>';
+    protected string $deleteSql = 'DELETE FROM <TABLE><JOIN><WHERE><ORDER><LIMIT> <LOCK><COMMENT>';
 
     /**
      * 绑定的参数
@@ -97,10 +97,11 @@ abstract class Builder implements BuilderInterface
     {
         $data = $options['data'];
         $fields = array_keys($data);
-        $sql = str_replace(['<TABLE>', '<FIELD>', '<DATA>'], [
+        $sql = str_replace(['<TABLE>', '<FIELD>', '<DATA>', '<COMMENT>'], [
             $this->parseTable($options['table'], $options['alias']),
             implode(',', array_map(fn($field) => $this->escapeField($field), $fields)),
-            rtrim(str_repeat("?,", count($data)), ',')
+            rtrim(str_repeat("?,", count($data)), ','),
+            $this->parseComment($options['comment'] ?? '')
         ], $this->insertSql);
         $this->bind(array_values($data));
         return $this->createSqlPrepare($sql);
@@ -121,10 +122,11 @@ abstract class Builder implements BuilderInterface
             $sqlValues[] = sprintf('(%s)', rtrim(str_repeat("?,", count($values)), ','));
             $this->bind($values);
         }
-        $sql = str_replace(['<TABLE>', '<FIELD>', '<DATA>'], [
+        $sql = str_replace(['<TABLE>', '<FIELD>', '<DATA>', '<COMMENT>'], [
             $this->parseTable($options['table']),
             implode(',', array_map(fn($field) => $this->escapeField($field), $fields)),
-            implode(',', $sqlValues)
+            implode(',', $sqlValues),
+            $this->parseComment($options['comment'] ?? '')
         ], $this->insertAllSql);
         return $this->createSqlPrepare($sql);
     }
@@ -136,13 +138,15 @@ abstract class Builder implements BuilderInterface
      */
     public function update(array $options): SqlPrepareInterface
     {
-        $sql = str_replace(['<TABLE>', '<SET>', '<JOIN>', '<WHERE>', '<ORDER>', '<LIMIT>'], [
+        $sql = str_replace(['<TABLE>', '<SET>', '<JOIN>', '<WHERE>', '<ORDER>', '<LIMIT>', '<LOCK>', '<COMMENT>'], [
             $this->parseTable($options['table']),
-            $this->parseUpdateSet($options['data'], $options['incr']),
-            $this->parseJoin($options['join'], $options['alias']),
-            $where = $this->parseWhere($options['where']),
-            $this->parseOrder($options['order']),
-            $this->parseLimit($options['limit']),
+            $this->parseUpdateSet($options['data'], $options['incr'] ?? []),
+            $this->parseJoin($options['join'] ?? [], $options['alias'] ?? []),
+            $where = $this->parseWhere($options['where'] ?? []),
+            $this->parseOrder($options['order'] ?? []),
+            $this->parseLimit($options['limit'] ?? null, $options['offset'] ?? null),
+            $this->parseLock($options['lock'] ?? ''),
+            $this->parseComment($options['comment'] ?? ''),
         ], $this->updateSql);
 
         if (empty($where)) {
@@ -159,12 +163,14 @@ abstract class Builder implements BuilderInterface
      */
     public function delete(array $options): SqlPrepareInterface
     {
-        $sql = str_replace(['<TABLE>', '<JOIN>', '<WHERE>', '<ORDER>', '<LIMIT>'], [
+        $sql = str_replace(['<TABLE>', '<JOIN>', '<WHERE>', '<ORDER>', '<LIMIT>', '<LOCK>', '<COMMENT>'], [
             $this->parseTable($options['table']),
-            $this->parseJoin($options['join'], $options['alias']),
-            $where = $this->parseWhere($options['where']),
-            $this->parseOrder($options['order']),
-            $this->parseLimit($options['limit']),
+            $this->parseJoin($options['join'] ?? [], $options['alias'] ?? []),
+            $where = $this->parseWhere($options['where'] ?? []),
+            $this->parseOrder($options['order'] ?? []),
+            $this->parseLimit($options['limit'] ?? null, $options['offset'] ?? null),
+            $this->parseLock($options['lock'] ?? ''),
+            $this->parseComment($options['comment'] ?? ''),
         ], $this->deleteSql);
 
         if (empty($where)) {
@@ -181,15 +187,20 @@ abstract class Builder implements BuilderInterface
      */
     public function select(array $options): SqlPrepareInterface
     {
-        $sql = str_replace(['<FIELD>', '<TABLE>', '<JOIN>', '<WHERE>', '<GROUP>', '<HAVING>', '<ORDER>', '<LIMIT>'], [
-            $this->parseField($options['field']),
-            $this->parseTable($options['table'], $options['alias']),
-            $this->parseJoin($options['join'], $options['alias']),
-            $this->parseWhere($options['where']),
-            $this->parseGroup($options['group']),
-            $this->parseHaving($options['having']),
+        $sql = str_replace(['<DISTINCT>', '<FIELD>', '<TABLE>', '<FORCE>', '<JOIN>', '<WHERE>', '<GROUP>', '<HAVING>', '<UNION>', '<ORDER>', '<LIMIT>', '<LOCK>', '<COMMENT>'], [
+            $this->parseDistinct($options['distinct'] ?? false),
+            $this->parseField($options['field'] ?? ''),
+            $this->parseTable($options['table'] ?? '', $options['alias'] ?? []),
+            $this->parseForceIndex($options['forceIndex'] ?? ''),
+            $this->parseJoin($options['join'] ?? [], $options['alias'] ?? []),
+            $this->parseWhere($options['where'] ?? []),
+            $this->parseGroup($options['group'] ?? []),
+            $this->parseHaving($options['having'] ?? []),
+            $this->parseUnion($options['union'] ?? []),
             $this->parseOrder($options['order'] ?? []),
             $this->parseLimit($options['limit'] ?? null, $options['offset'] ?? null),
+            $this->parseLock($options['lock'] ?? ''),
+            $this->parseComment($options['comment'] ?? ''),
         ], $this->selectSql);
 
         return $this->createSqlPrepare($sql);
@@ -416,6 +427,85 @@ abstract class Builder implements BuilderInterface
     }
 
     /**
+     * 解析UNION
+     * @param array $union
+     * @return string
+     */
+    public function parseUnion(array $union): string
+    {
+        if (empty($union)) {
+            return '';
+        }
+
+        $type = $union['type'];
+        $sql = [];
+
+        foreach ($union['list'] as $u) {
+            if ($u instanceof Closure) {
+                $sql[] = $type . ' ' . $this->parseClosure($u);
+            } elseif (is_string($u)) {
+                $sql[] = $type . ' ( ' . $u . ' )';
+            }
+        }
+
+        return ' ' . implode(' ', $sql);
+    }
+
+    /**
+     * 解析Distinct
+     * @param bool $distinct
+     * @return string
+     */
+    protected function parseDistinct(bool $distinct): string
+    {
+        return !empty($distinct) ? ' DISTINCT ' : '';
+    }
+
+    /**
+     * 解析Lock
+     * @param string $lockType
+     * @return string
+     */
+    public function parseLock(string $lockType): string
+    {
+        $value = match ($lockType) {
+            'lockForUpdate' => 'FOR UPDATE',
+            'sharedLock' => 'LOCK IN SHARE MODE',
+            default => '',
+        };
+
+        return empty($value) ? '' : ' ' . trim($value) . ' ';
+    }
+
+    /**
+     * 解析FORCE INDEX
+     * @param string|array $index
+     * @return string
+     */
+    public function parseForceIndex(string|array $index): string
+    {
+        if (empty($index)) {
+            return '';
+        }
+
+        if (is_array($index)) {
+            $index = implode(',', $index);
+        }
+
+        return sprintf(" FORCE INDEX ( %s ) ", $index);
+    }
+
+    /**
+     * 解析COMMENT
+     * @param string $comment
+     * @return string
+     */
+    public function parseComment(string $comment): string
+    {
+        return !empty($comment) ? ' /* ' . $comment . ' */' : '';
+    }
+
+    /**
      * 解析LIMIT
      * @param int|null $limit
      * @param int|null $offset
@@ -500,7 +590,7 @@ abstract class Builder implements BuilderInterface
             default:
                 $val = '?';
                 if ($value instanceof Closure) {
-                    $val = $this->parseClosureBuildSql($value);
+                    $val = $this->parseClosure($value);
                 } else {
                     $this->bind($value);
                 }
@@ -518,7 +608,7 @@ abstract class Builder implements BuilderInterface
     protected function parseWhereIn(string $field, mixed $value, string $op = 'IN'): string
     {
         if ($value instanceof Closure) {
-            return $this->buildWhereIn($field, $this->parseClosureBuildSql($value, false), $op);
+            return $this->buildWhereIn($field, $this->parseClosure($value, false), $op);
         }
 
         if (is_empty($value)) {
@@ -573,7 +663,7 @@ abstract class Builder implements BuilderInterface
     protected function parseWhereExists(string $field, mixed $value, string $op = 'EXISTS'): string
     {
         if ($value instanceof Closure) {
-            $value = $this->parseClosureBuildSql($value, false);
+            $value = $this->parseClosure($value, false);
         }
 
         return $this->buildWhereExists($field, $value, $op);
@@ -847,7 +937,7 @@ abstract class Builder implements BuilderInterface
      * @param bool $sub
      * @return string
      */
-    protected function parseClosureBuildSql(Closure $closure, bool $sub = true): string
+    protected function parseClosure(Closure $closure, bool $sub = true): string
     {
         return $closure()->buildSql(sub: $sub);
     }

@@ -6,7 +6,6 @@ namespace Larmias\Database\Model\Concerns;
 
 use Larmias\Database\Contracts\QueryInterface;
 use Larmias\Database\Model\Model;
-use RuntimeException;
 use function date;
 use function time;
 
@@ -31,6 +30,7 @@ trait SoftDelete
     protected bool $force = false;
 
     /**
+     * 删除
      * @return bool
      */
     public function delete(): bool
@@ -46,7 +46,7 @@ trait SoftDelete
         $this->setAttributes($data);
 
         if ($this->isForce()) {
-            $result = $this->query()->where($this->getWhere())->delete() > 0;
+            $result = $this->query()->removeOptions('soft_delete')->where($this->getWhere())->delete() > 0;
         } else {
             $result = $this->save();
         }
@@ -59,19 +59,21 @@ trait SoftDelete
     }
 
     /**
-     * @return string|int
+     * 获取软删除字段值
+     * @return string|int|null
      */
-    protected function getSoftDeleteValue(): string|int
+    protected function getSoftDeleteValue(): string|int|null
     {
         return match ($this->getSoftDeleteFieldType()) {
             'datetime' => date('Y-m-d H:i:s.u', time()),
             'timestamp' => time(),
             'integer', 'int' => 1,
-            default => throw new RuntimeException("getSoftDeleteData value parse error"),
+            default => null,
         };
     }
 
     /**
+     * 获取软删除字段类型
      * @return string
      */
     protected function getSoftDeleteFieldType(): string
@@ -80,6 +82,7 @@ trait SoftDelete
     }
 
     /**
+     * 查询排除软删除字段
      * @param QueryInterface $query
      * @return void
      */
@@ -91,6 +94,7 @@ trait SoftDelete
     }
 
     /**
+     * 是否强制删除
      * @return bool
      */
     public function isForce(): bool
@@ -99,10 +103,13 @@ trait SoftDelete
     }
 
     /**
+     * 设置强制删除
      * @param bool $force
+     * @return Model|SoftDelete
      */
-    public function force(bool $force): void
+    public function force(bool $force): self
     {
         $this->force = $force;
+        return $this;
     }
 }

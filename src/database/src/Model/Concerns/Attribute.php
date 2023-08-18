@@ -50,6 +50,18 @@ trait Attribute
     protected array $relation = [];
 
     /**
+     * 可写入的字段
+     * @var array
+     */
+    protected array $fillable = [];
+
+    /**
+     * 不可写入的字段
+     * @var array
+     */
+    protected array $guarded = [];
+
+    /**
      * 获取属性数据
      * @param string $name
      * @param bool $strict
@@ -110,13 +122,15 @@ trait Attribute
     /**
      * 批量设置属性数据
      * @param array $data
-     * @return void
+     * @return Model|Attribute
      */
-    public function setAttributes(array $data): void
+    public function setAttributes(array $data): self
     {
         foreach ($data as $name => $value) {
             $this->setAttribute($name, $value);
         }
+
+        return $this;
     }
 
     /**
@@ -162,20 +176,21 @@ trait Attribute
      */
     public function data(array $data = []): self
     {
-        return $this->fill($data,true);
+        return $this->fill($data, true);
     }
 
     /**
      * 填充数据
-     * @param  array $data 
-     * @param  bool $raw  
-     * @return Model|Attribute           
+     * @param array $data
+     * @param bool $raw
+     * @return Model|Attribute
      */
-    public function fill(array $data,bool $raw = false): self
+    public function fill(array $data, bool $raw = false): self
     {
         if ($raw) {
             $this->data = $data;
         } else {
+            $this->data = [];
             $this->setAttributes($data);
         }
 
@@ -194,6 +209,75 @@ trait Attribute
     public function getData(): array
     {
         return $this->data;
+    }
+
+    /**
+     * 设置不可写字段
+     * @return array
+     */
+    public function getFillable(): array
+    {
+        return $this->fillable;
+    }
+
+    /**
+     * 设置可写字段
+     * @param array $fillable
+     * @return Model|Attribute
+     */
+    public function fillable(array $fillable): self
+    {
+        $this->fillable = $fillable;
+
+        return $this;
+    }
+
+    /**
+     * 获取不可写字段
+     * @return array
+     */
+    public function getGuarded(): array
+    {
+        return $this->guarded;
+    }
+
+    /**
+     * 设置不可写字段
+     * @param array $guarded
+     * @return Model|Attribute
+     */
+    public function guard(array $guarded): self
+    {
+        $this->guarded = $guarded;
+        return $this;
+    }
+
+    /**
+     * 获取字段是否可写
+     * @param string $key
+     * @return bool
+     */
+    public function isFillable(string $key): bool
+    {
+        if (in_array($key, $this->getFillable())) {
+            return true;
+        }
+
+        if ($this->isGuarded($key)) {
+            return false;
+        }
+
+        return empty($this->getFillable());
+    }
+
+    /**
+     * 字段是否不可写
+     * @param string $key
+     * @return bool
+     */
+    public function isGuarded(string $key): bool
+    {
+        return !empty($this->guarded) && in_array($key, $this->getGuarded());
     }
 
     /**

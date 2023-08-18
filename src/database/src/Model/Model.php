@@ -23,10 +23,11 @@ use Stringable;
 use function Larmias\Utils\class_basename;
 use function method_exists;
 use function str_contains;
+use function array_diff;
 
 /**
- * @method static QueryInterface table(string $name)
- * @method static string getTable()
+ * @method static QueryInterface table(string|array $name)
+ * @method static mixed getTable()
  * @method static string getName()
  * @method static QueryInterface alias(string|array $name)
  * @method static QueryInterface name(string $name)
@@ -46,13 +47,14 @@ use function str_contains;
  * @method static QueryInterface whereExists(string $field, mixed $value, string $logic = 'AND')
  * @method static QueryInterface whereNotExists(string $field, mixed $value, string $logic = 'AND')
  * @method static QueryInterface whereColumn(string $field, mixed $value, string $logic = 'AND')
+ * @method static QueryInterface when(mixed $condition, mixed $query, mixed $otherwise = null)
  * @method static QueryInterface join(array|string $table, mixed $condition, string $joinType = 'INNER')
  * @method static QueryInterface innerJoin(array|string $table, mixed $condition)
  * @method static QueryInterface leftJoin(array|string $table, mixed $condition)
  * @method static QueryInterface rightJoin(array|string $table, mixed $condition)
  * @method static QueryInterface groupBy(array|string $field)
  * @method static QueryInterface groupByRaw(string $expression, array $bindings = [])
- * @method static QueryInterface orderBy(array|string $field, string $order = 'DESC')
+ * @method static QueryInterface orderBy(array|string $field, ?string $order = null)
  * @method static QueryInterface orderByRaw(string $expression, array $bindings = [])
  * @method static QueryInterface having(string $expression, array $bindings = [])
  * @method static QueryInterface orHaving(string $expression, array $bindings = [])
@@ -61,7 +63,17 @@ use function str_contains;
  * @method static QueryInterface page(int $page, int $listRows = 25)
  * @method static QueryInterface incr(string $field, float $step)
  * @method static QueryInterface decr(string $field, float $step)
+ * @method static QueryInterface useSoftDelete(string $field, array $condition)
+ * @method static QueryInterface lockForUpdate()
+ * @method static QueryInterface sharedLock()
+ * @method static QueryInterface union(mixed $union, bool $all = false)
+ * @method static QueryInterface unionAll(mixed $union)
+ * @method static QueryInterface distinct(bool $distinct = true)
+ * @method static QueryInterface forceIndex(string $index)
+ * @method static QueryInterface comment(string $comment)
+ * @method static ExpressionInterface raw(string $sql, array $bindings = [])
  * @method static QueryInterface with(string|array $with)
+ * @method static QueryInterface scope(string|array|Closure $scope, ...$args)
  * @method static int count(string $field = '*')
  * @method static float sum(string $field)
  * @method static float min(string $field)
@@ -136,6 +148,12 @@ abstract class Model implements ModelInterface, Arrayable, Jsonable, Stringable,
      * @var bool
      */
     protected bool $exists = false;
+
+    /**
+     * 全局查询作用域
+     * @var array
+     */
+    protected array $globalScope = [];
 
     /**
      * @param array $data
@@ -240,8 +258,6 @@ abstract class Model implements ModelInterface, Arrayable, Jsonable, Stringable,
     {
         $this->setAttributes($data);
 
-        $this->checkTimeStampWrite();
-
         return $this->isExists() ? $this->updateData() : $this->insertData();
     }
 
@@ -270,12 +286,12 @@ abstract class Model implements ModelInterface, Arrayable, Jsonable, Stringable,
     protected function insertData(): bool
     {
         if ($this->incrementing) {
-            $id = $this->newQuery()->insertGetId($this->data);
+            $id = $this->newQuery()->data($this->data)->insertGetId();
             $exists = !empty($id);
         } else {
             $id = $this->generateUniqueId();
             $this->setAttribute($this->getPrimaryKey(), $id);
-            $exists = $this->newQuery()->insert($this->data) > 0;
+            $exists = $this->newQuery()->data($this->data)->insert() > 0;
         }
 
         $primaryKey = $this->getPrimaryKey();
@@ -312,7 +328,7 @@ abstract class Model implements ModelInterface, Arrayable, Jsonable, Stringable,
             return true;
         }
 
-        $result = $this->newQuery()->update($data, $this->getWhere()) > 0;
+        $result = $this->newQuery()->data($data)->update(condition: $this->getWhere()) > 0;
 
         if ($result) {
             $this->refreshOrigin($data);
@@ -336,6 +352,7 @@ abstract class Model implements ModelInterface, Arrayable, Jsonable, Stringable,
     }
 
     /**
+     * 实例化查询
      * @return QueryInterface
      */
     public static function query(): QueryInterface
@@ -344,9 +361,21 @@ abstract class Model implements ModelInterface, Arrayable, Jsonable, Stringable,
     }
 
     /**
+     * 设置不使用的全局查询作用域
+     * @param array|string|null $scope
      * @return QueryInterface
      */
-    public function newQuery(): QueryInterface
+    public static function withoutGlobalScope(array|string|null $scope = null): QueryInterface
+    {
+        return static::new()->newQuery($scope);
+    }
+
+    /**
+     * 实例化查询
+     * @param array|string|null $scope
+     * @return QueryInterface
+     */
+    public function newQuery(array|string|null $scope = []): QueryInterface
     {
         $connection = $this->manager->connection($this->connection);
         $query = $this->manager->newModelQuery($connection);
@@ -355,6 +384,11 @@ abstract class Model implements ModelInterface, Arrayable, Jsonable, Stringable,
 
         if ($this->table) {
             $query->table($this->table);
+        }
+
+        if ($scope !== null) {
+            $globalScope = array_diff($this->globalScope, is_string($scope) ? explode(',', $scope) : $scope);
+            $query->scope($globalScope);
         }
 
         $this->setQueryWhere($query);

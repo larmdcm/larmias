@@ -18,7 +18,11 @@ use Larmias\Database\Query\Concerns\Transaction;
 use Larmias\Database\Query\Concerns\WhereQuery;
 use Larmias\Database\Query\Concerns\JoinQuery;
 use Larmias\Paginator\Paginator;
+use Larmias\Utils\Arr;
 use Larmias\Utils\Collection;
+use Closure;
+use RuntimeException;
+use Larmias\Utils\Str;
 use function array_map;
 use function array_merge;
 use function array_unique;
@@ -28,6 +32,8 @@ use function is_array;
 use function is_string;
 use function preg_match;
 use function call_user_func;
+use function strtoupper;
+use function count;
 use const SORT_REGULAR;
 
 abstract class BaseQuery implements QueryInterface
@@ -45,6 +51,7 @@ abstract class BaseQuery implements QueryInterface
         'primary_key' => 'id',
         'data' => [],
         'table' => '',
+        'name' => '',
         'alias' => [],
         'field' => [],
         'where' => [],
@@ -57,9 +64,9 @@ abstract class BaseQuery implements QueryInterface
         'incr' => [],
         'union' => [],
         'soft_delete' => [],
-        'lock' => false,
-        'distinct' => null,
-        'force' => null,
+        'lock' => '',
+        'distinct' => false,
+        'forceIndex' => null,
         'comment' => null,
     ];
 
@@ -74,6 +81,7 @@ abstract class BaseQuery implements QueryInterface
     protected BuilderInterface $builder;
 
     /**
+     * 设置数据
      * @param array $data
      * @return static
      */
@@ -81,6 +89,15 @@ abstract class BaseQuery implements QueryInterface
     {
         $this->options['data'] = $data;
         return $this;
+    }
+
+    /**
+     * 获取数据
+     * @return array
+     */
+    public function getData(): array
+    {
+        return $this->options['data'];
     }
 
     /**
@@ -93,7 +110,20 @@ abstract class BaseQuery implements QueryInterface
         $table = [];
 
         if (is_string($name)) {
-            $name = str_ends_with($name, ')') ? [$name] : explode(',', $name);
+            if (str_ends_with($name, ')')) {
+                $name = [$name];
+            } else {
+                $nameSplit = explode(',', $name);
+                $name = [];
+                foreach ($nameSplit as $nameItem) {
+                    if (str_contains($nameItem, ' ')) {
+                        [$item, $alias] = explode(' ', $nameItem);
+                        $name[$item] = $alias;
+                    } else {
+                        $name[] = $nameItem;
+                    }
+                }
+            }
         }
 
         foreach ($name as $key => $value) {
@@ -105,6 +135,10 @@ abstract class BaseQuery implements QueryInterface
             }
         }
 
+        if (Arr::isList($table) && count($table) == 1) {
+            $table = $table[0];
+        }
+
         $this->options['table'] = $table;
 
         return $this;
@@ -112,11 +146,20 @@ abstract class BaseQuery implements QueryInterface
 
     /**
      * 获取表名称
-     * @return string
+     * @return string|array
      */
-    public function getTable(): string
+    public function getTable(): string|array
     {
         return $this->options['table'];
+    }
+
+    /**
+     * 获取名称不含表前缀
+     * @return string
+     */
+    public function getName(): string
+    {
+        return $this->options['name'];
     }
 
     /**
@@ -140,6 +183,7 @@ abstract class BaseQuery implements QueryInterface
      */
     public function name(string $name): static
     {
+        $this->options['name'] = $name;
         return $this->table($this->connection->getConfig('prefix', '') . $name);
     }
 
@@ -352,13 +396,20 @@ abstract class BaseQuery implements QueryInterface
      */
     public function union(mixed $union, bool $all = false): static
     {
-        $this->options['union']['type'] = $all ? 'unionAll' : 'union';
+        $this->options['union']['type'] = $all ? 'UNION ALL' : 'UNION';
 
-        if (is_array($union)) {
-            $this->options['union'] = array_merge($this->options['union'], $union);
-        } else {
-            $this->options['union'][] = $union;
+        if (!isset($this->options['union']['list'])) {
+            $this->options['union']['list'] = [];
         }
+
+        $union = Arr::wrap($union);
+        foreach ($union as $key => $u) {
+            if ($u instanceof Closure) {
+                $union[$key] = $this->parseClosure($u);
+            }
+        }
+
+        $this->options['union']['list'] = array_merge($this->options['union']['list'], $union);
 
         return $this;
     }
@@ -374,7 +425,7 @@ abstract class BaseQuery implements QueryInterface
     }
 
     /**
-     * 指定distinct查询
+     * 设置distinct查询
      * @param bool $distinct
      * @return static
      */
@@ -385,13 +436,13 @@ abstract class BaseQuery implements QueryInterface
     }
 
     /**
-     * 指定强制索引
-     * @param string $force
+     * 设置强制索引
+     * @param string $index
      * @return static
      */
-    public function force(string $force): static
+    public function forceIndex(string $index): static
     {
-        $this->options['force'] = $force;
+        $this->options['forceIndex'] = $index;
         return $this;
     }
 
@@ -574,6 +625,16 @@ abstract class BaseQuery implements QueryInterface
     }
 
     /**
+     * @param string $key
+     * @return static
+     */
+    public function removeOptions(string $key): static
+    {
+        unset($this->options[$key]);
+        return $this;
+    }
+
+    /**
      * @return string
      */
     public function getPrimaryKey(): string
@@ -633,7 +694,7 @@ abstract class BaseQuery implements QueryInterface
      */
     protected function buildSelect(): SqlPrepareInterface
     {
-        if ($this->options['soft_delete']) {
+        if (!empty($this->options['soft_delete'])) {
             [$field, $condition] = $this->options['soft_delete'];
             $this->where([
                 [$field, ...$condition]
@@ -649,7 +710,7 @@ abstract class BaseQuery implements QueryInterface
      */
     protected function buildDelete(): SqlPrepareInterface
     {
-        if ($this->options['soft_delete']) {
+        if (!empty($this->options['soft_delete'])) {
             [$field, $condition] = $this->options['soft_delete'];
             if ($condition) {
                 return $this->buildSoftDelete($field, $condition);
@@ -689,6 +750,23 @@ abstract class BaseQuery implements QueryInterface
     protected function newCollection(mixed $items = []): CollectionInterface
     {
         return new Collection($items);
+    }
+
+    /**
+     * 解析闭包
+     * @param Closure $closure
+     * @return Closure
+     */
+    protected function parseClosure(Closure $closure): Closure
+    {
+        return function () use ($closure): QueryInterface {
+            $query = $this->newQuery();
+            $result = $closure($query);
+            if ($result instanceof QueryInterface) {
+                $query = $result;
+            }
+            return $query;
+        };
     }
 
     /**
@@ -767,5 +845,36 @@ abstract class BaseQuery implements QueryInterface
         }
 
         return true;
+    }
+
+    /**
+     * BaseQuery __call.
+     * @param string $method
+     * @param array $args
+     * @return mixed
+     */
+    public function __call(string $method, array $args): mixed
+    {
+        if (strtolower(substr($method, 0, 5)) == 'getby') {
+            // 根据某个字段获取记录
+            $field = Str::snake(substr($method, 5));
+            return $this->where($field, '=', $args[0])->first();
+        } elseif (strtolower(substr($method, 0, 10)) == 'getfieldby') {
+            // 根据某个字段获取记录的某个值
+            $name = Str::snake(substr($method, 10));
+            return $this->where($name, '=', $args[0])->value($args[1]);
+        } elseif (strtolower(substr($method, 0, 7)) == 'orWhere') {
+            // orWhere查询
+            $name = Str::snake(substr($method, 7));
+            array_unshift($args, $name);
+            return call_user_func_array([$this, 'orWhere'], $args);
+        } elseif (strtolower(substr($method, 0, 5)) == 'where') {
+            // where查询
+            $name = Str::snake(substr($method, 5));
+            array_unshift($args, $name);
+            return call_user_func_array([$this, 'where'], $args);
+        }
+
+        throw new RuntimeException('method not exist:' . static::class . '->' . $method);
     }
 }

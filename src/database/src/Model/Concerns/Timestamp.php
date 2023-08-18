@@ -15,29 +15,34 @@ use function time;
 trait Timestamp
 {
     /**
+     * 自动时间写入
      * @var bool
      */
     protected bool $autoWriteTimestamp = true;
 
     /**
+     * 创建时间字段
      * @var string|null
      */
-    protected ?string $createTime = 'create_time';
+    protected ?string $createTimeField = 'create_time';
 
     /**
+     * 修改时间字段
      * @var string|null
      */
-    protected ?string $updateTime = 'update_time';
+    protected ?string $updateTimeField = 'update_time';
 
     /**
+     * 时间写入类型
      * @var string
      */
     protected string $autoWriteTimestampFieldType = 'datetime';
 
     /**
+     * 获取写入时间
      * @return string|int
      */
-    protected function getTimestamp(): string|int
+    public function getTimestamp(): string|int
     {
         $nowTime = time();
         return match ($this->autoWriteTimestampFieldType) {
@@ -49,22 +54,41 @@ trait Timestamp
     }
 
     /**
+     * 检查时间写入
+     * @param array $data
+     * @param bool $isUpdate
      * @return bool
      */
-    protected function checkTimeStampWrite(): bool
+    public function checkTimeStampWrite(array &$data, bool $isUpdate = false): bool
     {
         if (!$this->autoWriteTimestamp) {
             return false;
         }
 
-        if ($this->createTime && !$this->isExists()) {
-            $this->data[$this->createTime] = $this->getTimestamp();
+        if ($this->createTimeField && !$isUpdate) {
+            $data[$this->createTimeField] = $this->getTimestamp();
         }
 
-        if ($this->updateTime && $this->isExists()) {
-            $this->data[$this->updateTime] = $this->getTimestamp();
+        if ($this->updateTimeField && $isUpdate) {
+            $data[$this->updateTimeField] = $this->getTimestamp();
         }
 
         return true;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getCreateTimeField(): ?string
+    {
+        return $this->createTimeField;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getUpdateTimeField(): ?string
+    {
+        return $this->updateTimeField;
     }
 }

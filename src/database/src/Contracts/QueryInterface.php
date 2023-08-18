@@ -35,6 +35,19 @@ interface QueryInterface
     public const BUILD_SQL_SELECT = 5;
 
     /**
+     * 设置数据
+     * @param array $data
+     * @return static
+     */
+    public function data(array $data): static;
+
+    /**
+     * 获取数据
+     * @return array
+     */
+    public function getData(): array;
+
+    /**
      * 设置表名称
      * @param string|array $name
      * @return static
@@ -43,9 +56,15 @@ interface QueryInterface
 
     /**
      * 获取表名称
+     * @return string|array
+     */
+    public function getTable(): string|array;
+
+    /**
+     * 获取名称不含表前缀
      * @return string
      */
-    public function getTable(): string;
+    public function getName(): string;
 
     /**
      * 设置表别名
@@ -184,6 +203,15 @@ interface QueryInterface
      * @return static
      */
     public function whereColumn(string $field, string $op, string $value = null, string $logic = 'AND'): static;
+
+    /**
+     * 按条件设置查询
+     * @param mixed $condition
+     * @param mixed $query
+     * @param mixed|null $otherwise
+     * @return static
+     */
+    public function when(mixed $condition, mixed $query, mixed $otherwise = null): static;
 
     /**
      * @param array|string $table
@@ -329,21 +357,21 @@ interface QueryInterface
     public function unionAll(mixed $union): static;
 
     /**
-     * 指定distinct查询
+     * 设置distinct查询
      * @param bool $distinct
      * @return static
      */
     public function distinct(bool $distinct = true): static;
 
     /**
-     * 指定强制索引
-     * @param string $force
+     * 设置强制索引
+     * @param string $index
      * @return static
      */
-    public function force(string $force): static;
+    public function forceIndex(string $index): static;
 
     /**
-     * 查询注释
+     * 设置查询注释
      * @param string $comment
      * @return static
      */

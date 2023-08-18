@@ -31,7 +31,7 @@ class Arr
      * @param mixed $value
      * @return array
      */
-    public static function add(array|ArrayAccess $array, string $key, $value): array
+    public static function add(array|ArrayAccess $array, string $key, mixed $value): array
     {
         if (is_null(static::get($array, $key))) {
             static::set($array, $key, $value);
@@ -203,10 +203,10 @@ class Arr
      * Flatten a multi-dimensional array into a single level.
      *
      * @param array $array
-     * @param  $depth
+     * @param float $depth
      * @return array
      */
-    public static function flatten(array $array, $depth = INF): array
+    public static function flatten(array $array, float $depth = INF): array
     {
         $result = [];
 
@@ -273,11 +273,11 @@ class Arr
      * Get an item from an array using "dot" notation.
      *
      * @param array|ArrayAccess $array
-     * @param string|int $key
+     * @param string|int|null $key
      * @param mixed $default
      * @return mixed
      */
-    public static function get(array|ArrayAccess $array, string|int $key, mixed $default = null): mixed
+    public static function get(array|ArrayAccess $array, string|int|null $key, mixed $default = null): mixed
     {
         if (!static::accessible($array)) {
             return value($default);
@@ -471,7 +471,7 @@ class Arr
      * @param int|null $number
      * @return mixed
      *
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public static function random(array $array, ?int $number = null): mixed
     {
@@ -481,7 +481,7 @@ class Arr
 
         if ($requested > $count) {
             throw new InvalidArgumentException(
-                "You requested {$requested} items, but there are only {$count} items available."
+                "You requested $requested items, but there are only $count items available."
             );
         }
 
@@ -489,7 +489,7 @@ class Arr
             return $array[array_rand($array)];
         }
 
-        if ((int)$number === 0) {
+        if ($number === 0) {
             return [];
         }
 

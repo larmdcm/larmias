@@ -7,7 +7,7 @@ namespace Larmias\Database\Model;
 class Pivot extends Model
 {
     /**
-     * 不自动写入时间
+     * 是否自动写入时间
      * @var bool
      */
     protected bool $autoWriteTimestamp = false;

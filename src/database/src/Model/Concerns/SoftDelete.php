@@ -52,7 +52,7 @@ trait SoftDelete
         }
 
         if ($result) {
-            $this->setExists(false);
+            $this->exists(false);
         }
 
         return $result;

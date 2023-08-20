@@ -273,7 +273,7 @@ abstract class Model implements ModelInterface, Arrayable, Jsonable, Stringable,
 
         $result = $this->newQuery()->delete($this->getWhere()) > 0;
         if ($result) {
-            $this->setExists(false);
+            $this->exists(false);
         }
 
         return $result;
@@ -295,7 +295,7 @@ abstract class Model implements ModelInterface, Arrayable, Jsonable, Stringable,
         }
 
         $primaryKey = $this->getPrimaryKey();
-        $this->setExists($exists);
+        $this->exists($exists);
 
         if ($exists) {
             if (!isset($this->data[$primaryKey]) || $this->data[$primaryKey] === '') {
@@ -464,7 +464,7 @@ abstract class Model implements ModelInterface, Arrayable, Jsonable, Stringable,
      * @param bool $exists
      * @return self
      */
-    public function setExists(bool $exists): self
+    public function exists(bool $exists): self
     {
         $this->exists = $exists;
         return $this;

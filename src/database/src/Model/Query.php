@@ -13,6 +13,7 @@ use Larmias\Database\Exceptions\ResourceNotFoundException;
 use Larmias\Utils\Arr;
 use Closure;
 use Larmias\Utils\Str;
+use Throwable;
 use function array_filter;
 use function array_map;
 use function str_contains;
@@ -93,7 +94,7 @@ class Query extends BaseQuery implements QueryInterface
     /**
      * 获取第一条数据 查询失败抛出异常
      * @return Model
-     * @throws ResourceNotFoundException|\Throwable
+     * @throws ResourceNotFoundException|Throwable
      */
     public function firstOrFail(): Model
     {
@@ -116,7 +117,7 @@ class Query extends BaseQuery implements QueryInterface
      * 根据主键查询数据 查询失败抛出异常
      * @param int|string $id
      * @return Model
-     * @throws ResourceNotFoundException|\Throwable
+     * @throws ResourceNotFoundException|Throwable
      */
     public function findOrFail(int|string $id): Model
     {

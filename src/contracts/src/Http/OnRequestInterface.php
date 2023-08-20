@@ -10,6 +10,7 @@ interface OnRequestInterface
     public const ON_REQUEST = 'onRequest';
 
     /**
+     * 请求回调
      * @param RequestInterface $request
      * @param ResponseInterface $response
      * @return void

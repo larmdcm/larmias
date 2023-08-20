@@ -196,7 +196,7 @@ trait Attribute
 
         $this->refreshOrigin();
         if ($this->getPrimaryValue()) {
-            $this->setExists(true);
+            $this->exists(true);
         }
 
         return $this;

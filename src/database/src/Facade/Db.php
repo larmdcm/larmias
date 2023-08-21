@@ -14,7 +14,7 @@ use Larmias\Database\Contracts\ExpressionInterface;
 
 /**
  * @method static QueryInterface table(string|array $name)
- * @method static mixed getTable()
+ * @method static string|array getTable()
  * @method static string getName()
  * @method static QueryInterface alias(string|array $name)
  * @method static QueryInterface name(string $name)

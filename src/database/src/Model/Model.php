@@ -9,6 +9,7 @@ use JsonSerializable;
 use Larmias\Contracts\PaginatorInterface;
 use Larmias\Database\Contracts\ExpressionInterface;
 use Larmias\Database\Contracts\ManagerInterface;
+use Larmias\Database\Model\Concerns\ModelEvent;
 use Larmias\Database\Model\Contracts\ModelInterface;
 use Larmias\Database\Model\Contracts\QueryInterface;
 use Larmias\Database\Contracts\TransactionInterface;
@@ -27,7 +28,7 @@ use function array_diff;
 
 /**
  * @method static QueryInterface table(string|array $name)
- * @method static mixed getTable()
+ * @method static string getTable()
  * @method static string getName()
  * @method static QueryInterface alias(string|array $name)
  * @method static QueryInterface name(string $name)
@@ -102,6 +103,7 @@ abstract class Model implements ModelInterface, Arrayable, Jsonable, Stringable,
     use Conversion;
     use Timestamp;
     use RelationShip;
+    use ModelEvent;
 
     /**
      * 主键

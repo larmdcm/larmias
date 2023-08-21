@@ -859,16 +859,16 @@ abstract class BaseQuery implements QueryInterface
             // 根据某个字段获取记录
             $field = Str::snake(substr($method, 5));
             return $this->where($field, '=', $args[0])->first();
-        } elseif (strtolower(substr($method, 0, 10)) == 'getfieldby') {
+        } else if (strtolower(substr($method, 0, 10)) == 'getfieldby') {
             // 根据某个字段获取记录的某个值
             $name = Str::snake(substr($method, 10));
             return $this->where($name, '=', $args[0])->value($args[1]);
-        } elseif (strtolower(substr($method, 0, 7)) == 'orWhere') {
+        } else if (strtolower(substr($method, 0, 7)) == 'orWhere') {
             // orWhere查询
             $name = Str::snake(substr($method, 7));
             array_unshift($args, $name);
             return call_user_func_array([$this, 'orWhere'], $args);
-        } elseif (strtolower(substr($method, 0, 5)) == 'where') {
+        } else if (strtolower(substr($method, 0, 5)) == 'where') {
             // where查询
             $name = Str::snake(substr($method, 5));
             array_unshift($args, $name);

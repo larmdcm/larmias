@@ -67,10 +67,12 @@ trait Timestamp
 
         if ($this->createTimeField && !$isUpdate) {
             $data[$this->createTimeField] = $this->getTimestamp();
+            $this->data[$this->createTimeField] = $data[$this->createTimeField];
         }
 
         if ($this->updateTimeField && $isUpdate) {
             $data[$this->updateTimeField] = $this->getTimestamp();
+            $this->data[$this->updateTimeField] = $data[$this->updateTimeField];
         }
 
         return true;

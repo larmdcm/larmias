@@ -31,7 +31,7 @@ trait ModelEvent
      * @param string $event
      * @return bool
      */
-    protected function fireEvent(string $event): bool
+    public function fireEvent(string $event): bool
     {
         $method = 'on' . Str::studly($event);
 

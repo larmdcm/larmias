@@ -15,6 +15,7 @@ use function date;
 use function is_numeric;
 use function is_object;
 use function json_encode;
+use function Larmias\Utils\data_get;
 use function method_exists;
 use function serialize;
 use function str_contains;
@@ -62,6 +63,12 @@ trait Attribute
     protected array $guarded = [];
 
     /**
+     * get attribute cache
+     * @var array
+     */
+    protected array $get = [];
+
+    /**
      * 获取属性数据
      * @param string $name
      * @param bool $strict
@@ -69,6 +76,10 @@ trait Attribute
      */
     public function getAttribute(string $name, bool $strict = true): mixed
     {
+        if (isset($this->get[$name])) {
+            return $this->get[$name];
+        }
+
         $method = 'get' . Str::studly($name) . 'Attr';
         $relationAttr = $this->isRelationAttr($name);
         $propertyExists = array_key_exists($name, $this->data);
@@ -94,6 +105,8 @@ trait Attribute
         if (isset($this->cast[$name])) {
             $value = $this->transformValue($this->cast[$name], $value, true);
         }
+
+        $this->get[$name] = $value;
 
         return $value;
     }
@@ -209,6 +222,50 @@ trait Attribute
     public function getData(): array
     {
         return $this->data;
+    }
+
+    /**
+     * 获取数据值
+     * @param string $name
+     * @param mixed $default
+     * @return mixed
+     */
+    public function getDataValue(string $name, mixed $default = null): mixed
+    {
+        return data_get($this->data, $name, $default);
+    }
+
+    /**
+     * 设置数据值
+     * @param string $name
+     * @param mixed $value
+     * @return Model|Attribute
+     */
+    public function setDataValue(string $name, mixed $value): self
+    {
+        $this->data[$name] = $value;
+        unset($this->get[$name]);
+        return $this;
+    }
+
+    /**
+     * 获取原始数据
+     * @return array
+     */
+    public function getOrigin(): array
+    {
+        return $this->origin;
+    }
+
+    /**
+     * 获取原始数据值
+     * @param string $name
+     * @param mixed $default
+     * @return mixed
+     */
+    public function getOriginValue(string $name, mixed $default = null): mixed
+    {
+        return data_get($this->data, $name, $default);
     }
 
     /**

@@ -260,7 +260,18 @@ abstract class Model implements ModelInterface, Arrayable, Jsonable, Stringable,
     {
         $this->setAttributes($data);
 
-        return $this->isExists() ? $this->updateData() : $this->insertData();
+        return $this->whenFireEvent(['saving', 'saved'], function (Closure $before, Closure $after) {
+            if (!$before()) {
+                return false;
+            }
+
+            $result = $this->isExists() ? $this->updateData() : $this->insertData();
+            if ($result) {
+                $after();
+                $this->refreshOrigin();
+            }
+            return $result;
+        });
     }
 
     /**
@@ -287,26 +298,34 @@ abstract class Model implements ModelInterface, Arrayable, Jsonable, Stringable,
      */
     protected function insertData(): bool
     {
-        if ($this->incrementing) {
-            $id = $this->newQuery()->data($this->data)->insertGetId();
-            $exists = !empty($id);
-        } else {
-            $id = $this->generateUniqueId();
-            $this->setAttribute($this->getPrimaryKey(), $id);
-            $exists = $this->newQuery()->data($this->data)->insert() > 0;
-        }
+        return $this->whenFireEvent(['creating', 'created'], function (Closure $before, Closure $after) {
 
-        $primaryKey = $this->getPrimaryKey();
-        $this->exists($exists);
-
-        if ($exists) {
-            if (!isset($this->data[$primaryKey]) || $this->data[$primaryKey] === '') {
-                $this->data[$primaryKey] = $id;
+            if (!$before()) {
+                return false;
             }
-            $this->refreshOrigin();
-        }
 
-        return $exists;
+            $query = $this->newQuery();
+            if ($this->incrementing) {
+                $id = $query->data($this->data)->insertGetId();
+                $exists = !empty($id);
+            } else {
+                $id = $this->generateUniqueId();
+                $this->setAttribute($this->getPrimaryKey(), $id);
+                $exists = $query->data($this->data)->insert() > 0;
+            }
+
+            $primaryKey = $this->getPrimaryKey();
+            $this->exists($exists);
+
+            if ($exists) {
+                if (!isset($this->data[$primaryKey]) || $this->data[$primaryKey] === '') {
+                    $this->data[$primaryKey] = $id;
+                }
+                $after();
+            }
+
+            return $exists;
+        });
     }
 
     /**
@@ -324,19 +343,27 @@ abstract class Model implements ModelInterface, Arrayable, Jsonable, Stringable,
      */
     protected function updateData(): bool
     {
-        $data = $this->getChangedData();
+        return $this->whenFireEvent(['updating', 'updated'], function (Closure $before, Closure $after) {
+            $data = $this->getChangedData();
 
-        if (empty($data)) {
-            return true;
-        }
+            if (empty($data)) {
+                return true;
+            }
 
-        $result = $this->newQuery()->data($data)->update(condition: $this->getWhere()) > 0;
+            if (!$before()) {
+                return false;
+            }
 
-        if ($result) {
-            $this->refreshOrigin($data);
-        }
+            $query = $this->newQuery();
 
-        return $result;
+            $result = $query->data($data)->update(condition: $this->getWhere()) > 0;
+
+            if ($result) {
+                $after();
+            }
+
+            return $result;
+        });
     }
 
     /**
@@ -411,6 +438,20 @@ abstract class Model implements ModelInterface, Arrayable, Jsonable, Stringable,
     }
 
     /**
+     * @param array $events
+     * @param Closure $handler
+     * @return mixed
+     */
+    public function whenFireEvent(array $events, Closure $handler): mixed
+    {
+        return $handler(function () use ($events) {
+            $this->fireEvent($events[0]);
+        }, function () use ($events) {
+            $this->fireEvent($events[1]);
+        });
+    }
+
+    /**
      * Model __call.
      * @param string $name
      * @param array $args
@@ -470,15 +511,6 @@ abstract class Model implements ModelInterface, Arrayable, Jsonable, Stringable,
     {
         $this->exists = $exists;
         return $this;
-    }
-
-    /**
-     * 是否处理query
-     * @return bool
-     */
-    public function isDealQuery(): bool
-    {
-        return $this->dealQuery;
     }
 
     /**

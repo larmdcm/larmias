@@ -5,10 +5,22 @@ declare(strict_types=1);
 namespace Larmias\Utils\Reflection;
 
 use ReflectionProperty;
+use RuntimeException;
+use const T_NAME_QUALIFIED;
+use const T_STRING;
+use const T_NAMESPACE;
+use const T_WHITESPACE;
+use const T_CLASS;
+use function is_file;
+use function is_readable;
+use function token_get_all;
+use function count;
+use function in_array;
 
 class ReflectUtil
 {
     /**
+     * 设置对象属性
      * @param ReflectionProperty $refProperty
      * @param object $object
      * @param mixed $value
@@ -23,6 +35,7 @@ class ReflectUtil
     }
 
     /**
+     * 获取对象属性
      * @param ReflectionProperty $refProperty
      * @param object $object
      * @return mixed
@@ -36,6 +49,7 @@ class ReflectUtil
     }
 
     /**
+     * 获取文档注释
      * @param string|object $object
      * @param string|null $method
      * @return string
@@ -51,25 +65,24 @@ class ReflectUtil
 
     /**
      * 获取文件中的所有类
-     *
      * @param string $file
      * @return array
      */
     public static function getAllClassesInFile(string $file): array
     {
-        if (!\is_file($file) || !\is_readable($file)) {
-            throw new \RuntimeException('Not a file or a readable file: ' . $file);
+        if (!is_file($file) || !is_readable($file)) {
+            throw new RuntimeException('Not a file or a readable file: ' . $file);
         }
         $classes = [];
-        $tokens = \token_get_all(file_get_contents($file));
-        $count = \count($tokens);
-        $tNamespace = [\T_NAME_QUALIFIED, \T_STRING];
+        $tokens = token_get_all(file_get_contents($file));
+        $count = count($tokens);
+        $tNamespace = [T_NAME_QUALIFIED, T_STRING];
         $namespace = '';
 
         for ($i = 2; $i < $count; $i++) {
-            if ($tokens[$i - 2][0] === \T_NAMESPACE && $tokens[$i - 1][0] === \T_WHITESPACE) {
+            if ($tokens[$i - 2][0] === T_NAMESPACE && $tokens[$i - 1][0] === T_WHITESPACE) {
                 $namespace = '';
-                if (!\in_array($tokens[$i][0], $tNamespace)) {
+                if (!in_array($tokens[$i][0], $tNamespace)) {
                     continue;
                 }
                 $tempNamespace = $tokens[$i][1] ?? '';
@@ -77,12 +90,12 @@ class ReflectUtil
                     if ($tokens[$j] === '{' || $tokens[$j] === ';') {
                         break;
                     }
-                    if (\in_array($tokens[$j][0], $tNamespace)) {
+                    if (in_array($tokens[$j][0], $tNamespace)) {
                         $tempNamespace .= '\\' . $tokens[$j][1];
                     }
                 }
                 $namespace = $tempNamespace;
-            } else if ($tokens[$i - 2][0] === \T_CLASS && $tokens[$i - 1][0] === \T_WHITESPACE && $tokens[$i][0] === \T_STRING) {
+            } else if ($tokens[$i - 2][0] === T_CLASS && $tokens[$i - 1][0] === T_WHITESPACE && $tokens[$i][0] === T_STRING) {
                 $classes[] = ($namespace ? $namespace . '\\' : '') . $tokens[$i][1];
             }
         }

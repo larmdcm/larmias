@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Larmias\Database\Query\Concerns;
 
 use Larmias\Database\Query\BaseQuery;
+use Closure;
+use Larmias\Database\Query\Contracts\JoinClauseInterface;
+use Larmias\Database\Query\JoinClause;
 
 /**
  * @mixin BaseQuery
@@ -20,7 +23,13 @@ trait JoinQuery
      */
     public function join(array|string $table, mixed $condition, string $joinType = 'INNER'): static
     {
-        $this->options['join'][] = [$table, $condition, $joinType];
+        if ($condition instanceof Closure) {
+            $on = $this->parseJoinClosure($condition);
+        } else {
+            $on = $condition;
+        }
+
+        $this->options['join'][] = [$table, $on, $joinType];
         return $this;
     }
 
@@ -55,5 +64,26 @@ trait JoinQuery
     public function rightJoin(array|string $table, mixed $condition): static
     {
         return $this->join($table, $condition, 'RIGHT');
+    }
+
+    /**
+     * 解析join闭包
+     * @param Closure $callback
+     * @return Closure
+     */
+    protected function parseJoinClosure(Closure $callback): Closure
+    {
+        return function () use ($callback): JoinClauseInterface {
+            $joinClause = new JoinClause();
+            $joinClause->setConnection($this->connection);
+            $joinClause->setBuilder($this->builder);
+            $result = $callback($joinClause);
+
+            if ($result instanceof JoinClauseInterface) {
+                $joinClause = $result;
+            }
+
+            return $joinClause;
+        };
     }
 }

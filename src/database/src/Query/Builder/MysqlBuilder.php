@@ -19,7 +19,7 @@ class MysqlBuilder extends Builder
     public function escapeField(string $field): string
     {
         if (!$field || is_numeric($field) || $field == '*' || str_ends_with($field, ')')) {
-            return $field;
+            return (string)$field;
         }
 
         $field = trim($field);

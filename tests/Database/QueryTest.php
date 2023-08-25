@@ -6,6 +6,7 @@ namespace Larmias\Tests\Database;
 
 use Larmias\Database\Contracts\QueryInterface;
 use Larmias\Database\Exceptions\DBException;
+use Larmias\Database\Query\Contracts\JoinClauseInterface;
 
 class QueryTest extends TestCase
 {
@@ -201,5 +202,20 @@ class QueryTest extends TestCase
             throw $exception;
         }
         $this->assertTrue($count > 0);
+    }
+
+    /**
+     * @return void
+     */
+    public function testJoinClause(): void
+    {
+        $query = $this->newQuery();
+        $query->table('t_user')->alias('u')->join('t_user_info i', function (JoinClauseInterface $joinClause) {
+            $joinClause->on('u.id', '=', 'i.user_id')
+                ->orOn('u.id','=','i.id')
+                ->where('u.status', 1)
+                ->orWhere('u.integral', '>', -1);
+        })->get();
+        $this->assertTrue(true);
     }
 }

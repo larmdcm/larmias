@@ -98,8 +98,8 @@ class BuilderTest extends TestCase
     {
         $builder = $this->newBuilder();
         $result = $builder->parseJoin([
-            ['user_info i', 'i.user_id = u.id', 'LEFT'],
-            ['article a', 'a.user_id = u.id', 'LEFT'],
+            ['user_info i', ['i.user_id', '=', 'u.id'], 'LEFT'],
+            ['article a', ['a.user_id', 'u.id'], 'LEFT'],
         ]);
         $this->assertSame($result, ' LEFT JOIN `user_info` `i` ON `i`.`user_id` = `u`.`id` LEFT JOIN `article` `a` ON `a`.`user_id` = `u`.`id`');
     }

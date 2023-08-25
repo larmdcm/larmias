@@ -316,11 +316,23 @@ abstract class Builder implements BuilderInterface
         foreach ($joins as $join) {
             [$table, $on, $type] = $join;
             $table = $this->parseTable($table, $alias);
-            if (str_contains($on, '=')) {
-                $onSplit = explode('=', $on, 2);
-                $on = $this->escapeField($onSplit[0]) . ' = ' . $this->escapeField($onSplit[1]);
+
+            if ($on instanceof ExpressionInterface) {
+                $condition = $this->parseExpression($on);
+            } else if ($on instanceof Closure) {
+                $condition = $this->parseWhere($on()->getOptions()['where'], false);
+            } else if (is_array($on)) {
+                if (count($on) == 2) {
+                    $val = $on[1];
+                    $on[1] = '=';
+                    $on[2] = $val;
+                }
+                $condition = $this->escapeField($on[0]) . ' ' . $on[1] . ' ' . $this->escapeField($on[2]);
+            } else {
+                $condition = $on;
             }
-            $values[] = $this->buildJoin($table, $on, $type);
+
+            $values[] = $this->buildJoin($table, $condition, $type);
         }
         return implode('', $values);
     }

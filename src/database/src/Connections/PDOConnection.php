@@ -9,6 +9,7 @@ use Larmias\Database\Contracts\ExecuteResultInterface;
 use Larmias\Database\Contracts\TransactionInterface;
 use Larmias\Database\Entity\ExecuteResult;
 use Larmias\Database\Events\QueryExecuted;
+use Larmias\Database\Events\StatementPrepared;
 use Larmias\Database\Exceptions\BindParamException;
 use Larmias\Database\Exceptions\PDOException;
 use PDO;
@@ -120,15 +121,18 @@ abstract class PDOConnection extends Connection
             $this->executeSql = $sql;
             $this->executeBindings = $bindings;
             $prepare = $this->pdo->prepare($sql);
+
             if (!empty($bindings)) {
                 $prepare = $this->bindValue($prepare, $bindings);
             }
+
+            $this->eventDispatcher->dispatch(new StatementPrepared($this, $prepare));
 
             $prepare->execute();
 
             $this->executeTime = (float)number_format((microtime(true) - $beginTime), 6);
 
-            $this->eventDispatcher->dispatch(new QueryExecuted($this->executeSql, $this->executeBindings, $this->executeTime));
+            $this->eventDispatcher->dispatch(new QueryExecuted($this, $this->executeSql, $this->executeBindings, $this->executeTime));
 
             return $prepare;
         } catch (\PDOException $e) {

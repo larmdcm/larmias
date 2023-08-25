@@ -47,7 +47,7 @@ use function array_diff;
  * @method static QueryInterface whereNotLike(string $field, mixed $value, string $logic = 'AND')
  * @method static QueryInterface whereExists(string $field, mixed $value, string $logic = 'AND')
  * @method static QueryInterface whereNotExists(string $field, mixed $value, string $logic = 'AND')
- * @method static QueryInterface whereColumn(string $field, mixed $value, string $logic = 'AND')
+ * @method static QueryInterface whereColumn(string $field, mixed $op, mixed $value, string $logic = 'AND')
  * @method static QueryInterface when(mixed $condition, mixed $query, mixed $otherwise = null)
  * @method static QueryInterface join(array|string $table, mixed $condition, string $joinType = 'INNER')
  * @method static QueryInterface innerJoin(array|string $table, mixed $condition)
@@ -284,12 +284,20 @@ abstract class Model implements ModelInterface, Arrayable, Jsonable, Stringable,
             return false;
         }
 
-        $result = $this->newQuery()->delete($this->getWhere()) > 0;
-        if ($result) {
-            $this->exists(false);
-        }
+        return $this->whenFireEvent(['deleting', 'deleted'], function (Closure $before, Closure $after) {
 
-        return $result;
+            if (!$before()) {
+                return false;
+            }
+
+            $result = $this->newQuery()->delete($this->getWhere()) > 0;
+            if ($result) {
+                $this->exists(false);
+                $after();
+            }
+
+            return $result;
+        });
     }
 
     /**
@@ -305,6 +313,7 @@ abstract class Model implements ModelInterface, Arrayable, Jsonable, Stringable,
             }
 
             $query = $this->newQuery();
+            
             if ($this->incrementing) {
                 $id = $query->data($this->data)->insertGetId();
                 $exists = !empty($id);
@@ -314,15 +323,15 @@ abstract class Model implements ModelInterface, Arrayable, Jsonable, Stringable,
                 $exists = $query->data($this->data)->insert() > 0;
             }
 
-            $primaryKey = $this->getPrimaryKey();
-            $this->exists($exists);
-
             if ($exists) {
+                $primaryKey = $this->getPrimaryKey();
                 if (!isset($this->data[$primaryKey]) || $this->data[$primaryKey] === '') {
                     $this->data[$primaryKey] = $id;
                 }
                 $after();
             }
+
+            $this->exists($exists);
 
             return $exists;
         });

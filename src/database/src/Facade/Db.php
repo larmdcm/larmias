@@ -33,7 +33,7 @@ use Larmias\Database\Contracts\ExpressionInterface;
  * @method static QueryInterface whereNotLike(string $field, mixed $value, string $logic = 'AND')
  * @method static QueryInterface whereExists(string $field, mixed $value, string $logic = 'AND')
  * @method static QueryInterface whereNotExists(string $field, mixed $value, string $logic = 'AND')
- * @method static QueryInterface whereColumn(string $field, mixed $value, string $logic = 'AND')
+ * @method static QueryInterface whereColumn(string $field, mixed $op, mixed $value, string $logic = 'AND')
  * @method static QueryInterface when(mixed $condition, mixed $query, mixed $otherwise = null)
  * @method static QueryInterface join(array|string $table, mixed $condition, string $joinType = 'INNER')
  * @method static QueryInterface innerJoin(array|string $table, mixed $condition)

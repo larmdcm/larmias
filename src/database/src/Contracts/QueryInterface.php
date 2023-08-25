@@ -197,12 +197,19 @@ interface QueryInterface
 
     /**
      * @param string $field
-     * @param string $op
+     * @param string|int $op
      * @param string|null $value
      * @param string $logic
      * @return static
      */
-    public function whereColumn(string $field, string $op, string $value = null, string $logic = 'AND'): static;
+    public function whereColumn(string $field, string|int $op, string $value = null, string $logic = 'AND'): static;
+
+    /**
+     * WHERE CLOSURE
+     * @param Closure $closure
+     * @return static
+     */
+    public function whereClosure(Closure $closure): static;
 
     /**
      * 按条件设置查询

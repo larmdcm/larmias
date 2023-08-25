@@ -6,6 +6,9 @@ namespace Larmias\Database\Connections\Transaction;
 
 use Larmias\Database\Contracts\TransactionInterface;
 use Larmias\Database\Connections\PDOConnection;
+use Larmias\Database\Events\TransactionBeginning;
+use Larmias\Database\Events\TransactionCommitted;
+use Larmias\Database\Events\TransactionRolledBack;
 use Larmias\Database\Exceptions\TransactionException;
 use function Larmias\Utils\throw_unless;
 
@@ -26,6 +29,7 @@ class PDOTransaction implements TransactionInterface
     public function beginTransaction(): TransactionInterface
     {
         throw_unless($this->connection->getPdo()->beginTransaction(), TransactionException::class, 'Transaction begin failed.');
+        $this->connection->getEventDispatcher()->dispatch(new TransactionBeginning($this->connection));
         return $this;
     }
 
@@ -37,6 +41,7 @@ class PDOTransaction implements TransactionInterface
     public function commit(): void
     {
         throw_unless($this->connection->getPdo()->commit(), TransactionException::class, 'Transaction commit failed.');
+        $this->connection->getEventDispatcher()->dispatch(new TransactionCommitted($this->connection));
     }
 
     /**
@@ -47,5 +52,6 @@ class PDOTransaction implements TransactionInterface
     public function rollback(): void
     {
         throw_unless($this->connection->getPdo()->rollBack(), TransactionException::class, 'Transaction rollback failed.');
+        $this->connection->getEventDispatcher()->dispatch(new TransactionRolledBack($this->connection));
     }
 }

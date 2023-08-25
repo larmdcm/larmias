@@ -7,6 +7,7 @@ namespace Larmias\Database\Connections;
 class MysqlConnection extends PDOConnection
 {
     /**
+     * 解析连接信息
      * @param array $config
      * @return string
      */

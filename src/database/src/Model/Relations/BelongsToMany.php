@@ -220,7 +220,7 @@ class BelongsToMany extends Relation
             $this->foreignKey, $this->foreignKey, $this->localKey, $this->localKey);
         return $model->alias($model->getTable())
             ->field($field)
-            ->join([$pivot->getTable() => 'pivot'], sprintf('pivot.%s = %s.%s', $this->foreignKey, $model->getTable(), $model->getPrimaryKey()))
+            ->join([$pivot->getTable() => 'pivot'], ['pivot.' . $this->foreignKey, $model->getTable() . '.' . $model->getPrimaryKey()])
             ->where($where);
     }
 

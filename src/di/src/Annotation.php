@@ -22,6 +22,7 @@ use function is_string;
 class Annotation implements AnnotationInterface
 {
     /**
+     * 配置
      * @var array|array[]
      */
     protected array $config = [
@@ -45,6 +46,7 @@ class Annotation implements AnnotationInterface
     }
 
     /**
+     * 注解扫描
      * @throws \ReflectionException
      */
     public function scan(): void
@@ -99,8 +101,15 @@ class Annotation implements AnnotationInterface
             return;
         }
         $refClass = ReflectionManager::reflectClass($class);
+
         // 解析类注解
         $this->parseClassAnnotation($refClass);
+
+        // 解析属性注解
+        foreach ($refClass->getProperties() as $refProperty) {
+            $this->parsePropertiesAnnotation($refClass, $refProperty);
+        }
+
         // 解析方法注解
         foreach ($refClass->getMethods() as $refMethod) {
             $this->parseMethodAnnotation($refClass, $refMethod);
@@ -109,13 +118,10 @@ class Annotation implements AnnotationInterface
                 $this->parseMethodParameterAnnotation($refClass, $refMethod, $refParameter);
             }
         }
-        // 解析属性注解
-        foreach ($refClass->getProperties() as $refProperty) {
-            $this->parsePropertiesAnnotation($refClass, $refProperty);
-        }
     }
 
     /**
+     * 解析类注解
      * @param ReflectionClass $refClass
      * @return void
      */
@@ -126,31 +132,46 @@ class Annotation implements AnnotationInterface
     }
 
     /**
+     * 获取类注解
      * @param ReflectionClass $refClass
      * @return array
      */
     protected function getClassAnnotation(ReflectionClass $refClass): array
     {
-        $annotations = $this->buildAttribute($refClass->getAttributes());
+        $annotations = $this->buildAttributes($refClass->getAttributes());
         $parentClass = $refClass->getParentClass();
         if ($parentClass) {
             $parentAnnotations = $this->getClassAnnotation($parentClass);
-            return $this->handleAnnotationExtend($annotations, $parentAnnotations);
+            return $this->mergeAnnotation($annotations, $parentAnnotations);
         }
         return $annotations;
     }
 
     /**
+     * 解析属性注解
+     * @param ReflectionClass $refClass
+     * @param ReflectionProperty $refProperty
+     * @return void
+     */
+    protected function parsePropertiesAnnotation(ReflectionClass $refClass, ReflectionProperty $refProperty): void
+    {
+        $annotations = $this->buildAttributes($refProperty->getAttributes());
+        AnnotationCollector::collectProperty($refClass->getName(), $refProperty->getName(), $annotations);
+    }
+
+    /**
+     * 解析方法注解
      * @param ReflectionClass $refClass
      * @param ReflectionMethod $refMethod
      * @return void
      */
     protected function parseMethodAnnotation(ReflectionClass $refClass, ReflectionMethod $refMethod): void
     {
-        AnnotationCollector::collectMethod($refClass->getName(), $refMethod->getName(), $this->buildAttribute($refMethod->getAttributes()));
+        AnnotationCollector::collectMethod($refClass->getName(), $refMethod->getName(), $this->buildAttributes($refMethod->getAttributes()));
     }
 
     /**
+     * 解析方法参数注解
      * @param ReflectionClass $refClass
      * @param ReflectionMethod $refMethod
      * @param ReflectionParameter $refParameter
@@ -158,54 +179,33 @@ class Annotation implements AnnotationInterface
      */
     protected function parseMethodParameterAnnotation(ReflectionClass $refClass, ReflectionMethod $refMethod, ReflectionParameter $refParameter): void
     {
-        AnnotationCollector::collectMethodParam($refClass->getName(), $refMethod->getName(), $refParameter->getName(), $this->buildAttribute($refParameter->getAttributes()));
+        AnnotationCollector::collectMethodParam($refClass->getName(), $refMethod->getName(), $refParameter->getName(), $this->buildAttributes($refParameter->getAttributes()));
     }
 
     /**
-     * @throws \ReflectionException
-     */
-    protected function parsePropertiesAnnotation(ReflectionClass $refClass, ReflectionProperty $refProperty): void
-    {
-        $annotations = $this->getPropertiesAnnotation($refProperty);
-        AnnotationCollector::collectProperty($refClass->getName(), $refProperty->getName(), $annotations);
-    }
-
-    /**
-     * @throws \ReflectionException
-     */
-    protected function getPropertiesAnnotation(ReflectionProperty $refProperty): array
-    {
-        $annotations = $this->buildAttribute($refProperty->getAttributes());
-        $parentClass = $refProperty->getDeclaringClass()->getParentClass();
-        if ($parentClass && $parentClass->hasProperty($refProperty->getName())) {
-            $parentProperty = $parentClass->getProperty($refProperty->getName());
-            $parentAnnotations = $this->getPropertiesAnnotation($parentProperty);
-            return $this->handleAnnotationExtend($annotations, $parentAnnotations);
-        }
-        return $annotations;
-    }
-
-    /**
+     * 合并注解
      * @param array $annotations
      * @param array $parentAnnotations
      * @return array
      */
-    protected function handleAnnotationExtend(array $annotations, array $parentAnnotations): array
+    protected function mergeAnnotation(array $annotations, array $parentAnnotations): array
     {
         return array_merge($parentAnnotations, $annotations);
     }
 
     /**
+     * 构建注解列表
      * @param array $attributes
      * @return array
      */
-    protected function buildAttribute(array $attributes): array
+    protected function buildAttributes(array $attributes): array
     {
         $annotations = [];
         foreach ($attributes as $attribute) {
             if ($attribute instanceof ReflectionAttribute) {
-                if (class_exists($attribute->getName())) {
-                    $annotations[$attribute->getName()][] = $attribute->newInstance();
+                $className = $attribute->getName();
+                if (class_exists($className)) {
+                    $annotations[$className][] = $attribute->newInstance();
                 }
             }
         }
@@ -215,7 +215,7 @@ class Annotation implements AnnotationInterface
     /**
      * @param string|array $annotations
      * @param string $handler
-     * @return $this
+     * @return self
      */
     public function addHandler(string|array $annotations, string $handler): self
     {

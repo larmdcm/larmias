@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Tests\Database;
+namespace LarmiasTest\Database;
 
 class ConnectionTest extends TestCase
 {

@@ -1,6 +1,8 @@
 <?php
 
-namespace Larmias\Tests;
+declare(strict_types=1);
+
+namespace LarmiasTest;
 
 use Larmias\Config\Config;
 use Larmias\Contracts\ConfigInterface;

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Tests\Database;
+namespace LarmiasTest\Database;
 
 use Larmias\Database\Contracts\ConnectionInterface;
 use Larmias\Database\Contracts\ManagerInterface;
@@ -16,7 +16,7 @@ use Larmias\Event\ListenerProviderFactory;
 use Larmias\Facade\AbstractFacade;
 use PHPUnit\Framework\TestCase as BaseTestCase;
 use Psr\EventDispatcher\ListenerProviderInterface;
-use function Larmias\Tests\container;
+use function LarmiasTest\container;
 use function Larmias\Utils\format_exception;
 
 class TestCase extends BaseTestCase

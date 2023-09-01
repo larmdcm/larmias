@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Tests\Database;
+namespace LarmiasTest\Database;
 
 use Larmias\Database\Events\QueryExecuted;
 use Larmias\Database\Facade\Db;

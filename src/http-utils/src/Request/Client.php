@@ -142,10 +142,8 @@ class Client implements ClientInterface
                 $handler = new CurlRequestHandler();
             } else if (is_string($handler)) {
                 $handler = new $handler();
-            } else {
-                if ($handler instanceof Closure) {
-                    return $handler($request, $options);
-                }
+            } else if ($handler instanceof Closure) {
+                return $handler($request, $options);
             }
             /** @var RequestHandlerInterface $handler */
             return $handler->send($request, $options);

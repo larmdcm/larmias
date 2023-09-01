@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Tests\Database\Model;
+namespace LarmiasTest\Database\Model;
 
 use Larmias\Database\Model\Model;
 use Larmias\Database\Model\Relations\BelongsToMany;

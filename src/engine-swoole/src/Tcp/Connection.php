@@ -6,15 +6,15 @@ namespace Larmias\Engine\Swoole\Tcp;
 
 use Larmias\Contracts\Tcp\ConnectionInterface;
 use Larmias\Engine\Swoole\Contracts\PackerInterface;
-use Swoole\Coroutine\Server\Connection as TCPConnection;
+use Swoole\Coroutine\Server\Connection as TcpConnection;
 
 class Connection implements ConnectionInterface
 {
     /**
-     * @param TCPConnection $connection
+     * @param TcpConnection $connection
      * @param PackerInterface $packer
      */
-    public function __construct(protected TCPConnection $connection, protected PackerInterface $packer)
+    public function __construct(protected TcpConnection $connection, protected PackerInterface $packer)
     {
     }
 
@@ -56,9 +56,9 @@ class Connection implements ConnectionInterface
     }
 
     /**
-     * @return TCPConnection
+     * @return TcpConnection
      */
-    public function getRawConnection(): TCPConnection
+    public function getRawConnection(): TcpConnection
     {
         return $this->connection;
     }

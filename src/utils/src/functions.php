@@ -24,7 +24,7 @@ function println(string|Stringable $format = null, ...$args): void
 /**
  * 格式化异常信息
  *
- * @param \Throwable $e
+ * @param Throwable $e
  * @param bool $trace
  * @return string
  */
@@ -140,7 +140,7 @@ function data_fill(mixed &$target, string|array $key, mixed $value): mixed
  * Get an item from an array or object using "dot" notation.
  *
  * @param mixed $target
- * @param string|array $key
+ * @param string|array|null $key
  * @param mixed $default
  * @return mixed
  */

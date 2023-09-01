@@ -2,9 +2,8 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Tests\Database;
+namespace LarmiasTest\Database;
 
-use Couchbase\ViewOptions;
 use Larmias\Database\Entity\Expression;
 
 class BuilderTest extends TestCase

@@ -1,5 +1,6 @@
 #!/usr/bin/env php
 <?php
+
 declare (strict_types=1);
 
 foreach ([__DIR__ . '/../vendor/autoload.php'] as $file) {
@@ -29,6 +30,6 @@ $_SERVER['argv'] = $argv;
 
 require __DIR__ . '/bootstrap.php';
 
-$exitCode = \Larmias\Tests\main($env);
+$exitCode = \LarmiasTest\main($env);
 
 exit($exitCode);

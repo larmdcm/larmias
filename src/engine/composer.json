@@ -4,8 +4,8 @@
     "type": "library",
     "keywords": [
         "larmias",
-        "server",
-        "Alarm"
+        "engine",
+        "server"
     ],
     "homepage": "https://larmias.com/",
     "license": "MIT",

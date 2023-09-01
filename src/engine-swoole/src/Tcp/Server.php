@@ -8,8 +8,8 @@ use Larmias\Engine\Swoole\Contracts\PackerInterface;
 use Larmias\Engine\Swoole\Packer\Buffer;
 use Larmias\Engine\Swoole\Packer\EmptyPacker;
 use Larmias\Engine\Swoole\Server as BaseServer;
-use Swoole\Coroutine\Server as TCPServer;
-use Swoole\Coroutine\Server\Connection as TCPConnection;
+use Swoole\Coroutine\Server as CoServer;
+use Swoole\Coroutine\Server\Connection as TcpConnection;
 use Swoole\Exception as SwooleException;
 use Larmias\Engine\Event;
 use Throwable;
@@ -17,9 +17,9 @@ use Throwable;
 class Server extends BaseServer
 {
     /**
-     * @var TCPServer
+     * @var CoServer
      */
-    protected TCPServer $server;
+    protected CoServer $server;
 
     /**
      * @var PackerInterface
@@ -32,7 +32,7 @@ class Server extends BaseServer
      */
     public function process(): void
     {
-        $this->server = new TCPServer($this->getWorkerConfig()->getHost(), $this->getWorkerConfig()->getPort(),
+        $this->server = new CoServer($this->getWorkerConfig()->getHost(), $this->getWorkerConfig()->getPort(),
             $this->getSettings('ssl', false),
             $this->getSettings('reuse_port', true)
         );
@@ -41,7 +41,7 @@ class Server extends BaseServer
 
         $this->packer = $this->newPacker();
 
-        $this->server->handle(function (TCPConnection $tcpConnection) {
+        $this->server->handle(function (TcpConnection $tcpConnection) {
             try {
                 $connection = new Connection($tcpConnection, $this->packer);
                 $this->trigger(Event::ON_CONNECT, [$connection]);

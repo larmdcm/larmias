@@ -14,6 +14,7 @@ class AnnotationCollector
     public static array $container = [];
 
     /**
+     * 收集类注解
      * @param string $class
      * @param array $annotations
      * @return void
@@ -26,6 +27,21 @@ class AnnotationCollector
     }
 
     /**
+     * 收集类属性注解
+     * @param string $class
+     * @param string $property
+     * @param array $annotations
+     * @return void
+     */
+    public static function collectProperty(string $class, string $property, array $annotations): void
+    {
+        foreach ($annotations as $annotation => $value) {
+            static::$container[$class]['property'][$property][$annotation] = $value;
+        }
+    }
+
+    /**
+     * 收集方法注解
      * @param string $class
      * @param string $method
      * @param array $annotations
@@ -39,6 +55,7 @@ class AnnotationCollector
     }
 
     /**
+     * 收集方法参数注解
      * @param string $class
      * @param string $method
      * @param string $param
@@ -49,19 +66,6 @@ class AnnotationCollector
     {
         foreach ($annotations as $annotation => $value) {
             static::$container[$class]['methodParam'][$method][$param][$annotation] = $value;
-        }
-    }
-
-    /**
-     * @param string $class
-     * @param string $property
-     * @param array $annotations
-     * @return void
-     */
-    public static function collectProperty(string $class, string $property, array $annotations): void
-    {
-        foreach ($annotations as $annotation => $value) {
-            static::$container[$class]['property'][$property][$annotation] = $value;
         }
     }
 

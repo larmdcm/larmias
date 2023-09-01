@@ -8,6 +8,9 @@ use InvalidArgumentException;
 use ReflectionClass;
 use ReflectionMethod;
 use ReflectionProperty;
+use ReflectionException;
+use function is_object;
+use function get_class;
 
 class ReflectionManager
 {
@@ -21,13 +24,13 @@ class ReflectionManager
     ];
 
     /**
-     * @param string|string $object
+     * @param string|object $object
      * @return ReflectionClass
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public static function reflectClass(string|object $object): ReflectionClass
     {
-        $className = \is_object($object) ? \get_class($object) : $object;
+        $className = is_object($object) ? get_class($object) : $object;
         if (!isset(static::$container['class'][$className])) {
             if (!class_exists($className) && !interface_exists($className) && !trait_exists($className)) {
                 throw new InvalidArgumentException("Class {$className} not exist");
@@ -42,17 +45,17 @@ class ReflectionManager
      * @param string $method
      * @param bool $staticClass
      * @return ReflectionMethod
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
-    public static function reflectMethod(string|object $object, string $method,bool $staticClass = false): ReflectionMethod
+    public static function reflectMethod(string|object $object, string $method, bool $staticClass = false): ReflectionMethod
     {
-        $className = \is_object($object) ? \get_class($object) : $object;
+        $className = is_object($object) ? get_class($object) : $object;
         $key = $className . '::' . $method;
         if (!isset(static::$container['method'][$key])) {
             if (!class_exists($className)) {
                 throw new InvalidArgumentException("Class {$className} not exist");
             }
-            static::$container['method'][$key] = $staticClass ? new ReflectionMethod($className,$method) : static::reflectClass($object)->getMethod($method);
+            static::$container['method'][$key] = $staticClass ? new ReflectionMethod($className, $method) : static::reflectClass($object)->getMethod($method);
         }
         return static::$container['method'][$key];
     }
@@ -61,11 +64,11 @@ class ReflectionManager
      * @param string|object $object
      * @param string $property
      * @return ReflectionProperty
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public static function reflectProperty(string|object $object, string $property): ReflectionProperty
     {
-        $className = \is_object($object) ? \get_class($object) : $object;
+        $className = is_object($object) ? get_class($object) : $object;
         $key = $className . '::' . $property;
         if (!isset(static::$container['property'][$key])) {
             if (!class_exists($className)) {

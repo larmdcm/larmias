@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Tests\Database;
+namespace LarmiasTest\Database;
 
 use Larmias\Database\Contracts\QueryInterface;
 use Larmias\Database\Exceptions\DBException;

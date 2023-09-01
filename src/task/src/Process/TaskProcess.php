@@ -20,6 +20,7 @@ class TaskProcess
      * @param ContainerInterface $container
      * @param WorkerInterface $worker
      * @param ConfigInterface $config
+     * @throws \Throwable
      */
     public function __construct(protected ContainerInterface $container, protected WorkerInterface $worker, protected ConfigInterface $config)
     {

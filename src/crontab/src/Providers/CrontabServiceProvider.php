@@ -6,14 +6,14 @@ namespace Larmias\Crontab\Providers;
 
 use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\ServiceProviderInterface;
+use Larmias\Contracts\ApplicationInterface;
+use Larmias\Contracts\VendorPublishInterface;
 use Larmias\Crontab\Contracts\ExecutorInterface;
 use Larmias\Crontab\Contracts\ParserInterface;
 use Larmias\Crontab\Contracts\SchedulerInterface;
 use Larmias\Crontab\Executor\WorkerExecutor;
 use Larmias\Crontab\Parser;
 use Larmias\Crontab\Scheduler;
-use Larmias\Contracts\ApplicationInterface;
-use Larmias\Contracts\VendorPublishInterface;
 
 class CrontabServiceProvider implements ServiceProviderInterface
 {

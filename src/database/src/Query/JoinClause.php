@@ -12,8 +12,8 @@ class JoinClause extends BaseQuery implements JoinClauseInterface
     /**
      * JOIN ON
      * @param mixed $field
-     * @param mixed|null $op
-     * @param mixed|null $value
+     * @param mixed $op
+     * @param mixed $value
      * @param string $logic
      * @return static
      */
@@ -29,8 +29,8 @@ class JoinClause extends BaseQuery implements JoinClauseInterface
     /**
      * JOIN OR ON
      * @param mixed $field
-     * @param mixed|null $op
-     * @param mixed|null $value
+     * @param mixed $op
+     * @param mixed $value
      * @return static
      */
     public function orOn(mixed $field, mixed $op = null, mixed $value = null): static

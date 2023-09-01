@@ -13,7 +13,9 @@ use RuntimeException;
 
 class AnnotationManager
 {
-    /** @var Annotation[] */
+    /**
+     * @var Annotation[]
+     */
     protected static array $container = [];
 
     /**

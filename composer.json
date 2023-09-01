@@ -160,7 +160,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Larmias\\Tests\\": "tests/"
+            "LarmiasTest\\": "tests/"
         }
     },
     "extra": {

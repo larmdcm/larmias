@@ -15,6 +15,7 @@ use Larmias\Engine\Contracts\EngineConfigInterface;
 use Larmias\Engine\Contracts\KernelInterface;
 use Larmias\Engine\Contracts\WorkerConfigInterface;
 use Larmias\Engine\Contracts\WorkerInterface;
+use Larmias\Contracts\Worker\WorkerInterface as BaseWorkerInterface;
 use Larmias\Contracts\ContainerInterface;
 use Larmias\Engine\Coroutine\Channel;
 use Larmias\Engine\Factory\ChannelFactory;
@@ -90,20 +91,20 @@ abstract class Worker implements WorkerInterface
     {
         $bind = [
             EventLoopInterface::class => $this->kernel->getDriver()->getEventLoopClass(),
-            TimerInterface::class => $this->kernel->getDriver()->getTimerClass(),
-            SignalInterface::class => $this->kernel->getDriver()->getSignalClass(),
             ContextInterface::class => $this->kernel->getDriver()->getContextClass(),
-            WorkerInterface::class => $this,
-            \Larmias\Contracts\Worker\WorkerInterface::class => $this,
-            ChannelFactoryInterface::class => ChannelFactory::class,
+            SignalInterface::class => $this->kernel->getDriver()->getSignalClass(),
+            TimerInterface::class => $this->kernel->getDriver()->getTimerClass(),
             CoroutineFactoryInterface::class => CoroutineFactory::class,
+            ChannelFactoryInterface::class => ChannelFactory::class,
+            BaseWorkerInterface::class => $this,
+            WorkerInterface::class => $this,
         ];
 
         $init = [
             EventLoop::class => EventLoopInterface::class,
-            Timer::class => TimerInterface::class,
-            Signal::class => SignalInterface::class,
             Context::class => ContextInterface::class,
+            Signal::class => SignalInterface::class,
+            Timer::class => TimerInterface::class,
         ];
 
         $this->container->bind($bind);

@@ -13,7 +13,7 @@ use function call_user_func;
 /**
  * @method static int pid(?int $id = null)
  * @method static void set(array $config)
- * @method static \ArrayObject|null getContextFor(?int $id = null)
+ * @method static ArrayObject|null getContextFor(?int $id = null)
  */
 class Coroutine
 {
@@ -39,9 +39,9 @@ class Coroutine
     public static function create(callable $callable, ...$params): CoroutineInterface
     {
         if (static::isSupport()) {
-            return call_user_func([static::$coClass, __FUNCTION__], $callable, ...$params);   
+            return call_user_func([static::$coClass, __FUNCTION__], $callable, ...$params);
         }
-        
+
         $callable(...$params);
         return new class($callable) implements CoroutineInterface {
             /**

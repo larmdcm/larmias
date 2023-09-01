@@ -16,7 +16,11 @@ use const JSON_THROW_ON_ERROR;
 class Json
 {
     /**
+     * JSON编码
      * @param mixed $data
+     * @param int $flags
+     * @param int $depth
+     * @return string
      * @throws InvalidArgumentException
      */
     public static function encode(mixed $data, int $flags = JSON_UNESCAPED_UNICODE, int $depth = 512): string
@@ -39,6 +43,12 @@ class Json
     }
 
     /**
+     * JSON解码
+     * @param string $json
+     * @param bool $assoc
+     * @param int $depth
+     * @param int $flags
+     * @return mixed
      * @throws InvalidArgumentException
      */
     public static function decode(string $json, bool $assoc = true, int $depth = 512, int $flags = 0): mixed

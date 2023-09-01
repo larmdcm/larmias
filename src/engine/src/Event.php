@@ -7,9 +7,6 @@ namespace Larmias\Engine;
 class Event
 {
     /** @var string */
-    public const ON_BEFORE_START = 'beforeStart';
-
-    /** @var string */
     public const ON_WORKER_START = 'workerStart';
 
     /** @var string */
@@ -38,9 +35,6 @@ class Event
 
     /** @var string */
     public const ON_MESSAGE = 'message';
-
-    /** @var string */
-    public const ON_ERROR = 'error';
 
     /** @var string */
     public const ON_CLOSE = 'close';

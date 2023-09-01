@@ -123,6 +123,7 @@ class Kernel implements KernelInterface
     /**
      * @param bool $force
      * @return void
+     * @throws \Throwable
      */
     public function restart(bool $force = true): void
     {

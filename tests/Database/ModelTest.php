@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Tests\Database;
+namespace LarmiasTest\Database;
 
-use Larmias\Tests\Database\Model\UserModel;
-use Larmias\Tests\Database\Model\UserScopeModel;
-use Larmias\Tests\Database\Model\UserTModel;
-use Larmias\Tests\Database\Model\UserInfoModel;
+use LarmiasTest\Database\Model\UserModel;
+use LarmiasTest\Database\Model\UserScopeModel;
+use LarmiasTest\Database\Model\UserTModel;
+use LarmiasTest\Database\Model\UserInfoModel;
 
 class ModelTest extends TestCase
 {

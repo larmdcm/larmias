@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Tests\Lock;
+namespace LarmiasTest\Lock;
 
 use Larmias\Lock\LockUtils;
 

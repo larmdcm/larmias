@@ -33,7 +33,7 @@ class EngineServiceProvider implements ServiceProviderInterface
         if ($this->container->has(ApplicationInterface::class) && $this->container->has(VendorPublishInterface::class)) {
             $app = $this->container->get(ApplicationInterface::class);
             $this->container->get(VendorPublishInterface::class)->publishes(static::class, [
-                __DIR__ . '/../../publish/worker.php' => $app->getConfigPath() . 'worker.php',
+                __DIR__ . '/../../publish/engine.php' => $app->getConfigPath() . 'engine.php',
             ]);
         }
     }

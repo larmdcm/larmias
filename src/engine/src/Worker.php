@@ -4,29 +4,33 @@ declare(strict_types=1);
 
 namespace Larmias\Engine;
 
+use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\ContextInterface;
 use Larmias\Contracts\Coroutine\ChannelFactoryInterface;
 use Larmias\Contracts\Coroutine\CoroutineFactoryInterface;
+use Larmias\Contracts\Coroutine\CoroutineInterface;
 use Larmias\Contracts\EventLoopInterface;
 use Larmias\Contracts\SignalInterface;
 use Larmias\Contracts\TimerInterface;
+use Larmias\Contracts\Worker\WorkerInterface as BaseWorkerInterface;
 use Larmias\Engine\Bootstrap\WorkerStartCallback;
 use Larmias\Engine\Contracts\EngineConfigInterface;
 use Larmias\Engine\Contracts\KernelInterface;
 use Larmias\Engine\Contracts\WorkerConfigInterface;
 use Larmias\Engine\Contracts\WorkerInterface;
-use Larmias\Contracts\Worker\WorkerInterface as BaseWorkerInterface;
-use Larmias\Contracts\ContainerInterface;
 use Larmias\Engine\Coroutine\Channel;
+use Larmias\Engine\Coroutine\Coroutine;
 use Larmias\Engine\Factory\ChannelFactory;
 use Larmias\Engine\Factory\CoroutineFactory;
-use function Larmias\Utils\data_get;
-use function extension_loaded;
-use function is_array;
-use function mt_srand;
-use function is_callable;
+use Larmias\Engine\Coroutine as EngineCo;
+use Throwable;
 use function array_merge;
 use function call_user_func;
+use function extension_loaded;
+use function is_array;
+use function is_callable;
+use function Larmias\Utils\data_get;
+use function mt_srand;
 
 abstract class Worker implements WorkerInterface
 {
@@ -73,7 +77,7 @@ abstract class Worker implements WorkerInterface
 
     /**
      * @param int $workerId
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function start(int $workerId): void
     {
@@ -85,7 +89,7 @@ abstract class Worker implements WorkerInterface
 
     /**
      * @return void
-     * @throws \Throwable
+     * @throws Throwable
      */
     protected function bind(): void
     {
@@ -95,6 +99,7 @@ abstract class Worker implements WorkerInterface
             SignalInterface::class => $this->kernel->getDriver()->getSignalClass(),
             TimerInterface::class => $this->kernel->getDriver()->getTimerClass(),
             CoroutineFactoryInterface::class => CoroutineFactory::class,
+            CoroutineInterface::class => Coroutine::class,
             ChannelFactoryInterface::class => ChannelFactory::class,
             BaseWorkerInterface::class => $this,
             WorkerInterface::class => $this,
@@ -109,7 +114,7 @@ abstract class Worker implements WorkerInterface
 
         $this->container->bind($bind);
 
-        Coroutine::init($this->kernel->getDriver()->getCoroutineClass());
+        EngineCo::init($this->kernel->getDriver()->getCoroutineClass());
         Channel::init($this->kernel->getDriver()->getChannelClass());
 
         foreach ($init as $name => $value) {
@@ -146,7 +151,7 @@ abstract class Worker implements WorkerInterface
      * 触发回调函数
      * @param string $event
      * @param array $args
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function trigger(string $event, array $args = []): void
     {

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Larmias\Engine;
 
 use ArrayObject;
+use Larmias\Contracts\Coroutine\CoroutineCallableInterface;
 use RuntimeException;
-use Larmias\Contracts\CoroutineInterface;
 use function call_user_func_array;
 use function call_user_func;
 
@@ -34,65 +34,26 @@ class Coroutine
     /**
      * @param callable $callable
      * @param ...$params
-     * @return CoroutineInterface
+     * @return CoroutineCallableInterface
      */
-    public static function create(callable $callable, ...$params): CoroutineInterface
+    public static function create(callable $callable, ...$params): CoroutineCallableInterface
     {
         if (static::isSupport()) {
             return call_user_func([static::$coClass, __FUNCTION__], $callable, ...$params);
         }
 
         $callable(...$params);
-        return new class($callable) implements CoroutineInterface {
-            /**
-             * @var callable
-             */
-            protected $callback;
 
-            public function __construct(callable $callback)
-            {
-                $this->callback = $callback;
-            }
+        return new class() implements CoroutineCallableInterface {
 
-            public static function create(callable $callable, ...$params): CoroutineInterface
+            public function execute(callable $callable, ...$params): CoroutineCallableInterface
             {
-                throw new RuntimeException('Not supported.');
-            }
-
-            public function execute(...$params): CoroutineInterface
-            {
-                call_user_func_array($this->callback, $params);
                 return $this;
             }
 
             public function getId(): int
             {
-                return 0;
-            }
-
-            public static function id(): int
-            {
-                throw new RuntimeException('Not supported.');
-            }
-
-            public static function pid(?int $id = null): int
-            {
-                throw new RuntimeException('Not supported.');
-            }
-
-            public static function set(array $config): void
-            {
-                throw new RuntimeException('Not supported.');
-            }
-
-            public static function defer(callable $callable): void
-            {
-                throw new RuntimeException('Not supported.');
-            }
-
-            public static function getContextFor(?int $id = null): ?ArrayObject
-            {
-                throw new RuntimeException('Not supported.');
+                return -1;
             }
         };
     }

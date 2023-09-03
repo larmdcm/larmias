@@ -19,9 +19,9 @@ interface KernelInterface
 
     /**
      * @param WorkerConfigInterface $workerConfig
-     * @return WorkerInterface
+     * @return WorkerInterface|null
      */
-    public function addWorker(WorkerConfigInterface $workerConfig): WorkerInterface;
+    public function addWorker(WorkerConfigInterface $workerConfig): ?WorkerInterface;
 
     /**
      * @return WorkerInterface[]

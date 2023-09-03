@@ -13,6 +13,7 @@ use Larmias\Engine\Contracts\WorkerInterface;
 use Larmias\Contracts\ContainerInterface;
 use RuntimeException;
 use function class_exists;
+use function count;
 
 class Kernel implements KernelInterface
 {
@@ -61,7 +62,9 @@ class Kernel implements KernelInterface
     {
         $workers = $this->engineConfig->getWorkers();
         foreach ($workers as $workerConfig) {
-            $this->addWorker($workerConfig);
+            if (!$this->addWorker($workerConfig)) {
+                break;
+            }
         }
         $this->container->invoke([BeforeStartCallback::class, 'onBeforeStart'], [$this]);
         $this->driver->run($this);
@@ -69,10 +72,14 @@ class Kernel implements KernelInterface
 
     /**
      * @param WorkerConfigInterface $workerConfig
-     * @return WorkerInterface
+     * @return WorkerInterface|null
      */
-    public function addWorker(WorkerConfigInterface $workerConfig): WorkerInterface
+    public function addWorker(WorkerConfigInterface $workerConfig): ?WorkerInterface
     {
+        if (!is_unix() && count($this->workers) > 0) {
+            return null;
+        }
+
         $class = match ($workerConfig->getType()) {
             WorkerType::TCP_SERVER => $this->driver->getTcpServerClass(),
             WorkerType::UPD_SERVER => $this->driver->getUdpServerClass(),
@@ -81,9 +88,11 @@ class Kernel implements KernelInterface
             WorkerType::WORKER_PROCESS => $this->driver->getProcessClass(),
             default => null,
         };
+
         if (!$class || !class_exists($class)) {
             throw new RuntimeException('not support: ' . WorkerType::getName($workerConfig->getType()));
         }
+
         return $this->workers[$workerConfig->getName()] = new $class($this->container, $this, $workerConfig);
     }
 

@@ -4,20 +4,19 @@ declare(strict_types=1);
 
 namespace Larmias\Contracts\Coroutine;
 
-use Larmias\Contracts\CoroutineInterface;
-
 interface CoroutineFactoryInterface
 {
     /**
+     * 创建协程并执行
      * @param callable $callable
      * @param ...$params
-     * @return CoroutineInterface
+     * @return CoroutineCallableInterface
      */
-    public function create(callable $callable, ...$params): CoroutineInterface;
+    public function create(callable $callable, ...$params): CoroutineCallableInterface;
 
     /**
-     * @param callable $callable
-     * @return void
+     * 是否支持协程
+     * @return bool
      */
-    public function defer(callable $callable): void;
+    public function isSupport(): bool;
 }

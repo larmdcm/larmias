@@ -12,9 +12,7 @@ use Larmias\Contracts\DotEnvInterface;
 use Larmias\Contracts\ServiceProviderInterface;
 use Larmias\Contracts\StdoutLoggerInterface;
 use Larmias\Engine\Contracts\KernelInterface;
-use Larmias\Engine\Event;
 use Larmias\Engine\Kernel;
-use Larmias\Engine\WorkerType;
 use Larmias\Env\DotEnv;
 use Larmias\Event\EventDispatcherFactory;
 use Larmias\Event\ListenerProviderFactory;
@@ -357,27 +355,19 @@ class Application implements ApplicationInterface
 
         $config = $getConfig();
 
-        switch ($name) {
-            case 'providers':
-            case 'commands':
-            case 'listeners':
-                $config = array_merge($config, isset($this->discoverConfig[$name]) ? array_column($this->discoverConfig[$name], 'class') : []);
-                break;
-            case 'worker':
-                $processConfig = $this->discoverConfig[ServiceDiscoverInterface::SERVICE_PROCESS] ?? [];
-                foreach ($processConfig as $item) {
-                    $config['workers'][] = [
-                        'name' => $item['args']['name'],
-                        'type' => WorkerType::WORKER_PROCESS,
-                        'settings' => ['worker_num' => $item['args']['count']],
-                        'callbacks' => [
-                            Event::ON_WORKER_START => [$item['class'], 'onStart'],
-                            Event::ON_WORKER => [$item['class'], 'handle'],
-                        ],
-                    ];
-                }
-                break;
-        }
-        return $config;
+        return match ($name) {
+            'providers', 'commands', 'listeners' => array_merge($config, isset($this->discoverConfig[$name]) ? array_column($this->discoverConfig[$name], 'class') : []),
+        };
+    }
+
+
+    /**
+     * @param string|null $name
+     * @param mixed|null $default
+     * @return array
+     */
+    public function getDiscoverConfig(?string $name = null, mixed $default = null): array
+    {
+        return $name ? $this->discoverConfig[$name] ?? $default : $this->discoverConfig;
     }
 }

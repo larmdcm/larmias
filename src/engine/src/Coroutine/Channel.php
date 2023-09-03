@@ -29,7 +29,7 @@ class Channel
      */
     public static function create(int $size = 0): ChannelInterface
     {
-        if (!static::support()) {
+        if (!static::isSupport()) {
             throw new RuntimeException("not support: Channel");
         }
         return new static::$chClass($size);
@@ -38,7 +38,7 @@ class Channel
     /**
      * @return bool
      */
-    public static function support(): bool
+    public static function isSupport(): bool
     {
         return static::$chClass !== null;
     }

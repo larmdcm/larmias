@@ -28,7 +28,7 @@ class SyncWait
      */
     public function add(string $id): void
     {
-        if ($this->factory->support()) {
+        if ($this->factory->isSupport()) {
             $this->channels[$id] = $this->factory->create();
         }
     }
@@ -40,7 +40,7 @@ class SyncWait
      */
     public function done(string $id, mixed $result = null): void
     {
-        if (!isset($this->channels[$id]) || !$this->factory->support()) {
+        if (!isset($this->channels[$id]) || !$this->factory->isSupport()) {
             return;
         }
 
@@ -53,7 +53,7 @@ class SyncWait
      */
     public function wait(string $id): mixed
     {
-        if (!$this->factory->support()) {
+        if (!$this->factory->isSupport()) {
             return true;
         }
 

@@ -50,7 +50,9 @@ abstract class Worker extends Command
      */
     public function configure(): void
     {
-        $this->setName($this->name)->setDescription($this->description);
+        $this->setName($this->name)
+            ->addOption('name', description: 'engine config name.', default: 'engine')
+            ->setDescription($this->description);
     }
 
     /**
@@ -78,6 +80,7 @@ abstract class Worker extends Command
      */
     protected function makeKernel(): void
     {
-        $this->kernel->setConfig(EngineConfig::build($this->getWorkerConfig()));
+        $engineConfig = $this->getEngineConfig($this->input->getOption('name'));
+        $this->kernel->setConfig(EngineConfig::build($engineConfig));
     }
 }

@@ -11,6 +11,7 @@ use Larmias\Engine\Coroutine\Channel;
 class ChannelFactory implements ChannelFactoryInterface
 {
     /**
+     * 创建Channel
      * @param int $size
      * @return ChannelInterface
      */
@@ -20,10 +21,11 @@ class ChannelFactory implements ChannelFactoryInterface
     }
 
     /**
+     * 是否支持Channel
      * @return bool
      */
-    public function support(): bool
+    public function isSupport(): bool
     {
-        return Channel::support();
+        return Channel::isSupport();
     }
 }

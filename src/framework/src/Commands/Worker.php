@@ -7,6 +7,7 @@ namespace Larmias\Framework\Commands;
 use Larmias\Framework\Commands\Concerns\WorkerConfig;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Larmias\Contracts\ApplicationInterface;
 use Larmias\Engine\EngineConfig;
@@ -51,7 +52,7 @@ abstract class Worker extends Command
     public function configure(): void
     {
         $this->setName($this->name)
-            ->addOption('name', description: 'engine config name.', default: 'engine')
+            ->addOption('config', 'c', InputOption::VALUE_OPTIONAL, 'engine config name.', 'engine')
             ->setDescription($this->description);
     }
 
@@ -80,7 +81,8 @@ abstract class Worker extends Command
      */
     protected function makeKernel(): void
     {
-        $engineConfig = $this->getEngineConfig($this->input->getOption('name'));
+        $name = $this->input->getOption('config');
+        $engineConfig = $this->getEngineConfig($name);
         $this->kernel->setConfig(EngineConfig::build($engineConfig));
     }
 }

@@ -357,6 +357,7 @@ class Application implements ApplicationInterface
 
         return match ($name) {
             'providers', 'commands', 'listeners' => array_merge($config, isset($this->discoverConfig[$name]) ? array_column($this->discoverConfig[$name], 'class') : []),
+            default => $config,
         };
     }
 

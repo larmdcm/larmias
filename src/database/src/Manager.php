@@ -17,6 +17,7 @@ use Larmias\Database\Contracts\ConnectionInterface;
 use Larmias\Database\Contracts\ManagerInterface;
 use Larmias\Database\Pool\DbProxy;
 use RuntimeException;
+use Throwable;
 use function class_exists;
 use function Larmias\Utils\data_get;
 use function Larmias\Utils\throw_unless;
@@ -52,7 +53,7 @@ class Manager implements ManagerInterface
      * 获取数据库连接
      * @param string|null $name
      * @return ConnectionInterface
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function connection(?string $name = null): ConnectionInterface
     {
@@ -181,7 +182,7 @@ class Manager implements ManagerInterface
      * @param string $name
      * @param array $args
      * @return mixed
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function __call(string $name, array $args): mixed
     {

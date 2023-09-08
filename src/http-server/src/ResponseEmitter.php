@@ -15,7 +15,7 @@ use function rawurlencode;
 class ResponseEmitter implements ResponseEmitterInterface
 {
     /**
-     * send response emit.
+     * response emit.
      * @param PsrResponseInterface $response
      * @param RawResponseInterface $rawResponse
      * @param bool $withContent

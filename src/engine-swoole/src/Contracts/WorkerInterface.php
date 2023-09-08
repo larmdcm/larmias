@@ -25,7 +25,7 @@ interface WorkerInterface
     /**
      * @return int
      */
-    public function getNum(): int;
+    public function getWorkerNum(): int;
 
     /**
      * @param string|null $name

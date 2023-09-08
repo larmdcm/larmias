@@ -26,7 +26,8 @@ class Manager
      */
     public function addWorker(WorkerInterface $worker): self
     {
-        for ($i = 0; $i < $worker->getNum(); $i++) {
+        $workerNum = $worker->getWorkerNum();
+        for ($i = 0; $i < $workerNum; $i++) {
             $this->workers[] = $worker;
         }
         return $this;

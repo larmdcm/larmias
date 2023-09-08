@@ -38,7 +38,7 @@ abstract class Worker extends BaseWorker implements WorkerInterface
     /**
      * @return int
      */
-    public function getNum(): int
+    public function getWorkerNum(): int
     {
         return (int)$this->getSettings('worker_num', 1);
     }

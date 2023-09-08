@@ -6,7 +6,7 @@ namespace Larmias\Engine\Swoole;
 
 use ArrayObject;
 use Larmias\Contracts\Coroutine\CoroutineCallableInterface;
-use Larmias\Engine\Contracts\CoroutineInterface;
+use Larmias\Contracts\Coroutine\CoroutineInterface;
 use Larmias\Engine\Swoole\Coroutine\CoroutineCallable;
 use RuntimeException;
 use Swoole\Coroutine as SwooleCoroutine;
@@ -16,29 +16,32 @@ use function sprintf;
 class Coroutine implements CoroutineInterface
 {
     /**
+     * 创建协程并执行
      * @param callable $callable
      * @param ...$params
      * @return CoroutineCallableInterface
      */
-    public static function create(callable $callable, ...$params): CoroutineCallableInterface
+    public function create(callable $callable, ...$params): CoroutineCallableInterface
     {
         $coCallable = new CoroutineCallable();
         return $coCallable->execute($callable, ...$params);
     }
 
     /**
+     * 获取协程id
      * @return int
      */
-    public static function id(): int
+    public function id(): int
     {
         return SwooleCoroutine::getCid();
     }
 
     /**
+     * 获取协程pid
      * @param int|null $id
      * @return int
      */
-    public static function pid(?int $id = null): int
+    public function pid(?int $id = null): int
     {
         if ($id) {
             $cid = SwooleCoroutine::getPcid($id);
@@ -55,28 +58,31 @@ class Coroutine implements CoroutineInterface
     }
 
     /**
+     * 设置协程配置
      * @param array $config
      * @return void
      */
-    public static function set(array $config): void
+    public function set(array $config): void
     {
         SwooleCoroutine::set($config);
     }
 
     /**
+     * 协程结束执行
      * @param callable $callable
      * @return void
      */
-    public static function defer(callable $callable): void
+    public function defer(callable $callable): void
     {
         SwooleCoroutine::defer($callable);
     }
 
     /**
+     * 获取协程上下文对象
      * @param int|null $id
      * @return ArrayObject|null
      */
-    public static function getContextFor(?int $id = null): ?ArrayObject
+    public function getContextFor(?int $id = null): ?ArrayObject
     {
         return $id === null ? SwooleCoroutine::getContext() : SwooleCoroutine::getContext($id);
     }

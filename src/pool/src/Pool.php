@@ -7,7 +7,7 @@ namespace Larmias\Pool;
 use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\ContextInterface;
 use Larmias\Contracts\Coroutine\ChannelFactoryInterface;
-use Larmias\Contracts\Coroutine\CoroutineFactoryInterface;
+use Larmias\Contracts\Coroutine\CoroutineInterface;
 use Larmias\Contracts\Pool\ConnectionInterface;
 use Larmias\Contracts\Pool\PoolInterface;
 use Larmias\Contracts\Pool\PoolOptionInterface;
@@ -38,9 +38,9 @@ abstract class Pool implements PoolInterface
     protected ContextInterface $context;
 
     /**
-     * @var CoroutineFactoryInterface
+     * @var CoroutineInterface
      */
-    protected CoroutineFactoryInterface $coroutineFactory;
+    protected CoroutineInterface $coroutine;
 
     /**
      * @var TimerInterface
@@ -84,7 +84,7 @@ abstract class Pool implements PoolInterface
     public function __construct(protected ContainerInterface $container, array $options = [])
     {
         $this->context = $this->container->get(ContextInterface::class);
-        $this->coroutineFactory = $this->container->get(CoroutineFactoryInterface::class);
+        $this->coroutine = $this->container->get(CoroutineInterface::class);
         $this->timer = $this->container->get(TimerInterface::class);
         $this->options = array_merge($this->options, $options);
         $this->initPoolOption();
@@ -143,7 +143,8 @@ abstract class Pool implements PoolInterface
         if ($this->heartbeatId > 0) {
             $this->timer->del($this->heartbeatId);
         }
-        $this->coroutineFactory->create(function () {
+
+        $closure = function () {
             while (!$this->channel->isEmpty()) {
                 $connection = $this->channel->pop($this->poolOption->getWaitTimeout());
                 if ($connection) {
@@ -151,7 +152,9 @@ abstract class Pool implements PoolInterface
                 }
             }
             $this->channel->close();
-        });
+        };
+
+        $this->context->inCoroutine() ? $this->coroutine->create($closure) : $closure();
         return true;
     }
 
@@ -182,7 +185,7 @@ abstract class Pool implements PoolInterface
     {
         $this->channel = new Channel($this->context, $this->container->get(ChannelFactoryInterface::class), $this->poolOption->getMaxActive());
         $this->startHeartbeat();
-        $this->coroutineFactory->create(function () {
+        $closure = function () {
             $minActive = $this->poolOption->getMinActive();
             for ($i = 0; $i < $minActive; $i++) {
                 $connection = $this->getConnection();
@@ -190,7 +193,8 @@ abstract class Pool implements PoolInterface
                     $this->disConnection($connection);
                 }
             }
-        });
+        };
+        $this->context->inCoroutine() ? $this->coroutine->create($closure) : $closure();
     }
 
     /**
@@ -301,12 +305,13 @@ abstract class Pool implements PoolInterface
     protected function disConnection(ConnectionInterface $connection): void
     {
         $this->connectionCount--;
-        $this->coroutineFactory->create(function () use ($connection) {
+        $closure = function () use ($connection) {
             try {
                 $connection->close();
             } catch (Throwable) {
             }
-        });
+        };
+        $this->context->inCoroutine() ? $this->coroutine->create($closure) : $closure();
     }
 
     public function __destruct()

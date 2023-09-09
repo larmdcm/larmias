@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Engine\Swoole;
+namespace Larmias\Engine\WorkerMan;
 
-use Larmias\Contracts\SignalInterface;
-use Swoole\Process;
+use Larmias\Contracts\SignalHandlerInterface;
+use Workerman\Events\EventInterface;
 
-class Signal implements SignalInterface
+class SignalHandler implements SignalHandlerInterface
 {
     /**
      * @param int $signal
@@ -16,7 +16,7 @@ class Signal implements SignalInterface
      */
     public function onSignal(int $signal, callable $func): bool
     {
-        Process::signal($signal, $func);
+        Worker::getEventLoop()->add($signal, EventInterface::EV_SIGNAL, $func);
         return true;
     }
 
@@ -26,7 +26,7 @@ class Signal implements SignalInterface
      */
     public function offSignal(int $signal): bool
     {
-        Process::signal($signal, fn() => null);
+        Worker::getEventLoop()->del($signal, EventInterface::EV_SIGNAL);
         return true;
     }
 }

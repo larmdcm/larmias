@@ -8,7 +8,6 @@ interface ConnectionInterface
 {
     /**
      * 发送数据.
-     *
      * @param mixed $data
      * @return mixed
      */
@@ -16,7 +15,6 @@ interface ConnectionInterface
 
     /**
      * 关闭连接.
-     *
      * @param mixed $data
      * @return bool
      */
@@ -24,7 +22,6 @@ interface ConnectionInterface
 
     /**
      * 获取原生连接对象
-     *
      * @return object
      */
     public function getRawConnection(): object;

@@ -12,6 +12,7 @@ use Larmias\Engine\Contracts\KernelInterface;
 use Larmias\Engine\Contracts\WorkerInterface;
 use Larmias\Contracts\ContainerInterface;
 use RuntimeException;
+use Throwable;
 use function class_exists;
 use function count;
 
@@ -44,7 +45,7 @@ class Kernel implements KernelInterface
     /**
      * @param EngineConfigInterface $engineConfig
      * @return self
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function setConfig(EngineConfigInterface $engineConfig): self
     {
@@ -56,7 +57,7 @@ class Kernel implements KernelInterface
 
     /**
      * @return void
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function run(): void
     {
@@ -132,7 +133,7 @@ class Kernel implements KernelInterface
     /**
      * @param bool $force
      * @return void
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function restart(bool $force = true): void
     {

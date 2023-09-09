@@ -75,10 +75,11 @@ class RedisProxy implements ConnectionInterface
                         $connection->setDatabase((int)$arguments[0]);
                     }
                     $this->context->set($contextKey, $connection);
-                    $this->coroutine->defer(function () use ($contextKey, $connection) {
+                    $handler = function () use ($contextKey, $connection) {
                         $this->context->destroy($contextKey);
                         $connection->release();
-                    });
+                    };
+                    $this->context->inCoroutine() ? $this->coroutine->defer($handler) : $handler();
                 } else {
                     $connection->release();
                 }

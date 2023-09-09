@@ -86,4 +86,23 @@ class Coroutine implements CoroutineInterface
     {
         return $id === null ? SwooleCoroutine::getContext() : SwooleCoroutine::getContext($id);
     }
+
+    /**
+     * 让出当前协程的执行权
+     * @return void
+     */
+    public function yield(): void
+    {
+        SwooleCoroutine::yield();
+    }
+
+    /**
+     * 恢复协程执行权
+     * @param int $id
+     * @return void
+     */
+    public function resume(int $id): void
+    {
+        SwooleCoroutine::resume($id);
+    }
 }

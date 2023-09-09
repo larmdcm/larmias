@@ -32,6 +32,7 @@ class Channel
         if (!static::isSupport()) {
             throw new RuntimeException("not support: Channel");
         }
+
         return new static::$chClass($size);
     }
 

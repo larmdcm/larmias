@@ -6,7 +6,6 @@ namespace Larmias\ExceptionHandler;
 
 use Larmias\Contracts\ExceptionHandlerInterface;
 use Throwable;
-use function get_class;
 
 abstract class ExceptionHandler implements ExceptionHandlerInterface
 {

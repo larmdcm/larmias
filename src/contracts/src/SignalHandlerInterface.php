@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Larmias\Contracts;
 
-interface SignalInterface
+interface SignalHandlerInterface
 {
     /**
+     * 监听信号
      * @param integer $signal
      * @param callable $func
      * @return bool
@@ -14,6 +15,7 @@ interface SignalInterface
     public function onSignal(int $signal, callable $func): bool;
 
     /**
+     * 移除监听信号
      * @param integer $signal
      * @return bool
      */

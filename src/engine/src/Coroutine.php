@@ -5,74 +5,35 @@ declare(strict_types=1);
 namespace Larmias\Engine;
 
 use ArrayObject;
+use Larmias\Contracts\Coroutine\CoroutineInterface;
 use Larmias\Contracts\Coroutine\CoroutineCallableInterface;
 use RuntimeException;
 use function call_user_func_array;
-use function call_user_func;
 
 /**
+ * @method static CoroutineCallableInterface create(callable $callable, ...$params)
+ * @method static int id()
  * @method static int pid(?int $id = null)
  * @method static void set(array $config)
+ * @method static void defer(callable $callable)
  * @method static ArrayObject|null getContextFor(?int $id = null)
+ * @method static void yield()
+ * @method static void resume(int $id)
  */
 class Coroutine
 {
     /**
-     * @var string|null
+     * @var CoroutineInterface|null
      */
-    protected static ?string $coClass = null;
+    protected static ?CoroutineInterface $coroutine = null;
 
     /**
-     * @param string|null $coClass
+     * @param CoroutineInterface|null $coroutine
      * @return void
      */
-    public static function init(?string $coClass = null): void
+    public static function init(CoroutineInterface $coroutine = null): void
     {
-        static::$coClass = $coClass;
-    }
-
-    /**
-     * @param callable $callable
-     * @param ...$params
-     * @return CoroutineCallableInterface
-     */
-    public static function create(callable $callable, ...$params): CoroutineCallableInterface
-    {
-        if (static::isSupport()) {
-            return call_user_func([static::$coClass, __FUNCTION__], $callable, ...$params);
-        }
-
-        $callable(...$params);
-
-        return new class() implements CoroutineCallableInterface {
-
-            public function execute(callable $callable, ...$params): CoroutineCallableInterface
-            {
-                return $this;
-            }
-
-            public function getId(): int
-            {
-                return -1;
-            }
-        };
-    }
-
-    /**
-     * @return int
-     */
-    public static function id(): int
-    {
-        return static::isSupport() ? call_user_func([static::$coClass, __FUNCTION__]) : 0;
-    }
-
-    /**
-     * @param callable $callable
-     * @return void
-     */
-    public static function defer(callable $callable): void
-    {
-        static::isSupport() ? call_user_func([static::$coClass, __FUNCTION__], $callable) : $callable();
+        static::$coroutine = $coroutine;
     }
 
     /**
@@ -80,7 +41,7 @@ class Coroutine
      */
     public static function isSupport(): bool
     {
-        return static::$coClass !== null;
+        return static::$coroutine !== null;
     }
 
     /**
@@ -94,6 +55,6 @@ class Coroutine
             throw new RuntimeException("not support: Coroutine");
         }
 
-        return call_user_func_array([static::$coClass, $name], $arguments);
+        return call_user_func_array([static::$coroutine, $name], $arguments);
     }
 }

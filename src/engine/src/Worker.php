@@ -7,10 +7,10 @@ namespace Larmias\Engine;
 use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\ContextInterface;
 use Larmias\Contracts\Coroutine\ChannelFactoryInterface;
-use Larmias\Contracts\Coroutine\CoroutineFactoryInterface;
 use Larmias\Contracts\Coroutine\CoroutineInterface;
+use Larmias\Contracts\Coroutine\LockerInterface;
 use Larmias\Contracts\EventLoopInterface;
-use Larmias\Contracts\SignalInterface;
+use Larmias\Contracts\SignalHandlerInterface;
 use Larmias\Contracts\TimerInterface;
 use Larmias\Contracts\Worker\WorkerInterface as BaseWorkerInterface;
 use Larmias\Engine\Bootstrap\WorkerStartCallback;
@@ -21,8 +21,8 @@ use Larmias\Engine\Contracts\WorkerInterface;
 use Larmias\Engine\Coroutine\Channel;
 use Larmias\Engine\Coroutine\Coroutine;
 use Larmias\Engine\Factory\ChannelFactory;
-use Larmias\Engine\Factory\CoroutineFactory;
 use Larmias\Engine\Coroutine as EngineCo;
+use Larmias\Engine\Coroutine\Locker;
 use Throwable;
 use function array_merge;
 use function call_user_func;
@@ -55,8 +55,7 @@ abstract class Worker implements WorkerInterface
     protected EngineConfigInterface $engineConfig;
 
     /**
-     * Server constructor.
-     *
+     * Worker constructor.
      * @param ContainerInterface $container
      * @param KernelInterface $kernel
      * @param WorkerConfigInterface $workerConfig
@@ -94,27 +93,28 @@ abstract class Worker implements WorkerInterface
     protected function bind(): void
     {
         $bind = [
+            SignalHandlerInterface::class => $this->kernel->getDriver()->getSignalClass(),
             EventLoopInterface::class => $this->kernel->getDriver()->getEventLoopClass(),
             ContextInterface::class => $this->kernel->getDriver()->getContextClass(),
-            SignalInterface::class => $this->kernel->getDriver()->getSignalClass(),
             TimerInterface::class => $this->kernel->getDriver()->getTimerClass(),
-            CoroutineFactoryInterface::class => CoroutineFactory::class,
-            CoroutineInterface::class => Coroutine::class,
             ChannelFactoryInterface::class => ChannelFactory::class,
+            CoroutineInterface::class => Coroutine::class,
+            LockerInterface::class => Locker::class,
             BaseWorkerInterface::class => $this,
             WorkerInterface::class => $this,
         ];
 
         $init = [
+            SignalHandler::class => SignalHandlerInterface::class,
             EventLoop::class => EventLoopInterface::class,
             Context::class => ContextInterface::class,
-            Signal::class => SignalInterface::class,
             Timer::class => TimerInterface::class,
         ];
 
         $this->container->bind($bind);
 
-        EngineCo::init($this->kernel->getDriver()->getCoroutineClass());
+        $coClass = $this->kernel->getDriver()->getCoroutineClass();
+        EngineCo::init($coClass ? $this->container->get($coClass) : null);
         Channel::init($this->kernel->getDriver()->getChannelClass());
 
         foreach ($init as $name => $value) {

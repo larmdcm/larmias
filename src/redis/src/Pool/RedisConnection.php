@@ -45,7 +45,6 @@ class RedisConnection extends BaseConnection implements ConnectionInterface
 
     /**
      * @return bool
-     * @throws \RedisException
      */
     public function connect(): bool
     {
@@ -94,7 +93,6 @@ class RedisConnection extends BaseConnection implements ConnectionInterface
 
     /**
      * @return bool
-     * @throws \RedisException
      */
     public function isConnected(): bool
     {
@@ -103,7 +101,6 @@ class RedisConnection extends BaseConnection implements ConnectionInterface
 
     /**
      * @return bool
-     * @throws \RedisException
      */
     public function reconnect(): bool
     {
@@ -118,7 +115,6 @@ class RedisConnection extends BaseConnection implements ConnectionInterface
 
     /**
      * @return bool
-     * @throws \RedisException
      */
     public function close(): bool
     {
@@ -159,7 +155,6 @@ class RedisConnection extends BaseConnection implements ConnectionInterface
      * @param int $port
      * @param float $timeout
      * @return Redis
-     * @throws \RedisException
      */
     protected function createRedis(string $host, int $port, float $timeout): Redis
     {

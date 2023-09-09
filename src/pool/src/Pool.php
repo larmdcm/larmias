@@ -144,7 +144,7 @@ abstract class Pool implements PoolInterface
             $this->timer->del($this->heartbeatId);
         }
 
-        $closure = function () {
+        $handler = function () {
             while (!$this->channel->isEmpty()) {
                 $connection = $this->channel->pop($this->poolOption->getWaitTimeout());
                 if ($connection) {
@@ -154,7 +154,7 @@ abstract class Pool implements PoolInterface
             $this->channel->close();
         };
 
-        $this->context->inCoroutine() ? $this->coroutine->create($closure) : $closure();
+        $this->context->inCoroutine() ? $this->coroutine->create($handler) : $handler();
         return true;
     }
 
@@ -185,7 +185,7 @@ abstract class Pool implements PoolInterface
     {
         $this->channel = new Channel($this->context, $this->container->get(ChannelFactoryInterface::class), $this->poolOption->getMaxActive());
         $this->startHeartbeat();
-        $closure = function () {
+        $handler = function () {
             $minActive = $this->poolOption->getMinActive();
             for ($i = 0; $i < $minActive; $i++) {
                 $connection = $this->getConnection();
@@ -194,7 +194,7 @@ abstract class Pool implements PoolInterface
                 }
             }
         };
-        $this->context->inCoroutine() ? $this->coroutine->create($closure) : $closure();
+        $this->context->inCoroutine() ? $this->coroutine->create($handler) : $handler();
     }
 
     /**
@@ -305,13 +305,13 @@ abstract class Pool implements PoolInterface
     protected function disConnection(ConnectionInterface $connection): void
     {
         $this->connectionCount--;
-        $closure = function () use ($connection) {
+        $handler = function () use ($connection) {
             try {
                 $connection->close();
             } catch (Throwable) {
             }
         };
-        $this->context->inCoroutine() ? $this->coroutine->create($closure) : $closure();
+        $this->context->inCoroutine() ? $this->coroutine->create($handler) : $handler();
     }
 
     public function __destruct()

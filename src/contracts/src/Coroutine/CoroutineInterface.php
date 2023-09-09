@@ -49,4 +49,17 @@ interface CoroutineInterface
      * @return ArrayObject|null
      */
     public function getContextFor(?int $id = null): ?ArrayObject;
+
+    /**
+     * 让出当前协程的执行权
+     * @return void
+     */
+    public function yield(): void;
+
+    /**
+     * 恢复协程执行权
+     * @param int $id
+     * @return void
+     */
+    public function resume(int $id): void;
 }

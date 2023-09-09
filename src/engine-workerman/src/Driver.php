@@ -134,7 +134,7 @@ class Driver implements DriverInterface
      */
     public function getSignalClass(): ?string
     {
-        return Signal::class;
+        return SignalHandler::class;
     }
 
     /**

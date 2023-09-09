@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Larmias\Engine\Swoole;
 
 use Larmias\Contracts\ContextInterface;
+use Larmias\Contracts\Coroutine\CoroutineInterface;
 
 class Context implements ContextInterface
 {
@@ -12,6 +13,13 @@ class Context implements ContextInterface
      * @var array
      */
     protected array $context = [];
+
+    /**
+     * @param CoroutineInterface $coroutine
+     */
+    public function __construct(protected CoroutineInterface $coroutine)
+    {
+    }
 
     /**
      * @param string $id
@@ -22,7 +30,7 @@ class Context implements ContextInterface
     public function get(string $id, mixed $default = null, ?int $cid = null): mixed
     {
         if ($this->inCoroutine()) {
-            return Coroutine::getContextFor($cid)[$id] ?? $default;
+            return $this->coroutine->getContextFor($cid)[$id] ?? $default;
         }
 
         return $this->context[$id] ?? $default;
@@ -37,7 +45,7 @@ class Context implements ContextInterface
     public function set(string $id, mixed $value, ?int $cid = null): mixed
     {
         if ($this->inCoroutine()) {
-            Coroutine::getContextFor($cid)[$id] = $value;
+            $this->coroutine->getContextFor($cid)[$id] = $value;
         } else {
             $this->context[$id] = $value;
         }
@@ -68,7 +76,7 @@ class Context implements ContextInterface
     public function has(string $id, ?int $cid = null): bool
     {
         if ($this->inCoroutine()) {
-            return isset(Coroutine::getContextFor($cid)[$id]);
+            return isset($this->coroutine->getContextFor($cid)[$id]);
         }
 
         return isset($this->context[$id]);
@@ -93,6 +101,6 @@ class Context implements ContextInterface
      */
     public function inCoroutine(): bool
     {
-        return Coroutine::id() > 0;
+        return $this->coroutine->id() > 0;
     }
 }

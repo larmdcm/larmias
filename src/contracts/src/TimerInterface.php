@@ -25,7 +25,7 @@ interface TimerInterface
     public function tick(int $duration, callable $func, array $args = []): int;
 
     /**
-     * 毫秒定时器延时触发 只会触发一次
+     * 毫秒定时器延时触发
      * @param int $duration
      * @param callable $func
      * @param array $args
@@ -34,14 +34,14 @@ interface TimerInterface
     public function after(int $duration, callable $func, array $args = []): int;
 
     /**
-     * 删除指定定时器
+     * 删除定时器
      * @param int $timerId
      * @return boolean
      */
     public function del(int $timerId): bool;
 
     /**
-     * 清空全部定时器
+     * 清空定时器
      * @return boolean
      */
     public function clear(): bool;

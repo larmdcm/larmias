@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\Engine;
 
-use Larmias\Contracts\SignalInterface;
+use Larmias\Contracts\SignalHandlerInterface;
 use RuntimeException;
 use function call_user_func_array;
 
@@ -12,18 +12,18 @@ use function call_user_func_array;
  * @method static bool onSignal($signal, callable $func)
  * @method static bool offSignal($signal)
  */
-class Signal
+class SignalHandler
 {
     /**
-     * @var SignalInterface|null
+     * @var SignalHandlerInterface|null
      */
-    protected static ?SignalInterface $signal = null;
+    protected static ?SignalHandlerInterface $signal = null;
 
     /**
-     * @param SignalInterface $signal
+     * @param SignalHandlerInterface $signal
      * @return void
      */
-    public static function init(SignalInterface $signal): void
+    public static function init(SignalHandlerInterface $signal): void
     {
         static::$signal = $signal;
     }

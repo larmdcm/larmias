@@ -7,12 +7,15 @@ namespace Larmias\Redis\Pool;
 use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\Pool\ConnectionInterface;
 use Larmias\Pool\Pool;
+use Throwable;
 
 class RedisPool extends Pool
 {
     /**
+     * @param ContainerInterface $container
      * @param array $options
      * @param array $config
+     * @throws Throwable
      */
     public function __construct(protected ContainerInterface $container, array $options = [], protected array $config = [])
     {

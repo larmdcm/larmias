@@ -10,6 +10,7 @@ use Swoole\Timer as SwooleTimer;
 class Timer implements TimerInterface
 {
     /**
+     * 毫秒定时器间隔触发
      * @param int $duration
      * @param callable $func
      * @param array $args
@@ -21,6 +22,7 @@ class Timer implements TimerInterface
     }
 
     /**
+     * 毫秒定时器延时触发
      * @param int $duration
      * @param callable $func
      * @param array $args
@@ -32,6 +34,7 @@ class Timer implements TimerInterface
     }
 
     /**
+     * 删除定时器
      * @param int $timerId
      * @return bool
      */
@@ -41,6 +44,7 @@ class Timer implements TimerInterface
     }
 
     /**
+     * 清空定时器
      * @return bool
      */
     public function clear(): bool

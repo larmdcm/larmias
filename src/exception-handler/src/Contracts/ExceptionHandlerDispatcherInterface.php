@@ -9,6 +9,7 @@ use Throwable;
 interface ExceptionHandlerDispatcherInterface
 {
     /**
+     * 调度异常处理
      * @param Throwable $e
      * @param array $handlers
      * @param mixed $args

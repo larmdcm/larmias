@@ -21,7 +21,7 @@ return [
             'host' => '0.0.0.0',
             'port' => 9863,
             'settings' => [
-                'worker_num' => \Larmias\Engine\get_cpu_num() * 2,
+                'worker_num' => \Larmias\Engine\get_cpu_num(),
             ],
             'callbacks' => [
                 Event::ON_REQUEST => [HttpServer::class, OnRequestInterface::ON_REQUEST]
@@ -38,6 +38,7 @@ return [
                 $container->bind(PipelineInterface::class, Pipeline::class);
                 $container->bind(ListenerProviderInterface::class, ListenerProviderFactory::make($container, []));
                 $container->bind(EventDispatcherInterface::class, EventDispatcherFactory::make($container));
+                $container->bind(\Larmias\Contracts\Http\ResponseEmitterInterface::class, \Larmias\HttpServer\ResponseEmitter::class);
                 Router::init($container->make(\Larmias\Routing\Router::class));
                 Router::get('/', function (\Larmias\HttpServer\Contracts\ResponseInterface $response) {
                     return 'Hello,World!';

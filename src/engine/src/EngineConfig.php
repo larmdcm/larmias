@@ -22,7 +22,7 @@ class EngineConfig implements EngineConfigInterface
     protected array $callbacks = [];
 
     /**
-     * ServerConfig constructor.
+     * EngineConfig constructor.
      *
      * @param array $config
      */

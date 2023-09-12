@@ -157,10 +157,11 @@ class Server implements OnRequestInterface
     {
         $psrResponse = new PsrResponse();
         $psrResponse->setRawResponse($rawResponse);
+        $request = new Request($this->context);
         $this->context->set(ServerRequestInterface::class, ServerRequest::loadFromRequest($rawRequest));
         $this->context->set(PsrResponseInterface::class, $psrResponse);
-        $this->context->set(RequestInterface::class, new Request($this->context));
+        $this->context->set(RequestInterface::class, $request);
         $this->context->set(ResponseInterface::class, new Response($this->context));
-        return $this->context->get(RequestInterface::class);
+        return $request;
     }
 }

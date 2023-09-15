@@ -25,7 +25,7 @@ class WorkerType
      * @param int $type
      * @return string
      */
-    public static function getName(int $type): string
+    public static function getText(int $type): string
     {
         return match ($type) {
             self::TCP_SERVER => 'Tcp Server',

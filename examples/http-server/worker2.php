@@ -44,6 +44,9 @@ return [
                 Router::get('/', function () {
                     return 'Hello,World!';
                 });
+                Router::get('/favicon.ico', function () {
+                    return '';
+                });
             }
         ]
     ],

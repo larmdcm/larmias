@@ -28,6 +28,8 @@ class Server extends BaseServer
             $this->getSettings('reuse_port', true)
         );
 
+        $this->server->set($this->getServerSettings());
+
         $this->server->handle('/', function (SwooleRequest $req, SwooleResponse $resp) {
             try {
                 $request = new Request($req);

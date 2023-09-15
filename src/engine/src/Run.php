@@ -8,6 +8,7 @@ use Larmias\Contracts\ContainerInterface;
 use Larmias\Engine\Contracts\KernelInterface;
 use function is_array;
 use function array_merge;
+use function call_user_func;
 
 class Run
 {
@@ -53,11 +54,11 @@ class Run
         ]));
 
         $this->kernel->addWorker(WorkerConfig::build([
-            'name' => 'mainProcess',
+            'name' => $this->config['main_process_name'] ?? 'MainProcess',
             'type' => WorkerType::WORKER_PROCESS,
             'callbacks' => [
                 Event::ON_WORKER_START => function ($worker) use ($args) {
-                    $args[0]($worker, $this->kernel);
+                    call_user_func($args[0],$worker,$this->kernel);
                 }
             ]
         ]));

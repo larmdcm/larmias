@@ -7,9 +7,9 @@ namespace Larmias\HttpServer;
 use Larmias\Contracts\ConfigInterface;
 use Larmias\Contracts\ContextInterface;
 use Larmias\Contracts\Http\OnRequestInterface;
-use Larmias\Contracts\Http\RequestInterface as RawRequestInterface;
+use Larmias\Contracts\Http\RequestInterface as HttpRequestInterface;
 use Larmias\Contracts\Http\ResponseEmitterInterface;
-use Larmias\Contracts\Http\ResponseInterface as RawResponseInterface;
+use Larmias\Contracts\Http\ResponseInterface as HttpResponseInterface;
 use Larmias\ExceptionHandler\Contracts\ExceptionHandlerDispatcherInterface;
 use Larmias\Http\Message\ServerRequest;
 use Larmias\HttpServer\Events\HttpRequestStart;
@@ -59,10 +59,10 @@ class Server implements OnRequestInterface
 
     /**
      * 请求回调事件
-     * @param RawRequestInterface $request
-     * @param RawResponseInterface $response
+     * @param HttpRequestInterface $request
+     * @param HttpResponseInterface $response
      */
-    public function onRequest(RawRequestInterface $request, RawResponseInterface $response): void
+    public function onRequest(HttpRequestInterface $request, HttpResponseInterface $response): void
     {
         $request = $this->makeRequest($request, $response);
         $this->eventDispatcher->dispatch(new HttpRequestStart($request));
@@ -149,16 +149,16 @@ class Server implements OnRequestInterface
 
     /**
      * 创建请求
-     * @param RawRequestInterface $rawRequest
-     * @param RawResponseInterface $rawResponse
+     * @param HttpRequestInterface $req
+     * @param HttpResponseInterface $resp
      * @return RequestInterface
      */
-    protected function makeRequest(RawRequestInterface $rawRequest, RawResponseInterface $rawResponse): RequestInterface
+    protected function makeRequest(HttpRequestInterface $req, HttpResponseInterface $resp): RequestInterface
     {
         $psrResponse = new PsrResponse();
-        $psrResponse->setRawResponse($rawResponse);
+        $psrResponse->setRawResponse($resp);
         $request = new Request($this->context);
-        $this->context->set(ServerRequestInterface::class, ServerRequest::loadFromRequest($rawRequest));
+        $this->context->set(ServerRequestInterface::class, ServerRequest::loadFromRequest($req));
         $this->context->set(PsrResponseInterface::class, $psrResponse);
         $this->context->set(RequestInterface::class, $request);
         $this->context->set(ResponseInterface::class, new Response($this->context));

@@ -12,10 +12,4 @@ interface ChannelFactoryInterface
      * @return ChannelInterface
      */
     public function create(int $size = 0): ChannelInterface;
-
-    /**
-     * 是否支持Channel
-     * @return bool
-     */
-    public function isSupport(): bool;
 }

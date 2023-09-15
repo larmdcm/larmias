@@ -18,9 +18,8 @@ use Larmias\Engine\Contracts\EngineConfigInterface;
 use Larmias\Engine\Contracts\KernelInterface;
 use Larmias\Engine\Contracts\WorkerConfigInterface;
 use Larmias\Engine\Contracts\WorkerInterface;
-use Larmias\Engine\Coroutine\Channel;
 use Larmias\Engine\Coroutine\Coroutine;
-use Larmias\Engine\Factory\ChannelFactory;
+use Larmias\Engine\Coroutine\ChannelFactory;
 use Larmias\Engine\Coroutine as EngineCo;
 use Larmias\Engine\Coroutine\Locker;
 use Throwable;
@@ -115,7 +114,7 @@ abstract class Worker implements WorkerInterface
 
         $coClass = $this->kernel->getDriver()->getCoroutineClass();
         EngineCo::init($coClass ? $this->container->get($coClass) : null);
-        Channel::init($this->kernel->getDriver()->getChannelClass());
+        ChannelFactory::init($this->kernel->getDriver()->getChannelClass());
 
         foreach ($init as $name => $value) {
             if ($this->container->has($value)) {

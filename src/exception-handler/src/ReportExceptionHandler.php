@@ -42,7 +42,6 @@ class ReportExceptionHandler extends ExceptionHandler
 
     /**
      * 异常上报.
-     *
      * @param Throwable $e
      * @return void
      */
@@ -51,6 +50,7 @@ class ReportExceptionHandler extends ExceptionHandler
         if ($this->isDontReport($e)) {
             return;
         }
+        
         try {
             $this->logger?->log($this->levels[get_class($e)] ?? 'error', $e->getMessage(), ['exception' => $e->getTraceAsString()]);
         } catch (Throwable) {

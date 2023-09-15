@@ -13,7 +13,9 @@ use Larmias\SharedMemory\Client\Client;
 use Larmias\SharedMemory\CommandExecutor;
 use Larmias\SharedMemory\Contracts\AuthInterface;
 use Larmias\SharedMemory\Contracts\CommandExecutorInterface;
+use Larmias\SharedMemory\Contracts\LockerInterface;
 use Larmias\SharedMemory\Contracts\LoggerInterface;
+use Larmias\SharedMemory\Locker;
 use Larmias\SharedMemory\Logger;
 
 class SharedMemoryServiceProvider implements ServiceProviderInterface
@@ -34,6 +36,7 @@ class SharedMemoryServiceProvider implements ServiceProviderInterface
             CommandExecutorInterface::class => CommandExecutor::class,
             AuthInterface::class => Auth::class,
             LoggerInterface::class => Logger::class,
+            LockerInterface::class => Locker::class,
         ]);
     }
 

@@ -9,7 +9,6 @@ use function is_callable;
 use function strtolower;
 use function shell_exec;
 use const DIRECTORY_SEPARATOR;
-use Closure;
 
 /**
  * 获取CPU核心数
@@ -46,11 +45,11 @@ function is_unix(): bool
 
 /**
  * 运行引擎容器
- * @param Closure $callback
+ * @param callable $callback
  * @param array $settings
  * @return void
  */
-function run(Closure $callback, array $settings = []): void
+function run(callable $callback, array $settings = []): void
 {
     $run = new Run(ApplicationContext::getContainer());
     $run->set($settings);

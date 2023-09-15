@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Larmias\Engine\WorkerMan;
 
-use Workerman\Connection\TcpConnection;
 use Workerman\Worker as BaseWorkerManWorker;
-use function is_file;
+use Workerman\Connection\TcpConnection;
 use function file_get_contents;
 use function extension_loaded;
 use function posix_kill;
+use function is_file;
 use function time;
 use function usleep;
 use function in_array;

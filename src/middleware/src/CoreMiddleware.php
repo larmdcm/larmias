@@ -47,7 +47,6 @@ class CoreMiddleware implements CoreMiddlewareInterface
 
     /**
      * 导入中间件
-     *
      * @param array $middleware
      * @return CoreMiddlewareInterface
      */
@@ -61,7 +60,6 @@ class CoreMiddleware implements CoreMiddlewareInterface
 
     /**
      * 设置中间件
-     *
      * @param array $middleware
      * @return CoreMiddlewareInterface
      */
@@ -81,7 +79,6 @@ class CoreMiddleware implements CoreMiddlewareInterface
 
     /**
      * 添加中间件到尾部
-     *
      * @param string|Closure $middleware
      * @return CoreMiddlewareInterface
      */
@@ -96,7 +93,6 @@ class CoreMiddleware implements CoreMiddlewareInterface
 
     /**
      * 添加中间件到首部
-     *
      * @param string|Closure $middleware
      * @return CoreMiddlewareInterface
      */
@@ -140,17 +136,16 @@ class CoreMiddleware implements CoreMiddlewareInterface
     /**
      * 调度中间件
      * @param mixed $passable
-     * @param Closure $closure
+     * @param Closure $handler
      * @return mixed
      */
-    public function dispatch(mixed $passable, Closure $closure): mixed
+    public function dispatch(mixed $passable, Closure $handler): mixed
     {
-        return $this->pipeline()->send($passable)->then($closure);
+        return $this->pipeline()->send($passable)->then($handler);
     }
 
     /**
      * 管道调度.
-     *
      * @return PipelineInterface
      */
     protected function pipeline(): PipelineInterface

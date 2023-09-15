@@ -91,7 +91,7 @@ class Kernel implements KernelInterface
         };
 
         if (!$class || !class_exists($class)) {
-            throw new RuntimeException('not support: ' . WorkerType::getName($workerConfig->getType()));
+            throw new RuntimeException('not support: ' . WorkerType::getText($workerConfig->getType()));
         }
 
         return $this->workers[$workerConfig->getName()] = new $class($this->container, $this, $workerConfig);

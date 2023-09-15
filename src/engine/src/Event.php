@@ -31,6 +31,9 @@ class Event
     public const ON_REQUEST = 'request';
 
     /** @var string */
+    public const ON_HAND_SHAKE = 'handShake';
+
+    /** @var string */
     public const ON_OPEN = 'open';
 
     /** @var string */

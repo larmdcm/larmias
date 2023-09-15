@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace Larmias\Engine\Coroutine;
 
+use Larmias\Contracts\Coroutine\ChannelFactoryInterface;
 use Larmias\Contracts\Coroutine\ChannelInterface;
 use RuntimeException;
 
-class Channel
+class ChannelFactory implements ChannelFactoryInterface
 {
     /**
      * @var string|null
@@ -27,7 +28,7 @@ class Channel
      * @param int $size
      * @return ChannelInterface
      */
-    public static function create(int $size = 0): ChannelInterface
+    public static function make(int $size = 0): ChannelInterface
     {
         if (!static::isSupport()) {
             throw new RuntimeException("not support: Channel");
@@ -37,6 +38,17 @@ class Channel
     }
 
     /**
+     * 创建Channel
+     * @param int $size
+     * @return ChannelInterface
+     */
+    public function create(int $size = 0): ChannelInterface
+    {
+        return static::make($size);
+    }
+
+    /**
+     * 是否支持Channel
      * @return bool
      */
     public static function isSupport(): bool

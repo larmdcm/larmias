@@ -6,6 +6,7 @@ namespace Larmias\Task\Client;
 
 use Larmias\Contracts\Coroutine\ChannelFactoryInterface;
 use Larmias\Contracts\Coroutine\ChannelInterface;
+use Larmias\Contracts\ContextInterface;
 
 class SyncWait
 {
@@ -15,10 +16,11 @@ class SyncWait
     protected array $channels = [];
 
     /**
+     * @param ContextInterface $context
      * @param ChannelFactoryInterface $factory
      * @param float $timeout
      */
-    public function __construct(protected ChannelFactoryInterface $factory, protected float $timeout = 10.0)
+    public function __construct(protected ContextInterface $context, protected ChannelFactoryInterface $factory, protected float $timeout = 10.0)
     {
     }
 
@@ -28,7 +30,7 @@ class SyncWait
      */
     public function add(string $id): void
     {
-        if ($this->factory->isSupport()) {
+        if ($this->context->inCoroutine()) {
             $this->channels[$id] = $this->factory->create();
         }
     }
@@ -40,7 +42,7 @@ class SyncWait
      */
     public function done(string $id, mixed $result = null): void
     {
-        if (!isset($this->channels[$id]) || !$this->factory->isSupport()) {
+        if (!isset($this->channels[$id]) || !$this->context->inCoroutine()) {
             return;
         }
 
@@ -53,7 +55,7 @@ class SyncWait
      */
     public function wait(string $id): mixed
     {
-        if (!$this->factory->isSupport()) {
+        if (!$this->context->inCoroutine()) {
             return true;
         }
 

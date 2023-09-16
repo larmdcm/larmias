@@ -57,7 +57,8 @@ abstract class Command extends BaseCommand
         $run(function ($worker, $kernel) use ($input, $output) {
             $this->worker = $worker;
             $this->kernel = $kernel;
-            return parent::execute($input, $output);
+            parent::execute($input, $output);
+            $this->exit();
         });
         return self::SUCCESS;
     }

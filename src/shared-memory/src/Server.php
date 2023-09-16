@@ -70,10 +70,10 @@ class Server
 
     /**
      * @param ConnectionInterface $connection
-     * @param string $data
+     * @param mixed $data
      * @return void
      */
-    public function onReceive(ConnectionInterface $connection, string $data): void
+    public function onReceive(ConnectionInterface $connection, mixed $data): void
     {
         try {
             Context::setConnectId($connection->getId());

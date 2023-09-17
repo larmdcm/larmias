@@ -136,4 +136,12 @@ class Response implements ResponseInterface
     {
         $this->response->end($data);
     }
+
+    /**
+     * @return SwooleResponse
+     */
+    public function getSwooleResponse(): SwooleResponse
+    {
+        return $this->response;
+    }
 }

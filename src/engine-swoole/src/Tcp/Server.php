@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\Engine\Swoole\Tcp;
 
+use Larmias\Engine\Swoole\Concerns\WithIdAtomic;
 use Larmias\Engine\Swoole\Contracts\PackerInterface;
 use Larmias\Engine\Swoole\Packer\Buffer;
 use Larmias\Engine\Swoole\Packer\EmptyPacker;
@@ -16,6 +17,8 @@ use Throwable;
 
 class Server extends BaseServer
 {
+    use WithIdAtomic;
+
     /**
      * @var CoServer
      */
@@ -32,6 +35,8 @@ class Server extends BaseServer
      */
     public function process(): void
     {
+        $this->initIdAtomic();
+
         $this->server = new CoServer($this->getWorkerConfig()->getHost(), $this->getWorkerConfig()->getPort(),
             $this->getSettings('ssl', false),
             $this->getSettings('reuse_port', true)
@@ -43,7 +48,7 @@ class Server extends BaseServer
 
         $this->server->handle(function (TcpConnection $tcpConnection) {
             try {
-                $connection = new Connection($tcpConnection, $this->packer);
+                $connection = new Connection($this->generateId(), $tcpConnection, $this->packer);
                 $this->trigger(Event::ON_CONNECT, [$connection]);
                 $buffer = new Buffer();
                 while (true) {
@@ -70,8 +75,8 @@ class Server extends BaseServer
                         $this->trigger(Event::ON_RECEIVE, [$connection, $unpack[0]]);
                     }
                 }
-                $this->trigger(Event::ON_CLOSE, [$connection]);
                 $connection->close();
+                $this->trigger(Event::ON_CLOSE, [$connection]);
             } catch (Throwable $e) {
                 $this->handleException($e);
             }

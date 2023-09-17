@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Contracts\Tcp;
+namespace Larmias\Contracts\Udp;
 
-interface OnReceiveInterface
+interface OnPacketInterface
 {
     /**
      * 接收数据事件
@@ -12,5 +12,5 @@ interface OnReceiveInterface
      * @param mixed $data
      * @return void
      */
-    public function onReceive(ConnectionInterface $connection, mixed $data): void;
+    public function onPacket(ConnectionInterface $connection, mixed $data): void;
 }

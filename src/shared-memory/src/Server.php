@@ -7,7 +7,11 @@ namespace Larmias\SharedMemory;
 use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\ContextInterface;
 use Larmias\Contracts\Tcp\ConnectionInterface;
+use Larmias\Contracts\Tcp\OnCloseInterface;
+use Larmias\Contracts\Tcp\OnConnectInterface;
+use Larmias\Contracts\Tcp\OnReceiveInterface;
 use Larmias\Contracts\TimerInterface;
+use Larmias\Contracts\Worker\OnWorkerStartInterface;
 use Larmias\SharedMemory\Contracts\AuthInterface;
 use Larmias\SharedMemory\Contracts\CommandExecutorInterface;
 use Larmias\SharedMemory\Contracts\LoggerInterface;
@@ -19,7 +23,7 @@ use function Larmias\Utils\format_exception;
 use function method_exists;
 use function call_user_func_array;
 
-class Server
+class Server implements OnWorkerStartInterface, OnConnectInterface, OnReceiveInterface, OnCloseInterface
 {
     /**
      * @var LoggerInterface
@@ -126,10 +130,9 @@ class Server
     {
         $message = format_exception($e);
         $sendMessage = Result::build($e->getMessage(), false);
+        $connection->send($sendMessage);
         if ($e instanceof AuthenticateException) {
-            $connection->close($sendMessage);
-        } else {
-            $connection->send($sendMessage);
+            $connection->close();
         }
         $this->logger->trace($message, 'error');
     }

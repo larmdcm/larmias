@@ -4,40 +4,57 @@ declare(strict_types=1);
 
 namespace Larmias\Engine\Swoole\WebSocket;
 
+use Larmias\Engine\Swoole\Concerns\WithHttpServer;
+use Larmias\Engine\Swoole\Concerns\WithIdAtomic;
 use Larmias\Engine\Swoole\Server as BaseServer;
-use Swoole\Coroutine\Http\Server as HttpServer;
+use Larmias\Engine\Event;
 use Swoole\Http\Request as SwooleRequest;
 use Swoole\Http\Response as SwooleResponse;
-use Larmias\Engine\Event;
+use Swoole\WebSocket\CloseFrame;
+use Swoole\Coroutine;
 use Throwable;
 
 class Server extends BaseServer
 {
-    /**
-     * @var HttpServer
-     */
-    protected HttpServer $server;
+    use WithHttpServer, WithIdAtomic;
 
     /**
      * @return void
      */
     public function process(): void
     {
-        $this->server = new HttpServer($this->getWorkerConfig()->getHost(), $this->getWorkerConfig()->getPort(),
-            $this->getSettings('ssl', false),
-            $this->getSettings('reuse_port', true)
-        );
+        $this->initIdAtomic();
+        $this->initHttpServer();
 
-        $this->server->set($this->getServerSettings());
-
-        $this->server->handle('/', function (SwooleRequest $req, SwooleResponse $resp) {
+        $this->httpServer->handle('/', function (SwooleRequest $req, SwooleResponse $resp) {
             try {
                 $resp->upgrade();
+
+                [$request, $response] = $this->makeRequestAndResponse($req, $resp);
+
+                $connection = new Connection($this->generateId(), $request, $response);
+
+                $this->trigger(Event::ON_OPEN, [$connection]);
+
+                while (true) {
+                    $data = $connection->recv();
+                    if ($data === '' || $data === false || $data instanceof CloseFrame) {
+                        break;
+                    }
+
+                    Coroutine::create(function () use ($connection, $data) {
+                        $frame = Frame::from($data);
+                        $this->trigger(Event::ON_MESSAGE, [$connection, $frame]);
+                    });
+                }
+
+                $connection->close();
+                $this->trigger(Event::ON_CLOSE, [$connection]);
             } catch (Throwable $e) {
                 $this->handleException($e);
             }
         });
 
-        $this->server->start();
+        $this->httpServer->start();
     }
 }

@@ -40,6 +40,7 @@ abstract class AbstractFacade
         if (!$newInstance && isset(static::$instances[static::class])) {
             return static::$instances[static::class];
         }
+
         if (is_object($facadeAccessor)) {
             $instance = $facadeAccessor;
         } else if ($facadeAccessor instanceof Closure) {

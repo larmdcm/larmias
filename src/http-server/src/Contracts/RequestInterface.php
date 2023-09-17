@@ -39,10 +39,10 @@ interface RequestInterface extends ServerRequestInterface
 
     /**
      * @param array $keys
-     * @param null $default
+     * @param array $default
      * @return array
      */
-    public function inputs(array $keys, mixed $default = null): array;
+    public function inputs(array $keys, array $default = []): array;
 
     /**
      * Retrieve a file from the request.

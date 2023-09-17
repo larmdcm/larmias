@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Contracts;
+namespace Larmias\Contracts\NetWork;
 
 interface ConnectionInterface
 {
@@ -15,10 +15,9 @@ interface ConnectionInterface
 
     /**
      * 关闭连接.
-     * @param mixed $data
      * @return bool
      */
-    public function close(mixed $data = null): bool;
+    public function close(): bool;
 
     /**
      * 获取原生连接对象

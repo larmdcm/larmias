@@ -11,10 +11,11 @@ use Swoole\Coroutine\Server\Connection as TcpConnection;
 class Connection implements ConnectionInterface
 {
     /**
+     * @param int $id
      * @param TcpConnection $connection
      * @param PackerInterface $packer
      */
-    public function __construct(protected TcpConnection $connection, protected PackerInterface $packer)
+    public function __construct(protected int $id, protected TcpConnection $connection, protected PackerInterface $packer)
     {
     }
 
@@ -22,6 +23,14 @@ class Connection implements ConnectionInterface
      * @return int
      */
     public function getId(): int
+    {
+        return $this->id;
+    }
+
+    /**
+     * @return int
+     */
+    public function getFd(): int
     {
         return $this->connection->exportSocket()->fd;
     }
@@ -44,14 +53,10 @@ class Connection implements ConnectionInterface
     }
 
     /**
-     * @param mixed $data
      * @return bool
      */
-    public function close(mixed $data = null): bool
+    public function close(): bool
     {
-        if ($data !== null) {
-            $this->send($data);
-        }
         return $this->connection->close();
     }
 

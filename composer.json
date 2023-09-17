@@ -97,7 +97,8 @@
         "larmias/validation": "self.version",
         "larmias/view": "self.version",
         "larmias/constants": "self.version",
-        "larmias/facade": "self.version"
+        "larmias/facade": "self.version",
+        "larmias/websocket-server": "self.version"
     },
     "suggest": {
         "ext-swoole": "Required to use swoole (^4.6.*)."
@@ -155,7 +156,8 @@
             "Larmias\\Database\\": "src/database/src/",
             "Larmias\\Paginator\\": "src/paginator/src/",
             "Larmias\\Constants\\": "src/constants/src/",
-            "Larmias\\Facade\\": "src/facade/src"
+            "Larmias\\Facade\\": "src/facade/src",
+            "Larmias\\WebSocketServer\\": "src/websocket-server/src"
         }
     },
     "autoload-dev": {

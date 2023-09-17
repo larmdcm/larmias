@@ -25,6 +25,14 @@ class Connection implements ConnectionInterface
     }
 
     /**
+     * @return int
+     */
+    public function getFd(): int
+    {
+        return (int)$this->connection->getSocket();
+    }
+
+    /**
      * @return TcpConnection
      */
     public function getRawConnection(): TcpConnection
@@ -42,12 +50,11 @@ class Connection implements ConnectionInterface
     }
 
     /**
-     * @param mixed $data
      * @return bool
      */
-    public function close(mixed $data = null): bool
+    public function close(): bool
     {
-        $this->connection->close($data);
+        $this->connection->close();
         return true;
     }
 }

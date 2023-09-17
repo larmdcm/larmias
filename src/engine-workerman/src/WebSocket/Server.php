@@ -6,8 +6,8 @@ namespace Larmias\Engine\WorkerMan\WebSocket;
 
 use Larmias\Engine\Event;
 use Larmias\Engine\WorkerMan\Server as BaseServer;
-use Larmias\Engine\WorkerMan\Tcp\Connection;
 use Workerman\Connection\TcpConnection;
+use Workerman\Protocols\Http\Request as WorkerRequest;
 use Throwable;
 
 class Server extends BaseServer
@@ -25,6 +25,7 @@ class Server extends BaseServer
     public function onWebSocketConnect(TcpConnection $tcpConnection, mixed $data): void
     {
         try {
+            $tcpConnection->request = $data instanceof WorkerRequest ? $data : new WorkerRequest($data);
             $connection = new Connection($tcpConnection);
             $this->trigger(Event::ON_OPEN, [$connection, $data]);
         } catch (Throwable $e) {
@@ -41,7 +42,8 @@ class Server extends BaseServer
     {
         try {
             $connection = new Connection($tcpConnection);
-            $this->trigger(Event::ON_MESSAGE, [$connection, $data]);
+            $frame = Frame::from($connection->getFd(), $data);
+            $this->trigger(Event::ON_MESSAGE, [$connection, $frame]);
         } catch (Throwable $e) {
             $this->handleException($e);
         }

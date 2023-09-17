@@ -18,12 +18,8 @@ class Connection implements ConnectionInterface
         return $this->socket->sendto($this->peer['address'], $this->peer['port'], $data);
     }
 
-    public function close(mixed $data = null): bool
+    public function close(): bool
     {
-        if ($data !== null) {
-            $this->send($data);
-        }
-
         return true;
     }
 

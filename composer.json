@@ -199,7 +199,8 @@
                 "Larmias\\Throttle\\Providers\\ThrottleServiceProvider",
                 "Larmias\\Translation\\Providers\\TranslationServiceProvider",
                 "Larmias\\Validation\\Providers\\ValidatorServiceProvider",
-                "Larmias\\View\\Providers\\ViewServiceProvider"
+                "Larmias\\View\\Providers\\ViewServiceProvider",
+                "Larmias\\WebSocketServer\\Providers\\WebSocketServerServiceProvider"
             ]
         }
     },

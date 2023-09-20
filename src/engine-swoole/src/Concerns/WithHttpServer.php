@@ -37,7 +37,7 @@ trait WithHttpServer
     /**
      * @param SwooleRequest $req
      * @param SwooleResponse $resp
-     * @return array<Request,Response>
+     * @return array
      */
     public function makeRequestAndResponse(SwooleRequest $req, SwooleResponse $resp): array
     {

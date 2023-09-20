@@ -19,8 +19,9 @@
     ],
     "require": {
         "php": ">=8.0",
+        "ext-swoole": ">=4.8",
         "larmias/engine": "^1.0",
-        "ext-swoole": ">=4.8"
+        "larmias/facade": "^1.0"
     },
     "autoload": {
         "psr-4": {

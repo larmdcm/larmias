@@ -12,6 +12,7 @@ use Larmias\Engine\Swoole\Server as BaseServer;
 use Swoole\Coroutine\Server as CoServer;
 use Swoole\Coroutine\Server\Connection as TcpConnection;
 use Swoole\Exception as SwooleException;
+use Swoole\Coroutine;
 use Larmias\Engine\Event;
 use Throwable;
 
@@ -72,7 +73,10 @@ class Server extends BaseServer
                         }
                         $buffer->write($unpack[1]);
                         $bfString = $buffer->toString();
-                        $this->trigger(Event::ON_RECEIVE, [$connection, $unpack[0]]);
+
+                        Coroutine::create(function () use ($connection,$unpack) {
+                            $this->trigger(Event::ON_RECEIVE, [$connection, $unpack[0]]);
+                        });
                     }
                 }
                 $connection->close();

@@ -41,9 +41,24 @@ class Packet
      */
     public const BINARY_ACK = 6;
 
+    /**
+     * @var int
+     */
     public int $type;
+
+    /**
+     * @var string
+     */
     public string $nsp = '/';
+
+    /**
+     * @var mixed
+     */
     public mixed $data = null;
+
+    /**
+     * @var int|null
+     */
     public ?int $id = null;
 
     public function __construct(int $type)
@@ -52,11 +67,11 @@ class Packet
     }
 
     /**
-     * @param $type
+     * @param int $type
      * @param array $decoded
      * @return static
      */
-    public static function create($type, array $decoded = []): static
+    public static function create(int $type, array $decoded = []): static
     {
         $new = new static($type);
         $new->id = $decoded['id'] ?? null;
@@ -86,7 +101,7 @@ class Packet
         return $str;
     }
 
-    public static function fromString(string $str)
+    public static function fromString(string $str): Packet
     {
         $i = 0;
 

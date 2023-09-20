@@ -5,49 +5,50 @@ declare(strict_types=1);
 namespace Larmias\WebSocketServer;
 
 use Larmias\Contracts\WebSocket\ConnectionInterface;
+use Larmias\WebSocketServer\Contracts\ConnectionManagerInterface;
 
-class ConnectionManager
+class ConnectionManager implements ConnectionManagerInterface
 {
     /**
      * @var ConnectionInterface[]
      */
-    protected static array $connections = [];
+    protected array $connections = [];
 
     /**
      * @param ConnectionInterface $connection
      * @return void
      */
-    public static function add(ConnectionInterface $connection): void
+    public function add(ConnectionInterface $connection): void
     {
-        static::$connections[$connection->getId()] = $connection;
+        $this->connections[$connection->getId()] = $connection;
     }
 
     /**
      * @param int $id
      * @return ConnectionInterface|null
      */
-    public static function get(int $id): ?ConnectionInterface
+    public function get(int $id): ?ConnectionInterface
     {
-        return static::$connections[$id] ?? null;
+        return $this->connections[$id] ?? null;
     }
 
     /**
      * @param int $id
      * @return bool
      */
-    public static function has(int $id): bool
+    public function exists(int $id): bool
     {
-        return isset(static::$connections[$id]);
+        return isset($this->connections[$id]);
     }
 
     /**
      * @param int $id
      * @return void
      */
-    public static function removeById(int $id): void
+    public function remove(int $id): void
     {
-        if (isset(static::$connections[$id])) {
-            unset(static::$connections[$id]);
+        if (isset($this->connections[$id])) {
+            unset($this->connections[$id]);
         }
     }
 
@@ -55,16 +56,16 @@ class ConnectionManager
      * @param ConnectionInterface $connection
      * @return void
      */
-    public static function remove(ConnectionInterface $connection): void
+    public function removeConnection(ConnectionInterface $connection): void
     {
-        static::removeById($connection->getId());
+        static::remove($connection->getId());
     }
 
     /**
      * @return int
      */
-    public static function count(): int
+    public function count(): int
     {
-        return count(static::$connections);
+        return count($this->connections);
     }
 }

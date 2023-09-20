@@ -7,6 +7,11 @@ namespace Larmias\Contracts\WebSocket;
 interface OnCloseInterface
 {
     /**
+     * @var string
+     */
+    public const ON_CLOSE = 'onClose';
+
+    /**
      * 连接关闭事件
      * @param ConnectionInterface $connection
      * @return void

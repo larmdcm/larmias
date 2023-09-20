@@ -4,15 +4,21 @@ declare(strict_types=1);
 
 namespace Larmias\WebSocketServer;
 
+use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\WebSocket\OnOpenInterface;
 use Larmias\Contracts\WebSocket\OnMessageInterface;
 use Larmias\Contracts\WebSocket\OnCloseInterface;
 use Larmias\Contracts\WebSocket\ConnectionInterface;
 use Larmias\Contracts\WebSocket\FrameInterface;
+use Larmias\WebSocketServer\Contracts\ConnectionManagerInterface;
 
 class Server implements OnOpenInterface, OnMessageInterface, OnCloseInterface
 {
-    public function __construct()
+    public function __construct(
+        protected ContainerInterface         $container,
+        protected ConnectionManagerInterface $connectionManager,
+        protected HandlerManager             $handlerManager
+    )
     {
     }
 
@@ -23,7 +29,8 @@ class Server implements OnOpenInterface, OnMessageInterface, OnCloseInterface
      */
     public function onOpen(ConnectionInterface $connection): void
     {
-        ConnectionManager::add($connection);
+        $this->connectionManager->add($connection);
+        $this->handlerManager->remember($connection->getId())->open();
     }
 
     /**
@@ -34,6 +41,7 @@ class Server implements OnOpenInterface, OnMessageInterface, OnCloseInterface
      */
     public function onMessage(ConnectionInterface $connection, FrameInterface $frame): void
     {
+        $this->handlerManager->get($connection->getId())?->message($frame->getData());
     }
 
     /**
@@ -43,6 +51,7 @@ class Server implements OnOpenInterface, OnMessageInterface, OnCloseInterface
      */
     public function onClose(ConnectionInterface $connection): void
     {
-        ConnectionManager::remove($connection);
+        $this->connectionManager->removeConnection($connection);
+        $this->handlerManager->get($connection->getId())?->close();
     }
 }

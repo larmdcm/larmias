@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\Contracts\Tcp;
 
-use Larmias\Contracts\NetWork\ConnectionInterface as BaseConnectionInterface;
+use Larmias\Contracts\Network\ConnectionInterface as BaseConnectionInterface;
 
 interface ConnectionInterface extends BaseConnectionInterface
 {

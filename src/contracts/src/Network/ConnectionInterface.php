@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Contracts\NetWork;
+namespace Larmias\Contracts\Network;
 
 interface ConnectionInterface
 {

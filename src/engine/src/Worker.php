@@ -129,9 +129,11 @@ abstract class Worker implements WorkerInterface
     protected function reset(): void
     {
         mt_srand();
+        
         if (extension_loaded('apc') && function_exists('apc_clear_cache')) {
             apc_clear_cache();
         }
+
         if (extension_loaded('Zend OPcache') && function_exists('opcache_reset')) {
             opcache_reset();
         }

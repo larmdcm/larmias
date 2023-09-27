@@ -17,15 +17,23 @@ class SignalHandler
     /**
      * @var SignalHandlerInterface|null
      */
-    protected static ?SignalHandlerInterface $signal = null;
+    protected static ?SignalHandlerInterface $signalHandler = null;
 
     /**
-     * @param SignalHandlerInterface $signal
+     * @param SignalHandlerInterface $signalHandler
      * @return void
      */
-    public static function init(SignalHandlerInterface $signal): void
+    public static function init(SignalHandlerInterface $signalHandler): void
     {
-        static::$signal = $signal;
+        static::$signalHandler = $signalHandler;
+    }
+
+    /**
+     * @return SignalHandlerInterface
+     */
+    public static function getSignalHandler(): SignalHandlerInterface
+    {
+        return static::$signalHandler;
     }
 
     /**
@@ -35,9 +43,10 @@ class SignalHandler
      */
     public static function __callStatic(string $name, array $arguments): mixed
     {
-        if (static::$signal === null) {
-            throw new RuntimeException("not support: Signal");
+        if (static::$signalHandler === null) {
+            throw new RuntimeException("not support: SignalHandler");
         }
-        return call_user_func_array([static::$signal, $name], $arguments);
+
+        return call_user_func_array([static::$signalHandler, $name], $arguments);
     }
 }

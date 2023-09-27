@@ -6,6 +6,7 @@ namespace Larmias\WebSocketServer;
 
 use Larmias\WebSocketServer\Contracts\ConnectionManagerInterface;
 use Larmias\WebSocketServer\Contracts\PusherInterface;
+use Larmias\WebSocketServer\Contracts\RoomInterface;
 use Larmias\WebSocketServer\Message\Event as EventMessage;
 use function in_array;
 use function array_unique;
@@ -17,7 +18,7 @@ class Pusher implements PusherInterface
      */
     protected array $to = [];
 
-    public function __construct(protected ConnectionManagerInterface $connectionManager)
+    public function __construct(protected ConnectionManagerInterface $connectionManager, protected RoomInterface $room)
     {
     }
 
@@ -48,8 +49,14 @@ class Pusher implements PusherInterface
     {
         $ids = [];
         foreach ($this->to as $item) {
-            $ids[] = $item;
+            $clients = $this->room->getClients((string)$item);
+            if (!empty($clients)) {
+                $ids[] = array_merge($ids, $clients);
+            } else {
+                $ids[] = $item;
+            }
         }
+
         $ids = array_unique($ids);
 
         foreach ($ids as $id) {

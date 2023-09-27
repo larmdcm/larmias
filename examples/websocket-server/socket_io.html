@@ -13,6 +13,7 @@
 
     socket.on('connect',function () {
         console.log('连接成功');
+        socket.emit('message',123);
     });
 
     socket.on('message',function (evt) {

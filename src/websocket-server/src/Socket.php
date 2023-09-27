@@ -8,6 +8,7 @@ use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\WebSocket\ConnectionInterface;
 use Larmias\WebSocketServer\Contracts\ConnectionManagerInterface;
 use Larmias\WebSocketServer\Contracts\PusherInterface;
+use Larmias\WebSocketServer\Contracts\RoomInterface;
 
 class Socket
 {
@@ -17,7 +18,11 @@ class Socket
      */
     protected int $id;
 
-    public function __construct(protected ContainerInterface $container, protected ConnectionManagerInterface $connectionManager)
+    public function __construct(
+        protected ContainerInterface         $container,
+        protected ConnectionManagerInterface $connectionManager,
+        protected RoomInterface              $room,
+    )
     {
     }
 
@@ -53,6 +58,28 @@ class Socket
     }
 
     /**
+     * 加入房间.
+     * @param array|string $rooms
+     * @return self
+     */
+    public function join(array|string $rooms): self
+    {
+        $this->room->join($this->id, $rooms);
+        return $this;
+    }
+
+    /**
+     * 离开房间.
+     * @param array|string $rooms
+     * @return self
+     */
+    public function leave(array|string $rooms): self
+    {
+        $this->room->leave($this->id, $rooms);
+        return $this;
+    }
+
+    /**
      * @return PusherInterface
      */
     public function makePusher(): PusherInterface
@@ -70,7 +97,6 @@ class Socket
     {
         return $this->id;
     }
-
 
     /**
      * 设置连接id

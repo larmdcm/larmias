@@ -23,6 +23,7 @@ use function mkdir;
 use function php_sapi_name;
 use function rename;
 use function move_uploaded_file;
+use function mime_content_type;
 use const UPLOAD_ERR_OK;
 use const UPLOAD_ERR_INI_SIZE;
 use const UPLOAD_ERR_FORM_SIZE;

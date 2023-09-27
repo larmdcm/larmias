@@ -91,10 +91,10 @@ class Application implements ApplicationInterface
         $this->configPath = $this->rootPath . 'config' . DIRECTORY_SEPARATOR;
         $this->runtimePath = $this->rootPath . 'runtime' . DIRECTORY_SEPARATOR;
         $this->container->bindIf([
-            KernelInterface::class => Kernel::class,
             ConsoleInterface::class => ConsoleApplication::class,
             StdoutLoggerInterface::class => StdoutLogger::class,
             ServiceDiscoverInterface::class => ServiceDiscover::class,
+            KernelInterface::class => Kernel::class,
             DotEnvInterface::class => DotEnv::class,
             ListenerProviderInterface::class => function () {
                 return ListenerProviderFactory::make($this->container, [

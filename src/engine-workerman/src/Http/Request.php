@@ -6,6 +6,8 @@ namespace Larmias\Engine\WorkerMan\Http;
 
 use Larmias\Contracts\Http\RequestInterface;
 use Workerman\Protocols\Http\Request as WorkerRequest;
+use RuntimeException;
+use function strtolower;
 
 class Request implements RequestInterface
 {
@@ -37,10 +39,6 @@ class Request implements RequestInterface
      */
     public function query(?string $key = null, mixed $default = null): mixed
     {
-        $rawBody = $this->rawBody();
-        if (\strlen($rawBody) > 65535) {
-            throw new \InvalidArgumentException('The parameter exceeds the length limit.');
-        }
         return $this->request->get($key, $default);
     }
 
@@ -65,7 +63,7 @@ class Request implements RequestInterface
     {
         $server = [];
         foreach ($_SERVER as $name => $value) {
-            $server[\strtolower($name)] = $value;
+            $server[strtolower($name)] = $value;
         }
 
         if ($key === null) {
@@ -172,7 +170,7 @@ class Request implements RequestInterface
      */
     public function session(?string $key = null, mixed $default = null): mixed
     {
-        throw new \RuntimeException('session not implement.');
+        throw new RuntimeException('session not implement.');
     }
 
     /**

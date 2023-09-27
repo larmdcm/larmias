@@ -31,6 +31,14 @@ class Context
     }
 
     /**
+     * @return ContextInterface
+     */
+    public static function getContext(): ContextInterface
+    {
+        return static::$context;
+    }
+
+    /**
      * @param string $name
      * @param array $arguments
      * @return mixed
@@ -40,6 +48,7 @@ class Context
         if (static::$context === null) {
             throw new RuntimeException("not support: Context");
         }
+
         return call_user_func_array([static::$context, $name], $arguments);
     }
 }

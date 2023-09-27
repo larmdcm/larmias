@@ -62,6 +62,7 @@ class Timer
         if (static::$timer === null) {
             throw new RuntimeException("not support: Timer");
         }
+
         return call_user_func_array([static::$timer, $name], $arguments);
     }
 }

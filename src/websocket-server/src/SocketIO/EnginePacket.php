@@ -9,37 +9,37 @@ class EnginePacket
     /**
      * Engine.io packet type `open`.
      */
-    const OPEN = 0;
+    public const OPEN = 0;
 
     /**
      * Engine.io packet type `close`.
      */
-    const CLOSE = 1;
+    public const CLOSE = 1;
 
     /**
      * Engine.io packet type `ping`.
      */
-    const PING = 2;
+    public const PING = 2;
 
     /**
      * Engine.io packet type `pong`.
      */
-    const PONG = 3;
+    public const PONG = 3;
 
     /**
      * Engine.io packet type `message`.
      */
-    const MESSAGE = 4;
+    public const MESSAGE = 4;
 
     /**
      * Engine.io packet type 'upgrade'
      */
-    const UPGRADE = 5;
+    public const UPGRADE = 5;
 
     /**
      * Engine.io packet type `noop`.
      */
-    const NOOP = 6;
+    public const NOOP = 6;
 
     /**
      * @var int

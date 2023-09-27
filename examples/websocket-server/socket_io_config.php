@@ -8,11 +8,14 @@ use Larmias\Engine\WorkerType;
 use Larmias\Engine\Event;
 use Larmias\Contracts\PipelineInterface;
 use Larmias\Pipeline\Pipeline;
+use Larmias\WebSocketServer\Contracts\EventInterface;
 use Psr\EventDispatcher\ListenerProviderInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Larmias\Event\ListenerProviderFactory;
 use Larmias\Event\EventDispatcherFactory;
 use Larmias\WebSocketServer\Server as WebSocketServer;
+use Larmias\WebSocketServer\Socket;
+use function Larmias\Utils\println;
 
 return [
     'driver' => \Larmias\Engine\Swoole\Driver::class,
@@ -43,6 +46,21 @@ return [
                 $serviceProvider = new \Larmias\WebSocketServer\Providers\WebSocketServerServiceProvider($container);
                 $serviceProvider->register();
                 $serviceProvider->boot();
+
+                /** @var EventInterface $event */
+                $event = $container->get(EventInterface::class);
+                $event->on(EventInterface::ON_CONNECT, function (Socket $socket, mixed $data) {
+                    println('新客户端连接:%s', $socket->getId());
+                });
+
+                $event->on('message', function (Socket $socket, mixed $data) {
+                    println('接收到客户端消息<%s>:%s', $socket->getId(), (string)$data[0]);
+                    $socket->emit('message', 'emit message.');
+                });
+
+                $event->on(EventInterface::ON_DISCONNECT, function (Socket $socket, mixed $data) {
+                    println('客户端断开连接:%s', $socket->getId());
+                });
             }
         ]
     ],

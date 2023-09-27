@@ -88,7 +88,7 @@ class Handler implements HandlerInterface
                     case Packet::EVENT:
                         $type = array_shift($packet->data);
                         $data = $packet->data;
-                        $result = $this->event->trigger($type, $data);
+                        $result = $this->trigger($type, $data);
 
                         if ($packet->id !== null) {
                             $responsePacket = Packet::create(Packet::ACK, [
@@ -100,7 +100,7 @@ class Handler implements HandlerInterface
                         }
                         break;
                     case Packet::DISCONNECT:
-                        $this->event->trigger(EventInterface::ON_DISCONNECT);
+                        $this->trigger(EventInterface::ON_DISCONNECT);
                         $this->socket->close();
                         break;
                     default:
@@ -143,7 +143,7 @@ class Handler implements HandlerInterface
     protected function onConnect(mixed $data = null): void
     {
         try {
-            $this->event->trigger(EventInterface::ON_CONNECT, $data);
+            $this->trigger(EventInterface::ON_CONNECT, $data);
             $packet = Packet::create(Packet::CONNECT);
             if ($this->eio >= 4) {
                 $packet->data = ['sid' => base64_encode(uniqid())];
@@ -195,5 +195,17 @@ class Handler implements HandlerInterface
     public function push(mixed $data): void
     {
         $this->socket->push($data);
+    }
+
+    /**
+     * 触发事件
+     * @param string $event
+     * @param ...$args
+     * @return mixed
+     */
+    public function trigger(string $event, ...$args): mixed
+    {
+        array_unshift($args, $this->socket);
+        return $this->event->trigger($event, ...$args);
     }
 }

@@ -14,6 +14,8 @@ use PHPUnit\TextUI\Command;
 
 date_default_timezone_set('PRC');
 
+define('LARMIAS_BASE_PATH', dirname(__DIR__) . '/src');
+
 function container(): ContainerInterface
 {
     return Container::getInstance();
@@ -39,13 +41,11 @@ function init(string $env = 'swoole'): void
     ];
 
 
-    \Larmias\Engine\Coroutine::init($classMap[$env]['coroutine']);
-    \Larmias\Engine\Coroutine\Channel::init($classMap[$env]['channel']);
+    \Larmias\Engine\Coroutine::init($classMap[$env]['coroutine'] ? $container->get($classMap[$env]['coroutine']) : null);
+    \Larmias\Engine\Coroutine\ChannelFactory::init($classMap[$env]['channel']);
     \Larmias\Engine\Timer::init($container->get($classMap[$env]['timer']));
 
     $container->bind(\Larmias\Contracts\ContextInterface::class, $classMap[$env]['context']);
-    $container->bind(\Larmias\Contracts\Coroutine\CoroutineFactoryInterface::class, \Larmias\Engine\Factory\CoroutineFactory::class);
-    $container->bind(\Larmias\Contracts\Coroutine\ChannelFactoryInterface::class, \Larmias\Engine\Factory\ChannelFactory::class);
     $container->bind(\Larmias\Contracts\TimerInterface::class, Timer::getTimer());
     $container->bind(ConfigInterface::class, Config::class);
     ApplicationContext::setContainer($container);

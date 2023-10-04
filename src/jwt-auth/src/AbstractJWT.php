@@ -7,6 +7,7 @@ namespace Larmias\JWTAuth;
 use Larmias\Contracts\ConfigInterface;
 use Larmias\Contracts\ContainerInterface;
 use Larmias\JWTAuth\Contracts\JWTInterface;
+use Throwable;
 
 abstract class AbstractJWT implements JWTInterface
 {
@@ -27,7 +28,7 @@ abstract class AbstractJWT implements JWTInterface
 
     /**
      * @param ContainerInterface $container
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function __construct(protected ContainerInterface $container)
     {

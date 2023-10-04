@@ -4,13 +4,10 @@ declare(strict_types=1);
 
 namespace LarmiasTest\JWT;
 
-use Psr\SimpleCache\InvalidArgumentException;
-
 class JWTAuthTestCase extends TestCase
 {
     /**
      * @return void
-     * @throws InvalidArgumentException
      */
     public function testGetToken(): void
     {

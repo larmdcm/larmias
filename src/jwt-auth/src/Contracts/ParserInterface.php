@@ -7,6 +7,7 @@ namespace Larmias\JWTAuth\Contracts;
 interface ParserInterface
 {
     /**
+     * 解析获取token
      * @return string
      */
     public function parse(): string;

@@ -8,6 +8,7 @@ use Larmias\Cache\Providers\CacheServiceProvider;
 use Larmias\Contracts\ConfigInterface;
 use Larmias\Contracts\DotEnvInterface;
 use Larmias\Env\DotEnv;
+use Larmias\JWTAuth\Contracts\BlacklistInterface;
 use Larmias\JWTAuth\Contracts\JWTInterface;
 use Larmias\JWTAuth\JWT;
 use Larmias\JWTAuth\Providers\JWTAuthServiceProvider;
@@ -27,6 +28,7 @@ class TestCase extends BaseTestCase
         /** @var ConfigInterface $config */
         $config = $container->get(ConfigInterface::class);
         $config->load(LARMIAS_BASE_PATH . '/jwt-auth/publish/jwt.php');
+        $config->load(LARMIAS_BASE_PATH . '/cache/publish/cache.php');
         $services = [
             CacheServiceProvider::class,
             JWTAuthServiceProvider::class,
@@ -39,8 +41,13 @@ class TestCase extends BaseTestCase
         }
     }
 
-    public function getJWT(string $scene = 'default'): JWT
+    public function getJWT(string $scene = 'default'): JWTInterface
     {
         return ApplicationContext::getContainer()->get(JWTInterface::class)->setScene($scene);
+    }
+
+    public function getBlacklist(): BlacklistInterface
+    {
+        return ApplicationContext::getContainer()->get(BlacklistInterface::class);
     }
 }

@@ -7,12 +7,11 @@ namespace Larmias\JWTAuth;
 use Larmias\JWTAuth\Contracts\BlacklistInterface;
 use Larmias\JWTAuth\Exceptions\JWTException;
 use Larmias\JWTAuth\Exceptions\TokenBlacklistException;
-use Lcobucci\JWT\Signer;
+use Larmias\JWTAuth\Exceptions\TokenValidException;
 use Lcobucci\JWT\Signer\Key;
 use Lcobucci\JWT\UnencryptedToken;
 use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Signer\Key\InMemory;
-use Psr\SimpleCache\InvalidArgumentException;
 use Throwable;
 
 class JWT extends AbstractJWT
@@ -75,21 +74,26 @@ class JWT extends AbstractJWT
     /**
      * 验证token
      * @param string $token
-     * @param string|null $scene
      * @param bool $throwException
      * @return bool
      * @throws Throwable
      */
-    public function checkToken(string $token, ?string $scene = null, bool $throwException = true): bool
+    public function checkToken(string $token, bool $throwException = true): bool
     {
         try {
             $tokenObj = $this->parseToken($token);
-            $config = $this->getSceneConfig($scene ?? $this->getScene());
+            $config = $this->getCurrSceneConfig();
 
             // 验证token是否存在黑名单
             if ($config['blacklist_enabled'] && $this->blackList->has($tokenObj, $config)) {
                 throw new TokenBlacklistException('The token is in blacklist.');
             }
+
+            // 验证token
+            if (!$this->validateToken($tokenObj, $config)) {
+                throw new TokenValidException('Token authentication does not pass.');
+            }
+
         } catch (Throwable $e) {
             if ($throwException) {
                 throw $e;
@@ -98,6 +102,18 @@ class JWT extends AbstractJWT
         }
 
         return true;
+    }
+
+    /**
+     * 刷新token
+     * @param string $token
+     * @return UnencryptedToken
+     */
+    public function refreshToken(string $token): UnencryptedToken
+    {
+        $claims = $this->parseToken($token)->claims()->all();
+        unset($claims['iat'], $claims['nbf'], $claims['exp'], $claims['jti']);
+        return $this->getToken($claims);
     }
 
     /**
@@ -119,7 +135,7 @@ class JWT extends AbstractJWT
      * @param string $type
      * @return Key|null
      */
-    public function getKey(array $config, string $type = 'private'): ?Key
+    protected function getKey(array $config, string $type = 'private'): ?Key
     {
         // 对称算法
         if (in_array($config['alg'], $config['symmetry_algs'])) {
@@ -134,11 +150,29 @@ class JWT extends AbstractJWT
         return $key ?? null;
     }
 
-    protected function validateToken(array $config, string $token): bool
+    /**
+     * 校验token
+     * @param UnencryptedToken $token
+     * @param array $config
+     * @return bool
+     */
+    protected function validateToken(UnencryptedToken $token, array $config): bool
     {
         $signer = new $config['supported_algs'][$config['alg']];
         $key = $this->getKey($config);
         $configuration = Configuration::forSymmetricSigner($signer, $key);
+        $claims = $token->claims()->all();
+        $now = new \DateTimeImmutable();
+
+        if ($claims['nbf'] > $now || $claims['exp'] < $now) {
+            return false;
+        }
+
+        $configuration->setValidationConstraints(new \Lcobucci\JWT\Validation\Constraint\IdentifiedBy($claims['jti']));
+        if (!$configuration->validator()->validate($token, ...$configuration->validationConstraints())) {
+            return false;
+        }
+
         return true;
     }
 }

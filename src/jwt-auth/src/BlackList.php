@@ -10,6 +10,7 @@ use Lcobucci\JWT\Token\RegisteredClaims;
 use Psr\SimpleCache\CacheInterface;
 use Psr\SimpleCache\InvalidArgumentException;
 use function time;
+use function intval;
 
 class BlackList implements BlacklistInterface
 {
@@ -35,9 +36,9 @@ class BlackList implements BlacklistInterface
         }
         $claims = $token->claims()->all();
         $cacheKey = $this->getCacheKey($claims[RegisteredClaims::ID], $config);
-        $expTime = $claims[RegisteredClaims::EXPIRATION_TIME];
-        $cacheTime = time() - $expTime;
-        return $this->cache->set($cacheKey, ['valid_until' => $expTime], $cacheTime);
+        $graceTime = time() + intval($config['blacklist_grace_period'] ?? 0);
+        $cacheTime = $claims[RegisteredClaims::EXPIRATION_TIME]->getTimestamp() - time();
+        return $this->cache->set($cacheKey, $graceTime, $cacheTime);
     }
 
     /**
@@ -49,19 +50,23 @@ class BlackList implements BlacklistInterface
      */
     public function has(UnencryptedToken $token, array $config = []): bool
     {
+        if (!$config['blacklist_enabled']) {
+            return false;
+        }
+
         $claims = $token->claims()->all();
         $cacheKey = $this->getCacheKey($claims[RegisteredClaims::ID], $config);
-        $result = $this->cache->get($cacheKey);
-        if (!$result) {
+        $graceTime = $this->cache->get($cacheKey);
+        if (!$graceTime) {
             return false;
         }
 
         if ($config['login_type'] == 'mpop') {
-            return time() - $result['valid_until'] >= 0;
+            return $graceTime >= time();
         }
 
         if (!is_null($claims[RegisteredClaims::ISSUED_AT])) {
-            return $claims[RegisteredClaims::ISSUED_AT] - $result['valid_until'] >= 0;
+            return $claims[RegisteredClaims::ISSUED_AT]->getTimestamp() - $graceTime >= 0;
         }
 
         return false;

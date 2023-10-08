@@ -30,7 +30,7 @@ class File extends Driver
         'expire' => 0,
         'path' => null,
         'prefix' => '',
-        'cache_subdir' => true,
+        'cache_sub_dir' => false,
         'hash_type' => 'md5',
     ];
 
@@ -124,7 +124,6 @@ class File extends Driver
 
     /**
      * 获取缓存文件路径
-     *
      * @param string $key
      * @return string
      */
@@ -134,7 +133,7 @@ class File extends Driver
             $key = hash($this->config['hash_type'], $key);
         }
 
-        if ($this->config['cache_subdir']) {
+        if ($this->config['cache_sub_dir']) {
             $key = substr($key, 0, 2) . DIRECTORY_SEPARATOR . $key;
         }
 
@@ -158,7 +157,6 @@ class File extends Driver
 
     /**
      * 获取缓存数据
-     *
      * @param string $key
      * @return mixed
      */
@@ -174,7 +172,7 @@ class File extends Driver
             if (time() > $expireTime) {
                 $dirname = dirname($file);
                 $this->unlink($file);
-                if ($this->config['cache_subdir'] && is_dir($dirname)) {
+                if ($this->config['cache_sub_dir'] && is_dir($dirname)) {
                     rmdir($dirname);
                 }
                 clearstatcache();
@@ -187,7 +185,6 @@ class File extends Driver
 
     /**
      * 判断文件是否存在后，删除
-     *
      * @param string $path
      * @return bool
      */
@@ -202,7 +199,6 @@ class File extends Driver
 
     /**
      * 删除文件夹
-     *
      * @param $dirname
      * @return bool
      */

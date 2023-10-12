@@ -52,7 +52,7 @@ class Watcher implements FileWatcherInterface
      */
     public function exclude(array|string $path): FileWatcherInterface
     {
-        return $this->driver->include($path);
+        return $this->driver->exclude($path);
     }
 
     /**

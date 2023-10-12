@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Engine;
+namespace Larmias\Engine\Swoole;
 
 class ProcessManager
 {

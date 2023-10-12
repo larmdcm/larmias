@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Larmias\Di;
 
 use Larmias\Contracts\ContainerInterface;
-use Larmias\Contracts\ContextInterface;
 use Larmias\Di\Annotation\Scope;
 use Psr\Container\ContainerInterface as PsrContainerInterface;
 use Closure;
@@ -133,12 +132,6 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
      */
     public function make(string $abstract, array $params = [], bool $newInstance = false): object
     {
-        /** @var ContextInterface $context */
-        $context = $this->instances[$this->getAlias(ContextInterface::class)] ?? null;
-        if ($context && !$newInstance && $context->has($abstract) && is_object($instance = $context->get($abstract))) {
-            return $instance;
-        }
-
         $abstract = $this->getAlias($abstract);
 
         if (isset($this->instances[$abstract]) && !$newInstance) {

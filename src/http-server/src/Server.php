@@ -15,8 +15,6 @@ use Larmias\Http\Message\ServerRequest;
 use Larmias\HttpServer\Events\HttpRequestStart;
 use Larmias\HttpServer\Events\HttpRequestEnd;
 use Larmias\HttpServer\Exceptions\Handler\ExceptionHandler;
-use Larmias\HttpServer\Message\Request;
-use Larmias\HttpServer\Message\Response;
 use Larmias\HttpServer\CoreMiddleware\HttpCoreMiddleware;
 use Larmias\HttpServer\CoreMiddleware\HttpRouteCoreMiddleware;
 use Larmias\Http\Message\ServerResponse as PsrResponse;
@@ -61,6 +59,7 @@ class Server implements OnRequestInterface
      * 请求回调事件
      * @param HttpRequestInterface $request
      * @param HttpResponseInterface $response
+     * @throws Throwable
      */
     public function onRequest(HttpRequestInterface $request, HttpResponseInterface $response): void
     {
@@ -124,7 +123,7 @@ class Server implements OnRequestInterface
             return $result;
         }
         /** @var ResponseInterface $response */
-        $response = $this->context->get(ResponseInterface::class);
+        $response = $this->container->get(ResponseInterface::class);
         return is_scalar($result) || $result instanceof Stringable ? $response->html((string)$result) : $response->json($result);
     }
 
@@ -152,16 +151,14 @@ class Server implements OnRequestInterface
      * @param HttpRequestInterface $req
      * @param HttpResponseInterface $resp
      * @return RequestInterface
+     * @throws Throwable
      */
     protected function makeRequest(HttpRequestInterface $req, HttpResponseInterface $resp): RequestInterface
     {
         $psrResponse = new PsrResponse();
         $psrResponse->setRawResponse($resp);
-        $request = new Request($this->context);
         $this->context->set(ServerRequestInterface::class, ServerRequest::loadFromRequest($req));
         $this->context->set(PsrResponseInterface::class, $psrResponse);
-        $this->context->set(RequestInterface::class, $request);
-        $this->context->set(ResponseInterface::class, new Response($this->context));
-        return $request;
+        return $this->container->get(RequestInterface::class);
     }
 }

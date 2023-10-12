@@ -72,6 +72,14 @@ class Context implements ContextInterface
     }
 
     /**
+     * @return void
+     */
+    public function clear(): void
+    {
+        $this->context = [];
+    }
+
+    /**
      * @return bool
      */
     public function inCoroutine(): bool

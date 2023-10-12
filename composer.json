@@ -99,7 +99,9 @@
         "larmias/view": "self.version",
         "larmias/constants": "self.version",
         "larmias/facade": "self.version",
-        "larmias/websocket-server": "self.version"
+        "larmias/websocket-server": "self.version",
+        "larmias/jwt-auth": "self.version",
+        "larmias/trace": "self.version"
     },
     "suggest": {
         "ext-swoole": "Required to use swoole (^4.6.*)."
@@ -159,7 +161,8 @@
             "Larmias\\Constants\\": "src/constants/src/",
             "Larmias\\Facade\\": "src/facade/src",
             "Larmias\\WebSocketServer\\": "src/websocket-server/src",
-            "Larmias\\JWTAuth\\": "src/jwt-auth/src"
+            "Larmias\\JWTAuth\\": "src/jwt-auth/src",
+            "Larmias\\Trace\\": "src/"
         }
     },
     "autoload-dev": {
@@ -203,7 +206,8 @@
                 "Larmias\\Validation\\Providers\\ValidatorServiceProvider",
                 "Larmias\\View\\Providers\\ViewServiceProvider",
                 "Larmias\\WebSocketServer\\Providers\\WebSocketServerServiceProvider",
-                "Larmias\\JWTAuth\\Providers\\JWTAuthServiceProvider"
+                "Larmias\\JWTAuth\\Providers\\JWTAuthServiceProvider",
+                "Larmias\\Trace\\Providers\\TraceServiceProvider"
             ]
         }
     },

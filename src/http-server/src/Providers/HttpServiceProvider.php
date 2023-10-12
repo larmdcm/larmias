@@ -18,6 +18,10 @@ use Larmias\HttpServer\Annotation\PatchMapping;
 use Larmias\HttpServer\Annotation\PostMapping;
 use Larmias\HttpServer\Annotation\PutMapping;
 use Larmias\HttpServer\Annotation\RequestMapping;
+use Larmias\HttpServer\Contracts\RequestInterface;
+use Larmias\HttpServer\Contracts\ResponseInterface;
+use Larmias\HttpServer\Message\Request;
+use Larmias\HttpServer\Message\Response;
 use Larmias\HttpServer\ResponseEmitter;
 use Larmias\Routing\Router as BaseRouter;
 use Larmias\HttpServer\Routing\Router;
@@ -38,12 +42,14 @@ class HttpServiceProvider implements ServiceProviderInterface
     public function register(): void
     {
         /** @var BaseRouter $router */
-        $router = $this->container->make(BaseRouter::class,[],true);
+        $router = $this->container->make(BaseRouter::class, [], true);
         Router::init($router);
 
         $this->container->bindIf([
             RouteAnnotationHandlerInterface::class => RouteAnnotationHandler::class,
             ResponseEmitterInterface::class => ResponseEmitter::class,
+            RequestInterface::class => Request::class,
+            ResponseInterface::class => Response::class,
         ]);
 
         if ($this->container->has(AnnotationInterface::class)) {

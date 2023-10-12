@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Larmias\Engine\Swoole;
 
-use Larmias\Engine\ProcessManager;
 use Larmias\Engine\Event;
 use Throwable;
 use function usleep;

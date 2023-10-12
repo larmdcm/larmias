@@ -39,8 +39,18 @@ return [
                 $container->bind(PipelineInterface::class, Pipeline::class);
                 $container->bind(ListenerProviderInterface::class, ListenerProviderFactory::make($container, []));
                 $container->bind(EventDispatcherInterface::class, EventDispatcherFactory::make($container));
-                $container->bind(ResponseEmitterInterface::class, ResponseEmitter::class);
-                Router::init($container->make(\Larmias\Routing\Router::class));
+
+                $providerList = [
+                    \Larmias\ExceptionHandler\Providers\ExceptionHandlerServiceProvider::class,
+                    \Larmias\HttpServer\Providers\HttpServiceProvider::class,
+                ];
+
+                foreach ($providerList as $provider) {
+                    $serviceProvider = new $provider($container);
+                    $serviceProvider->register();
+                    $serviceProvider->boot();
+                }
+
                 Router::get('/', function () {
                     return 'Hello,World!';
                 });

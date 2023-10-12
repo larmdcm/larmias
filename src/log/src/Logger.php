@@ -9,6 +9,7 @@ use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\LoggerInterface;
 use Larmias\Log\Contracts\FormatterInterface;
 use Larmias\Utils\Arr;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use function is_null;
 
 class Logger implements LoggerInterface
@@ -23,8 +24,9 @@ class Logger implements LoggerInterface
      *
      * @param ContainerInterface $container
      * @param ConfigInterface $config
+     * @param EventDispatcherInterface|null $eventDispatcher
      */
-    public function __construct(protected ContainerInterface $container, protected ConfigInterface $config)
+    public function __construct(protected ContainerInterface $container, protected ConfigInterface $config, protected ?EventDispatcherInterface $eventDispatcher = null)
     {
     }
 
@@ -239,7 +241,7 @@ class Logger implements LoggerInterface
         $formatter = $this->container->make($formatterConfig['handler'], ['config' => $formatterConfig], true);
         $allowLevel = $channelConfig['level'] ?? $this->getConfig('level', []);
         $realtimeWrite = $channelConfig['realtime_write'] ?? $this->getConfig('realtime_write', true);
-        return $this->channels[$name] = new Channel($name, $handlers, $formatter, $allowLevel, $realtimeWrite);
+        return $this->channels[$name] = new Channel($name, $handlers, $formatter, $allowLevel, $realtimeWrite, $this->eventDispatcher);
     }
 
     /**

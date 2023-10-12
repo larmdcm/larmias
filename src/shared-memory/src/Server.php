@@ -14,6 +14,7 @@ use Larmias\Contracts\TimerInterface;
 use Larmias\Contracts\Worker\OnWorkerStartInterface;
 use Larmias\SharedMemory\Contracts\AuthInterface;
 use Larmias\SharedMemory\Contracts\CommandExecutorInterface;
+use Larmias\SharedMemory\Contracts\LockerInterface;
 use Larmias\SharedMemory\Contracts\LoggerInterface;
 use Larmias\SharedMemory\Exceptions\AuthenticateException;
 use Larmias\SharedMemory\Message\Result;
@@ -42,10 +43,11 @@ class Server implements OnWorkerStartInterface, OnConnectInterface, OnReceiveInt
         protected CommandExecutorInterface $executor,
         protected AuthInterface            $auth,
         protected TimerInterface           $timer,
-        ContextInterface                   $context,
+        protected ContextInterface         $context,
+        protected LockerInterface          $locker,
     )
     {
-        Context::init($context);
+        Context::init($this->context);
     }
 
     /**
@@ -58,7 +60,7 @@ class Server implements OnWorkerStartInterface, OnConnectInterface, OnReceiveInt
         $logger = $this->container->make(LoggerInterface::class);
         $this->logger = $logger;
         $this->timer->tick($worker->getSettings('tick_interval', 1000), function () use ($worker) {
-            $this->triggerCommand('onTick', [$worker]);
+            $this->locker->tryLock(fn() => $this->triggerCommand('onTick', [$worker]));
         });
     }
 
@@ -84,7 +86,7 @@ class Server implements OnWorkerStartInterface, OnConnectInterface, OnReceiveInt
             $command = $this->executor->parse($data);
             $this->logger->trace('#' . $connection->getId() . " Received command: " . $command->name, 'info');
             $this->auth->check($command);
-            $result = $this->executor->execute($command);
+            $result = $this->locker->tryLock(fn() => $this->executor->execute($command));
             $connection->send($result instanceof Result ? $result->toString() : Result::build($result));
         } catch (Throwable $e) {
             $this->handleException($connection, $e);
@@ -98,9 +100,9 @@ class Server implements OnWorkerStartInterface, OnConnectInterface, OnReceiveInt
     public function onClose(ConnectionInterface $connection): void
     {
         try {
-            $this->triggerCommand(__FUNCTION__, [$connection]);
             ConnectionManager::remove($connection);
             Context::clearConnectionData($connection->getId());
+            $this->locker->tryLock(fn() => $this->triggerCommand(__FUNCTION__, [$connection]));
             $this->logger->trace('#' . $connection->getId() . " Closed", 'info');
         } catch (Throwable $e) {
             $this->handleException($connection, $e);

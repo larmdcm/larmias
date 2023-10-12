@@ -7,6 +7,8 @@ namespace Larmias\Log;
 use Larmias\Contracts\LoggerInterface;
 use Larmias\Log\Contracts\FormatterInterface;
 use Larmias\Log\Contracts\LoggerHandlerInterface;
+use Larmias\Log\Events\LogWrite;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use function in_array;
 
 class Channel implements LoggerInterface
@@ -17,17 +19,20 @@ class Channel implements LoggerInterface
     protected array $logs = [];
 
     /**
-     * Channel constructor.
-     *
      * @param string $name
-     * @param LoggerHandlerInterface[] $handlers
+     * @param array $handlers
+     * @param FormatterInterface $formatter
+     * @param array $allowLevel
+     * @param bool $realtimeWrite
+     * @param EventDispatcherInterface|null $eventDispatcher
      */
     public function __construct(
-        protected string $name,
-        protected array $handlers,
-        protected FormatterInterface $formatter,
-        protected array $allowLevel = [],
-        protected bool $realtimeWrite = false
+        protected string                    $name,
+        protected array                     $handlers,
+        protected FormatterInterface        $formatter,
+        protected array                     $allowLevel = [],
+        protected bool                      $realtimeWrite = false,
+        protected ?EventDispatcherInterface $eventDispatcher = null,
     )
     {
     }
@@ -234,6 +239,7 @@ class Channel implements LoggerInterface
     public function save(): bool
     {
         if (!empty($this->logs)) {
+            $this->eventDispatcher?->dispatch(new LogWrite($this->logs, $this->name));
             foreach ($this->handlers as $handler) {
                 $handler->save($this->logs);
             }

@@ -12,6 +12,7 @@ use Lcobucci\JWT\Signer\Key;
 use Lcobucci\JWT\UnencryptedToken;
 use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Signer\Key\InMemory;
+use DateTimeImmutable;
 use Throwable;
 
 class JWT extends AbstractJWT
@@ -50,7 +51,7 @@ class JWT extends AbstractJWT
         }
 
         $signer = new $config['supported_algs'][$config['alg']];
-        $time = new \DateTimeImmutable();
+        $time = new DateTimeImmutable();
         $builder = Configuration::forSymmetricSigner($signer, $this->getKey($config))
             ->builder()
             ->identifiedBy($uniqueId)
@@ -162,7 +163,7 @@ class JWT extends AbstractJWT
         $key = $this->getKey($config);
         $configuration = Configuration::forSymmetricSigner($signer, $key);
         $claims = $token->claims()->all();
-        $now = new \DateTimeImmutable();
+        $now = new DateTimeImmutable();
 
         if ($claims['nbf'] > $now || $claims['exp'] < $now) {
             return false;

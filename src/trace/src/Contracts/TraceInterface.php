@@ -16,7 +16,7 @@ interface TraceInterface
      * 数据库信息收集
      * @var string
      */
-    public const DATABASE = 'DATABASE';
+    public const DATABASE = 'database';
 
     /**
      * 获取指定收集器

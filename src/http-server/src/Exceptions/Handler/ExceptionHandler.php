@@ -35,6 +35,7 @@ class ExceptionHandler extends BaseExceptionHandler implements ExceptionHandlerI
      * @param RequestInterface $request
      * @param Throwable $e
      * @return PsrResponseInterface
+     * @throws Throwable
      */
     public function render(RequestInterface $request, Throwable $e): PsrResponseInterface
     {
@@ -61,6 +62,7 @@ class ExceptionHandler extends BaseExceptionHandler implements ExceptionHandlerI
      * @param mixed $result
      * @param mixed|null $args
      * @return PsrResponseInterface
+     * @throws Throwable
      */
     public function handle(Throwable $e, mixed $result, mixed $args = null): PsrResponseInterface
     {
@@ -90,6 +92,7 @@ class ExceptionHandler extends BaseExceptionHandler implements ExceptionHandlerI
      * @param RequestInterface $request
      * @param Throwable $e
      * @return PsrResponseInterface
+     * @throws Throwable
      */
     protected function getRenderResponse(RequestInterface $request, Throwable $e): PsrResponseInterface
     {
@@ -108,6 +111,7 @@ class ExceptionHandler extends BaseExceptionHandler implements ExceptionHandlerI
     /**
      * @param RequestInterface $request
      * @return RenderInterface
+     * @throws Throwable
      */
     protected function getRender(RequestInterface $request): RenderInterface
     {

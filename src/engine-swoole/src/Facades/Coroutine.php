@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Larmias\Engine\Swoole\Facades;
 
 use Larmias\Contracts\Coroutine\CoroutineInterface;

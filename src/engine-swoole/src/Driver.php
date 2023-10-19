@@ -6,7 +6,9 @@ namespace Larmias\Engine\Swoole;
 
 use Larmias\Engine\Contracts\DriverInterface;
 use Larmias\Engine\Contracts\KernelInterface;
+use Larmias\Engine\Swoole\Contracts\ManagerInterface;
 use Larmias\Engine\Swoole\Http\Server as HttpServer;
+use Larmias\Engine\Swoole\Manager\Factory;
 use Larmias\Engine\Swoole\Tcp\Server as TcpServer;
 use Larmias\Engine\Swoole\Udp\Server as UdpServer;
 use Larmias\Engine\Swoole\WebSocket\Server as WebSocketServer;
@@ -33,7 +35,8 @@ class Driver implements DriverInterface
      */
     public function run(KernelInterface $kernel): void
     {
-        $manager = new Manager();
+        $settings = $kernel->getConfig()->getSettings();
+        $manager = Factory::make($settings['mode'] ?? ManagerInterface::MODE_WORKER);
 
         foreach ($kernel->getWorkers() as $worker) {
             if (!($worker instanceof WorkerInterface)) {

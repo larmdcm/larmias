@@ -12,6 +12,8 @@ use Larmias\Contracts\VendorPublishInterface;
 use Larmias\Database\Contracts\ManagerInterface;
 use Larmias\Database\Manager;
 use Larmias\Database\Model\Model;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 
 class DatabaseServiceProvider implements ServiceProviderInterface
@@ -34,6 +36,7 @@ class DatabaseServiceProvider implements ServiceProviderInterface
 
     /**
      * @return void
+     * @throws \Throwable
      */
     public function boot(): void
     {

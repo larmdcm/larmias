@@ -25,7 +25,6 @@ return [
             'port' => 9863,
             'settings' => [
                 'worker_num' => 2,
-                'task_worker_num' => 1,
             ],
             'callbacks' => [
                 Event::ON_REQUEST => [HttpServer::class, OnRequestInterface::ON_REQUEST]

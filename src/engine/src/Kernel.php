@@ -14,7 +14,6 @@ use Larmias\Contracts\ContainerInterface;
 use RuntimeException;
 use Throwable;
 use function class_exists;
-use function count;
 
 class Kernel implements KernelInterface
 {
@@ -63,9 +62,7 @@ class Kernel implements KernelInterface
     {
         $workers = $this->engineConfig->getWorkers();
         foreach ($workers as $workerConfig) {
-            if (!$this->addWorker($workerConfig)) {
-                break;
-            }
+            $this->addWorker($workerConfig);
         }
         $this->container->invoke([BeforeStartCallback::class, 'onBeforeStart'], [$this]);
         $this->driver->run($this);
@@ -77,10 +74,6 @@ class Kernel implements KernelInterface
      */
     public function addWorker(WorkerConfigInterface $workerConfig): ?WorkerInterface
     {
-        if (!is_unix() && count($this->workers) > 0) {
-            return null;
-        }
-
         $class = match ($workerConfig->getType()) {
             WorkerType::TCP_SERVER => $this->driver->getTcpServerClass(),
             WorkerType::UPD_SERVER => $this->driver->getUdpServerClass(),

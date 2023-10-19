@@ -15,6 +15,14 @@ use const SIGTERM;
 abstract class Worker extends BaseWorker implements WorkerInterface
 {
     /**
+     * @var array
+     */
+    protected static array $data = [
+        'initBind' => false,
+        'initReset' => false,
+    ];
+
+    /**
      * @param int $workerId
      * @return void
      */
@@ -25,6 +33,31 @@ abstract class Worker extends BaseWorker implements WorkerInterface
         } catch (Throwable $e) {
             $this->handleException($e);
         }
+    }
+
+    /**
+     * @return void
+     * @throws Throwable
+     */
+    protected function bind(): void
+    {
+        if (static::$data['initBind']) {
+            return;
+        }
+        static::$data['initBind'] = true;
+        parent::bind();
+    }
+
+    /**
+     * @return void
+     */
+    protected function reset(): void
+    {
+        if (static::$data['initReset']) {
+            return;
+        }
+        static::$data['initReset'] = true;
+        parent::reset();
     }
 
     /**

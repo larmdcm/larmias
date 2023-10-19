@@ -15,7 +15,7 @@ $container = Container::getInstance();
 $container->bind(ListenerProviderInterface::class,ListenerProviderFactory::make($container,$config));
 $container->bind(EventDispatcherInterface::class,EventDispatcherFactory::make($container));
 
-/** @var EventDispatcherInterface $disaptch */
-$disaptch = $container->get(EventDispatcherInterface::class);
+/** @var EventDispatcherInterface $dispatch */
+$dispatch = $container->get(EventDispatcherInterface::class);
 
-$disaptch->dispatch(new HelloEvent('hello,world!'));
+$dispatch->dispatch(new HelloEvent('hello,world!'));

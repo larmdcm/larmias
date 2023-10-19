@@ -271,7 +271,7 @@ class Application implements ApplicationInterface
     /**
      * Get the value of configPath
      *
-     * @return  string
+     * @return string
      */
     public function getConfigPath(): string
     {

@@ -113,9 +113,9 @@ class Server implements OnRequestInterface
     }
 
     /**
-     * 包装返回结果响应
      * @param mixed $result
      * @return PsrResponseInterface
+     * @throws Throwable
      */
     protected function warpResultToResponse(mixed $result): PsrResponseInterface
     {

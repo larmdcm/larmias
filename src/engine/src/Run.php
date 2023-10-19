@@ -31,7 +31,7 @@ class Run
     /**
      * @param string|array $name
      * @param mixed|null $value
-     * @return $this
+     * @return self
      */
     public function set(string|array $name, mixed $value = null): self
     {

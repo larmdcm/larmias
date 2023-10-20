@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Larmias\AsyncQueue\Drivers;
 
 use Larmias\AsyncQueue\Contracts\QueueDriverInterface;
+use Larmias\Contracts\Concurrent\ConcurrentInterface;
+use Larmias\Contracts\Concurrent\ParallelInterface;
 use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\ContextInterface;
 use Larmias\Contracts\LoggerInterface;
@@ -22,6 +24,16 @@ abstract class QueueDriver implements QueueDriverInterface
     protected array $config = [];
 
     /**
+     * @var ConcurrentInterface|null
+     */
+    protected ?ConcurrentInterface $concurrent = null;
+
+    /**
+     * @var ParallelInterface|null
+     */
+    protected ?ParallelInterface $parallel = null;
+
+    /**
      * @param ContainerInterface $container
      * @param ContextInterface $context
      * @param TimerInterface $timer
@@ -37,6 +49,14 @@ abstract class QueueDriver implements QueueDriverInterface
     )
     {
         $this->config = array_merge($this->config, $config);
+        $concurrentLimit = $this->config['concurrent_limit'] ?? null;
+
+        if ($concurrentLimit) {
+            $this->concurrent = $this->container->make(ConcurrentInterface::class, ['limit' => (int)$concurrentLimit], true);
+        } else {
+            $this->parallel = $this->container->make(ParallelInterface::class, [], true);
+        }
+
         if (method_exists($this, 'initialize')) {
             $this->container->invoke([$this, 'initialize']);
         }
@@ -48,16 +68,35 @@ abstract class QueueDriver implements QueueDriverInterface
     public function consumer(): void
     {
         if ($this->context->inCoroutine()) {
-            return;
+            $this->coHandle();
+        } else {
+            $this->timer->tick(1, [$this, 'handle']);
         }
-
-        $this->timer->tick(1, [$this, 'processHandle']);
     }
 
     /**
      * @return void
      */
-    public function processHandle(): void
+    public function coHandle(): void
+    {
+        while (true) {
+            try {
+                if ($this->concurrent) {
+                    $this->concurrent->create([$this, 'handle']);
+                } else {
+                    $this->parallel->add([$this, 'handle']);
+                    $this->parallel->wait();
+                }
+            } catch (Throwable $e) {
+                $this->logger?->error(format_exception($e));
+            }
+        }
+    }
+
+    /**
+     * @return void
+     */
+    public function handle(): void
     {
         $message = $this->pop($this->config['timeout']);
         if (!$message) {

@@ -11,6 +11,7 @@ use Larmias\Contracts\Coroutine\CoroutineInterface;
 use Larmias\Contracts\Sync\LockerInterface;
 use Larmias\Contracts\Sync\WaitGroupInterface;
 use Larmias\Contracts\Concurrent\ConcurrentInterface;
+use Larmias\Contracts\Concurrent\ParallelInterface;
 use Larmias\Contracts\EventLoopInterface;
 use Larmias\Contracts\SignalHandlerInterface;
 use Larmias\Contracts\TimerInterface;
@@ -24,6 +25,7 @@ use Larmias\Engine\Coroutine\Coroutine;
 use Larmias\Engine\Coroutine\ChannelFactory;
 use Larmias\Engine\Coroutine as EngineCo;
 use Larmias\Engine\Concurrent\Concurrent;
+use Larmias\Engine\Concurrent\Parallel;
 use Larmias\Engine\Sync\WaitGroup;
 use Larmias\Engine\Sync\Locker;
 use Throwable;
@@ -103,6 +105,7 @@ abstract class Worker implements WorkerInterface
             ChannelFactoryInterface::class => ChannelFactory::class,
             CoroutineInterface::class => Coroutine::class,
             ConcurrentInterface::class => Concurrent::class,
+            ParallelInterface::class => Parallel::class,
             WaitGroupInterface::class => WaitGroup::class,
             LockerInterface::class => Locker::class,
             BaseWorkerInterface::class => $this,

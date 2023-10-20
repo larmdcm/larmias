@@ -17,12 +17,12 @@ interface ConcurrentInterface
     /**
      * @return int
      */
-    public function getLimit(): int;
+    public function limit(): int;
 
     /**
      * @return int
      */
-    public function getLength(): int;
+    public function length(): int;
 
     /**
      * @return ChannelInterface

@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Engine\Coroutine;
+namespace Larmias\Engine\Sync;
 
 use Larmias\Contracts\Coroutine\CoroutineInterface;
-use Larmias\Contracts\Coroutine\LockerInterface;
+use Larmias\Contracts\Sync\LockerInterface;
 
 class Locker implements LockerInterface
 {
@@ -17,10 +17,12 @@ class Locker implements LockerInterface
      */
     protected static array $container = [];
 
+    /**
+     * @param CoroutineInterface $coroutine
+     */
     public function __construct(protected CoroutineInterface $coroutine)
     {
     }
-
 
     /**
      * 加锁

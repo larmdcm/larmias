@@ -1,11 +1,11 @@
 {
-    "name": "larmias/async-queue",
-    "description": "A async queue component for larmias.",
+    "name": "larmias/var-dumper",
+    "description": "A var-dumper library for Larmias.",
     "type": "library",
     "keywords": [
         "larmias",
-        "async",
-        "queue"
+        "var-dumper",
+        "debug"
     ],
     "homepage": "https://larmias.com/",
     "license": "MIT",
@@ -16,19 +16,19 @@
         }
     ],
     "require": {
-        "php": ">=8.0",
-        "larmias/contracts": "^1.0",
-        "larmias/utils": "^1.0"
+        "php": ">=8.0"
     },
     "autoload": {
+        "files": [
+            "src/functions.php"
+        ],
         "psr-4": {
-            "Larmias\\AsyncQueue\\": "src/"
+            "Larmias\\VarDumper\\": "src/"
         }
     },
     "extra": {
         "larmias": {
             "providers": [
-                "Larmias\\AsyncQueue\\Providers\\QueueServiceProvider"
             ]
         }
     }

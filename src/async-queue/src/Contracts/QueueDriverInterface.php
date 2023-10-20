@@ -28,7 +28,7 @@ interface QueueDriverInterface
      * @param MessageInterface $message
      * @return bool
      */
-    public function success(MessageInterface $message): bool;
+    public function ack(MessageInterface $message): bool;
 
     /**
      * @param MessageInterface $message

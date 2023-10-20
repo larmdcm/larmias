@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Larmias\SharedMemory;
 
 use Larmias\Contracts\ContextInterface;
-use Larmias\Contracts\Coroutine\LockerInterface as CoLockerInterface;
+use Larmias\Contracts\Sync\LockerInterface as CoLockerInterface;
 use Larmias\SharedMemory\Contracts\LockerInterface;
 use Closure;
 

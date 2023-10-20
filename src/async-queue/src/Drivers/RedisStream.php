@@ -126,7 +126,7 @@ class RedisStream extends QueueDriver
      * @param MessageInterface $message
      * @return bool
      */
-    public function success(MessageInterface $message): bool
+    public function ack(MessageInterface $message): bool
     {
         $result = $this->connection->xAck($this->getQueueKey(), $this->group, [$message->getMessageId()]);
         return $result !== 0;

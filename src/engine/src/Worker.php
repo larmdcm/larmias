@@ -8,7 +8,9 @@ use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\ContextInterface;
 use Larmias\Contracts\Coroutine\ChannelFactoryInterface;
 use Larmias\Contracts\Coroutine\CoroutineInterface;
-use Larmias\Contracts\Coroutine\LockerInterface;
+use Larmias\Contracts\Sync\LockerInterface;
+use Larmias\Contracts\Sync\WaitGroupInterface;
+use Larmias\Contracts\Concurrent\ConcurrentInterface;
 use Larmias\Contracts\EventLoopInterface;
 use Larmias\Contracts\SignalHandlerInterface;
 use Larmias\Contracts\TimerInterface;
@@ -21,7 +23,9 @@ use Larmias\Engine\Contracts\WorkerInterface;
 use Larmias\Engine\Coroutine\Coroutine;
 use Larmias\Engine\Coroutine\ChannelFactory;
 use Larmias\Engine\Coroutine as EngineCo;
-use Larmias\Engine\Coroutine\Locker;
+use Larmias\Engine\Concurrent\Concurrent;
+use Larmias\Engine\Sync\WaitGroup;
+use Larmias\Engine\Sync\Locker;
 use Throwable;
 use function array_merge;
 use function call_user_func;
@@ -98,6 +102,8 @@ abstract class Worker implements WorkerInterface
             TimerInterface::class => $this->kernel->getDriver()->getTimerClass(),
             ChannelFactoryInterface::class => ChannelFactory::class,
             CoroutineInterface::class => Coroutine::class,
+            ConcurrentInterface::class => Concurrent::class,
+            WaitGroupInterface::class => WaitGroup::class,
             LockerInterface::class => Locker::class,
             BaseWorkerInterface::class => $this,
             WorkerInterface::class => $this,
@@ -129,7 +135,7 @@ abstract class Worker implements WorkerInterface
     protected function reset(): void
     {
         mt_srand();
-        
+
         if (extension_loaded('apc') && function_exists('apc_clear_cache')) {
             apc_clear_cache();
         }

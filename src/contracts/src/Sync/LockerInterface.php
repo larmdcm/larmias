@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Contracts\Coroutine;
+namespace Larmias\Contracts\Sync;
 
 interface LockerInterface
 {

@@ -101,7 +101,8 @@
         "larmias/facade": "self.version",
         "larmias/websocket-server": "self.version",
         "larmias/jwt-auth": "self.version",
-        "larmias/trace": "self.version"
+        "larmias/trace": "self.version",
+        "larmias/var-dump": "self.version"
     },
     "suggest": {
         "ext-swoole": "Required to use swoole (^4.6.*)."
@@ -113,7 +114,8 @@
             "src/framework/src/functions.php",
             "src/view/src/Drivers/Blade/helpers.php",
             "src/http-server/src/functions.php",
-            "src/http-csrf/src/functions.php"
+            "src/http-csrf/src/functions.php",
+            "src/var-dump/src/functions.php"
         ],
         "psr-4": {
             "Larmias\\Utils\\": "src/utils/src/",
@@ -162,7 +164,8 @@
             "Larmias\\Facade\\": "src/facade/src",
             "Larmias\\WebSocketServer\\": "src/websocket-server/src",
             "Larmias\\JWTAuth\\": "src/jwt-auth/src",
-            "Larmias\\Trace\\": "src/"
+            "Larmias\\Trace\\": "src/trace/src",
+            "Larmias\\VarDumper\\": "src/var-dump/src"
         }
     },
     "autoload-dev": {

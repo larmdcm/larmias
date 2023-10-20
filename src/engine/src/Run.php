@@ -58,7 +58,7 @@ class Run
             'type' => WorkerType::WORKER_PROCESS,
             'callbacks' => [
                 Event::ON_WORKER_START => function ($worker) use ($args) {
-                    call_user_func($args[0],$worker,$this->kernel);
+                    $this->container->invoke($args[0], [$worker, $this->kernel]);
                 }
             ]
         ]));

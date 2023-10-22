@@ -18,9 +18,8 @@ class PaginatorServiceProvider implements ServiceProviderInterface
 {
     /**
      * @param ContainerInterface $container
-     * @param ContextInterface $context
      */
-    public function __construct(protected ContainerInterface $container, protected ContextInterface $context)
+    public function __construct(protected ContainerInterface $container)
     {
     }
 
@@ -38,11 +37,12 @@ class PaginatorServiceProvider implements ServiceProviderInterface
     public function boot(): void
     {
         Paginator::currentPathResolver(function (string $varPage) {
-            if (!$this->context->has(ServerRequestInterface::class)) {
+            $context = $this->container->get(ContextInterface::class);
+            if (!$context->has(ServerRequestInterface::class)) {
                 return 1;
             }
             /** @var ServerRequestInterface $request */
-            $request = $this->context->get(ServerRequestInterface::class);
+            $request = $context->get(ServerRequestInterface::class);
             $inputData = array_merge($request->getQueryParams(), (array)$request->getParsedBody());
             $page = $inputData[$varPage] ?? 1;
             if (filter_var($page, FILTER_VALIDATE_INT) !== false && (int)$page >= 1) {

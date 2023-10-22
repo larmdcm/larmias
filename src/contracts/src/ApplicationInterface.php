@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Larmias\Contracts;
 
+use Closure;
+
 interface ApplicationInterface
 {
     /**
@@ -23,6 +25,12 @@ interface ApplicationInterface
      * @return ServiceProviderInterface|null
      */
     public function getServiceProvider(string $provider): ?ServiceProviderInterface;
+
+    /**
+     * @param Closure|null $handle
+     * @return void
+     */
+    public function discover(?Closure $handle = null): void;
 
     /**
      * @return void
@@ -89,4 +97,15 @@ interface ApplicationInterface
      * @return self
      */
     public function setConfigExt(string $configExt): ApplicationInterface;
+
+    /**
+     * @return bool
+     */
+    public function isDiscovering(): bool;
+
+    /**
+     * @param bool $isDiscovering
+     * @return ApplicationInterface
+     */
+    public function setIsDiscovering(bool $isDiscovering): ApplicationInterface;
 }

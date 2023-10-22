@@ -52,7 +52,7 @@ abstract class Command extends BaseCommand
             return parent::execute($input, $output);
         }
         $run = new Run($this->container);
-        $config = $this->getWorkerConfig();
+        $config = $this->getEngineConfig();
         $run->set(['driver' => $config['driver']]);
         $run(function ($worker, $kernel) use ($input, $output) {
             $this->worker = $worker;

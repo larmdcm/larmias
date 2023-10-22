@@ -11,14 +11,13 @@ use Closure;
 use Larmias\Event\Annotation\Listener;
 use Larmias\Framework\Annotation\Provider;
 use Larmias\Process\Annotation\Process;
+use Larmias\Utils\FileSystem;
 use RuntimeException;
 use function class_exists;
 use function extension_loaded;
-use function is_file;
 use function array_merge;
 use function array_column;
 use function array_values;
-use function file_put_contents;
 use function date;
 use function var_export;
 use function json_decode;
@@ -51,6 +50,11 @@ class ServiceDiscover implements ServiceDiscoverInterface
     ];
 
     /**
+     * @var FileSystem
+     */
+    protected FileSystem $fileSystem;
+
+    /**
      * @var array
      */
     protected array $services = [];
@@ -60,6 +64,7 @@ class ServiceDiscover implements ServiceDiscoverInterface
      */
     public function __construct(protected ApplicationInterface $app)
     {
+        $this->fileSystem = $this->app->getContainer()->get(FileSystem::class);
     }
 
     /**
@@ -108,7 +113,7 @@ class ServiceDiscover implements ServiceDiscoverInterface
     {
         $file = $this->app->getRuntimePath() . 'services.php';
         $services = $this->services;
-        if (is_file($file)) {
+        if ($this->fileSystem->isFile($file)) {
             $services = array_merge(require $file, $services);
         }
         return $this->optimize($services);
@@ -175,6 +180,7 @@ class ServiceDiscover implements ServiceDiscoverInterface
     protected function handle(): void
     {
         $this->serviceProvider();
+        $this->app->setIsDiscovering(true);
         $this->app->initialize();
         $this->annotation();
         $this->generate();
@@ -206,7 +212,9 @@ class ServiceDiscover implements ServiceDiscoverInterface
     {
         $header = '// Service automatic discovery generated at ' . date('Y-m-d H:i:s') . PHP_EOL . 'declare(strict_types=1);' . PHP_EOL;
         $content = '<?php ' . PHP_EOL . $header . "return " . var_export($this->optimize($this->services), true) . ';';
-        file_put_contents($this->app->getRuntimePath() . 'services.php', $content);
+        $runtimePath = $this->app->getRuntimePath();
+        $this->fileSystem->ensureDirectoryExists($runtimePath);
+        $this->fileSystem->put($runtimePath . 'services.php', $content);
     }
 
     /**
@@ -214,7 +222,7 @@ class ServiceDiscover implements ServiceDiscoverInterface
      */
     protected function serviceProvider(): void
     {
-        if (is_file($path = $this->app->getRootPath() . 'vendor/composer/installed.json')) {
+        if ($this->fileSystem->isFile($path = $this->app->getRootPath() . 'vendor/composer/installed.json')) {
             $installed = json_decode(file_get_contents($path), true);
             $packages = $installed['packages'] ?? $installed;
 

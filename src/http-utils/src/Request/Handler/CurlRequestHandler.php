@@ -12,6 +12,7 @@ use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use function is_array;
 use function is_string;
+use function strval;
 use function curl_init;
 use function curl_setopt;
 use function curl_exec;
@@ -132,7 +133,7 @@ class CurlRequestHandler implements RequestHandlerInterface
             }
             $info = curl_getinfo($ch);
             $response = new Response();
-            $response = $response->withStatus($info['http_code'] ?? 200)->withProtocolVersion($info['protocol'] ?? '');
+            $response = $response->withStatus($info['http_code'] ?? 200)->withProtocolVersion(strval($info['protocol'] ?? ''));
             $response = $response->withHeader('Content-Type', $info['content_type'] ?? '');
             $stream = Stream::create($result);
             $stream->seek(0);

@@ -60,13 +60,22 @@ class Kernel implements KernelInterface
      */
     public function run(): void
     {
+        $this->initWorkers();
+        $this->container->invoke([BeforeStartCallback::class, 'onBeforeStart'], [$this]);
+        $this->driver->run($this);
+    }
+
+    /**
+     * @return void
+     */
+    protected function initWorkers(): void
+    {
         $workers = $this->engineConfig->getWorkers();
         foreach ($workers as $workerConfig) {
             $this->addWorker($workerConfig);
         }
-        $this->container->invoke([BeforeStartCallback::class, 'onBeforeStart'], [$this]);
-        $this->driver->run($this);
     }
+
 
     /**
      * @param WorkerConfigInterface $workerConfig

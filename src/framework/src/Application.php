@@ -22,6 +22,7 @@ use Larmias\Framework\Listeners\WorkerStartListener;
 use Larmias\Framework\Logger\StdoutLogger;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\EventDispatcher\ListenerProviderInterface;
+use Closure;
 use Throwable;
 use function rtrim;
 use function dirname;
@@ -80,6 +81,11 @@ class Application implements ApplicationInterface
      * @var bool
      */
     protected bool $isInit = false;
+
+    /**
+     * @var bool
+     */
+    protected bool $isDiscovering = false;
 
     /**
      * @param ContainerInterface $container
@@ -219,14 +225,15 @@ class Application implements ApplicationInterface
     }
 
     /**
-     * 运行
-     * @throws Throwable
+     * @param Closure|null $handle
+     * @return void
+     * @throws \Throwable
      */
-    public function run(): void
+    public function discover(?Closure $handle = null): void
     {
         $this->serviceDiscover = $this->container->get(ServiceDiscoverInterface::class);
         $this->loadEnv();
-        $this->serviceDiscover->discover(function () {
+        $this->serviceDiscover->discover(function () use ($handle) {
             $this->discoverConfig = $this->serviceDiscover->services();
             /** @var ConsoleInterface $console */
             $console = $this->container->get(ConsoleInterface::class);
@@ -234,8 +241,17 @@ class Application implements ApplicationInterface
             foreach ($commands as $command) {
                 $console->addCommand($command);
             }
-            $console->run();
+            $handle && $this->container->invoke($handle);
         });
+    }
+
+    /**
+     * 运行
+     * @throws Throwable
+     */
+    public function run(): void
+    {
+        $this->discover(fn(ConsoleInterface $console) => $console->run());
     }
 
     /**
@@ -370,5 +386,23 @@ class Application implements ApplicationInterface
     public function getDiscoverConfig(?string $name = null, mixed $default = null): array
     {
         return $name ? $this->discoverConfig[$name] ?? $default : $this->discoverConfig;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isDiscovering(): bool
+    {
+        return $this->isDiscovering;
+    }
+
+    /**
+     * @param bool $isDiscovering
+     * @return ApplicationInterface
+     */
+    public function setIsDiscovering(bool $isDiscovering): ApplicationInterface
+    {
+        $this->isDiscovering = $isDiscovering;
+        return $this;
     }
 }

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Constants;
+namespace Larmias\Constants\Exceptions;
 
 use RuntimeException;
 

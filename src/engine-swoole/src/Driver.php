@@ -36,6 +36,13 @@ class Driver implements DriverInterface
     public function run(KernelInterface $kernel): void
     {
         $settings = $kernel->getConfig()->getSettings();
+        $isTesting = $settings['testing'] ?? false;
+
+        if ($isTesting) {
+            $this->runInTesting($kernel);
+            return;
+        }
+
         $manager = Factory::make($settings['mode'] ?? ManagerInterface::MODE_WORKER);
 
         foreach ($kernel->getWorkers() as $worker) {
@@ -45,6 +52,23 @@ class Driver implements DriverInterface
 
             $manager->addWorker($worker);
         }
+
+        $manager->start();
+    }
+
+    /**
+     * @param KernelInterface $kernel
+     * @return void
+     */
+    protected function runInTesting(KernelInterface $kernel): void
+    {
+        $manager = Factory::make(ManagerInterface::MODE_CO_WORKER);
+        $worker = $kernel->getWorkers()['main'] ?? null;
+        if (!$worker) {
+            throw new RuntimeException('run testing main worker not exists.');
+        }
+
+        $manager->addWorker(new Testing\Worker($worker));
 
         $manager->start();
     }

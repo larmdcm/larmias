@@ -1,0 +1,35 @@
+#!/usr/bin/env php
+<?php
+
+declare (strict_types=1);
+
+use Larmias\Testing\Run;
+use Larmias\Utils\ApplicationContext;
+
+if (!ini_get('date.timezone')) {
+    ini_set('date.timezone', 'UTC');
+}
+foreach ([__DIR__ . '/../../../vendor/autoload.php', __DIR__ . '/../../vendor/autoload.php', __DIR__ . '/../vendor/autoload.php'] as $file) {
+    if (file_exists($file)) {
+        define('COMPOSER_AUTOLOAD_FILE', $file);
+        break;
+    }
+}
+
+if (!defined('COMPOSER_AUTOLOAD_FILE')) {
+    exit("include composer autoload.php fail\n");
+}
+
+unset($file);
+require COMPOSER_AUTOLOAD_FILE;
+
+$options = getopt('', array('prepend:'));
+if (isset($options['prepend'])) {
+    require $options['prepend'];
+}
+
+unset($options);
+
+$run = new Run(ApplicationContext::getContainer());
+
+exit($run());

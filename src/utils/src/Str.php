@@ -333,13 +333,13 @@ class Str
 
     /**
      * 编码转换
-     *
+     * @param string $content
      * @param string $encoding
      * @param string $deconding
-     * @param array|string[] $encodes
+     * @param array $encodes
      * @return string
      */
-    public static function encode(string $content, string $encoding = 'utf-8', string $deconding = '', array $encodes = ["ASCII", "UTF-8", "GBK", "BIG5", "Unicode"]): string
+    public static function iconv(string $content, string $encoding = 'utf-8', string $deconding = '', array $encodes = ["ASCII", "UTF-8", "GBK", "BIG5", "Unicode"]): string
     {
         $encode = $deconding ?: \mb_detect_encoding($content, $encodes);
         return \iconv($encode, $encoding . '//IGNORE', $content);

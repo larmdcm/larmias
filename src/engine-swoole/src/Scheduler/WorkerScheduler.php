@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Engine\Swoole\Manager;
+namespace Larmias\Engine\Swoole\Scheduler;
 
-use Larmias\Engine\Swoole\Contracts\ManagerInterface;
+use Larmias\Engine\Swoole\Contracts\SchedulerInterface;
 use Larmias\Engine\Swoole\Contracts\WorkerInterface;
 use Swoole\Process\Pool;
 use Swoole\Constant;
@@ -12,7 +12,7 @@ use Swoole\Runtime;
 use function count;
 use const SWOOLE_IPC_UNIXSOCK;
 
-class WorkerManager implements ManagerInterface
+class WorkerScheduler implements SchedulerInterface
 {
     /**
      * @param WorkerInterface[] $workers
@@ -23,9 +23,9 @@ class WorkerManager implements ManagerInterface
 
     /**
      * @param WorkerInterface $worker
-     * @return ManagerInterface
+     * @return SchedulerInterface
      */
-    public function addWorker(WorkerInterface $worker): ManagerInterface
+    public function addWorker(WorkerInterface $worker): SchedulerInterface
     {
         $workerNum = $worker->getWorkerNum();
         for ($i = 0; $i < $workerNum; $i++) {

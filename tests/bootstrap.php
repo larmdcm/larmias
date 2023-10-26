@@ -13,6 +13,8 @@ ini_set('memory_limit', '1G');
 
 error_reporting(E_ALL);
 
+define('LARMIAS_BASE_PATH', dirname(__DIR__) . '/src');
+
 $container = ApplicationContext::setContainer(Container::getInstance()->bind([
     ApplicationInterface::class => Application::class,
 ]));

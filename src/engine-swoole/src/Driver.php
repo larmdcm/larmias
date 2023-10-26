@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Larmias\Engine\Swoole;
 
+use Larmias\Engine\Constants;
 use Larmias\Engine\Contracts\DriverInterface;
 use Larmias\Engine\Contracts\KernelInterface;
-use Larmias\Engine\Swoole\Contracts\ManagerInterface;
 use Larmias\Engine\Swoole\Http\Server as HttpServer;
-use Larmias\Engine\Swoole\Manager\Factory;
+use Larmias\Engine\Swoole\Scheduler\Factory as SchedulerFactory;
 use Larmias\Engine\Swoole\Tcp\Server as TcpServer;
 use Larmias\Engine\Swoole\Udp\Server as UdpServer;
 use Larmias\Engine\Swoole\WebSocket\Server as WebSocketServer;
@@ -36,41 +36,24 @@ class Driver implements DriverInterface
     public function run(KernelInterface $kernel): void
     {
         $settings = $kernel->getConfig()->getSettings();
-        $isTesting = $settings['testing'] ?? false;
+        $mode = $settings['mode'] ?? Constants::MODE_WORKER;
+        $schedulerMode = $settings['scheduler_mode'] ?? Constants::SCHEDULER_WORKER;
 
-        if ($isTesting) {
-            $this->runInTesting($kernel);
-            return;
+        if ($mode == Constants::MODE_PROCESS) {
+            $schedulerMode = Constants::SCHEDULER_CO_WORKER;
         }
 
-        $manager = Factory::make($settings['mode'] ?? ManagerInterface::MODE_WORKER);
+        $scheduler = SchedulerFactory::make($schedulerMode);
 
         foreach ($kernel->getWorkers() as $worker) {
             if (!($worker instanceof WorkerInterface)) {
                 throw new RuntimeException(get_class($worker) . ' worker not instanceof ' . WorkerInterface::class);
             }
 
-            $manager->addWorker($worker);
+            $scheduler->addWorker($worker);
         }
 
-        $manager->start();
-    }
-
-    /**
-     * @param KernelInterface $kernel
-     * @return void
-     */
-    protected function runInTesting(KernelInterface $kernel): void
-    {
-        $manager = Factory::make(ManagerInterface::MODE_CO_WORKER);
-        $worker = $kernel->getWorkers()['main'] ?? null;
-        if (!$worker) {
-            throw new RuntimeException('run testing main worker not exists.');
-        }
-
-        $manager->addWorker(new Testing\Worker($worker));
-
-        $manager->start();
+        $scheduler->start();
     }
 
     /**

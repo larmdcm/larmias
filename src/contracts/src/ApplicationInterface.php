@@ -97,15 +97,4 @@ interface ApplicationInterface
      * @return self
      */
     public function setConfigExt(string $configExt): ApplicationInterface;
-
-    /**
-     * @return bool
-     */
-    public function isDiscovering(): bool;
-
-    /**
-     * @param bool $isDiscovering
-     * @return ApplicationInterface
-     */
-    public function setIsDiscovering(bool $isDiscovering): ApplicationInterface;
 }

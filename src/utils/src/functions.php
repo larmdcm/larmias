@@ -8,6 +8,39 @@ use Larmias\Contracts\CollectionInterface;
 use Throwable;
 use Closure;
 use Stringable;
+use RuntimeException;
+
+/**
+ * 用容器创建对象
+ * @param string $abstract
+ * @param array $params
+ * @param bool $newInstance
+ * @return mixed
+ */
+function make(string $abstract, array $params = [], bool $newInstance = false): mixed
+{
+    if (ApplicationContext::hasContainer()) {
+        return ApplicationContext::getContainer()->make($abstract, $params, $newInstance);
+    }
+    $params = array_values($params);
+    return new $abstract(...$params);
+}
+
+/**
+ * 调用反射执行callable 支持参数绑定
+ * @param mixed $callable
+ * @param array $params
+ * @param bool $accessible
+ * @return mixed
+ */
+function invoke(mixed $callable, array $params = [], bool $accessible = false): mixed
+{
+    if (ApplicationContext::hasContainer()) {
+        return ApplicationContext::getContainer()->invoke($callable, $params, $accessible);
+    }
+
+    return is_callable($callable) ? $callable(...$params) : throw new RuntimeException('invoke callable is not callable.');
+}
 
 /**
  * 换行打印输出

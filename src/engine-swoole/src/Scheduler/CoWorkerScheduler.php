@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Engine\Swoole\Manager;
+namespace Larmias\Engine\Swoole\Scheduler;
 
-use Larmias\Engine\Swoole\Contracts\ManagerInterface;
+use Larmias\Engine\Swoole\Contracts\SchedulerInterface;
 use Larmias\Engine\Swoole\Contracts\WorkerInterface;
 use Swoole\Coroutine;
 use Swoole\Coroutine\Scheduler;
 use const SWOOLE_HOOK_ALL;
 
-class CoWorkerManager implements ManagerInterface
+class CoWorkerScheduler implements SchedulerInterface
 {
     /**
      * @param WorkerInterface[] $workers
@@ -19,7 +19,7 @@ class CoWorkerManager implements ManagerInterface
     {
     }
 
-    public function addWorker(WorkerInterface $worker): ManagerInterface
+    public function addWorker(WorkerInterface $worker): SchedulerInterface
     {
         $this->workers[] = $worker;
         return $this;

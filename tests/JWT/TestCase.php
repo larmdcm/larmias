@@ -10,7 +10,6 @@ use Larmias\Contracts\DotEnvInterface;
 use Larmias\Env\DotEnv;
 use Larmias\JWTAuth\Contracts\BlacklistInterface;
 use Larmias\JWTAuth\Contracts\JWTInterface;
-use Larmias\JWTAuth\JWT;
 use Larmias\JWTAuth\Providers\JWTAuthServiceProvider;
 use Larmias\Utils\ApplicationContext;
 use PHPUnit\Framework\TestCase as BaseTestCase;

@@ -3,7 +3,7 @@
 
 declare (strict_types=1);
 
-use Larmias\Testing\Run;
+use Larmias\Testing\Engine;
 use Larmias\Utils\ApplicationContext;
 
 if (!ini_get('date.timezone')) {
@@ -30,6 +30,4 @@ if (isset($options['prepend'])) {
 
 unset($options);
 
-$run = new Run(ApplicationContext::getContainer());
-
-exit($run());
+Engine::run(ApplicationContext::getContainer());

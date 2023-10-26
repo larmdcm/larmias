@@ -8,7 +8,6 @@ use Larmias\Contracts\ContainerInterface;
 use Larmias\Engine\Contracts\KernelInterface;
 use function is_array;
 use function array_merge;
-use function call_user_func;
 
 class Run
 {
@@ -51,6 +50,7 @@ class Run
     {
         $this->kernel->setConfig(EngineConfig::build([
             'driver' => $this->config['driver'],
+            'settings' => $this->config['settings'] ?? [],
         ]));
 
         $this->kernel->addWorker(WorkerConfig::build([

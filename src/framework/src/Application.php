@@ -12,7 +12,9 @@ use Larmias\Contracts\DotEnvInterface;
 use Larmias\Contracts\ServiceProviderInterface;
 use Larmias\Contracts\StdoutLoggerInterface;
 use Larmias\Engine\Contracts\KernelInterface;
+use Larmias\Engine\Event;
 use Larmias\Engine\Kernel;
+use Larmias\Engine\WorkerType;
 use Larmias\Env\DotEnv;
 use Larmias\Event\EventDispatcherFactory;
 use Larmias\Event\ListenerProviderFactory;
@@ -81,11 +83,6 @@ class Application implements ApplicationInterface
      * @var bool
      */
     protected bool $isInit = false;
-
-    /**
-     * @var bool
-     */
-    protected bool $isDiscovering = false;
 
     /**
      * @param ContainerInterface $container
@@ -227,7 +224,7 @@ class Application implements ApplicationInterface
     /**
      * @param Closure|null $handle
      * @return void
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function discover(?Closure $handle = null): void
     {
@@ -377,6 +374,30 @@ class Application implements ApplicationInterface
         };
     }
 
+    /**
+     * 获取引擎配置
+     * @param string $name
+     * @return array
+     */
+    public function getEngineConfig(string $name = 'engine'): array
+    {
+        $config = $this->getServiceConfig($name, true);
+        $processConfig = $this->getDiscoverConfig(ServiceDiscoverInterface::SERVICE_PROCESS, []);
+        foreach ($processConfig as $item) {
+            $config['workers'][] = [
+                'name' => $item['args']['name'],
+                'type' => WorkerType::WORKER_PROCESS,
+                'settings' => ['worker_num' => $item['args']['count']],
+                'callbacks' => [
+                    Event::ON_WORKER_START => [$item['class'], 'onStart'],
+                    Event::ON_WORKER => [$item['class'], 'handle'],
+                ],
+            ];
+        }
+
+        return $config;
+    }
+
 
     /**
      * @param string|null $name
@@ -386,23 +407,5 @@ class Application implements ApplicationInterface
     public function getDiscoverConfig(?string $name = null, mixed $default = null): array
     {
         return $name ? $this->discoverConfig[$name] ?? $default : $this->discoverConfig;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isDiscovering(): bool
-    {
-        return $this->isDiscovering;
-    }
-
-    /**
-     * @param bool $isDiscovering
-     * @return ApplicationInterface
-     */
-    public function setIsDiscovering(bool $isDiscovering): ApplicationInterface
-    {
-        $this->isDiscovering = $isDiscovering;
-        return $this;
     }
 }

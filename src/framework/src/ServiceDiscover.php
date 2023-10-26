@@ -68,9 +68,10 @@ class ServiceDiscover implements ServiceDiscoverInterface
     }
 
     /**
-     * 发现服务
+     * 发现服务配置
      * @param Closure $callback
      * @return void
+     * @throws \Throwable
      */
     public function discover(Closure $callback): void
     {
@@ -79,7 +80,7 @@ class ServiceDiscover implements ServiceDiscoverInterface
             if ($pid === -1) {
                 throw new RuntimeException('fork process error.');
             } else if ($pid === 0) {
-                $this->handle();
+                run(fn() => $this->handle());
                 exit(0);
             }
             \pcntl_wait($status, \WUNTRACED);
@@ -180,7 +181,6 @@ class ServiceDiscover implements ServiceDiscoverInterface
     protected function handle(): void
     {
         $this->serviceProvider();
-        $this->app->setIsDiscovering(true);
         $this->app->initialize();
         $this->annotation();
         $this->generate();

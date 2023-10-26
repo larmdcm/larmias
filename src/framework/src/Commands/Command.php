@@ -8,15 +8,12 @@ use Larmias\Command\Command as BaseCommand;
 use Larmias\Contracts\ApplicationInterface;
 use Larmias\Engine\Contracts\WorkerInterface;
 use Larmias\Engine\Contracts\KernelInterface;
-use Larmias\Engine\Run;
-use Larmias\Framework\Commands\Concerns\WorkerConfig;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use function Larmias\Framework\run;
 
 abstract class Command extends BaseCommand
 {
-    use WorkerConfig;
-
     /**
      * @var KernelInterface
      */
@@ -51,25 +48,11 @@ abstract class Command extends BaseCommand
         if (!$this->inEngineContainer) {
             return parent::execute($input, $output);
         }
-        $run = new Run($this->container);
-        $config = $this->getEngineConfig();
-        $run->set(['driver' => $config['driver']]);
-        $run(function ($worker, $kernel) use ($input, $output) {
+        run(function ($worker, $kernel) use ($input, $output) {
             $this->worker = $worker;
             $this->kernel = $kernel;
             parent::execute($input, $output);
-            $this->exit();
         });
         return self::SUCCESS;
-    }
-
-    /**
-     * @return void
-     */
-    public function exit(): void
-    {
-        if ($this->inEngineContainer) {
-            $this->kernel->stop();
-        }
     }
 }

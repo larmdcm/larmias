@@ -8,26 +8,55 @@ use Larmias\Contracts\DotEnvInterface;
 use Larmias\Contracts\StdoutLoggerInterface;
 use Larmias\Contracts\ApplicationInterface;
 use Larmias\Contracts\ConfigInterface;
-use Larmias\Utils\ApplicationContext;
+use Larmias\Engine\Constants;
+use Larmias\Engine\Contracts\KernelInterface;
+use Larmias\Engine\EngineConfig;
+use Larmias\Engine\Event;
+use Larmias\Engine\WorkerConfig;
+use Larmias\Engine\WorkerType;
+use RuntimeException;
+use function Larmias\Utils\invoke;
+use function Larmias\Utils\make;
 use function is_array;
+use function Larmias\Utils\throw_unless;
 use function str_starts_with;
 
 /**
- * 用容器创建对象
- *
- * @param string $abstract
- * @param array $params
- * @param bool $newInstance
- * @return object
+ * 在引擎容器中运行回调
+ * @param callable $callback
+ * @param array $config
+ * @return void
+ * @throws \Throwable
  */
-function make(string $abstract, array $params = [], bool $newInstance = false): object
+function run(callable $callback, array $config = []): void
 {
-    return ApplicationContext::getContainer()->make($abstract, $params, $newInstance);
+    $app = app();
+    if (method_exists($app, 'getEngineConfig')) {
+        $config = array_merge($app->getEngineConfig(), $config);
+    }
+    throw_unless(isset($config['driver']), RuntimeException::class, 'config not set driver.');
+    /** @var KernelInterface $kernel */
+    $kernel = make(KernelInterface::class);
+    $kernel->setConfig(EngineConfig::build([
+        'driver' => $config['driver'],
+        'settings' => [
+            'mode' => Constants::MODE_PROCESS,
+        ]
+    ]));
+    $kernel->addWorker(WorkerConfig::build([
+        'name' => 'MainProcess',
+        'type' => WorkerType::WORKER_PROCESS,
+        'callbacks' => [
+            Event::ON_WORKER_START => function ($worker) use ($callback, $kernel) {
+                invoke($callback, [$worker, $kernel]);
+            }
+        ]
+    ]));
+    $kernel->run();
 }
 
 /**
  * 获取app实例对象
- *
  * @return ApplicationInterface
  */
 function app(): ApplicationInterface
@@ -39,7 +68,6 @@ function app(): ApplicationInterface
 
 /**
  * 框架配置操作
- *
  * @param mixed $key
  * @param mixed $value
  * @return mixed
@@ -59,7 +87,6 @@ function config(mixed $key = null, mixed $value = null): mixed
 
 /**
  * 环境变量操作
- *
  * @param string $name
  * @param mixed|null $default
  * @return mixed
@@ -73,7 +100,6 @@ function env(string $name, mixed $default = null): mixed
 
 /**
  * 获取控制台输出实例
- *
  * @return StdoutLoggerInterface
  */
 function console(): StdoutLoggerInterface

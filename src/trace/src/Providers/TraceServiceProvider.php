@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Larmias\Trace\Providers;
 
-use Larmias\Contracts\ApplicationInterface;
 use Larmias\Contracts\ServiceProviderInterface;
 use Larmias\Contracts\ContainerInterface;
 use Larmias\Event\Contracts\ListenerInterface;
@@ -42,11 +41,6 @@ class TraceServiceProvider implements ServiceProviderInterface
      */
     public function boot(): void
     {
-        $app = $this->container->has(ApplicationInterface::class) ? $this->container->get(ApplicationInterface::class) : null;
-        if ($app && $app->isDiscovering()) {
-            return;
-        }
-
         if ($this->container->has(ListenerProviderInterface::class)) {
             $this->listener($this->container->get(ListenerProviderInterface::class));
         }

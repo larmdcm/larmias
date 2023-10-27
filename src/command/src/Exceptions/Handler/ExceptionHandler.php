@@ -23,7 +23,6 @@ class ExceptionHandler extends BaseExceptionHandler implements ExceptionHandlerI
     {
         $this->stopPropagation();
         println(format_exception($e));
-        $command->exit();
         return $e->getCode();
     }
 

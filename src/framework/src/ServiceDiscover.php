@@ -21,7 +21,6 @@ use function array_values;
 use function date;
 use function var_export;
 use function json_decode;
-use function file_get_contents;
 use function call_user_func;
 use const PHP_EOL;
 
@@ -223,18 +222,32 @@ class ServiceDiscover implements ServiceDiscoverInterface
     protected function serviceProvider(): void
     {
         if ($this->fileSystem->isFile($path = $this->app->getRootPath() . 'vendor/composer/installed.json')) {
-            $installed = json_decode(file_get_contents($path), true);
+            $installed = json_decode($this->fileSystem->get($path), true);
             $packages = $installed['packages'] ?? $installed;
 
             foreach ($packages as $package) {
-                $extra = $package['extra']['larmias'] ?? [];
-                if (!empty($extra['providers'])) {
-                    $providers = (array)$extra['providers'];
-                    foreach ($providers as $provider) {
-                        $this->register(self::SERVICE_PROVIDER, $provider);
-                        $this->app->register($provider);
-                    }
-                }
+                $this->registerPackage($package);
+            }
+        }
+
+        if (defined('LARMIAS_COMPOSER_FILE') && $this->fileSystem->isFile(LARMIAS_COMPOSER_FILE)) {
+            $package = json_decode($this->fileSystem->get(LARMIAS_COMPOSER_FILE), true);
+            $this->registerPackage($package);
+        }
+    }
+
+    /**
+     * @param array $package
+     * @return void
+     */
+    protected function registerPackage(array $package): void
+    {
+        $extra = $package['extra']['larmias'] ?? [];
+        if (!empty($extra['providers'])) {
+            $providers = (array)$extra['providers'];
+            foreach ($providers as $provider) {
+                $this->register(self::SERVICE_PROVIDER, $provider);
+                $this->app->register($provider);
             }
         }
     }

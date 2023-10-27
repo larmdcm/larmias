@@ -82,7 +82,7 @@ abstract class Worker extends Command
     protected function makeKernel(): void
     {
         $name = $this->input->getOption('config');
-        $engineConfig = $this->getEngineConfig($name);
+        $engineConfig = $this->app->getEngineConfig($name);
         $this->kernel->setConfig(EngineConfig::build($engineConfig));
     }
 }

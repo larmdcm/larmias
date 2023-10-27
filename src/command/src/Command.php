@@ -403,13 +403,6 @@ abstract class Command extends SymfonyCommand
     }
 
     /**
-     * @return void
-     */
-    public function exit(): void
-    {
-    }
-
-    /**
      * @param InputInterface $input
      * @param OutputInterface $output
      * @return int

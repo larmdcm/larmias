@@ -25,6 +25,11 @@ interface WorkerInterface
     /**
      * @return int
      */
+    public function getType(): int;
+
+    /**
+     * @return int
+     */
     public function getWorkerNum(): int;
 
     /**

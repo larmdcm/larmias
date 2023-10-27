@@ -4,12 +4,16 @@ declare(strict_types=1);
 
 namespace Larmias\Engine\WorkerMan;
 
+use Larmias\Engine\Constants;
 use Larmias\Engine\Contracts\DriverInterface;
 use Larmias\Engine\Contracts\KernelInterface;
+use Larmias\Engine\WorkerMan\Contracts\WorkerInterface;
+use Larmias\Engine\WorkerMan\Scheduler\Factory;
 use Larmias\Engine\WorkerMan\Tcp\Server as TcpServer;
 use Larmias\Engine\WorkerMan\Udp\Server as UdpServer;
 use Larmias\Engine\WorkerMan\Http\Server as HttpServer;
 use Larmias\Engine\WorkerMan\WebSocket\Server as WebSocketServer;
+use Larmias\Engine\WorkerType;
 
 class Driver implements DriverInterface
 {
@@ -23,7 +27,29 @@ class Driver implements DriverInterface
      */
     public function run(KernelInterface $kernel): void
     {
+        $settings = $kernel->getConfig()->getSettings();
+        $mode = $settings['mode'] ?? Constants::MODE_BASE;
+        if ($mode == Constants::MODE_WORKER) {
+            $scheduler = Factory::make(Constants::SCHEDULER_WORKER);
+            $scheduler->addWorker($this->getMainWorker($kernel->getWorkers()));
+            $scheduler->start();
+            return;
+        }
+
         Worker::runAll();
+    }
+
+    /**
+     * @param array $workers
+     * @return WorkerInterface
+     */
+    protected function getMainWorker(array $workers): WorkerInterface
+    {
+        $workers = array_filter($workers, function (WorkerInterface $worker) {
+            return $worker->getType() === WorkerType::WORKER_PROCESS;
+        });
+
+        return current($workers);
     }
 
     /**

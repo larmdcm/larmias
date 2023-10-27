@@ -3,7 +3,8 @@
 use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\Worker\WorkerInterface;
 use Larmias\Engine\Run;
-use Larmias\Engine\Swoole\Driver;
+use Larmias\Engine\WorkerMan\Driver;
+use Larmias\Engine\Timer;
 
 require '../bootstrap.php';
 
@@ -15,12 +16,18 @@ $run = new Run($container);
 $run->set([
     'driver' => Driver::class,
     'settings' => [
-        'scheduler_mode' => \Larmias\Engine\Constants::SCHEDULER_CO_WORKER,
-        'mode' => \Larmias\Engine\Constants::MODE_PROCESS,
+        'mode' => \Larmias\Engine\Constants::MODE_WORKER,
     ]
 ]);
 
 $run(function (WorkerInterface $worker) {
     echo "执行完毕" . $worker->getWorkerId() . PHP_EOL;
-    throw new RuntimeException('test123');
+    $count = 1;
+    \Larmias\Engine\Timer::tick(1000, function () use (&$count) {
+        echo "tick ing..." . PHP_EOL;
+        $count++;
+        if ($count > 3) {
+            Timer::clear();
+        }
+    });
 });

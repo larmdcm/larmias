@@ -8,6 +8,7 @@ use Larmias\Command\Annotation\Command;
 use Larmias\Contracts\ApplicationInterface;
 use Larmias\Contracts\ServiceDiscoverInterface;
 use Closure;
+use Larmias\Engine\Timer;
 use Larmias\Event\Annotation\Listener;
 use Larmias\Framework\Annotation\Provider;
 use Larmias\Process\Annotation\Process;
@@ -79,7 +80,13 @@ class ServiceDiscover implements ServiceDiscoverInterface
             if ($pid === -1) {
                 throw new RuntimeException('fork process error.');
             } else if ($pid === 0) {
-                run(fn() => $this->handle());
+                run(function () {
+                    try {
+                        $this->handle();
+                    } finally {
+                        Timer::clear();
+                    }
+                });
                 exit(0);
             }
             \pcntl_wait($status, \WUNTRACED);

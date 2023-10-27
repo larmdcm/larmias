@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Engine\Swoole\Scheduler;
+namespace Larmias\Engine\WorkerMan\Scheduler;
 
+use Larmias\Engine\WorkerMan\Contracts\SchedulerInterface;
 use Larmias\Engine\Constants;
-use Larmias\Engine\Swoole\Contracts\SchedulerInterface;
 use RuntimeException;
 
 class Factory
@@ -17,8 +17,7 @@ class Factory
     public static function make(int $type): SchedulerInterface
     {
         $class = match ($type) {
-            Constants::SCHEDULER_WORKER => WorkerPoolScheduler::class,
-            Constants::SCHEDULER_CO_WORKER => CoWorkerScheduler::class,
+            Constants::SCHEDULER_WORKER => WorkerScheduler::class,
             default => throw new RuntimeException('type error.')
         };
 

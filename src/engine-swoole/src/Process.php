@@ -6,7 +6,6 @@ namespace Larmias\Engine\Swoole;
 
 use Larmias\Engine\Constants;
 use Larmias\Engine\Event;
-use Larmias\Engine\Timer;
 use Throwable;
 use function usleep;
 use function sleep;
@@ -14,31 +13,13 @@ use function sleep;
 class Process extends Worker
 {
     /**
-     * @param int $workerId
-     * @return void
-     * @throws Throwable
-     */
-    public function workerStart(int $workerId): void
-    {
-        try {
-            $this->start($workerId);
-        } catch (Throwable $e) {
-            $this->handleException($e);
-        } finally {
-            if ($this->isInProcessMode()) {
-                Timer::clear();
-            }
-        }
-    }
-
-    /**
      * @param Throwable $e
      * @return void
      * @throws Throwable
      */
     public function handleException(Throwable $e): void
     {
-        if ($this->isInProcessMode()) {
+        if ($this->isInWorkerMode()) {
             $this->printException($e);
             return;
         }
@@ -52,7 +33,7 @@ class Process extends Worker
      */
     public function process(): void
     {
-        if ($this->isInProcessMode()) {
+        if ($this->isInWorkerMode()) {
             return;
         }
 
@@ -73,9 +54,9 @@ class Process extends Worker
     /**
      * @return bool
      */
-    protected function isInProcessMode(): bool
+    protected function isInWorkerMode(): bool
     {
-        $mode = $this->getSettings()['mode'] ?? Constants::MODE_WORKER;
-        return $mode == Constants::MODE_PROCESS;
+        $mode = $this->getSettings()['mode'] ?? Constants::MODE_BASE;
+        return $mode == Constants::MODE_WORKER;
     }
 }

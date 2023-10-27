@@ -40,7 +40,7 @@ function run(callable $callback, array $config = []): void
     $kernel->setConfig(EngineConfig::build([
         'driver' => $config['driver'],
         'settings' => [
-            'mode' => Constants::MODE_PROCESS,
+            'mode' => Constants::MODE_WORKER,
         ]
     ]));
     $kernel->addWorker(WorkerConfig::build([

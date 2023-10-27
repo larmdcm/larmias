@@ -31,7 +31,6 @@ class VendorPublish extends Command
         $force = $this->input->getOption('force');
         $publish->handle($provider, $force);
         $this->output->info('Succeed!');
-        $this->exit();
     }
 
     /**

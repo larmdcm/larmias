@@ -77,6 +77,14 @@ abstract class Worker extends BaseWorker implements WorkerInterface
     }
 
     /**
+     * @return int
+     */
+    public function getType(): int
+    {
+        return $this->getWorkerConfig()->getType();
+    }
+
+    /**
      * @param Throwable $e
      * @return void
      */

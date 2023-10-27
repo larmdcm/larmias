@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace Larmias\Engine\WorkerMan;
 
+use Workerman\Events\Select;
 use Workerman\Worker as BaseWorkerManWorker;
 use Workerman\Connection\TcpConnection;
+use Workerman\Lib\Timer as WorkerManTimer;
 use function file_get_contents;
 use function extension_loaded;
+use function Larmias\Engine\is_unix;
 use function posix_kill;
 use function is_file;
 use function time;
@@ -20,6 +23,37 @@ use const SIGUSR2;
 
 class Worker extends BaseWorkerManWorker
 {
+    /**
+     * @return Worker
+     * @throws \Exception
+     */
+    public static function getProcessWorker(): Worker
+    {
+        /** @var Worker $worker */
+        $worker = current(static::$_workers);
+        static::checkSapiEnv();
+        static::init();
+        static::saveMasterPid();
+        static::resetStd();
+        static::initWorker();
+        return $worker;
+    }
+
+    /**
+     * @return void
+     * @throws \Exception
+     */
+    public static function initWorker(): void
+    {
+        $isUnix = is_unix();
+        WorkerManTimer::delAll();
+        if (!static::$globalEvent) {
+            $event_loop_class = $isUnix ? static::getEventLoopName() : Select::class;
+            static::$globalEvent = new $event_loop_class;
+        }
+        WorkerManTimer::init(static::$globalEvent);
+    }
+
     /**
      * @param array $config
      * @return void

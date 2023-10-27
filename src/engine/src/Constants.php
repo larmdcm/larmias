@@ -7,26 +7,32 @@ namespace Larmias\Engine;
 class Constants
 {
     /**
-     * 默认运行模式内部自动事件循环
+     * 默认运行模式
      * @var int
      */
-    public const MODE_WORKER = 1;
+    public const MODE_BASE = 1;
 
     /**
-     * 单进程运行模式
+     * worker运行模式
      * @var int
      */
-    public const MODE_PROCESS = 2;
+    public const MODE_WORKER = 2;
 
     /**
-     * 进程worker调度
+     * 进程调度器
      * @var int
      */
     public const SCHEDULER_WORKER = 1;
 
     /**
-     * 协程worker调度
+     * 进程池调度器
      * @var int
      */
-    public const SCHEDULER_CO_WORKER = 2;
+    public const SCHEDULER_WORKER_POOL = 1;
+
+    /**
+     * 协程调度器
+     * @var int
+     */
+    public const SCHEDULER_CO_WORKER = 3;
 }

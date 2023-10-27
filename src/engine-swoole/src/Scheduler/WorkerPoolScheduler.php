@@ -12,7 +12,7 @@ use Swoole\Runtime;
 use function count;
 use const SWOOLE_IPC_UNIXSOCK;
 
-class WorkerScheduler implements SchedulerInterface
+class WorkerPoolScheduler implements SchedulerInterface
 {
     /**
      * @param WorkerInterface[] $workers

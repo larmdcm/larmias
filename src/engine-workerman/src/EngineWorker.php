@@ -111,6 +111,14 @@ class EngineWorker extends BaseWorker
     }
 
     /**
+     * @return int
+     */
+    public function getType(): int
+    {
+        return $this->getWorkerConfig()->getType();
+    }
+
+    /**
      * @param Throwable $e
      * @return void
      */

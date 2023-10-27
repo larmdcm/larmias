@@ -14,12 +14,14 @@ use Larmias\Engine\Swoole\Udp\Server as UdpServer;
 use Larmias\Engine\Swoole\WebSocket\Server as WebSocketServer;
 use Larmias\Engine\Swoole\Contracts\WorkerInterface;
 use Larmias\Engine\Swoole\Coroutine\Channel;
+use Larmias\Engine\WorkerType;
 use Swoole\Process as SwooleProcess;
 use RuntimeException;
 use const SIGUSR1;
 use const SIGTERM;
 use function function_exists;
 use function get_class;
+use function array_filter;
 
 class Driver implements DriverInterface
 {
@@ -36,16 +38,18 @@ class Driver implements DriverInterface
     public function run(KernelInterface $kernel): void
     {
         $settings = $kernel->getConfig()->getSettings();
-        $mode = $settings['mode'] ?? Constants::MODE_WORKER;
-        $schedulerMode = $settings['scheduler_mode'] ?? Constants::SCHEDULER_WORKER;
+        $mode = $settings['mode'] ?? Constants::MODE_BASE;
+        $schedulerType = $settings['scheduler_type'] ?? Constants::SCHEDULER_WORKER_POOL;
+        $workers = $kernel->getWorkers();
 
-        if ($mode == Constants::MODE_PROCESS) {
-            $schedulerMode = Constants::SCHEDULER_CO_WORKER;
+        if ($mode == Constants::MODE_WORKER) {
+            $schedulerType = Constants::SCHEDULER_CO_WORKER;
+            $workers = [$this->getMainWorker($workers)];
         }
 
-        $scheduler = SchedulerFactory::make($schedulerMode);
+        $scheduler = SchedulerFactory::make($schedulerType);
 
-        foreach ($kernel->getWorkers() as $worker) {
+        foreach ($workers as $worker) {
             if (!($worker instanceof WorkerInterface)) {
                 throw new RuntimeException(get_class($worker) . ' worker not instanceof ' . WorkerInterface::class);
             }
@@ -54,6 +58,19 @@ class Driver implements DriverInterface
         }
 
         $scheduler->start();
+    }
+
+    /**
+     * @param array $workers
+     * @return WorkerInterface
+     */
+    protected function getMainWorker(array $workers): WorkerInterface
+    {
+        $workers = array_filter($workers, function (WorkerInterface $worker) {
+            return $worker->getType() === WorkerType::WORKER_PROCESS;
+        });
+
+        return current($workers);
     }
 
     /**

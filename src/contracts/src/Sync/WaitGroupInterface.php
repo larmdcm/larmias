@@ -8,10 +8,10 @@ interface WaitGroupInterface
 {
     /**
      * 新增计数
-     * @param int $num
+     * @param int $delta
      * @return void
      */
-    public function add(int $num = 1): void;
+    public function add(int $delta = 1): void;
 
     /**
      * 完成一次计数
@@ -21,7 +21,13 @@ interface WaitGroupInterface
 
     /**
      * 等待全部完成
-     * @return void
+     * @param float $timeout
+     * @return bool
      */
-    public function wait(): void;
+    public function wait(float $timeout = -1): bool;
+
+    /**
+     * @return int
+     */
+    public function count(): int;
 }

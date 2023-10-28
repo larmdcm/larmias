@@ -7,6 +7,8 @@ namespace Larmias\Engine\Sync;
 use Larmias\Contracts\Coroutine\ChannelFactoryInterface;
 use Larmias\Contracts\Coroutine\ChannelInterface;
 use Larmias\Contracts\Sync\WaitGroupInterface;
+use BadMethodCallException;
+use InvalidArgumentException;
 
 class WaitGroup implements WaitGroupInterface
 {
@@ -14,25 +16,54 @@ class WaitGroup implements WaitGroupInterface
 
     protected ChannelInterface $channel;
 
+    protected bool $waiting = false;
+
     public function __construct(ChannelFactoryInterface $factory)
     {
         $this->channel = $factory->create();
     }
 
-    public function add(int $num = 1): void
+    public function add(int $delta = 1): void
     {
-        $this->count += $num;
+        if ($this->waiting) {
+            throw new BadMethodCallException('WaitGroup misuse: add called concurrently with wait');
+        }
+        $count = $this->count + $delta;
+        if ($count < 0) {
+            throw new InvalidArgumentException('WaitGroup misuse: negative counter');
+        }
+        $this->count = $count;
     }
 
     public function done(): void
     {
-        $this->channel->push(true);
+        $count = $this->count - 1;
+        if ($count < 0) {
+            throw new BadMethodCallException('WaitGroup misuse: negative counter');
+        }
+        $this->count = $count;
+        if ($count === 0 && $this->waiting) {
+            $this->channel->push(true);
+        }
     }
 
-    public function wait(): void
+    public function wait(float $timeout = -1): bool
     {
-        for ($i = 0; $i < $this->count; $i++) {
-            $this->channel->pop();
+        if ($this->waiting) {
+            throw new BadMethodCallException('WaitGroup misuse: reused before previous wait has returned');
         }
+
+        if ($this->count > 0) {
+            $this->waiting = true;
+            $done = $this->channel->pop($timeout);
+            $this->waiting = false;
+            return $done;
+        }
+        return true;
+    }
+
+    public function count(): int
+    {
+        return $this->count;
     }
 }

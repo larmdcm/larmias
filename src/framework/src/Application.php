@@ -408,4 +408,12 @@ class Application implements ApplicationInterface
     {
         return $name ? $this->discoverConfig[$name] ?? $default : $this->discoverConfig;
     }
+
+    /**
+     * @param bool $isInit
+     */
+    public function setIsInit(bool $isInit): void
+    {
+        $this->isInit = $isInit;
+    }
 }

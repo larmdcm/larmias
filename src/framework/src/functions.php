@@ -35,13 +35,14 @@ function run(callable $callback, array $config = []): void
         $config = array_merge($app->getEngineConfig(), $config);
     }
     throw_unless(isset($config['driver']), RuntimeException::class, 'config not set driver.');
+
+    $settings = $config['settings'] ?? [];
+    $settings['mode'] = Constants::MODE_WORKER;
     /** @var KernelInterface $kernel */
     $kernel = make(KernelInterface::class);
     $kernel->setConfig(EngineConfig::build([
         'driver' => $config['driver'],
-        'settings' => [
-            'mode' => Constants::MODE_WORKER,
-        ]
+        'settings' => $settings,
     ]));
     $kernel->addWorker(WorkerConfig::build([
         'name' => 'MainProcess',

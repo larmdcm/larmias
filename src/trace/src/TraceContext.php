@@ -27,7 +27,7 @@ class TraceContext implements TraceContextInterface
     public function getContextForTrace(): TraceInterface
     {
         return $this->context->remember(TraceInterface::class, function () {
-            $config = $this->config->get('trace.http');
+            $config = $this->config->get('trace.http', []);
             return $this->container->make(TraceInterface::class, ['config' => $config], true);
         });
     }

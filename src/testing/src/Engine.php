@@ -10,6 +10,7 @@ use Larmias\Engine\Constants;
 use Larmias\Engine\Contracts\KernelInterface;
 use Larmias\Engine\EngineConfig;
 use Larmias\Engine\Event;
+use Larmias\Engine\Timer;
 use Larmias\Engine\WorkerConfig;
 use Larmias\Engine\WorkerType;
 use PHPUnit\TextUI\Command;
@@ -60,6 +61,8 @@ class Engine
                             return;
                         }
                         throw $e;
+                    } finally {
+                        Timer::clear();
                     }
                 }
             ]

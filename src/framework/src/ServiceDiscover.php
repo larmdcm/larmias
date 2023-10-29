@@ -23,6 +23,7 @@ use function date;
 use function var_export;
 use function json_decode;
 use function call_user_func;
+use function method_exists;
 use const PHP_EOL;
 
 class ServiceDiscover implements ServiceDiscoverInterface
@@ -80,13 +81,18 @@ class ServiceDiscover implements ServiceDiscoverInterface
             if ($pid === -1) {
                 throw new RuntimeException('fork process error.');
             } else if ($pid === 0) {
+                if (method_exists($this->app, 'setIsInit')) {
+                    $this->app->setIsInit(true);
+                }
                 run(function () {
                     try {
                         $this->handle();
                     } finally {
                         Timer::clear();
                     }
-                });
+                }, [
+                    'settings' => ['logger' => false]
+                ]);
                 exit(0);
             }
             \pcntl_wait($status, \WUNTRACED);
@@ -187,6 +193,9 @@ class ServiceDiscover implements ServiceDiscoverInterface
     protected function handle(): void
     {
         $this->serviceProvider();
+        if (method_exists($this->app, 'setIsInit')) {
+            $this->app->setIsInit(false);
+        }
         $this->app->initialize();
         $this->annotation();
         $this->generate();
@@ -231,7 +240,6 @@ class ServiceDiscover implements ServiceDiscoverInterface
         if ($this->fileSystem->isFile($path = $this->app->getRootPath() . 'vendor/composer/installed.json')) {
             $installed = json_decode($this->fileSystem->get($path), true);
             $packages = $installed['packages'] ?? $installed;
-
             foreach ($packages as $package) {
                 $this->registerPackage($package);
             }

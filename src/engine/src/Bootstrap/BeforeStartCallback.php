@@ -46,7 +46,9 @@ class BeforeStartCallback
     public function onBeforeStart(KernelInterface $kernel): void
     {
         $this->eventDispatcher && $this->eventDispatcher->dispatch(new BeforeStart($kernel));
-        if ($this->logger) {
+        $settings = $kernel->getConfig()->getSettings();
+        $logger = $settings['logger'] ?? true;
+        if ($this->logger && $logger) {
             $this->logger->info('Larmias start...');
             $this->logger->info($this->getLogo());
         }

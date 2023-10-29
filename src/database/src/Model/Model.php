@@ -313,7 +313,7 @@ abstract class Model implements ModelInterface, Arrayable, Jsonable, Stringable,
             }
 
             $query = $this->newQuery();
-            
+
             if ($this->incrementing) {
                 $id = $query->data($this->data)->insertGetId();
                 $exists = !empty($id);
@@ -454,9 +454,9 @@ abstract class Model implements ModelInterface, Arrayable, Jsonable, Stringable,
     public function whenFireEvent(array $events, Closure $handler): mixed
     {
         return $handler(function () use ($events) {
-            $this->fireEvent($events[0]);
+            return $this->fireEvent($events[0]);
         }, function () use ($events) {
-            $this->fireEvent($events[1]);
+            return $this->fireEvent($events[1]);
         });
     }
 

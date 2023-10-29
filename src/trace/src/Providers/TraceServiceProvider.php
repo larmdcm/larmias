@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Larmias\Trace\Providers;
 
+use Larmias\Contracts\ApplicationInterface;
 use Larmias\Contracts\ServiceProviderInterface;
 use Larmias\Contracts\ContainerInterface;
+use Larmias\Contracts\VendorPublishInterface;
 use Larmias\Event\Contracts\ListenerInterface;
 use Larmias\Trace\Contracts\TraceContextInterface;
 use Larmias\Trace\Contracts\TraceInterface;
@@ -33,6 +35,13 @@ class TraceServiceProvider implements ServiceProviderInterface
             TraceInterface::class => Trace::class,
             TraceContextInterface::class => TraceContext::class,
         ]);
+
+        if ($this->container->has(ApplicationInterface::class) && $this->container->has(VendorPublishInterface::class)) {
+            $app = $this->container->get(ApplicationInterface::class);
+            $this->container->get(VendorPublishInterface::class)->publishes(static::class, [
+                __DIR__ . '/../../publish/trace.php' => $app->getConfigPath() . 'trace.php',
+            ]);
+        }
     }
 
     /**

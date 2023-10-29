@@ -10,7 +10,6 @@ use Larmias\Http\Utils\Request\Exceptions\RequestException;
 use Larmias\Http\Utils\Request\CookieOption;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use function is_array;
 use function is_string;
 use function strval;
 use function curl_init;
@@ -20,6 +19,7 @@ use function curl_errno;
 use function curl_error;
 use function curl_getinfo;
 use function curl_close;
+use function usleep;
 use const CURLOPT_HTTPHEADER;
 use const CURLOPT_CUSTOMREQUEST;
 use const CURLOPT_POSTFIELDS;
@@ -50,16 +50,22 @@ class CurlRequestHandler implements RequestHandlerInterface
      */
     public function send(RequestInterface $request, array $options): ResponseInterface
     {
+        if (isset($options['delay']) && $options['delay'] > 0) {
+            usleep($options['delay'] * 1000);
+        }
+
         // 初始化
         $ch = curl_init();
-
         // 设置请求头
         $headers = [];
-        foreach ($request->getHeaders() as $name => $value) {
-            if (is_array($value)) {
-                continue;
+        foreach ($request->getHeaders() as $name => $values) {
+            foreach ($values as $value) {
+                if ($value === '') {
+                    $headers[] = "$name";
+                } else {
+                    $headers[] = "$name: $value";
+                }
             }
-            $headers[] = $name . ':' . $value;
         }
 
         if (!empty($headers)) {
@@ -77,7 +83,8 @@ class CurlRequestHandler implements RequestHandlerInterface
         }
 
         // 设置请求地址
-        curl_setopt($ch, CURLOPT_URL, (string)$request->getUri()->withFragment(''));
+        $url = (string)$request->getUri()->withFragment('');
+        curl_setopt($ch, CURLOPT_URL, $url);
 
         // 不校验https
         if (isset($options['valid_https']) && !$options['valid_https']) {

@@ -4,27 +4,27 @@ declare(strict_types=1);
 
 namespace Larmias\Di;
 
-use Larmias\Contracts\ContainerInterface;
-use Larmias\Di\Annotation\Scope;
-use Psr\Container\ContainerInterface as PsrContainerInterface;
-use Closure;
-use Larmias\Utils\Reflection\Invoker;
-use Larmias\Utils\Reflection\Parameter;
-use ReflectionException;
-use Traversable;
 use ArrayAccess;
 use ArrayIterator;
-use IteratorAggregate;
+use Closure;
 use Countable;
-use Throwable;
-use ReflectionParameter;
+use IteratorAggregate;
+use Larmias\Contracts\ContainerInterface;
+use Larmias\Di\Annotation\Scope;
 use Larmias\Di\Invoker\InvokeResolver;
-use function is_object;
-use function get_class;
-use function current;
+use Larmias\Support\Reflection\Invoker;
+use Larmias\Support\Reflection\Parameter;
+use Psr\Container\ContainerInterface as PsrContainerInterface;
+use ReflectionException;
+use ReflectionParameter;
+use Throwable;
+use Traversable;
 use function count;
-use function is_string;
+use function current;
+use function get_class;
 use function is_array;
+use function is_object;
+use function is_string;
 
 class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, Countable
 {

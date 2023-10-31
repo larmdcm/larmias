@@ -96,7 +96,7 @@ class File extends Driver
      */
     public function has($key): bool
     {
-        return is_file($this->getCacheKey($key));
+        return $this->getCache($key) !== null;
     }
 
     /**

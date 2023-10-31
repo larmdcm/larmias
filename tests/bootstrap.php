@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
+use Larmias\Context\ApplicationContext;
 use Larmias\Contracts\ApplicationInterface;
 use Larmias\Di\Container;
 use Larmias\Framework\Application;
-use Larmias\Utils\ApplicationContext;
 
 ini_set('display_errors', 'on');
 ini_set('display_startup_errors', 'on');

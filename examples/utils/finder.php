@@ -2,7 +2,7 @@
 
 require '../bootstrap.php';
 
-use Larmias\Utils\FileSystem\Finder;
+use Larmias\Support\FileSystem\Finder;
 
 $files1 = Finder::create()
         ->include('../../projects')

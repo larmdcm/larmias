@@ -9,13 +9,13 @@ use Larmias\Contracts\ContainerInterface;
 use Larmias\Di\Annotation\Inject;
 use Larmias\Di\Annotation\Scope;
 use Larmias\Di\AnnotationCollector;
-use Larmias\Utils\Reflection\ReflectUtil;
+use Larmias\Support\Reflection\ReflectUtil;
 use ReflectionObject;
 use ReflectionProperty;
-use Throwable;
 use RuntimeException;
-use function get_class;
+use Throwable;
 use function current;
+use function get_class;
 
 class InjectAnnotationHandler implements AnnotationHandlerInterface
 {

@@ -122,11 +122,11 @@ abstract class Pool implements PoolInterface
     {
         if ($this->channel->isFull()) {
             $this->disConnection($connection);
-            return false;
-        }
-        $connection->setLastActiveTime(time());
-        if (!$this->channel->push($connection)) {
-            $this->disConnection($connection);
+        } else {
+            $connection->setLastActiveTime(time());
+            if (!$this->channel->push($connection)) {
+                $this->disConnection($connection);
+            }
         }
         return true;
     }

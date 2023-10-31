@@ -34,7 +34,7 @@ use function call_user_func;
 use function extension_loaded;
 use function is_array;
 use function is_callable;
-use function Larmias\Utils\data_get;
+use function Larmias\Collection\data_get;
 use function mt_srand;
 
 abstract class Worker implements WorkerInterface

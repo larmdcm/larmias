@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Larmias\Engine;
 
-use Larmias\Utils\ApplicationContext;
+use Larmias\Context\ApplicationContext;
 use function is_callable;
-use function strtolower;
 use function shell_exec;
+use function strtolower;
 use const DIRECTORY_SEPARATOR;
 
 /**

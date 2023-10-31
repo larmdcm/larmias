@@ -7,7 +7,7 @@ namespace Larmias\Database\Model\Concerns;
 use Larmias\Database\Model\Contracts\CollectionInterface;
 use Larmias\Database\Model\Model;
 use Larmias\Database\Query\BaseQuery;
-use Larmias\Utils\Arr;
+use Larmias\Collection\Arr;
 use Larmias\Database\Model\Collection as ModelCollection;
 use function array_shift;
 use function explode;

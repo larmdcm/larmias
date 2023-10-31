@@ -6,7 +6,7 @@ return [
     'default' => 'file',
     'name' => 'PHPSESSID',
     'cookie_lifetime' => 0,
-    'packer' => \Larmias\Utils\Packer\PhpSerializerPacker::class,
+    'packer' => \Larmias\Support\Packer\PhpSerializerPacker::class,
     'handlers' => [
         'file' => [
             'handler' => \Larmias\Session\Handler\FileHandler::class,

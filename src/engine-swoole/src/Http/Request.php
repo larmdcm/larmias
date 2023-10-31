@@ -6,7 +6,7 @@ namespace Larmias\Engine\Swoole\Http;
 
 use Larmias\Contracts\Http\RequestInterface;
 use Swoole\Http\Request as SwooleRequest;
-use function Larmias\Utils\data_get;
+use function Larmias\Collection\data_get;
 use function strstr;
 use function strtolower;
 use function explode;

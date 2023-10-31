@@ -4,27 +4,27 @@ declare(strict_types=1);
 
 namespace Larmias\HttpServer\Message;
 
+use BadMethodCallException;
 use Larmias\Contracts\ContextInterface;
 use Larmias\Http\Message\Contracts\Chunkable;
 use Larmias\Http\Message\Cookie;
 use Larmias\Http\Message\Exceptions\FileException;
 use Larmias\Http\Message\Stream;
+use Larmias\Http\Message\Stream\FileStream;
 use Larmias\HttpServer\Contracts\ResponseInterface;
-use Larmias\Utils\Codec\Json;
-use Larmias\Utils\MimeType;
+use Larmias\Support\Codec\Json;
+use Larmias\Support\MimeType;
 use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
 use Psr\Http\Message\StreamInterface;
-use Larmias\Http\Message\Stream\FileStream;
-use BadMethodCallException;
-use Stringable;
 use SplFileInfo;
-use function Larmias\Utils\value;
-use function method_exists;
+use Stringable;
 use function func_get_args;
-use function is_string;
-use function sprintf;
 use function get_class;
+use function is_string;
+use function Larmias\Support\value;
+use function method_exists;
 use function rawurlencode;
+use function sprintf;
 
 class Response implements PsrResponseInterface, ResponseInterface
 {

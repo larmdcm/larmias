@@ -93,7 +93,6 @@
         "larmias/task": "self.version",
         "larmias/throttle": "self.version",
         "larmias/translation": "self.version",
-        "larmias/utils": "self.version",
         "larmias/validation": "self.version",
         "larmias/view": "self.version",
         "larmias/constants": "self.version",
@@ -102,14 +101,21 @@
         "larmias/jwt-auth": "self.version",
         "larmias/trace": "self.version",
         "larmias/var-dump": "self.version",
-        "larmias/testing": "self.version"
+        "larmias/testing": "self.version",
+        "larmias/macroable": "self.version",
+        "larmias/collection": "self.version",
+        "larmias/stringable": "self.version",
+        "larmias/support": "self.version",
+        "larmias/context": "self.version"
     },
     "suggest": {
         "ext-swoole": "Required to use swoole (^4.6.*)."
     },
     "autoload": {
         "files": [
-            "src/utils/src/functions.php",
+            "src/collection/src/functions.php",
+            "src/stringable/src/functions.php",
+            "src/support/src/functions.php",
             "src/engine/src/functions.php",
             "src/framework/src/functions.php",
             "src/view/src/Drivers/Blade/helpers.php",
@@ -118,7 +124,11 @@
             "src/var-dump/src/functions.php"
         ],
         "psr-4": {
-            "Larmias\\Utils\\": "src/utils/src/",
+            "Larmias\\Macroable\\": "src/macroable/src/",
+            "Larmias\\Collection\\": "src/collection/src/",
+            "Larmias\\Stringable\\": "src/stringable/src/",
+            "Larmias\\Support\\": "src/support/src/",
+            "Larmias\\Context\\": "src/context/src/",
             "Larmias\\Contracts\\": "src/contracts/src/",
             "Larmias\\Config\\": "src/config/src/",
             "Larmias\\Cache\\": "src/cache/src/",
@@ -160,12 +170,12 @@
             "Larmias\\Database\\": "src/database/src/",
             "Larmias\\Paginator\\": "src/paginator/src/",
             "Larmias\\Constants\\": "src/constants/src/",
-            "Larmias\\Facade\\": "src/facade/src",
-            "Larmias\\WebSocketServer\\": "src/websocket-server/src",
-            "Larmias\\JWTAuth\\": "src/jwt-auth/src",
-            "Larmias\\Trace\\": "src/trace/src",
-            "Larmias\\VarDumper\\": "src/var-dump/src",
-            "Larmias\\Testing\\": "src/testing/src"
+            "Larmias\\Facade\\": "src/facade/src/",
+            "Larmias\\WebSocketServer\\": "src/websocket-server/src/",
+            "Larmias\\JWTAuth\\": "src/jwt-auth/src/",
+            "Larmias\\Trace\\": "src/trace/src/",
+            "Larmias\\VarDumper\\": "src/var-dump/src/",
+            "Larmias\\Testing\\": "src/testing/src/"
         }
     },
     "autoload-dev": {

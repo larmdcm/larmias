@@ -2,7 +2,7 @@
 
 require '../bootstrap.php';
 
-use Larmias\Utils\Reflection\ReflectUtil;
+use Larmias\Support\Reflection\ReflectUtil;
 
 $classes = ReflectUtil::getAllClassesInFile('./test_class.php');
 

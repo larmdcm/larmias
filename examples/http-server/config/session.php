@@ -5,7 +5,7 @@ return [
     'default' => 'redis',
     'name' => 'PHPSESSID',
     'cookie_lifetime' => 60,
-    'packer' => \Larmias\Utils\Packer\PhpSerializerPacker::class,
+    'packer' => \Larmias\Support\Packer\PhpSerializerPacker::class,
     'handlers' => [
         'file' => [
             'handler' => \Larmias\Session\Handler\FileHandler::class,

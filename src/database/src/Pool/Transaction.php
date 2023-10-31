@@ -7,7 +7,7 @@ namespace Larmias\Database\Pool;
 use Larmias\Database\Connections\Connection;
 use Larmias\Database\Contracts\TransactionInterface;
 use Larmias\Database\Exceptions\TransactionException;
-use function Larmias\Utils\throw_if;
+use function Larmias\Support\throw_if;
 
 class Transaction implements TransactionInterface
 {

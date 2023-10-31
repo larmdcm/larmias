@@ -14,7 +14,7 @@ use DomainException;
 use IteratorAggregate;
 use JsonSerializable;
 use Larmias\Paginator\Driver\Bootstrap;
-use Larmias\Utils\Collection;
+use Larmias\Collection\Collection;
 use Traversable;
 
 abstract class Paginator implements PaginatorInterface, ArrayAccess, Countable, IteratorAggregate, JsonSerializable

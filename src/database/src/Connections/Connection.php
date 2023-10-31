@@ -9,7 +9,7 @@ use Larmias\Database\Contracts\ConnectionInterface;
 use Larmias\Pool\Connection as PoolConnection;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use function array_merge;
-use function Larmias\Utils\data_get;
+use function Larmias\Collection\data_get;
 
 abstract class Connection extends PoolConnection implements ConnectionInterface, PoolConnectionInterface
 {

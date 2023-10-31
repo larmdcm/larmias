@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\Http\Message;
 
-use Larmias\Utils\Arr;
+use Larmias\Collection\Arr;
 use Psr\Http\Message\ServerRequestInterface;
 use InvalidArgumentException;
 use Larmias\Contracts\Http\RequestInterface as HttpRequestInterface;

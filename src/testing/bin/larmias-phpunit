@@ -3,12 +3,13 @@
 
 declare (strict_types=1);
 
+use Larmias\Context\ApplicationContext;
 use Larmias\Testing\Engine;
-use Larmias\Utils\ApplicationContext;
 
 if (!ini_get('date.timezone')) {
-    ini_set('date.timezone', 'UTC');
+    ini_set('date.timezone', 'PRC');
 }
+
 foreach ([__DIR__ . '/../../../vendor/autoload.php', __DIR__ . '/../../vendor/autoload.php', __DIR__ . '/../vendor/autoload.php'] as $file) {
     if (file_exists($file)) {
         define('COMPOSER_AUTOLOAD_FILE', $file);
@@ -29,5 +30,9 @@ if (isset($options['prepend'])) {
 }
 
 unset($options);
+
+if (defined('PHPUNIT_BOOTSTRAP_FILE') && is_file(PHPUNIT_BOOTSTRAP_FILE)) {
+    require PHPUNIT_BOOTSTRAP_FILE;
+}
 
 Engine::run(ApplicationContext::getContainer());

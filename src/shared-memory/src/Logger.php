@@ -8,7 +8,7 @@ use Larmias\Contracts\StdoutLoggerInterface;
 use Larmias\Contracts\Worker\WorkerInterface;
 use Larmias\SharedMemory\Contracts\LoggerInterface;
 use Psr\Log\LoggerInterface as PsrLoggerInterface;
-use function Larmias\Utils\println;
+use function Larmias\Support\println;
 
 class Logger implements LoggerInterface
 {

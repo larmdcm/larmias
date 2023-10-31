@@ -13,7 +13,7 @@ use Larmias\Contracts\LoggerInterface;
 use Larmias\Contracts\TimerInterface;
 use Throwable;
 use function array_merge;
-use function Larmias\Utils\format_exception;
+use function Larmias\Support\format_exception;
 use function method_exists;
 
 abstract class QueueDriver implements QueueDriverInterface

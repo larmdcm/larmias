@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\Di;
 
-use Larmias\Utils\Arr;
+use Larmias\Collection\Arr;
 
 class AnnotationCollector
 {

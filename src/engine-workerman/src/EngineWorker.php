@@ -8,7 +8,7 @@ use Larmias\Engine\Worker as BaseWorker;
 use Larmias\Engine\Timer;
 use Larmias\Engine\Event;
 use Throwable;
-use function Larmias\Utils\format_exception;
+use function Larmias\Support\format_exception;
 use function method_exists;
 
 class EngineWorker extends BaseWorker

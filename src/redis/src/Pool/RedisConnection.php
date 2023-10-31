@@ -9,6 +9,7 @@ use Larmias\Pool\Connection as BaseConnection;
 use RuntimeException;
 use Throwable;
 use Redis;
+use RedisException;
 use function array_merge;
 
 class RedisConnection extends BaseConnection implements ConnectionInterface
@@ -45,6 +46,7 @@ class RedisConnection extends BaseConnection implements ConnectionInterface
 
     /**
      * @return bool
+     * @throws RedisException
      */
     public function connect(): bool
     {
@@ -72,11 +74,13 @@ class RedisConnection extends BaseConnection implements ConnectionInterface
 
     /**
      * @return bool
+     * @throws RedisException
      */
     public function reset(): bool
     {
-        $this->setDatabase((int)$this->config['db']);
-        return $this->redis->select($this->getDatabase()) !== false;
+        $db = (int)$this->config['db'];
+        $this->setDatabase($db);
+        return $this->redis->select($db) !== false;
     }
 
     /**
@@ -93,6 +97,7 @@ class RedisConnection extends BaseConnection implements ConnectionInterface
 
     /**
      * @return bool
+     * @throws RedisException
      */
     public function isConnected(): bool
     {
@@ -101,6 +106,7 @@ class RedisConnection extends BaseConnection implements ConnectionInterface
 
     /**
      * @return bool
+     * @throws RedisException
      */
     public function reconnect(): bool
     {
@@ -115,6 +121,7 @@ class RedisConnection extends BaseConnection implements ConnectionInterface
 
     /**
      * @return bool
+     * @throws RedisException
      */
     public function close(): bool
     {
@@ -151,10 +158,19 @@ class RedisConnection extends BaseConnection implements ConnectionInterface
     }
 
     /**
+     * @return array
+     */
+    public function getConfig(): array
+    {
+        return $this->config;
+    }
+
+    /**
      * @param string $host
      * @param int $port
      * @param float $timeout
      * @return Redis
+     * @throws RedisException
      */
     protected function createRedis(string $host, int $port, float $timeout): Redis
     {

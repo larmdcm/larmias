@@ -10,7 +10,7 @@ use Larmias\Contracts\Coroutine\ChannelInterface;
 use Larmias\Contracts\Coroutine\CoroutineInterface;
 use Larmias\Contracts\LoggerInterface;
 use Throwable;
-use function Larmias\Utils\format_exception;
+use function Larmias\Support\format_exception;
 
 class Concurrent implements ConcurrentInterface
 {

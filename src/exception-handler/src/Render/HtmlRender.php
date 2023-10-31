@@ -6,8 +6,8 @@ namespace Larmias\ExceptionHandler\Render;
 
 use Throwable;
 use function realpath;
-use function Larmias\Utils\println;
-use function Larmias\Utils\format_exception;
+use function Larmias\Support\println;
+use function Larmias\Support\format_exception;
 
 class HtmlRender extends Render
 {

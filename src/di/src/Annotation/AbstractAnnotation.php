@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\Di\Annotation;
 
-use Larmias\Utils\Reflection\ReflectionManager;
+use Larmias\Support\Reflection\ReflectionManager;
 use ReflectionProperty;
 
 abstract class AbstractAnnotation

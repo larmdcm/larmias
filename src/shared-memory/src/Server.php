@@ -20,7 +20,7 @@ use Larmias\SharedMemory\Exceptions\AuthenticateException;
 use Larmias\SharedMemory\Message\Result;
 use Larmias\Contracts\Worker\WorkerInterface;
 use Throwable;
-use function Larmias\Utils\format_exception;
+use function Larmias\Support\format_exception;
 use function method_exists;
 use function call_user_func_array;
 

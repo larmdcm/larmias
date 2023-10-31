@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Larmias\Log\Formatter;
 
 use Larmias\Log\Contracts\FormatterInterface;
-use Larmias\Utils\Str;
+use Larmias\Stringable\Str;
 use function array_merge;
 use function var_export;
 

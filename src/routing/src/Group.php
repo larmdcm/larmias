@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\Routing;
 
-use function Larmias\Utils\is_empty;
+use function Larmias\Support\is_empty;
 use function array_merge;
 use function is_callable;
 use function is_array;

@@ -28,7 +28,7 @@ class ConnectionTest extends TestCase
         $ctx = $connection->beginTransaction();
         try {
 
-            $result = $connection->execute('update t_user set integral = integral + 1 where id = ?', [1]);
+            $result = $connection->execute('update t_user set integral = integral + 1,update_time = now() where id = ?', [1]);
 
             if (!$result->getRowCount()) {
                 throw new \RuntimeException('修改用户信息失败');
@@ -58,7 +58,7 @@ class ConnectionTest extends TestCase
         $ctx = $connection->beginTransaction();
         try {
 
-            $result = $connection->execute('update t_user set integral = integral + 1 where id = ?', [$id]);
+            $result = $connection->execute('update t_user set integral = integral + 1,update_time = now() where id = ?', [$id]);
 
             if (!$result->getRowCount()) {
                 throw new \RuntimeException('修改用户信息失败');

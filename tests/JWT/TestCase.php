@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace LarmiasTest\JWT;
 
 use Larmias\Cache\Providers\CacheServiceProvider;
+use Larmias\Context\ApplicationContext;
 use Larmias\Contracts\ConfigInterface;
 use Larmias\Contracts\DotEnvInterface;
 use Larmias\Env\DotEnv;
 use Larmias\JWTAuth\Contracts\BlacklistInterface;
 use Larmias\JWTAuth\Contracts\JWTInterface;
 use Larmias\JWTAuth\Providers\JWTAuthServiceProvider;
-use Larmias\Utils\ApplicationContext;
 use PHPUnit\Framework\TestCase as BaseTestCase;
 
 class TestCase extends BaseTestCase

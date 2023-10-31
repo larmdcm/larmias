@@ -10,7 +10,7 @@ use Larmias\Database\Events\TransactionBeginning;
 use Larmias\Database\Events\TransactionCommitted;
 use Larmias\Database\Events\TransactionRolledBack;
 use Larmias\Database\Exceptions\TransactionException;
-use function Larmias\Utils\throw_unless;
+use function Larmias\Support\throw_unless;
 
 class PDOTransaction implements TransactionInterface
 {

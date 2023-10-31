@@ -1,0 +1,33 @@
+{
+    "name": "larmias/support",
+    "description": "A support component for larmias.",
+    "type": "library",
+    "keywords": [
+        "larmias",
+        "support"
+    ],
+    "homepage": "https://larmias.com/",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "clow",
+            "email": "mdcm98@163.com"
+        }
+    ],
+    "require": {
+        "php": ">=8.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Larmias\\Support\\": "src/"
+        },
+        "files": [
+            "src/functions.php"
+        ]
+    },
+    "extra": {
+        "larmias": {
+
+        }
+    }
+}

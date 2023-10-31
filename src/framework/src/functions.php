@@ -15,10 +15,10 @@ use Larmias\Engine\Event;
 use Larmias\Engine\WorkerConfig;
 use Larmias\Engine\WorkerType;
 use RuntimeException;
-use function Larmias\Utils\invoke;
-use function Larmias\Utils\make;
+use function Larmias\Support\invoke;
+use function Larmias\Support\make;
 use function is_array;
-use function Larmias\Utils\throw_unless;
+use function Larmias\Support\throw_unless;
 use function str_starts_with;
 
 /**

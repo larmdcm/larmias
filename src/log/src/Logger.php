@@ -8,7 +8,7 @@ use Larmias\Contracts\ConfigInterface;
 use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\LoggerInterface;
 use Larmias\Log\Contracts\FormatterInterface;
-use Larmias\Utils\Arr;
+use Larmias\Collection\Arr;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use function is_null;
 

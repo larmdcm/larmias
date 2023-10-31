@@ -9,7 +9,7 @@ use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\PackerInterface;
 use Larmias\Contracts\SessionInterface;
 use SessionHandlerInterface;
-use Larmias\Utils\Arr;
+use Larmias\Collection\Arr;
 use function is_null;
 use function is_string;
 use function strlen;

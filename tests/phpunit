@@ -1,2 +1,6 @@
-#!/usr/bin/env bash
-../src/testing/bin/larmias-phpunit --prepend=bootstrap.php $1
+#!/usr/bin/env php
+<?php
+
+const PHPUNIT_BOOTSTRAP_FILE = __DIR__ . '/bootstrap.php';
+
+require '../src/testing/bin/larmias-phpunit';

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace LarmiasTest\Di;
 
+use Larmias\Context\ApplicationContext;
 use Larmias\Di\Annotation;
 use Larmias\Di\AnnotationManager;
-use Larmias\Utils\ApplicationContext;
 use PHPUnit\Framework\TestCase as BaseTestCase;
 
 class TestCase extends BaseTestCase

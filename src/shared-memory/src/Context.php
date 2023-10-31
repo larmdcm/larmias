@@ -7,7 +7,7 @@ namespace Larmias\SharedMemory;
 use Larmias\Contracts\ContextInterface;
 use Larmias\Contracts\Tcp\ConnectionInterface;
 use Larmias\SharedMemory\Exceptions\ServerException;
-use function Larmias\Utils\throw_unless;
+use function Larmias\Support\throw_unless;
 
 class Context
 {

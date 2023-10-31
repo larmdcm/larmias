@@ -5,18 +5,16 @@ declare(strict_types=1);
 namespace Larmias\Event;
 
 use Larmias\Contracts\ContainerInterface;
-use Psr\Container\ContainerExceptionInterface;
-use Psr\Container\NotFoundExceptionInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\EventDispatcher\ListenerProviderInterface;
+use Throwable;
 
 class EventDispatcherFactory
 {
     /**
      * @param ContainerInterface $container
      * @return EventDispatcherInterface
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
+     * @throws Throwable
      */
     public static function make(ContainerInterface $container): EventDispatcherInterface
     {

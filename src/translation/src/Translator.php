@@ -6,8 +6,8 @@ namespace Larmias\Translation;
 
 use Larmias\Contracts\ConfigInterface;
 use Larmias\Contracts\TranslatorInterface;
-use Larmias\Utils\Arr;
-use Larmias\Utils\Str;
+use Larmias\Collection\Arr;
+use Larmias\Stringable\Str;
 use function array_merge;
 use function is_file;
 use function rtrim;

@@ -8,8 +8,8 @@ use Larmias\Command\Command;
 use Larmias\Command\Contracts\ExceptionHandlerInterface;
 use Larmias\ExceptionHandler\ExceptionHandler as BaseExceptionHandler;
 use Throwable;
-use function Larmias\Utils\println;
-use function Larmias\Utils\format_exception;
+use function Larmias\Support\println;
+use function Larmias\Support\format_exception;
 
 class ExceptionHandler extends BaseExceptionHandler implements ExceptionHandlerInterface
 {

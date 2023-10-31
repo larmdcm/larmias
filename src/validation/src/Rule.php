@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Larmias\Validation;
 
 use Closure;
-use Larmias\Utils\Str;
+use Larmias\Stringable\Str;
 
 class Rule
 {

@@ -10,7 +10,7 @@ use Larmias\Contracts\ContextInterface;
 use Larmias\Http\CSRF\Contracts\CsrfManagerInterface;
 use Larmias\Http\CSRF\Exceptions\TokenMismatchException;
 use Larmias\Http\Message\Cookie;
-use Larmias\Utils\Str;
+use Larmias\Stringable\Str;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;

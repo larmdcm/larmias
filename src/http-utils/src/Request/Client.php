@@ -4,18 +4,18 @@ declare(strict_types=1);
 
 namespace Larmias\Http\Utils\Request;
 
+use Closure;
+use Larmias\Collection\Arr;
 use Larmias\Http\Message\Request;
 use Larmias\Http\Message\Stream;
 use Larmias\Http\Message\Uri;
-use Larmias\Utils\Arr;
-use Larmias\Utils\Codec\Json;
+use Larmias\Http\Utils\Request\Handler\CurlRequestHandler;
+use Larmias\Http\Utils\Request\Handler\RequestHandlerInterface;
+use Larmias\Support\Codec\Json;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
-use Larmias\Http\Utils\Request\Handler\RequestHandlerInterface;
-use Larmias\Http\Utils\Request\Handler\CurlRequestHandler;
-use Closure;
 use function array_merge;
 use function is_string;
 use function ltrim;

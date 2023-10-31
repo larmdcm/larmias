@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Larmias\Config;
 
 use Larmias\Contracts\ConfigInterface;
-use Larmias\Utils\Arr;
+use Larmias\Collection\Arr;
 use ArrayAccess;
 use function is_array;
 use function pathinfo;

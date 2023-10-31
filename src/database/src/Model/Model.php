@@ -6,25 +6,25 @@ namespace Larmias\Database\Model;
 
 use Closure;
 use JsonSerializable;
+use Larmias\Contracts\Arrayable;
+use Larmias\Contracts\Jsonable;
 use Larmias\Contracts\PaginatorInterface;
 use Larmias\Database\Contracts\ExpressionInterface;
 use Larmias\Database\Contracts\ManagerInterface;
-use Larmias\Database\Model\Concerns\ModelEvent;
-use Larmias\Database\Model\Contracts\ModelInterface;
-use Larmias\Database\Model\Contracts\QueryInterface;
 use Larmias\Database\Contracts\TransactionInterface;
 use Larmias\Database\Model\Concerns\Attribute;
 use Larmias\Database\Model\Concerns\Conversion;
+use Larmias\Database\Model\Concerns\ModelEvent;
 use Larmias\Database\Model\Concerns\RelationShip;
 use Larmias\Database\Model\Concerns\Timestamp;
-use Larmias\Utils\Contracts\Arrayable;
-use Larmias\Utils\Contracts\Jsonable;
+use Larmias\Database\Model\Contracts\ModelInterface;
+use Larmias\Database\Model\Contracts\QueryInterface;
 use RuntimeException;
 use Stringable;
-use function Larmias\Utils\class_basename;
+use function array_diff;
+use function Larmias\Support\class_basename;
 use function method_exists;
 use function str_contains;
-use function array_diff;
 
 /**
  * @method static QueryInterface table(string|array $name)

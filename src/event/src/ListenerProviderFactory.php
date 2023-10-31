@@ -5,10 +5,9 @@ declare(strict_types=1);
 namespace Larmias\Event;
 
 use Larmias\Event\Contracts\ListenerInterface;
-use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
-use Psr\Container\NotFoundExceptionInterface;
 use Psr\EventDispatcher\ListenerProviderInterface;
+use Throwable;
 
 class ListenerProviderFactory
 {
@@ -16,8 +15,7 @@ class ListenerProviderFactory
      * @param ContainerInterface $container
      * @param array $listeners
      * @return ListenerProviderInterface
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
+     * @throws Throwable
      */
     public static function make(ContainerInterface $container, array $listeners = []): ListenerProviderInterface
     {
@@ -41,8 +39,7 @@ class ListenerProviderFactory
      * @param ContainerInterface $container
      * @param string $listener
      * @param int $priority
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
+     * @throws Throwable
      */
     public static function register(ListenerProviderInterface $provider, ContainerInterface $container, string $listener, int $priority = 1): void
     {

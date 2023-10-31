@@ -9,8 +9,8 @@ use Larmias\Database\Model\Relations\BelongsTo;
 use Larmias\Database\Model\Relations\BelongsToMany;
 use Larmias\Database\Model\Relations\HasMany;
 use Larmias\Database\Model\Relations\HasOne;
-use Larmias\Utils\Str;
-use function Larmias\Utils\class_basename;
+use Larmias\Stringable\Str;
+use function Larmias\Support\class_basename;
 use function str_contains;
 
 /**

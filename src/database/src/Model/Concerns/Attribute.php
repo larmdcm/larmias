@@ -8,14 +8,14 @@ use InvalidArgumentException;
 use Larmias\Database\Model\Contracts\CollectionInterface;
 use Larmias\Database\Model\Model;
 use Larmias\Database\Model\Relations\Relation;
-use Larmias\Utils\Str;
+use Larmias\Stringable\Str;
 use function array_key_exists;
 use function array_udiff_assoc;
 use function date;
 use function is_numeric;
 use function is_object;
 use function json_encode;
-use function Larmias\Utils\data_get;
+use function Larmias\Collection\data_get;
 use function method_exists;
 use function serialize;
 use function str_contains;
@@ -130,6 +130,8 @@ trait Attribute
         }
 
         $this->data[$name] = $value;
+
+        unset($this->get[$name]);
     }
 
     /**

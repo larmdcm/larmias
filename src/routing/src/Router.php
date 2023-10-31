@@ -9,7 +9,7 @@ use Larmias\Routing\Contracts\RouterInterface;
 use Larmias\Routing\Exceptions\RouteException;
 use Larmias\Routing\Exceptions\RouteNotFoundException;
 use Larmias\Routing\Exceptions\RouteMethodNotAllowedException;
-use Larmias\Utils\Arr;
+use Larmias\Collection\Arr;
 use FastRoute\Dispatcher as FastRouteDispatcher;
 use FastRoute\RouteCollector;
 use function FastRoute\simpleDispatcher;

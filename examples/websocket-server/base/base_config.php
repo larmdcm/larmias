@@ -11,7 +11,7 @@ use Larmias\Event\ListenerProviderFactory;
 use Larmias\Event\EventDispatcherFactory;
 use Larmias\Contracts\WebSocket\ConnectionInterface;
 use Larmias\Contracts\WebSocket\FrameInterface;
-use function Larmias\Utils\println;
+use function Larmias\Support\println;
 
 return [
     'driver' => \Larmias\Engine\Swoole\Driver::class,

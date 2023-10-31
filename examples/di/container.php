@@ -1,9 +1,9 @@
 <?php
 
-use Larmias\Di\Container;
-use Larmias\Contracts\ConfigInterface;
 use Larmias\Config\Config;
-use Larmias\Utils\ApplicationContext;
+use Larmias\Context\ApplicationContext;
+use Larmias\Contracts\ConfigInterface;
+use Larmias\Di\Container;
 
 $container = Container::getInstance();
 $container->bind(ConfigInterface::class,Config::class);

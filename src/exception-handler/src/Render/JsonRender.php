@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Larmias\ExceptionHandler\Render;
 
-use Larmias\Utils\Codec\Json;
+use Larmias\Support\Codec\Json;
 use Throwable;
-use function Larmias\Utils\println;
-use function Larmias\Utils\format_exception;
+use function Larmias\Support\format_exception;
+use function Larmias\Support\println;
 
 class JsonRender extends Render
 {

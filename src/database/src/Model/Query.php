@@ -10,15 +10,15 @@ use Larmias\Database\Model\Contracts\QueryInterface;
 use Larmias\Database\Model\Contracts\ScopeInterface;
 use Larmias\Database\Query\BaseQuery;
 use Larmias\Database\Exceptions\ResourceNotFoundException;
-use Larmias\Utils\Arr;
+use Larmias\Collection\Arr;
 use Closure;
-use Larmias\Utils\Str;
+use Larmias\Stringable\Str;
 use Throwable;
 use function array_filter;
 use function array_map;
 use function str_contains;
-use function Larmias\Utils\throw_if;
-use function Larmias\Utils\data_get;
+use function Larmias\Support\throw_if;
+use function Larmias\Collection\data_get;
 
 class Query extends BaseQuery implements QueryInterface
 {

@@ -19,8 +19,8 @@ use Larmias\Database\Pool\DbProxy;
 use RuntimeException;
 use Throwable;
 use function class_exists;
-use function Larmias\Utils\data_get;
-use function Larmias\Utils\throw_unless;
+use function Larmias\Collection\data_get;
+use function Larmias\Support\throw_unless;
 
 class Manager implements ManagerInterface
 {

@@ -9,7 +9,7 @@ use Larmias\Database\Model\Contracts\QueryInterface;
 use Larmias\Database\Model\Contracts\CollectionInterface;
 use Larmias\Database\Model\Model;
 use Larmias\Database\Model\Pivot;
-use Larmias\Utils\Arr;
+use Larmias\Collection\Arr;
 use RuntimeException;
 use function is_array;
 use function is_numeric;

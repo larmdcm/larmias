@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Larmias\Validation;
 
 use Larmias\Contracts\TranslatorInterface;
-use Larmias\Utils\Arr;
+use Larmias\Collection\Arr;
 use Larmias\Validation\Exceptions\ValidateException;
 use Larmias\Validation\Exceptions\RuleException;
 use Larmias\Contracts\ValidatorInterface;
-use Larmias\Utils\Str;
+use Larmias\Stringable\Str;
 use Closure;
 use function array_unshift;
 use function array_merge;

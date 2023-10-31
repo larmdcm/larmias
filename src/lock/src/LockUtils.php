@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace Larmias\Lock;
 
+use Closure;
+use Larmias\Context\ApplicationContext;
 use Larmias\Contracts\ConfigInterface;
 use Larmias\Contracts\LockerFactoryInterface;
 use Larmias\Contracts\LockerInterface;
-use Larmias\Utils\ApplicationContext;
-use Closure;
 use Throwable;
-use function is_string;
 use function call_user_func;
 use function is_bool;
+use function is_string;
 
 class LockUtils
 {

@@ -87,7 +87,8 @@ class DotEnv implements DotEnvInterface, ArrayAccess
         if ($value === null) {
             return $default;
         }
-        return $this->convert[$value] ?? $value;
+
+        return array_key_exists($value, $this->convert) ? $this->convert[$value] : $value;
     }
 
     /**

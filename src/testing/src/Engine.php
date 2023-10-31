@@ -15,8 +15,8 @@ use Larmias\Engine\WorkerConfig;
 use Larmias\Engine\WorkerType;
 use PHPUnit\TextUI\Command;
 use RuntimeException;
-use function Larmias\Utils\make;
-use function Larmias\Utils\throw_unless;
+use function Larmias\Support\make;
+use function Larmias\Support\throw_unless;
 use function is_file;
 
 class Engine

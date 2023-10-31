@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Larmias\Http\CSRF;
 
+use Larmias\Context\ApplicationContext;
 use Larmias\Http\CSRF\Contracts\CsrfManagerInterface;
-use Larmias\Utils\ApplicationContext;
 use function sprintf;
 
 /**

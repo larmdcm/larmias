@@ -282,7 +282,7 @@ class ModelTest extends TestCase
      */
     public function testScope(): void
     {
-        $user = UserScopeModel::scope('username', 'test363')->first();
-        $this->assertSame($user->username, 'test363');
+        $user = UserScopeModel::scope('username', 'test')->first();
+        $this->assertSame($user->username, 'test');
     }
 }

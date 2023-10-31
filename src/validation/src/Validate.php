@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Larmias\Validation;
 
 use Larmias\Validation\Exceptions\RuleException;
-use Larmias\Utils\Str;
+use Larmias\Stringable\Str;
 use function is_numeric;
 use function in_array;
 use function is_array;

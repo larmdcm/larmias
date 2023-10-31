@@ -8,6 +8,7 @@ use Larmias\Contracts\ConfigInterface;
 use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\Redis\ConnectionInterface;
 use Larmias\Contracts\Redis\RedisFactoryInterface;
+use Throwable;
 
 class RedisFactory implements RedisFactoryInterface
 {
@@ -27,6 +28,7 @@ class RedisFactory implements RedisFactoryInterface
     /**
      * @param string $name
      * @return ConnectionInterface
+     * @throws Throwable
      */
     public function get(string $name = 'default'): ConnectionInterface
     {

@@ -6,15 +6,15 @@ namespace Larmias\ExceptionHandler\Render;
 
 use Larmias\Contracts\ConfigInterface;
 use Larmias\ExceptionHandler\Contracts\RenderInterface;
-use Larmias\Utils\Str;
+use Larmias\Stringable\Str;
 use Throwable;
 use function array_merge;
 use function file;
 use function get_class;
 use function is_array;
 use function count;
-use function Larmias\Utils\println;
-use function Larmias\Utils\format_exception;
+use function Larmias\Support\println;
+use function Larmias\Support\format_exception;
 
 abstract class Render implements RenderInterface
 {

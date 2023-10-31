@@ -1,0 +1,30 @@
+{
+    "name": "larmias/macroable",
+    "description": "A macroable component for larmias.",
+    "type": "library",
+    "keywords": [
+        "larmias",
+        "macroable"
+    ],
+    "homepage": "https://larmias.com/",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "clow",
+            "email": "mdcm98@163.com"
+        }
+    ],
+    "require": {
+        "php": ">=8.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Larmias\\Macroable\\": "src/"
+        }
+    },
+    "extra": {
+        "larmias": {
+
+        }
+    }
+}

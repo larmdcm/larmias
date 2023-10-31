@@ -7,9 +7,9 @@ namespace Larmias\Database\Query;
 use Larmias\Database\Exceptions\ResourceNotFoundException;
 use Larmias\Database\Query\Contracts\QueryInterface;
 use Larmias\Contracts\CollectionInterface;
-use Larmias\Utils\Collection;
-use function Larmias\Utils\data_get;
-use function Larmias\Utils\throw_if;
+use Larmias\Collection\Collection;
+use function Larmias\Collection\data_get;
+use function Larmias\Support\throw_if;
 
 class Query extends BaseQuery implements QueryInterface
 {

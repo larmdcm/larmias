@@ -21,7 +21,7 @@
         "psr/http-server-middleware": "^1.0",
         "larmias/contracts": "^1.0",
         "larmias/http-server": "^1.0",
-        "larmias/utils": "^1.0"
+        "larmias/support": "^1.0"
     },
     "autoload": {
         "files": [

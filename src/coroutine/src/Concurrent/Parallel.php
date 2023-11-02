@@ -2,15 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Engine\Concurrent;
+namespace Larmias\Coroutine\Concurrent;
 
 use Larmias\Contracts\Concurrent\ParallelExecutionException;
 use Larmias\Contracts\Concurrent\ParallelInterface;
-use Larmias\Contracts\ContainerInterface;
-use Larmias\Contracts\Coroutine\ChannelFactoryInterface;
 use Larmias\Contracts\Coroutine\ChannelInterface;
-use Larmias\Contracts\Coroutine\CoroutineInterface;
-use Larmias\Contracts\Sync\WaitGroupInterface;
+use Larmias\Coroutine\ChannelFactory;
+use Larmias\Coroutine\Coroutine;
+use Larmias\Coroutine\Sync\WaitGroup;
 use Throwable;
 use function sprintf;
 
@@ -27,11 +26,6 @@ class Parallel implements ParallelInterface
     protected ?ChannelInterface $concurrentChannel = null;
 
     /**
-     * @var CoroutineInterface
-     */
-    protected CoroutineInterface $coroutine;
-
-    /**
      * @var array
      */
     protected array $results = [];
@@ -41,19 +35,14 @@ class Parallel implements ParallelInterface
      */
     protected array $throwable = [];
 
-
     /**
-     * @param ContainerInterface $container
      * @param int $concurrent
      * @throws Throwable
      */
-    public function __construct(protected ContainerInterface $container, int $concurrent = 0)
+    public function __construct(int $concurrent = 0)
     {
-        $this->coroutine = $this->container->get(CoroutineInterface::class);
-
         if ($concurrent > 0) {
-            /** @var ChannelInterface $channel */
-            $this->concurrentChannel = $this->container->get(ChannelFactoryInterface::class)->create($concurrent);
+            $this->concurrentChannel = ChannelFactory::make($concurrent);
         }
     }
 
@@ -68,12 +57,12 @@ class Parallel implements ParallelInterface
 
     public function wait(bool $throw = true): array
     {
-        $wg = $this->container->make(WaitGroupInterface::class, [], true);
+        $wg = new WaitGroup();
         $wg->add(count($this->callbacks));
         foreach ($this->callbacks as $key => $callback) {
             $this->concurrentChannel && $this->concurrentChannel->push(true);
             $this->results[$key] = null;
-            $this->coroutine->create(function () use ($callback, $key, $wg) {
+            Coroutine::create(function () use ($callback, $key, $wg) {
                 try {
                     $this->results[$key] = $callback();
                 } catch (Throwable $throwable) {

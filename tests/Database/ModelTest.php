@@ -153,6 +153,16 @@ class ModelTest extends TestCase
     /**
      * @return void
      */
+    public function testIncrAndDecr(): void
+    {
+        $model = UserModel::find($this->getLastUserId());
+        $this->assertTrue($model->incr('integral', 1)->update() > 0);
+        $this->assertTrue($model->decr('integral', 1)->update() > 0);
+    }
+
+    /**
+     * @return void
+     */
     public function testUserInfoSave(): void
     {
         $model = UserModel::first();

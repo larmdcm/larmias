@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Engine\Sync;
+namespace Larmias\Coroutine\Sync;
 
-use Larmias\Contracts\Coroutine\ChannelFactoryInterface;
 use Larmias\Contracts\Coroutine\ChannelInterface;
 use Larmias\Contracts\Sync\WaitGroupInterface;
 use BadMethodCallException;
 use InvalidArgumentException;
+use Larmias\Coroutine\ChannelFactory;
 
 class WaitGroup implements WaitGroupInterface
 {
@@ -18,9 +18,9 @@ class WaitGroup implements WaitGroupInterface
 
     protected bool $waiting = false;
 
-    public function __construct(ChannelFactoryInterface $factory)
+    public function __construct()
     {
-        $this->channel = $factory->create();
+        $this->channel = ChannelFactory::make();
     }
 
     public function add(int $delta = 1): void

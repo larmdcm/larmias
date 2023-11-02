@@ -70,4 +70,9 @@ class TestCase extends BaseTestCase
             \Larmias\Support\println(format_exception($e));
         }
     }
+
+    protected function getLastUserId(): int
+    {
+        return (int)$this->newQuery()->table('t_user')->orderBy('id', 'DESC')->value('id');
+    }
 }

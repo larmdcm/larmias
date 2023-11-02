@@ -4,14 +4,11 @@ declare(strict_types=1);
 
 namespace Larmias\Engine;
 
+use Larmias\Context\Context;
 use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\ContextInterface;
 use Larmias\Contracts\Coroutine\ChannelFactoryInterface;
 use Larmias\Contracts\Coroutine\CoroutineInterface;
-use Larmias\Contracts\Sync\LockerInterface;
-use Larmias\Contracts\Sync\WaitGroupInterface;
-use Larmias\Contracts\Concurrent\ConcurrentInterface;
-use Larmias\Contracts\Concurrent\ParallelInterface;
 use Larmias\Contracts\EventLoopInterface;
 use Larmias\Contracts\SignalHandlerInterface;
 use Larmias\Contracts\TimerInterface;
@@ -21,13 +18,7 @@ use Larmias\Engine\Contracts\EngineConfigInterface;
 use Larmias\Engine\Contracts\KernelInterface;
 use Larmias\Engine\Contracts\WorkerConfigInterface;
 use Larmias\Engine\Contracts\WorkerInterface;
-use Larmias\Engine\Coroutine\Coroutine;
 use Larmias\Engine\Coroutine\ChannelFactory;
-use Larmias\Engine\Coroutine as EngineCo;
-use Larmias\Engine\Concurrent\Concurrent;
-use Larmias\Engine\Concurrent\Parallel;
-use Larmias\Engine\Sync\WaitGroup;
-use Larmias\Engine\Sync\Locker;
 use Throwable;
 use function array_merge;
 use function call_user_func;
@@ -103,11 +94,6 @@ abstract class Worker implements WorkerInterface
             ContextInterface::class => $this->kernel->getDriver()->getContextClass(),
             TimerInterface::class => $this->kernel->getDriver()->getTimerClass(),
             ChannelFactoryInterface::class => ChannelFactory::class,
-            CoroutineInterface::class => Coroutine::class,
-            ConcurrentInterface::class => Concurrent::class,
-            ParallelInterface::class => Parallel::class,
-            WaitGroupInterface::class => WaitGroup::class,
-            LockerInterface::class => Locker::class,
             BaseWorkerInterface::class => $this,
             WorkerInterface::class => $this,
         ];
@@ -115,15 +101,17 @@ abstract class Worker implements WorkerInterface
         $init = [
             SignalHandler::class => SignalHandlerInterface::class,
             EventLoop::class => EventLoopInterface::class,
-            Context::class => ContextInterface::class,
             Timer::class => TimerInterface::class,
         ];
 
-        $this->container->bind($bind);
-
         $coClass = $this->kernel->getDriver()->getCoroutineClass();
-        EngineCo::init($coClass ? $this->container->get($coClass) : null);
+        if ($coClass) {
+            $bind[CoroutineInterface::class] = $coClass;
+        }
+
+        $this->container->bind($bind);
         ChannelFactory::init($this->kernel->getDriver()->getChannelClass());
+        Context::setContext($this->container->get(ContextInterface::class));
 
         foreach ($init as $name => $value) {
             if ($this->container->has($value)) {

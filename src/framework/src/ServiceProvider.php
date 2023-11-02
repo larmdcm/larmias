@@ -7,6 +7,7 @@ namespace Larmias\Framework;
 use Larmias\Contracts\ApplicationInterface;
 use Larmias\Contracts\ServiceProviderInterface;
 use Larmias\Contracts\ServiceDiscoverInterface;
+use Larmias\Contracts\VendorPublishInterface;
 
 abstract class ServiceProvider implements ServiceProviderInterface
 {
@@ -62,5 +63,18 @@ abstract class ServiceProvider implements ServiceProviderInterface
     public function listener(string|array $listeners): void
     {
         $this->serviceDiscover->listener($listeners);
+    }
+
+    /**
+     * @param string $name
+     * @param array $paths
+     * @return void
+     * @throws \Throwable
+     */
+    public function publishes(string $name, array $paths): void
+    {
+        /** @var VendorPublishInterface $publish */
+        $publish = $this->app->getContainer()->get(VendorPublishInterface::class);
+        $publish->publishes($name, $paths);
     }
 }

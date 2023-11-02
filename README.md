@@ -47,7 +47,7 @@ Larmias 框架提供以下组件：
 - `larmias/pool`：连接池组件；
 - `larmias/redis`：redis组件，支持连接池；
 - `larmias/snowflake`：雪花算法组件；
-- `larmias/utils`：常用工具组件；
+- `larmias/support`：常用工具组件；
 - `larmias/translation`：翻译组件；
 - `larmias/timer`：定时器组件；
 - `larmias/throttle`：限流组件；

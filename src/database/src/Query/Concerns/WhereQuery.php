@@ -6,9 +6,9 @@ namespace Larmias\Database\Query\Concerns;
 
 use Larmias\Database\Entity\Expression;
 use Larmias\Database\Query\BaseQuery;
-use Larmias\Database\Contracts\QueryInterface;
 use Larmias\Database\Contracts\ExpressionInterface;
 use Closure;
+use function Larmias\Support\is_empty;
 use function strtoupper;
 use function is_array;
 
@@ -27,6 +27,10 @@ trait WhereQuery
      */
     public function where(mixed $field, mixed $op = null, mixed $value = null, string $logic = 'AND'): static
     {
+        if (is_empty($field)) {
+            return $this;
+        }
+
         if (is_array($field)) {
             $conditions = $this->parseWhereArray($field);
         } else if ($field instanceof Closure) {

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Engine;
+namespace Larmias\Context;
 
 use Larmias\Contracts\ContextInterface;
 use RuntimeException;
@@ -25,7 +25,7 @@ class Context
      * @param ContextInterface $context
      * @return void
      */
-    public static function init(ContextInterface $context): void
+    public static function setContext(ContextInterface $context): void
     {
         static::$context = $context;
     }

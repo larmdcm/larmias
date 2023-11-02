@@ -212,10 +212,33 @@ class QueryTest extends TestCase
         $query = $this->newQuery();
         $query->table('t_user')->alias('u')->join('t_user_info i', function (JoinClauseInterface $joinClause) {
             $joinClause->on('u.id', '=', 'i.user_id')
-                ->orOn('u.id','=','i.id')
+                ->orOn('u.id', '=', 'i.id')
                 ->where('u.status', 1)
                 ->orWhere('u.integral', '>', -1);
         })->get();
         $this->assertTrue(true);
+    }
+
+    /**
+     * @return void
+     */
+    public function testIncr(): void
+    {
+        $userId = $this->getLastUserId();
+        $this->assertTrue($this->newQuery()->table('t_user')->incr('integral')->where('id', $userId)->update() > 0);
+        $this->assertTrue($this->newQuery()->table('t_user')->incr('integral', 2)->where('id', $userId)->update() > 0);
+        $this->assertTrue($this->newQuery()->table('t_user')->incr('integral', -2)->where('id', $userId)->update() > 0);
+        $this->assertTrue($this->newQuery()->table('t_user')->incr('balance', 10.666)->where('id', $userId)->update() > 0);
+        $this->assertTrue($this->newQuery()->table('t_user')->incr('balance', -1.666)->where('id', $userId)->update() > 0);
+    }
+
+    /**
+     * @return void
+     */
+    public function testDecr(): void
+    {
+        $userId = $this->getLastUserId();
+        $this->assertTrue($this->newQuery()->table('t_user')->decr('integral')->where('id', $userId)->update() > 0);
+        $this->assertTrue($this->newQuery()->table('t_user')->decr('integral', 2)->where('id', $userId)->update() > 0);
     }
 }

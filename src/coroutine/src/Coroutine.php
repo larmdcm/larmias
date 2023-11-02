@@ -2,11 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Engine;
+namespace Larmias\Coroutine;
 
-use ArrayObject;
-use Larmias\Contracts\Coroutine\CoroutineInterface;
 use Larmias\Contracts\Coroutine\CoroutineCallableInterface;
+use Larmias\Contracts\Coroutine\CoroutineInterface;
 use Larmias\Facade\AbstractFacade;
 
 /**
@@ -15,7 +14,7 @@ use Larmias\Facade\AbstractFacade;
  * @method static int pid(?int $id = null)
  * @method static void set(array $config)
  * @method static void defer(callable $callable)
- * @method static ArrayObject|null getContextFor(?int $id = null)
+ * @method static \ArrayObject|null getContextFor(?int $id = null)
  * @method static void yield ()
  * @method static void resume(int $id)
  */

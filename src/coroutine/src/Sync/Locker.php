@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Engine\Sync;
+namespace Larmias\Coroutine\Sync;
 
-use Larmias\Contracts\Coroutine\CoroutineInterface;
 use Larmias\Contracts\Sync\LockerInterface;
+use Larmias\Coroutine\Coroutine;
 
 class Locker implements LockerInterface
 {
@@ -16,13 +16,6 @@ class Locker implements LockerInterface
      * @var array
      */
     protected static array $container = [];
-
-    /**
-     * @param CoroutineInterface $coroutine
-     */
-    public function __construct(protected CoroutineInterface $coroutine)
-    {
-    }
 
     /**
      * 加锁
@@ -40,9 +33,9 @@ class Locker implements LockerInterface
             return true;
         }
 
-        self::$container[$key][] = $this->coroutine->id();
+        self::$container[$key][] = Coroutine::id();
 
-        $this->coroutine->yield();
+        Coroutine::yield();
 
         return false;
     }
@@ -62,7 +55,7 @@ class Locker implements LockerInterface
             $ids = self::$container[$key];
             foreach ($ids as $id) {
                 if ($id > 0) {
-                    $this->coroutine->resume($id);
+                    Coroutine::resume($id);
                 }
             }
         }

@@ -30,7 +30,7 @@ class Channel
     public function __construct(protected ContextInterface $context, protected ChannelFactoryInterface $channelFactory, protected int $size)
     {
         if ($this->isCoroutine()) {
-            $this->channel = $this->channelFactory->create($this->size);
+            $this->channel = $this->channelFactory->make($this->size);
         } else {
             $this->queue = new SplQueue();
         }

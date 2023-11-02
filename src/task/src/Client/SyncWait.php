@@ -31,7 +31,7 @@ class SyncWait
     public function add(string $id): void
     {
         if ($this->context->inCoroutine()) {
-            $this->channels[$id] = $this->factory->create();
+            $this->channels[$id] = $this->factory->make();
         }
     }
 

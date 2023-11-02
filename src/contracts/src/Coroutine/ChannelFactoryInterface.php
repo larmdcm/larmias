@@ -7,9 +7,9 @@ namespace Larmias\Contracts\Coroutine;
 interface ChannelFactoryInterface
 {
     /**
-     * 创建Channel
+     * make Channel
      * @param int $size
      * @return ChannelInterface
      */
-    public function create(int $size = 0): ChannelInterface;
+    public function make(int $size = 0): ChannelInterface;
 }

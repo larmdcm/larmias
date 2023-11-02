@@ -8,7 +8,6 @@ use Larmias\Contracts\ConfigInterface;
 use Larmias\Event\ListenerProviderFactory;
 use Larmias\Framework\ServiceProvider;
 use Psr\EventDispatcher\ListenerProviderInterface;
-use Larmias\Contracts\VendorPublishInterface;
 use function is_int;
 use function is_string;
 
@@ -49,9 +48,10 @@ class BootServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        $this->app->getContainer()->get(VendorPublishInterface::class)->publishes(static::class, [
+        $this->publishes(static::class, [
             __DIR__ . '/../../publish/app.php' => $this->app->getConfigPath() . 'app.php',
         ]);
+
         $this->registerListener();
     }
 

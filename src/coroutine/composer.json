@@ -1,10 +1,10 @@
 {
-    "name": "larmias/lock",
-    "description": "A lock component for larmias.",
+    "name": "larmias/coroutine",
+    "description": "A coroutine component for larmias.",
     "type": "library",
     "keywords": [
         "larmias",
-        "lock"
+        "coroutine"
     ],
     "homepage": "https://larmias.com/",
     "license": "MIT",
@@ -17,17 +17,20 @@
     "require": {
         "php": ">=8.0",
         "larmias/contracts": "^1.0",
-        "larmias/support": "^1.0"
+        "larmias/facade": "^1.0"
     },
     "autoload": {
         "psr-4": {
-            "Larmias\\Lock\\": "src/"
-        }
+            "Larmias\\Coroutine\\": "src/"
+        },
+        "files": [
+            "src/functions.php"
+        ]
     },
     "extra": {
         "larmias": {
             "providers": [
-                "Larmias\\Lock\\Providers\\LockerServiceProvider"
+                "Larmias\\Coroutine\\Providers\\CoroutineServiceProvider"
             ]
         }
     }

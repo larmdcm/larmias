@@ -379,7 +379,7 @@ abstract class Model implements ModelInterface, Arrayable, Jsonable, Stringable,
      * 获取更新条件
      * @return array
      */
-    protected function getWhere(): array
+    public function getWhere(): array
     {
         $where = [];
         $primaryKey = $this->getPrimaryKey();

@@ -70,7 +70,21 @@ class Query extends BaseQuery implements QueryInterface
     {
         $this->setData($data, true);
 
+        $this->where($this->model->getWhere());
+
         return parent::update(condition: $condition);
+    }
+
+    /**
+     * 删除数据
+     * @param mixed $condition
+     * @return int
+     */
+    public function delete(mixed $condition = null): int
+    {
+        $this->where($this->model->getWhere());
+
+        return parent::delete($condition);
     }
 
     /**

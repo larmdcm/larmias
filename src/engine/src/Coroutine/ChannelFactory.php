@@ -25,26 +25,17 @@ class ChannelFactory implements ChannelFactoryInterface
     }
 
     /**
+     * make channel
      * @param int $size
      * @return ChannelInterface
      */
-    public static function make(int $size = 0): ChannelInterface
+    public function make(int $size = 0): ChannelInterface
     {
         if (!static::isSupport()) {
             throw new RuntimeException("not support: Channel");
         }
 
         return new static::$chClass($size);
-    }
-
-    /**
-     * 创建Channel
-     * @param int $size
-     * @return ChannelInterface
-     */
-    public function create(int $size = 0): ChannelInterface
-    {
-        return static::make($size);
     }
 
     /**

@@ -4,22 +4,12 @@ declare(strict_types=1);
 
 namespace Larmias\Translation\Providers;
 
-use Larmias\Contracts\ContainerInterface;
-use Larmias\Contracts\ServiceProviderInterface;
 use Larmias\Contracts\TranslatorInterface;
 use Larmias\Translation\Translator;
-use Larmias\Contracts\ApplicationInterface;
-use Larmias\Contracts\VendorPublishInterface;
+use Larmias\Framework\ServiceProvider;
 
-class TranslationServiceProvider implements ServiceProviderInterface
+class TranslationServiceProvider extends ServiceProvider
 {
-    /**
-     * @param ContainerInterface $container
-     */
-    public function __construct(protected ContainerInterface $container)
-    {
-    }
-
     /**
      * @return void
      */
@@ -30,14 +20,12 @@ class TranslationServiceProvider implements ServiceProviderInterface
 
     /**
      * @return void
+     * @throws \Throwable
      */
     public function boot(): void
     {
-        if ($this->container->has(ApplicationInterface::class) && $this->container->has(VendorPublishInterface::class)) {
-            $app = $this->container->get(ApplicationInterface::class);
-            $this->container->get(VendorPublishInterface::class)->publishes(static::class, [
-                __DIR__ . '/../../publish/translation.php' => $app->getConfigPath() . 'translation.php',
-            ]);
-        }
+        $this->publishes(static::class, [
+            __DIR__ . '/../../publish/translation.php' => $this->app->getConfigPath() . 'translation.php',
+        ]);
     }
 }

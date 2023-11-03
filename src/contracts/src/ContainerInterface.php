@@ -15,7 +15,7 @@ interface ContainerInterface extends PsrContainerInterface
      * @param string $abstract
      * @param array $params
      * @param boolean $newInstance
-     * @return object
+     * @return mixed
      */
     public function make(string $abstract, array $params = [], bool $newInstance = false): object;
 

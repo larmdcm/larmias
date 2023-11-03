@@ -4,24 +4,14 @@ declare(strict_types=1);
 
 namespace Larmias\Lock\Providers;
 
-use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\LockerFactoryInterface;
 use Larmias\Contracts\LockerInterface;
-use Larmias\Contracts\ServiceProviderInterface;
 use Larmias\Lock\Locker;
 use Larmias\Lock\LockerFactory;
-use Larmias\Contracts\ApplicationInterface;
-use Larmias\Contracts\VendorPublishInterface;
+use Larmias\Framework\ServiceProvider;
 
-class LockerServiceProvider implements ServiceProviderInterface
+class LockerServiceProvider extends ServiceProvider
 {
-    /**
-     * @param ContainerInterface $container
-     */
-    public function __construct(protected ContainerInterface $container)
-    {
-    }
-
     /**
      * @return void
      */
@@ -35,14 +25,12 @@ class LockerServiceProvider implements ServiceProviderInterface
 
     /**
      * @return void
+     * @throws \Throwable
      */
     public function boot(): void
     {
-        if ($this->container->has(ApplicationInterface::class) && $this->container->has(VendorPublishInterface::class)) {
-            $app = $this->container->get(ApplicationInterface::class);
-            $this->container->get(VendorPublishInterface::class)->publishes(static::class, [
-                __DIR__ . '/../../publish/lock.php' => $app->getConfigPath() . 'lock.php',
-            ]);
-        }
+        $this->publishes(static::class, [
+            __DIR__ . '/../../publish/lock.php' => $this->app->getConfigPath() . 'lock.php',
+        ]);
     }
 }

@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 return [
-    'driver' => \Larmias\View\Drivers\Blade::class,
+    'driver' => \Larmias\View\Driver\Blade::class,
     'view_path' => null,
     'tpl_cache' => true,
     'tpl_begin' => '{{',

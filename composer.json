@@ -120,7 +120,7 @@
             "src/engine/src/functions.php",
             "src/coroutine/src/functions.php",
             "src/framework/src/functions.php",
-            "src/view/src/Drivers/Blade/helpers.php",
+            "src/view/src/Driver/Blade/helpers.php",
             "src/http-server/src/functions.php",
             "src/http-csrf/src/functions.php",
             "src/var-dump/src/functions.php"
@@ -189,6 +189,7 @@
     "extra": {
         "larmias": {
             "providers": [
+                "Larmias\\Pipeline\\Providers\\PipelineServiceProvider",
                 "Larmias\\AsyncQueue\\Providers\\QueueServiceProvider",
                 "Larmias\\Auth\\Providers\\AuthServiceProvider",
                 "Larmias\\Cache\\Providers\\CacheServiceProvider",

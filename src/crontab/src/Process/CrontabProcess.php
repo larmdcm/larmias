@@ -41,6 +41,7 @@ class CrontabProcess
         if (!$this->config['enable']) {
             return;
         }
+        
         $this->timer->tick($this->config['tick_interval'], function () {
             $this->scheduler->run();
         });

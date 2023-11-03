@@ -7,7 +7,7 @@ namespace Larmias\Lock;
 use Larmias\Contracts\ConfigInterface;
 use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\LockerInterface;
-use Larmias\Lock\Drivers\Redis;
+use Larmias\Lock\Driver\Redis;
 use function array_merge;
 use function is_string;
 

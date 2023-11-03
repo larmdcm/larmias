@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\Framework;
 
+use Larmias\Config\Config;
 use Larmias\Contracts\ApplicationInterface;
 use Larmias\Contracts\ConfigInterface;
 use Larmias\Contracts\ConsoleInterface;
@@ -11,6 +12,7 @@ use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\DotEnvInterface;
 use Larmias\Contracts\ServiceProviderInterface;
 use Larmias\Contracts\StdoutLoggerInterface;
+use Larmias\Contracts\VendorPublishInterface;
 use Larmias\Engine\Contracts\KernelInterface;
 use Larmias\Engine\Event;
 use Larmias\Engine\Kernel;
@@ -99,6 +101,8 @@ class Application implements ApplicationInterface
             ServiceDiscoverInterface::class => ServiceDiscover::class,
             KernelInterface::class => Kernel::class,
             DotEnvInterface::class => DotEnv::class,
+            ConfigInterface::class => Config::class,
+            VendorPublishInterface::class => VendorPublish::class,
             ListenerProviderInterface::class => function () {
                 return ListenerProviderFactory::make($this->container, [
                     WorkerStartListener::class
@@ -120,10 +124,9 @@ class Application implements ApplicationInterface
         if ($this->isInit) {
             return;
         }
-        $this->container->bindIf($this->getServiceConfig('dependencies'));
         $this->loadConfig();
         date_default_timezone_set($this->config->get('app.default_timezone', 'Asia/Shanghai'));
-        $this->container->bindIf($this->config->get('dependencies', []));
+        $this->container->bind($this->config->get('dependencies', []));
         $this->boot();
         $this->isInit = true;
     }

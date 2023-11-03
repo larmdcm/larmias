@@ -4,41 +4,18 @@ declare(strict_types=1);
 
 namespace Larmias\AsyncQueue\Providers;
 
-use Larmias\Contracts\ContainerInterface;
-use Larmias\Contracts\ApplicationInterface;
-use Larmias\Contracts\VendorPublishInterface;
-use Larmias\Contracts\ServiceProviderInterface;
-use Psr\Container\ContainerExceptionInterface;
-use Psr\Container\NotFoundExceptionInterface;
+use Larmias\Framework\ServiceProvider;
 
-class QueueServiceProvider implements ServiceProviderInterface
+class QueueServiceProvider extends ServiceProvider
 {
     /**
-     * @param ContainerInterface $container
-     */
-    public function __construct(protected ContainerInterface $container)
-    {
-    }
-
-    /**
      * @return void
-     */
-    public function register(): void
-    {
-    }
-
-    /**
-     * @return void
-     * @throws NotFoundExceptionInterface
-     * @throws ContainerExceptionInterface
+     * @throws \Throwable
      */
     public function boot(): void
     {
-        if ($this->container->has(ApplicationInterface::class) && $this->container->has(VendorPublishInterface::class)) {
-            $app = $this->container->get(ApplicationInterface::class);
-            $this->container->get(VendorPublishInterface::class)->publishes(static::class, [
-                __DIR__ . '/../../publish/async_queue.php' => $app->getConfigPath() . 'async_queue.php',
-            ]);
-        }
+        $this->publishes(static::class, [
+            __DIR__ . '/../../publish/async_queue.php' => $this->app->getConfigPath() . 'async_queue.php',
+        ]);
     }
 }

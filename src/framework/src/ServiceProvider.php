@@ -5,18 +5,22 @@ declare(strict_types=1);
 namespace Larmias\Framework;
 
 use Larmias\Contracts\ApplicationInterface;
+use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\ServiceProviderInterface;
 use Larmias\Contracts\ServiceDiscoverInterface;
 use Larmias\Contracts\VendorPublishInterface;
 
 abstract class ServiceProvider implements ServiceProviderInterface
 {
+    protected ContainerInterface $container;
+
     /**
      * @param ApplicationInterface $app
      * @param ServiceDiscoverInterface $serviceDiscover
      */
     public function __construct(protected ApplicationInterface $app, protected ServiceDiscoverInterface $serviceDiscover)
     {
+        $this->container = $this->app->getContainer();
         if (method_exists($this, 'initialize')) {
             $this->app->getContainer()->invoke([$this, 'initialize']);
         }
@@ -73,6 +77,10 @@ abstract class ServiceProvider implements ServiceProviderInterface
      */
     public function publishes(string $name, array $paths): void
     {
+        if (!$this->container->has(VendorPublishInterface::class)) {
+            return;
+        }
+
         /** @var VendorPublishInterface $publish */
         $publish = $this->app->getContainer()->get(VendorPublishInterface::class);
         $publish->publishes($name, $paths);

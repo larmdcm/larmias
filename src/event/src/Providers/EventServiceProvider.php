@@ -4,37 +4,18 @@ declare(strict_types=1);
 
 namespace Larmias\Event\Providers;
 
-use Larmias\Contracts\ContainerInterface;
-use Larmias\Contracts\ServiceProviderInterface;
-use Larmias\Contracts\ApplicationInterface;
-use Larmias\Contracts\VendorPublishInterface;
+use Larmias\Framework\ServiceProvider;
 
-class EventServiceProvider implements ServiceProviderInterface
+class EventServiceProvider extends ServiceProvider
 {
     /**
-     * @param ContainerInterface $container
-     */
-    public function __construct(protected ContainerInterface $container)
-    {
-    }
-
-    /**
      * @return void
-     */
-    public function register(): void
-    {
-    }
-
-    /**
-     * @return void
+     * @throws \Throwable
      */
     public function boot(): void
     {
-        if ($this->container->has(ApplicationInterface::class) && $this->container->has(VendorPublishInterface::class)) {
-            $app = $this->container->get(ApplicationInterface::class);
-            $this->container->get(VendorPublishInterface::class)->publishes(static::class, [
-                __DIR__ . '/../../publish/listeners.php' => $app->getConfigPath() . 'listeners.php',
-            ]);
-        }
+        $this->publishes(static::class, [
+            __DIR__ . '/../../publish/listeners.php' => $this->app->getConfigPath() . 'listeners.php',
+        ]);
     }
 }

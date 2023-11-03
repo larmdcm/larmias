@@ -20,7 +20,7 @@
     },
     "autoload": {
         "files": [
-            "src/Drivers/Blade/helpers.php"
+          "src/Driver/Blade/helpers.php"
         ],
         "psr-4": {
             "Larmias\\View\\": "src/"

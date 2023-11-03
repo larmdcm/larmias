@@ -4,26 +4,16 @@ declare(strict_types=1);
 
 namespace Larmias\Crontab\Providers;
 
-use Larmias\Contracts\ContainerInterface;
-use Larmias\Contracts\ServiceProviderInterface;
-use Larmias\Contracts\ApplicationInterface;
-use Larmias\Contracts\VendorPublishInterface;
 use Larmias\Crontab\Contracts\ExecutorInterface;
 use Larmias\Crontab\Contracts\ParserInterface;
 use Larmias\Crontab\Contracts\SchedulerInterface;
 use Larmias\Crontab\Executor\WorkerExecutor;
 use Larmias\Crontab\Parser;
 use Larmias\Crontab\Scheduler;
+use Larmias\Framework\ServiceProvider;
 
-class CrontabServiceProvider implements ServiceProviderInterface
+class CrontabServiceProvider extends ServiceProvider
 {
-    /**
-     * @param ContainerInterface $container
-     */
-    public function __construct(protected ContainerInterface $container)
-    {
-    }
-
     /**
      * @return void
      */
@@ -42,11 +32,8 @@ class CrontabServiceProvider implements ServiceProviderInterface
      */
     public function boot(): void
     {
-        if ($this->container->has(ApplicationInterface::class) && $this->container->has(VendorPublishInterface::class)) {
-            $app = $this->container->get(ApplicationInterface::class);
-            $this->container->get(VendorPublishInterface::class)->publishes(static::class, [
-                __DIR__ . '/../../publish/crontab.php' => $app->getConfigPath() . 'crontab.php',
-            ]);
-        }
+        $this->publishes(static::class, [
+            __DIR__ . '/../../publish/crontab.php' => $this->app->getConfigPath() . 'crontab.php',
+        ]);
     }
 }

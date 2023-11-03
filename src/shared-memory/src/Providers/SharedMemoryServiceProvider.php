@@ -42,6 +42,7 @@ class SharedMemoryServiceProvider implements ServiceProviderInterface
 
     /**
      * @return void
+     * @throws \Throwable
      */
     public function boot(): void
     {

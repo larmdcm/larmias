@@ -4,27 +4,15 @@ declare(strict_types=1);
 
 namespace Larmias\Trace\Providers;
 
-use Larmias\Contracts\ApplicationInterface;
-use Larmias\Contracts\ServiceProviderInterface;
-use Larmias\Contracts\ContainerInterface;
-use Larmias\Contracts\VendorPublishInterface;
-use Larmias\Event\Contracts\ListenerInterface;
 use Larmias\Trace\Contracts\TraceContextInterface;
 use Larmias\Trace\Contracts\TraceInterface;
 use Larmias\Trace\Listeners\DatabaseQueryExecutedListener;
 use Larmias\Trace\Trace;
 use Larmias\Trace\TraceContext;
-use Psr\EventDispatcher\ListenerProviderInterface;
+use Larmias\Framework\ServiceProvider;
 
-class TraceServiceProvider implements ServiceProviderInterface
+class TraceServiceProvider extends ServiceProvider
 {
-    /**
-     * @param ContainerInterface $container
-     */
-    public function __construct(protected ContainerInterface $container)
-    {
-    }
-
     /**
      * @return void
      * @throws \Throwable
@@ -35,13 +23,6 @@ class TraceServiceProvider implements ServiceProviderInterface
             TraceInterface::class => Trace::class,
             TraceContextInterface::class => TraceContext::class,
         ]);
-
-        if ($this->container->has(ApplicationInterface::class) && $this->container->has(VendorPublishInterface::class)) {
-            $app = $this->container->get(ApplicationInterface::class);
-            $this->container->get(VendorPublishInterface::class)->publishes(static::class, [
-                __DIR__ . '/../../publish/trace.php' => $app->getConfigPath() . 'trace.php',
-            ]);
-        }
     }
 
     /**
@@ -50,33 +31,22 @@ class TraceServiceProvider implements ServiceProviderInterface
      */
     public function boot(): void
     {
-        if ($this->container->has(ListenerProviderInterface::class)) {
-            $this->listener($this->container->get(ListenerProviderInterface::class));
-        }
+        $this->setListener();
+        $this->publishes(static::class, [
+            __DIR__ . '/../../publish/trace.php' => $this->app->getConfigPath() . 'trace.php',
+        ]);
     }
 
     /**
-     * @param ListenerProviderInterface $listenerProvider
      * @return void
      * @throws \Throwable
      */
-    protected function listener(ListenerProviderInterface $listenerProvider): void
+    protected function setListener(): void
     {
-        if (!method_exists($listenerProvider, 'on')) {
-            return;
-        }
-
         $listeners = [
             DatabaseQueryExecutedListener::class,
         ];
 
-        foreach ($listeners as $listener) {
-            $instance = $this->container->get($listener);
-            if ($instance instanceof ListenerInterface) {
-                foreach ($instance->listen() as $event) {
-                    $listenerProvider->on($event, [$instance, 'process']);
-                }
-            }
-        }
+        $this->listener($listeners);
     }
 }

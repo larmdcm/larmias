@@ -4,37 +4,18 @@ declare(strict_types=1);
 
 namespace Larmias\Command\Providers;
 
-use Larmias\Contracts\ContainerInterface;
-use Larmias\Contracts\ServiceProviderInterface;
-use Larmias\Contracts\ApplicationInterface;
-use Larmias\Contracts\VendorPublishInterface;
+use Larmias\Framework\ServiceProvider;
 
-class CommandServiceProvider implements ServiceProviderInterface
+class CommandServiceProvider extends ServiceProvider
 {
     /**
-     * @param ContainerInterface $container
-     */
-    public function __construct(protected ContainerInterface $container)
-    {
-    }
-
-    /**
      * @return void
-     */
-    public function register(): void
-    {
-    }
-
-    /**
-     * @return void
+     * @throws \Throwable
      */
     public function boot(): void
     {
-        if ($this->container->has(ApplicationInterface::class) && $this->container->has(VendorPublishInterface::class)) {
-            $app = $this->container->get(ApplicationInterface::class);
-            $this->container->get(VendorPublishInterface::class)->publishes(static::class, [
-                __DIR__ . '/../../publish/commands.php' => $app->getConfigPath() . 'commands.php',
-            ]);
-        }
+        $this->publishes(static::class, [
+            __DIR__ . '/../../publish/commands.php' => $this->app->getConfigPath() . 'commands.php',
+        ]);
     }
 }

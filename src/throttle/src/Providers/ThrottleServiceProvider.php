@@ -4,21 +4,12 @@ declare(strict_types=1);
 
 namespace Larmias\Throttle\Providers;
 
-use Larmias\Contracts\ServiceProviderInterface;
-use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\ThrottleInterface;
 use Larmias\Throttle\Throttle;
-use Larmias\Contracts\ApplicationInterface;
-use Larmias\Contracts\VendorPublishInterface;
+use Larmias\Framework\ServiceProvider;
 
-class ThrottleServiceProvider implements ServiceProviderInterface
+class ThrottleServiceProvider extends ServiceProvider
 {
-    /**
-     * @param ContainerInterface $container
-     */
-    public function __construct(protected ContainerInterface $container)
-    {
-    }
 
     /**
      * @return void
@@ -30,14 +21,12 @@ class ThrottleServiceProvider implements ServiceProviderInterface
 
     /**
      * @return void
+     * @throws \Throwable
      */
     public function boot(): void
     {
-        if ($this->container->has(ApplicationInterface::class) && $this->container->has(VendorPublishInterface::class)) {
-            $app = $this->container->get(ApplicationInterface::class);
-            $this->container->get(VendorPublishInterface::class)->publishes(static::class, [
-                __DIR__ . '/../../publish/throttle.php' => $app->getConfigPath() . 'throttle.php',
-            ]);
-        }
+        $this->publishes(static::class, [
+            __DIR__ . '/../../publish/throttle.php' => $this->app->getConfigPath() . 'throttle.php',
+        ]);
     }
 }

@@ -6,7 +6,7 @@ return [
     'default' => 'redisStream',
     'queues' => [
         'redisStream' => [
-            'driver' => \Larmias\AsyncQueue\Drivers\RedisStream::class,
+            'driver' => \Larmias\AsyncQueue\Driver\RedisStream::class,
             // redis name
             'redis_name' => 'queue',
             // 键前缀

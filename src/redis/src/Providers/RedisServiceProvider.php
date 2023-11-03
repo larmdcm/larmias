@@ -4,23 +4,12 @@ declare(strict_types=1);
 
 namespace Larmias\Redis\Providers;
 
-use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\Redis\RedisFactoryInterface;
-use Larmias\Contracts\ServiceProviderInterface;
+use Larmias\Framework\ServiceProvider;
 use Larmias\Redis\RedisFactory;
-use Larmias\Contracts\ApplicationInterface;
-use Larmias\Contracts\VendorPublishInterface;
 
-class RedisServiceProvider implements ServiceProviderInterface
+class RedisServiceProvider extends ServiceProvider
 {
-    /**
-     * @param ContainerInterface $container
-     */
-    public function __construct(protected ContainerInterface $container)
-    {
-
-    }
-
     /**
      * @return void
      */
@@ -31,16 +20,12 @@ class RedisServiceProvider implements ServiceProviderInterface
 
     /**
      * @return void
-     * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws \Psr\Container\NotFoundExceptionInterface
+     * @throws \Throwable
      */
     public function boot(): void
     {
-        if ($this->container->has(ApplicationInterface::class) && $this->container->has(VendorPublishInterface::class)) {
-            $app = $this->container->get(ApplicationInterface::class);
-            $this->container->get(VendorPublishInterface::class)->publishes(static::class, [
-                __DIR__ . '/../../publish/redis.php' => $app->getConfigPath() . 'redis.php',
-            ]);
-        }
+        $this->publishes(static::class, [
+            __DIR__ . '/../../publish/redis.php' => $this->app->getConfigPath() . 'redis.php',
+        ]);
     }
 }

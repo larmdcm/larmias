@@ -24,8 +24,7 @@
         "larmias/event": "^1.0",
         "larmias/support": "^1.0",
         "larmias/env": "^1.0",
-        "larmias/process": "^1.0",
-        "larmias/pipeline": "^1.0"
+        "larmias/process": "^1.0"
     },
     "autoload": {
         "psr-4": {

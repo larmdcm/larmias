@@ -18,6 +18,17 @@ interface MessageInterface
     public function setMessageId(string $messageId): MessageInterface;
 
     /**
+     * @return string|null
+     */
+    public function getQueue(): ?string;
+
+    /**
+     * @param string|null $queue
+     * @return MessageInterface
+     */
+    public function setQueue(?string $queue): MessageInterface;
+
+    /**
      * @return JobInterface
      */
     public function getJob(): JobInterface;

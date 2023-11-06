@@ -6,6 +6,7 @@ namespace Larmias\AsyncQueue\Message;
 
 use Larmias\AsyncQueue\Contracts\JobInterface;
 use Larmias\AsyncQueue\Contracts\MessageInterface;
+use Larmias\Stringable\Str;
 use Serializable;
 use function serialize;
 use function unserialize;
@@ -24,7 +25,9 @@ class Message implements MessageInterface, Serializable
         protected array        $data = [],
         protected string       $messageId = '',
         protected int          $attempts = 0,
-        protected int          $maxAttempts = 0)
+        protected int          $maxAttempts = 0,
+        protected ?string      $queue = null,
+    )
     {
     }
 
@@ -83,6 +86,24 @@ class Message implements MessageInterface, Serializable
     }
 
     /**
+     * @return string|null
+     */
+    public function getQueue(): ?string
+    {
+        return $this->queue;
+    }
+
+    /**
+     * @param string|null $queue
+     * @return MessageInterface
+     */
+    public function setQueue(?string $queue): MessageInterface
+    {
+        $this->queue = $queue;
+        return $this;
+    }
+
+    /**
      * @return int
      */
     public function getAttempts(): int
@@ -129,6 +150,7 @@ class Message implements MessageInterface, Serializable
             'data' => $this->data,
             'attempts' => $this->attempts,
             'max_attempts' => $this->maxAttempts,
+            'queue' => $this->queue,
         ]);
     }
 
@@ -144,5 +166,6 @@ class Message implements MessageInterface, Serializable
         $this->data = $object['data'];
         $this->attempts = $object['attempts'];
         $this->maxAttempts = $object['max_attempts'];
+        $this->queue = $object['queue'];
     }
 }

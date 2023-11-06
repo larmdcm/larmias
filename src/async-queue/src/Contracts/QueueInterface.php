@@ -8,10 +8,11 @@ interface QueueInterface
 {
     /**
      * @param JobInterface $job
+     * @param array $data
      * @param float $delay
-     * @return string
+     * @return MessageInterface
      */
-    public function push(JobInterface $job, array $data = [], float $delay = 0): string;
+    public function push(JobInterface $job, array $data = [], float $delay = 0): MessageInterface;
 
     /**
      * @param string|null $name

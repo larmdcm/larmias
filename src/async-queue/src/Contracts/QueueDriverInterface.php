@@ -9,20 +9,16 @@ interface QueueDriverInterface
     /**
      * @param MessageInterface $message
      * @param float $delay
-     * @return string
+     * @return MessageInterface
      */
-    public function push(MessageInterface $message, float $delay = 0): string;
+    public function push(MessageInterface $message, float $delay = 0): MessageInterface;
 
     /**
      * @param float $timeout
+     * @param string|null $queue
      * @return MessageInterface|null
      */
-    public function pop(float $timeout = 0): ?MessageInterface;
-
-    /**
-     * @return void
-     */
-    public function consumer(): void;
+    public function pop(float $timeout = 0, ?string $queue = null): ?MessageInterface;
 
     /**
      * @param MessageInterface $message
@@ -32,10 +28,9 @@ interface QueueDriverInterface
 
     /**
      * @param MessageInterface $message
-     * @param bool $reload
      * @return bool
      */
-    public function fail(MessageInterface $message, bool $reload = false): bool;
+    public function fail(MessageInterface $message): bool;
 
     /**
      * @param MessageInterface $message
@@ -44,14 +39,21 @@ interface QueueDriverInterface
     public function delete(MessageInterface $message): bool;
 
     /**
-     * @return bool
+     * @return void
      */
-    public function clear(): bool;
+    public function consumer(): void;
 
     /**
+     * @param string|null $queue
+     * @return bool
+     */
+    public function flush(?string $queue = null): bool;
+
+    /**
+     * @param string|null $queue
      * @return array
      */
-    public function status(): array;
+    public function info(?string $queue = null): array;
 
     /**
      * @return int

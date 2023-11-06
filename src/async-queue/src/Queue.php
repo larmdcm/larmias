@@ -10,6 +10,7 @@ use Larmias\AsyncQueue\Contracts\QueueInterface;
 use Larmias\AsyncQueue\Message\Message;
 use Larmias\Contracts\ConfigInterface;
 use Larmias\Contracts\ContainerInterface;
+use Larmias\AsyncQueue\Contracts\MessageInterface;
 use function is_null;
 use function session_create_id;
 
@@ -32,9 +33,9 @@ class Queue implements QueueInterface
      * @param JobInterface $job
      * @param array $data
      * @param float $delay
-     * @return string
+     * @return MessageInterface
      */
-    public function push(JobInterface $job, array $data = [], float $delay = 0): string
+    public function push(JobInterface $job, array $data = [], float $delay = 0): MessageInterface
     {
         $message = new Message($job, $data, session_create_id());
         return $this->driver()->push($message, $delay);

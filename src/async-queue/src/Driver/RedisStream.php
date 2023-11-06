@@ -8,10 +8,12 @@ use Larmias\Contracts\Redis\ConnectionInterface;
 use Larmias\Contracts\Redis\RedisFactoryInterface;
 use Larmias\AsyncQueue\Contracts\MessageInterface;
 use Larmias\AsyncQueue\Exceptions\QueueException;
+use Throwable;
 use function array_key_first;
 use function unserialize;
 use function serialize;
 use function microtime;
+use function Larmias\Support\throw_unless;
 
 class RedisStream extends QueueDriver
 {
@@ -22,7 +24,7 @@ class RedisStream extends QueueDriver
         // redis name
         'redis_name' => 'default',
         // 键前缀
-        'prefix' => 'queue:',
+        'prefix' => 'queues:',
         // 队列名称
         'name' => 'default',
         // 超时时间
@@ -45,9 +47,9 @@ class RedisStream extends QueueDriver
     protected ConnectionInterface $connection;
 
     /**
-     * @var bool
+     * @var array
      */
-    protected bool $isInitGroup = false;
+    protected array $initGroup = [];
 
     /**
      * @var string
@@ -74,35 +76,37 @@ class RedisStream extends QueueDriver
         $this->group = $this->config['group'];
         $this->consumer = $this->config['consumer'];
         $this->failConsumer = $this->config['fal_consumer'];
-        $this->initGroup();
     }
 
     /**
      * @param MessageInterface $message
      * @param float $delay
-     * @return string
+     * @return MessageInterface
+     * @throws Throwable
      */
-    public function push(MessageInterface $message, float $delay = 0): string
+    public function push(MessageInterface $message, float $delay = 0): MessageInterface
     {
+        $this->prepareGroup($message->getQueue());
         $message->setAttempts($message->getAttempts() + 1);
-        $result = $this->connection->xAdd($this->getQueueKey(), '*', [
+        $data = [
             'message' => serialize($message),
             'delay' => $delay,
             'timestamp' => microtime(true),
-        ], $this->config['maxlength'], $this->config['approximate']);
-        if (!$result) {
-            throw new QueueException($this->connection->getLastError() ?: 'Queue push failed.');
-        }
-        return $result;
+        ];
+        $messageId = $this->connection->xAdd($this->getQueueKey($message->getQueue()), '*', $data, $this->config['maxlength'], $this->config['approximate']);
+        throw_unless($messageId, QueueException::class, $this->connection->getLastError() ?: 'Queue push failed.');
+        $message->setMessageId($messageId);
+        return $message;
     }
 
     /**
      * @param float $timeout
+     * @param string|null $queue
      * @return MessageInterface|null
      */
-    public function pop(float $timeout = 0): ?MessageInterface
+    public function pop(float $timeout = 0, ?string $queue = null): ?MessageInterface
     {
-        $queueKey = $this->getQueueKey();
+        $queueKey = $this->getQueueKey($queue);
         $block = $timeout > 0 ? (int)($timeout * 1000) : null;
         $result = $this->connection->xReadGroup($this->group, $this->consumer, [$queueKey => '>'], 1, $block);
         if (!$result) {
@@ -128,22 +132,18 @@ class RedisStream extends QueueDriver
      */
     public function ack(MessageInterface $message): bool
     {
-        $result = $this->connection->xAck($this->getQueueKey(), $this->group, [$message->getMessageId()]);
+        $result = $this->connection->xAck($this->getQueueKey($message->getQueue()), $this->group, [$message->getMessageId()]);
         return $result !== 0;
     }
 
     /**
      * @param MessageInterface $message
-     * @param bool $reload
      * @return bool
+     * @throws Throwable
      */
-    public function fail(MessageInterface $message, bool $reload = false): bool
+    public function fail(MessageInterface $message): bool
     {
-        $queueKey = $this->getQueueKey();
-        if ($reload) {
-            $this->push($message);
-            return $this->delete($message);
-        }
+        $queueKey = $this->getQueueKey($message->getQueue());
         $result = $this->connection->xClaim($queueKey, $this->group, $this->failConsumer, 0, [$message->getMessageId()], [
             'IDLE' => 0,
             'FORCE',
@@ -158,27 +158,26 @@ class RedisStream extends QueueDriver
      */
     public function delete(MessageInterface $message): bool
     {
-        $result = $this->connection->xDel($this->getQueueKey(), [$message->getMessageId()]);
-        if ($result === false) {
-            throw new QueueException($this->connection->getLastError() ?: 'Queue delete failed.');
-        }
+        $result = $this->connection->xDel($this->getQueueKey($message->getQueue()), [$message->getMessageId()]);
         return $result !== 0;
     }
 
     /**
+     * @param string|null $queue
      * @return bool
      */
-    public function clear(): bool
+    public function flush(?string $queue = null): bool
     {
-        return $this->connection->del($this->getQueueKey()) !== 0;
+        return $this->connection->del($this->getQueueKey($queue)) !== 0;
     }
 
     /**
+     * @param string|null $queue
      * @return array
      */
-    public function status(): array
+    public function info(?string $queue = null): array
     {
-        $info = $this->connection->xInfo('STREAM', $this->getQueueKey(), 'FULL') ?: [];
+        $info = $this->connection->xInfo('STREAM', $this->getQueueKey($queue), 'FULL') ?: [];
         $groupInfo = null;
         $failConsumerInfo = null;
         foreach ($info['groups'] ?? [] as $group) {
@@ -195,10 +194,10 @@ class RedisStream extends QueueDriver
                 }
             }
         }
-        $status['fail'] = $failConsumerInfo['pel-count'] ?? 0;
-        $status['working'] = ($groupInfo['pel-count'] ?? 0) - $status['fail'];
-        $status['ready'] = $status['timeout'] = $status['delay'] = 0;
-        return $status;
+        $result['fail'] = $failConsumerInfo['pel-count'] ?? 0;
+        $result['working'] = ($groupInfo['pel-count'] ?? 0) - $result['fail'];
+        $result['ready'] = $result['timeout'] = $result['delay'] = 0;
+        return $result;
     }
 
     /**
@@ -233,21 +232,17 @@ class RedisStream extends QueueDriver
     }
 
     /**
+     * @param string|null $name
      * @return void
      */
-    protected function initGroup(): void
+    protected function prepareGroup(?string $name = null): void
     {
-        if (!$this->isInitGroup) {
-            $this->connection->xGroup('CREATE', $this->getQueueKey(), $this->group, '0', true);
-            $this->isInitGroup = true;
+        $queue = $this->getQueueKey($name);
+        $name = $name ?: $this->config['name'];
+        if (isset($this->initGroup[$name])) {
+            return;
         }
-    }
-
-    /**
-     * @return string
-     */
-    protected function getQueueKey(): string
-    {
-        return $this->config['prefix'] . $this->config['name'];
+        $this->initGroup[$name] = true;
+        $this->connection->xGroup('CREATE', $queue, $this->group, '0', true);
     }
 }

@@ -107,7 +107,17 @@ abstract class QueueDriver implements QueueDriverInterface
             $message->getJob()->handle($message, $this);
         } catch (Throwable $e) {
             $this->logger?->error(format_exception($e));
-            $this->fail($message, $message->getAttempts() < $message->getMaxAttempts());
+            $this->fail($message);
         }
+    }
+
+    /**
+     * @param string|null $name
+     * @return string
+     */
+    protected function getQueueKey(?string $name = null): string
+    {
+        $name = $name ?: $this->config['name'];
+        return $this->config['prefix'] . $name;
     }
 }

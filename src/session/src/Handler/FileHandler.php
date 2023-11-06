@@ -256,7 +256,7 @@ class FileHandler extends Driver
      * @param string $file
      * @return bool
      */
-    private function unlink(string $file): bool
+    protected function unlink(string $file): bool
     {
         return is_file($file) && unlink($file);
     }

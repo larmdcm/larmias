@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Throttle\Drivers;
+namespace Larmias\Throttle\Driver;
 
 use Psr\SimpleCache\InvalidArgumentException;
 use function array_values;

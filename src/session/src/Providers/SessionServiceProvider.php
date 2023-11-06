@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Larmias\Session\Providers;
 
 use Larmias\Contracts\SessionInterface;
-use Larmias\Session\Session;
+use Larmias\Session\SessionProxy;
 use Larmias\Framework\ServiceProvider;
 
 class SessionServiceProvider extends ServiceProvider
@@ -15,7 +15,7 @@ class SessionServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->container->bindIf(SessionInterface::class, Session::class);
+        $this->container->bindIf(SessionInterface::class, SessionProxy::class);
     }
 
     /**

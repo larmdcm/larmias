@@ -61,9 +61,9 @@ class Session implements SessionInterface
         /** @var PackerInterface $packer */
         $packer = $this->container->make($this->getConfig('packer'));
         $this->packer = $packer;
+        $this->handler = $this->getHandler();
         $this->setId($this->generateSessionId());
         $this->setName($this->getConfig('name'));
-        $this->handler = $this->getHandler();
     }
 
     /**
@@ -143,17 +143,17 @@ class Session implements SessionInterface
     /**
      * 添加数据到一个session数组
      *
-     * @param string $key
+     * @param string $name
      * @param mixed $value
      * @return bool
      */
-    public function push(string $key, mixed $value): bool
+    public function push(string $name, mixed $value): bool
     {
-        $array = $this->get($key, []);
+        $array = $this->get($name, []);
 
         $array[] = $value;
 
-        $this->set($key, $array);
+        $this->set($name, $array);
         return true;
     }
 
@@ -199,7 +199,6 @@ class Session implements SessionInterface
     public function destroy(): void
     {
         $this->clear();
-
         $this->regenerate(true);
     }
 
@@ -293,16 +292,26 @@ class Session implements SessionInterface
 
     /**
      * 获取session handler
-     *
+     * @param string|null $default
      * @return SessionHandlerInterface
      */
-    public function getHandler(): SessionHandlerInterface
+    public function getHandler(?string $default = null): SessionHandlerInterface
     {
-        $default = $this->getConfig('default', 'file');
+        if (!$default) {
+            $default = $this->getConfig('default', 'file');
+        }
         $handlerConfig = $this->getConfig('handlers.' . $default, []);
         /** @var SessionHandlerInterface $handler */
         $handler = $this->container->make($handlerConfig['handler'], ['config' => $handlerConfig]);
         return $handler;
+    }
+
+    /**
+     * @param SessionHandlerInterface $handler
+     */
+    public function setHandler(SessionHandlerInterface $handler): void
+    {
+        $this->handler = $handler;
     }
 
     /**

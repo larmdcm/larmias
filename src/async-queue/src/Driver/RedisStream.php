@@ -178,10 +178,7 @@ class RedisStream extends QueueDriver
      */
     public function status(): array
     {
-        $info = $this->connection->xInfo('STREAM', $this->getQueueKey(), 'FULL');
-        if ($info === false) {
-            throw new QueueException($this->connection->getLastError() ?: 'Queue delete failed.');
-        }
+        $info = $this->connection->xInfo('STREAM', $this->getQueueKey(), 'FULL') ?: [];
         $groupInfo = null;
         $failConsumerInfo = null;
         foreach ($info['groups'] ?? [] as $group) {

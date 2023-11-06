@@ -9,7 +9,7 @@ use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\ContextInterface;
 use Larmias\Contracts\ThrottleInterface;
 use Larmias\Throttle\Contracts\ThrottleDriverInterface;
-use Larmias\Throttle\Drivers\CounterSlider;
+use Larmias\Throttle\Driver\CounterSlider;
 use function array_merge;
 use function microtime;
 

@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Pipeline;
+namespace Larmias\Pipeline\Providers;
 
 use Larmias\Contracts\PipelineInterface;
 use Larmias\Framework\ServiceProvider;
+use Larmias\Pipeline\Pipeline;
 
 class PipelineServiceProvider extends ServiceProvider
 {

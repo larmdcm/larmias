@@ -156,7 +156,7 @@ class FileViewFinder implements ViewFinderInterface
      * @param string $location
      * @return void
      */
-    public function addLocation($location)
+    public function addLocation(string $location): void
     {
         $this->paths[] = $location;
     }
@@ -168,7 +168,7 @@ class FileViewFinder implements ViewFinderInterface
      * @param string|array $hints
      * @return void
      */
-    public function addNamespace($namespace, $hints)
+    public function addNamespace(string $namespace, string|array $hints): void
     {
         $hints = (array)$hints;
 

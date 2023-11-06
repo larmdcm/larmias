@@ -20,11 +20,10 @@ use function method_exists;
 class SessionMiddleware implements MiddlewareInterface
 {
     /**
-     * @param ContainerInterface $container
-     * @param ContextInterface $context
+     * @param SessionInterface $session
      * @param ConfigInterface $config
      */
-    public function __construct(protected ContainerInterface $container, protected ContextInterface $context, protected ConfigInterface $config)
+    public function __construct(protected SessionInterface $session, protected ConfigInterface $config)
     {
     }
 
@@ -35,18 +34,19 @@ class SessionMiddleware implements MiddlewareInterface
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $sessionId = $request->getCookieParams()[$this->getSession()->getName()] ?? ($request->getQueryParams()[$this->getSession()->getName()] ?? '');
-        if (!empty($sessionId) && $this->getSession()->validId($sessionId)) {
-            $this->getSession()->setId($sessionId);
+        $sessionId = $request->getCookieParams()[$this->session->getName()] ?? ($request->getQueryParams()[$this->session->getName()] ?? '');
+        if (!empty($sessionId) && $this->session->validId($sessionId)) {
+            $this->session->setId($sessionId);
         } else {
-            $this->getSession()->setId($this->getSession()->generateSessionId());
+            $this->session->setId($this->session->generateSessionId());
         }
-        $this->getSession()->start();
+
+        $this->session->start();
         try {
             $response = $handler->handle($request);
             return $this->addCookieResponse($request, $response);
         } finally {
-            $this->getSession()->save();
+            $this->session->save();
         }
     }
 
@@ -71,20 +71,10 @@ class SessionMiddleware implements MiddlewareInterface
         $secure = strtolower($uri->getScheme()) === 'https';
 
         $domain = $this->config->get('session.domain') ?: $uri->getHost();
-        $cookie = new Cookie($this->getSession()->getName(), $this->getSession()->getId(), $this->getCookieExpire(), $path, $domain, $secure);
+        $cookie = new Cookie($this->session->getName(), $this->session->getId(), $this->getCookieExpire(), $path, $domain, $secure);
         if (!method_exists($response, 'withCookie')) {
             return $response->withHeader('Set-Cookie', (string)$cookie);
         }
         return $response->withCookie($cookie);
-    }
-
-    /**
-     * @return SessionInterface
-     */
-    protected function getSession(): SessionInterface
-    {
-        return $this->context->remember(SessionInterface::class, function () {
-            return $this->container->make(SessionInterface::class, [], true);
-        });
     }
 }

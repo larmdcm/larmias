@@ -4,10 +4,22 @@ declare(strict_types=1);
 
 namespace Larmias\AsyncQueue\Providers;
 
+use Larmias\AsyncQueue\Contracts\QueueInterface;
+use Larmias\AsyncQueue\Queue;
 use Larmias\Framework\ServiceProvider;
 
 class QueueServiceProvider extends ServiceProvider
 {
+    /**
+     * @return void
+     */
+    public function register(): void
+    {
+        $this->container->bindIf([
+            QueueInterface::class => Queue::class,
+        ]);
+    }
+
     /**
      * @return void
      * @throws \Throwable

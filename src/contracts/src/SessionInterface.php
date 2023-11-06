@@ -52,11 +52,11 @@ interface SessionInterface
     /**
      * 添加数据到一个session数组
      *
-     * @param string $key
+     * @param string $name
      * @param mixed $value
      * @return bool
      */
-    public function push(string $key, mixed $value): bool;
+    public function push(string $name, mixed $value): bool;
 
     /**
      * 判断session数据是否存在

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Throttle\Drivers;
+namespace Larmias\Throttle\Driver;
 
 use Larmias\Contracts\ContextInterface;
 use Larmias\Throttle\Contracts\ThrottleDriverInterface;

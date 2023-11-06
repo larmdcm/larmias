@@ -290,7 +290,7 @@ abstract class Model implements ModelInterface, Arrayable, Jsonable, Stringable,
                 return false;
             }
 
-            $result = $this->newQuery()->delete($this->getWhere()) > 0;
+            $result = $this->newQuery()->delete() > 0;
             if ($result) {
                 $this->exists(false);
                 $after();
@@ -365,7 +365,7 @@ abstract class Model implements ModelInterface, Arrayable, Jsonable, Stringable,
 
             $query = $this->newQuery();
 
-            $result = $query->data($data)->update(condition: $this->getWhere()) > 0;
+            $result = $query->data($data)->update() > 0;
 
             if ($result) {
                 $after();

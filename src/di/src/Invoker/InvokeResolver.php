@@ -71,6 +71,11 @@ class InvokeResolver
                 }
             }
         }
+
+        if (empty($pipes)) {
+            return $process();
+        }
+
         $pipeline = new Pipeline();
         $pipeline->through(
             array_map(function ($handler) {

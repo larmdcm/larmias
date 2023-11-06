@@ -102,6 +102,7 @@ abstract class QueueDriver implements QueueDriverInterface
         if (!$message) {
             return;
         }
+
         try {
             $message->getJob()->handle($message, $this);
         } catch (Throwable $e) {

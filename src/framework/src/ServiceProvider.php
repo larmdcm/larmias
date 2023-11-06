@@ -9,6 +9,7 @@ use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\ServiceProviderInterface;
 use Larmias\Contracts\ServiceDiscoverInterface;
 use Larmias\Contracts\VendorPublishInterface;
+use Larmias\Contracts\ViewInterface;
 
 abstract class ServiceProvider implements ServiceProviderInterface
 {
@@ -84,5 +85,26 @@ abstract class ServiceProvider implements ServiceProviderInterface
         /** @var VendorPublishInterface $publish */
         $publish = $this->app->getContainer()->get(VendorPublishInterface::class);
         $publish->publishes($name, $paths);
+    }
+
+    /**
+     * @param string $path
+     * @param string|null $namespace
+     * @return void
+     * @throws \Throwable
+     */
+    public function loadViewsFrom(string $path, ?string $namespace = null): void
+    {
+        if (!$this->container->has(ViewInterface::class)) {
+            return;
+        }
+
+        /** @var ViewInterface $view */
+        $view = $this->container->get(ViewInterface::class);
+        if ($namespace) {
+            $view->addNamespace($namespace, $path);
+        } else {
+            $view->addLocation($path);
+        }
     }
 }

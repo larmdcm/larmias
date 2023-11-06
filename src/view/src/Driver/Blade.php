@@ -34,12 +34,34 @@ class Blade extends Driver
     {
         $compiler = new BladeCompiler($this->config['view_cache_path'], $this->config['tpl_cache']);
         $compiler->setContentTags($this->config['tpl_begin'], $this->config['tpl_end'], true);
-        $compiler->setContentTags($this->config['tpl_begin'], $this->config['tpl_end'], false);
         $compiler->setRawTags($this->config['tpl_raw_begin'], $this->config['tpl_raw_end']);
         $this->compilerEngine = new CompilerEngine($compiler);
-        $this->fileViewFinder = new FileViewFinder([$this->config['view_path']], [$this->config['view_suffix'], 'tpl']);
-
+        $this->fileViewFinder = new FileViewFinder($this->config['view_path'], $this->config['view_suffix']);
         $this->factory = $this->factory();
+        if (!empty($this->config['namespace'])) {
+            foreach ($this->config['namespace'] as $namespace => $hints) {
+                $this->factory->addNamespace($namespace, $hints);
+            }
+        }
+    }
+
+    /**
+     * @param string $location
+     * @return void
+     */
+    public function addLocation(string $location): void
+    {
+        $this->factory->addLocation($location);
+    }
+
+    /**
+     * @param string $namespace
+     * @param array|string $hints
+     * @return void
+     */
+    public function addNamespace(string $namespace, array|string $hints): void
+    {
+        $this->factory->addNamespace($namespace, $hints);
     }
 
     /**
@@ -49,7 +71,7 @@ class Blade extends Driver
      */
     public function render(string $path, array $vars = []): string
     {
-        $tpl = $this->factory->file($this->parsePath($path), array_merge($this->vars, $vars))->render();
+        $tpl = $this->factory->make($path, array_merge($this->vars, $vars))->render();
         $this->vars = [];
         return $tpl;
     }

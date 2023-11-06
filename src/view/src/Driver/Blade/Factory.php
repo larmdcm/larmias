@@ -35,14 +35,14 @@ class Factory
     /**
      * The engine implementation.
      *
-     * @var \Larmias\View\Driver\Blade\Engines\EngineInterface
+     * @var Engines\EngineInterface
      */
     protected $engine;
 
     /**
      * The view finder implementation.
      *
-     * @var \Larmias\View\Driver\Blade\ViewFinderInterface
+     * @var ViewFinderInterface
      */
     protected $finder;
 
@@ -112,7 +112,7 @@ class Factory
     /**
      * Create a new view factory instance.
      *
-     * @param \Larmias\View\Driver\Blade\ViewFinderInterface $finder
+     * @param ViewFinderInterface $finder
      * @return void
      */
     public function __construct(EngineInterface $engine, ViewFinderInterface $finder)
@@ -129,7 +129,7 @@ class Factory
      * @param string $path
      * @param array $data
      * @param array $mergeData
-     * @return \Larmias\View\Driver\Blade\View
+     * @return View
      */
     public function file($path, $data = [], $mergeData = [])
     {
@@ -146,7 +146,7 @@ class Factory
      * @param string $view
      * @param array $data
      * @param array $mergeData
-     * @return \Larmias\View\Driver\Blade\View
+     * @return View
      */
     public function make($view, $data = [], $mergeData = [])
     {
@@ -189,7 +189,7 @@ class Factory
      *
      * @param string $view
      * @param mixed $data
-     * @return \Larmias\View\Driver\Blade\View
+     * @return View
      */
     public function of($view, $data = [])
     {
@@ -615,7 +615,7 @@ class Factory
      * @param string $location
      * @return void
      */
-    public function addLocation($location)
+    public function addLocation(string $location): void
     {
         $this->finder->addLocation($location);
     }
@@ -627,7 +627,7 @@ class Factory
      * @param string|array $hints
      * @return void
      */
-    public function addNamespace($namespace, $hints)
+    public function addNamespace(string $namespace, string|array $hints): void
     {
         $this->finder->addNamespace($namespace, $hints);
     }
@@ -647,7 +647,7 @@ class Factory
     /**
      * Get the view finder instance.
      *
-     * @return \Larmias\View\Driver\Blade\ViewFinderInterface
+     * @return ViewFinderInterface
      */
     public function getFinder()
     {
@@ -657,7 +657,7 @@ class Factory
     /**
      * Set the view finder instance.
      *
-     * @param \Larmias\View\Driver\Blade\ViewFinderInterface $finder
+     * @param ViewFinderInterface $finder
      * @return void
      */
     public function setFinder(ViewFinderInterface $finder)

@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace Larmias\AsyncQueue\Driver;
 
+use Larmias\AsyncQueue\Contracts\QueueStatusInterface;
+use Larmias\AsyncQueue\Message\QueueStatus;
 use Larmias\Contracts\Redis\ConnectionInterface;
 use Larmias\Contracts\Redis\RedisFactoryInterface;
 use Larmias\AsyncQueue\Contracts\MessageInterface;
 use Larmias\AsyncQueue\Exceptions\QueueException;
 use Throwable;
 use function array_key_first;
-use function unserialize;
-use function serialize;
+use function Larmias\Support\is_empty;
 use function microtime;
 use function Larmias\Support\throw_unless;
 
@@ -27,8 +28,10 @@ class RedisStream extends QueueDriver
         'prefix' => 'queues:',
         // 队列名称
         'name' => 'default',
-        // 超时时间
-        'timeout' => 0,
+        // 等待时间（秒）
+        'wait_time' => 1,
+        // 消费间隔（秒）
+        'timespan' => 1,
         // 队列最大长度
         'maxlength' => 0,
         // 队列最大长度近似模式
@@ -44,7 +47,7 @@ class RedisStream extends QueueDriver
     /**
      * @var ConnectionInterface
      */
-    protected ConnectionInterface $connection;
+    protected ConnectionInterface $redis;
 
     /**
      * @var array
@@ -72,7 +75,7 @@ class RedisStream extends QueueDriver
      */
     public function initialize(RedisFactoryInterface $factory): void
     {
-        $this->connection = $factory->get($this->config['redis_name']);
+        $this->redis = $factory->get($this->config['redis_name']);
         $this->group = $this->config['group'];
         $this->consumer = $this->config['consumer'];
         $this->failConsumer = $this->config['fal_consumer'];
@@ -80,21 +83,21 @@ class RedisStream extends QueueDriver
 
     /**
      * @param MessageInterface $message
-     * @param float $delay
+     * @param int $delay
      * @return MessageInterface
      * @throws Throwable
      */
-    public function push(MessageInterface $message, float $delay = 0): MessageInterface
+    public function push(MessageInterface $message, int $delay = 0): MessageInterface
     {
-        $this->prepareGroup($message->getQueue());
         $message->setAttempts($message->getAttempts() + 1);
         $data = [
-            'message' => serialize($message),
+            'message' => $this->packer->pack($message),
             'delay' => $delay,
             'timestamp' => microtime(true),
         ];
-        $messageId = $this->connection->xAdd($this->getQueueKey($message->getQueue()), '*', $data, $this->config['maxlength'], $this->config['approximate']);
-        throw_unless($messageId, QueueException::class, $this->connection->getLastError() ?: 'Queue push failed.');
+        $id = is_empty($message->getMessageId()) ? '*' : $message->getMessageId();
+        $messageId = $this->redis->xAdd($this->getQueueKey($message->getQueue()), $id, $data, $this->config['maxlength'], $this->config['approximate']);
+        throw_unless($messageId, QueueException::class, $this->redis->getLastError() ?: 'Queue push failed.');
         $message->setMessageId($messageId);
         return $message;
     }
@@ -106,9 +109,10 @@ class RedisStream extends QueueDriver
      */
     public function pop(float $timeout = 0, ?string $queue = null): ?MessageInterface
     {
+        $this->prepareGroup($queue);
         $queueKey = $this->getQueueKey($queue);
         $block = $timeout > 0 ? (int)($timeout * 1000) : null;
-        $result = $this->connection->xReadGroup($this->group, $this->consumer, [$queueKey => '>'], 1, $block);
+        $result = $this->redis->xReadGroup($this->group, $this->consumer, [$queueKey => '>'], 1, $block);
         if (!$result) {
             return null;
         }
@@ -116,12 +120,12 @@ class RedisStream extends QueueDriver
         $data = $result[$queueKey][$messageId];
         if ($data['delay'] > 0 && (($data['delay'] / 1000 + $data['timestamp']) - microtime(true)) > 0) {
             // 延时队列重入
-            $this->connection->xAdd($queueKey, '*', $data);
-            $this->connection->xAck($queueKey, $this->group, [$messageId]);
+            $this->redis->xAdd($queueKey, '*', $data);
+            $this->redis->xAck($queueKey, $this->group, [$messageId]);
             return null;
         }
         /** @var MessageInterface $message */
-        $message = unserialize($data['message']);
+        $message = $this->packer->unpack($data['message']);
         $message->setMessageId($messageId);
         return $message;
     }
@@ -132,7 +136,7 @@ class RedisStream extends QueueDriver
      */
     public function ack(MessageInterface $message): bool
     {
-        $result = $this->connection->xAck($this->getQueueKey($message->getQueue()), $this->group, [$message->getMessageId()]);
+        $result = $this->redis->xAck($this->getQueueKey($message->getQueue()), $this->group, [$message->getMessageId()]);
         return $result !== 0;
     }
 
@@ -144,7 +148,7 @@ class RedisStream extends QueueDriver
     public function fail(MessageInterface $message): bool
     {
         $queueKey = $this->getQueueKey($message->getQueue());
-        $result = $this->connection->xClaim($queueKey, $this->group, $this->failConsumer, 0, [$message->getMessageId()], [
+        $result = $this->redis->xClaim($queueKey, $this->group, $this->failConsumer, 0, [$message->getMessageId()], [
             'IDLE' => 0,
             'FORCE',
             'JUSTID',
@@ -158,26 +162,27 @@ class RedisStream extends QueueDriver
      */
     public function delete(MessageInterface $message): bool
     {
-        $result = $this->connection->xDel($this->getQueueKey($message->getQueue()), [$message->getMessageId()]);
+        $result = $this->redis->xDel($this->getQueueKey($message->getQueue()), [$message->getMessageId()]);
         return $result !== 0;
     }
 
     /**
      * @param string|null $queue
+     * @param string|null $type
      * @return bool
      */
-    public function flush(?string $queue = null): bool
+    public function flush(?string $queue = null, ?string $type = null): bool
     {
-        return $this->connection->del($this->getQueueKey($queue)) !== 0;
+        return $this->redis->del($this->getQueueKey($queue)) !== 0;
     }
 
     /**
      * @param string|null $queue
-     * @return array
+     * @return QueueStatusInterface
      */
-    public function info(?string $queue = null): array
+    public function status(?string $queue = null): QueueStatusInterface
     {
-        $info = $this->connection->xInfo('STREAM', $this->getQueueKey($queue), 'FULL') ?: [];
+        $info = $this->redis->xInfo('STREAM', $this->getQueueKey($queue), 'FULL') ?: [];
         $groupInfo = null;
         $failConsumerInfo = null;
         foreach ($info['groups'] ?? [] as $group) {
@@ -194,22 +199,34 @@ class RedisStream extends QueueDriver
                 }
             }
         }
-        $result['fail'] = $failConsumerInfo['pel-count'] ?? 0;
-        $result['working'] = ($groupInfo['pel-count'] ?? 0) - $result['fail'];
-        $result['ready'] = $result['timeout'] = $result['delay'] = 0;
-        return $result;
+        $result['failed'] = $failConsumerInfo['pel-count'] ?? 0;
+        $result['waiting'] = ($groupInfo['pel-count'] ?? 0) - $result['failed'];
+        $result['timeout'] = 0;
+        $result['delayed'] = 0;
+
+        return QueueStatus::formArray($result);
     }
 
     /**
+     * @param string|null $queue
      * @return int
      */
-    public function restoreFailMessage(): int
+    public function reloadTimeoutMessage(?string $queue = null): int
     {
-        $queueKey = $this->getQueueKey();
+        return 0;
+    }
+
+    /**
+     * @param string|null $queue
+     * @return int
+     */
+    public function reloadFailMessage(?string $queue = null): int
+    {
+        $queueKey = $this->getQueueKey($queue);
         $start = '0';
         $total = 0;
         while (true) {
-            $result = $this->connection->xReadGroup($this->group, $this->failConsumer, [$queueKey => $start], 100);
+            $result = $this->redis->xReadGroup($this->group, $this->failConsumer, [$queueKey => $start], 100);
             if (!$result) {
                 break;
             }
@@ -219,11 +236,11 @@ class RedisStream extends QueueDriver
                     continue;
                 }
                 $ids[] = $start = $messageId;
-                $this->connection->xAdd($queueKey, '*', $data, $this->config['maxlength'], $this->config['approximate']);
+                $this->redis->xAdd($queueKey, '*', $data, $this->config['maxlength'], $this->config['approximate']);
                 $total++;
             }
             if ($ids) {
-                $this->connection->xAdd($queueKey, $this->group, $ids);
+                $this->redis->xAdd($queueKey, $this->group, $ids);
             } else {
                 break;
             }
@@ -243,6 +260,6 @@ class RedisStream extends QueueDriver
             return;
         }
         $this->initGroup[$name] = true;
-        $this->connection->xGroup('CREATE', $queue, $this->group, '0', true);
+        $this->redis->xGroup('CREATE', $queue, $this->group, '0', true);
     }
 }

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use function Larmias\Framework\env;
+use function Larmias\Support\env;
 
 return [
     // 登录方式，sso为单点登录，mpop为多点登录

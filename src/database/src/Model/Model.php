@@ -95,7 +95,7 @@ use function str_contains;
  * @method static PaginatorInterface paginate(array $config = [])
  * @method static bool chunk(int $count, callable $callback, string $column = 'id', string $order = 'asc')
  * @method static TransactionInterface beginTransaction()
- * @method static mixed transaction(\Closure $callback)
+ * @method static mixed transaction(Closure $callback)
  */
 abstract class Model implements ModelInterface, Arrayable, Jsonable, Stringable, JsonSerializable
 {

@@ -1,11 +1,9 @@
 <?php
 
-use Larmias\Contracts\Http\ResponseEmitterInterface;
 use Larmias\Contracts\Http\OnRequestInterface;
 use Larmias\Engine\Contracts\WorkerInterface;
 use Larmias\Engine\WorkerType;
 use Larmias\Engine\Event;
-use Larmias\HttpServer\ResponseEmitter;
 use Larmias\HttpServer\Server as HttpServer;
 use Larmias\HttpServer\Routing\Router;
 use Larmias\Contracts\PipelineInterface;
@@ -48,12 +46,12 @@ return [
                 foreach ($providerList as $provider) {
                     $serviceProvider = new $provider($container);
                     $serviceProvider->register();
-                    $serviceProvider->boot();
                 }
 
                 Router::get('/', function () {
                     return 'Hello,World!';
                 });
+
                 Router::get('/favicon.ico', function () {
                     return '';
                 });

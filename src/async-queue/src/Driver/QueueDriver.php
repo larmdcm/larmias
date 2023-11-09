@@ -4,17 +4,25 @@ declare(strict_types=1);
 
 namespace Larmias\AsyncQueue\Driver;
 
+use Larmias\AsyncQueue\Contracts\JobHandlerInterface;
+use Larmias\AsyncQueue\Contracts\MessageInterface;
 use Larmias\AsyncQueue\Contracts\QueueDriverInterface;
+use Larmias\AsyncQueue\Exceptions\QueueException;
+use Larmias\AsyncQueue\Message\Job;
 use Larmias\Contracts\Concurrent\ConcurrentInterface;
 use Larmias\Contracts\Concurrent\ParallelInterface;
 use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\ContextInterface;
 use Larmias\Contracts\LoggerInterface;
+use Larmias\Contracts\PackerInterface;
 use Larmias\Contracts\TimerInterface;
+use Larmias\Support\Packer\PhpSerializerPacker;
 use Throwable;
 use function array_merge;
 use function Larmias\Support\format_exception;
+use function Larmias\Support\throw_unless;
 use function method_exists;
+use function sleep;
 
 abstract class QueueDriver implements QueueDriverInterface
 {
@@ -34,6 +42,21 @@ abstract class QueueDriver implements QueueDriverInterface
     protected ?ParallelInterface $parallel = null;
 
     /**
+     * @var PackerInterface
+     */
+    protected PackerInterface $packer;
+
+    /**
+     * @var string|null
+     */
+    protected ?string $queue = null;
+
+    /**
+     * @var float|null
+     */
+    protected ?float $waitTime = null;
+
+    /**
      * @param ContainerInterface $container
      * @param ContextInterface $context
      * @param TimerInterface $timer
@@ -49,16 +72,37 @@ abstract class QueueDriver implements QueueDriverInterface
     )
     {
         $this->config = array_merge($this->config, $config);
+        $this->packer = new PhpSerializerPacker();
         if (method_exists($this, 'initialize')) {
             $this->container->invoke([$this, 'initialize']);
         }
     }
 
     /**
+     * @param MessageInterface $message
+     * @param int $delay
+     * @return MessageInterface|null
+     */
+    public function reload(MessageInterface $message, int $delay = 0): ?MessageInterface
+    {
+        if ($this->ack($message)) {
+            $message->setMessageId('');
+            return $this->push($message, $delay);
+        }
+
+        return null;
+    }
+
+    /**
+     * @param string|null $queue
+     * @param float|null $waitTime
      * @return void
      */
-    public function consumer(): void
+    public function consumer(?string $queue = null, ?float $waitTime = null): void
     {
+        $this->queue = $queue;
+        $this->waitTime = $waitTime;
+
         if ($this->context->inCoroutine()) {
             $this->coHandle();
         } else {
@@ -89,6 +133,8 @@ abstract class QueueDriver implements QueueDriverInterface
                 }
             } catch (Throwable $e) {
                 $this->logger?->error(format_exception($e));
+            } finally {
+                $this->timespan();
             }
         }
     }
@@ -98,16 +144,21 @@ abstract class QueueDriver implements QueueDriverInterface
      */
     public function handle(): void
     {
-        $message = $this->pop($this->config['timeout']);
+        $message = $this->pop($this->waitTime ?? $this->config['wait_time'], $this->queue);
         if (!$message) {
             return;
         }
 
         try {
-            $message->getJob()->handle($message, $this);
+            /** @var JobHandlerInterface $handler */
+            $handler = $this->container->make($message->getHandler());
+            throw_unless($handler instanceof JobHandlerInterface, QueueException::class, 'handler not instanceof ' . JobHandlerInterface::class);
+            $handler->handle(new Job($message, $this));
         } catch (Throwable $e) {
             $this->logger?->error(format_exception($e));
             $this->fail($message);
+        } finally {
+            $this->timespan();
         }
     }
 
@@ -119,5 +170,13 @@ abstract class QueueDriver implements QueueDriverInterface
     {
         $name = $name ?: $this->config['name'];
         return $this->config['prefix'] . $name;
+    }
+
+    /**
+     * @return void
+     */
+    protected function timespan(): void
+    {
+        sleep($this->config['timespan']);
     }
 }

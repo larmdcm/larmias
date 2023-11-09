@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Larmias\Support\Reflection;
 
 use ReflectionClass;
+use ReflectionException;
 
 class ClassInvoker
 {
@@ -22,19 +23,19 @@ class ClassInvoker
      *
      * @param string|object $object
      * @param callable|null $resolve
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public function __construct(string|object $object, ?callable $resolve = null)
     {
         $this->reflect = ReflectionManager::reflectClass($object);
-        $this->instance = \is_object($object) ? $object : $this->newInstanceArgs($resolve);
-        $this->className = \get_class($this->instance);
+        $this->instance = is_object($object) ? $object : $this->newInstanceArgs($resolve);
+        $this->className = get_class($this->instance);
     }
 
     /**
      * @param string $name
      * @return mixed
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public function __get(string $name): mixed
     {
@@ -50,7 +51,7 @@ class ClassInvoker
     /**
      * @param string $name
      * @param mixed $value
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public function __set(string $name, mixed $value)
     {
@@ -68,7 +69,7 @@ class ClassInvoker
      * @param array $args
      * @param bool $accessible
      * @return mixed
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public function invoke(string $method, array $args = [], bool $accessible = false): mixed
     {
@@ -95,12 +96,12 @@ class ClassInvoker
     /**
      * @param callable|null $resolve
      * @return object
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     protected function newInstanceArgs(?callable $resolve = null): object
     {
         $constructor = $this->reflect->getConstructor();
-        $args = $constructor && \is_callable($resolve) ? $resolve($constructor) : [];
+        $args = $constructor && is_callable($resolve) ? $resolve($constructor) : [];
         return $this->reflect->newInstanceArgs($args);
     }
 
@@ -132,7 +133,7 @@ class ClassInvoker
      * @param string $name
      * @param array $args
      * @return mixed
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public function __call(string $name, array $args)
     {

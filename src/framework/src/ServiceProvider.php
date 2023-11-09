@@ -13,17 +13,25 @@ use Larmias\Contracts\ViewInterface;
 
 abstract class ServiceProvider implements ServiceProviderInterface
 {
-    protected ContainerInterface $container;
+    protected ?ApplicationInterface $app = null;
+
+    protected ?ServiceDiscoverInterface $serviceDiscover = null;
 
     /**
-     * @param ApplicationInterface $app
-     * @param ServiceDiscoverInterface $serviceDiscover
+     * @param ContainerInterface $container
      */
-    public function __construct(protected ApplicationInterface $app, protected ServiceDiscoverInterface $serviceDiscover)
+    public function __construct(protected ContainerInterface $container)
     {
-        $this->container = $this->app->getContainer();
         if (method_exists($this, 'initialize')) {
-            $this->app->getContainer()->invoke([$this, 'initialize']);
+            $this->container->invoke([$this, 'initialize']);
+        }
+
+        if ($this->container->has(ApplicationInterface::class)) {
+            $this->app = $this->container->get(ApplicationInterface::class);
+        }
+
+        if ($this->container->has(ServiceDiscoverInterface::class)) {
+            $this->serviceDiscover = $this->container->get(ServiceDiscoverInterface::class);
         }
     }
 
@@ -47,7 +55,7 @@ abstract class ServiceProvider implements ServiceProviderInterface
      */
     public function commands(string|array $commands): void
     {
-        $this->serviceDiscover->commands($commands);
+        $this->serviceDiscover?->commands($commands);
     }
 
     /**
@@ -58,7 +66,7 @@ abstract class ServiceProvider implements ServiceProviderInterface
      */
     public function addProcess(string $process, string $name, int $count = 1): void
     {
-        $this->serviceDiscover->addProcess($process, $name, $count);
+        $this->serviceDiscover?->addProcess($process, $name, $count);
     }
 
     /**
@@ -67,7 +75,7 @@ abstract class ServiceProvider implements ServiceProviderInterface
      */
     public function listener(string|array $listeners): void
     {
-        $this->serviceDiscover->listener($listeners);
+        $this->serviceDiscover?->listener($listeners);
     }
 
     /**

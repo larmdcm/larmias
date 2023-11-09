@@ -128,7 +128,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
      * @param array $params
      * @param boolean $newInstance
      * @return mixed
-     * @throws ReflectionException
+     * @throws Throwable
      */
     public function make(string $abstract, array $params = [], bool $newInstance = false): object
     {
@@ -252,7 +252,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
      *
      * @param string $id
      * @return object
-     * @throws ReflectionException
+     * @throws Throwable
      */
     public function get(string $id): object
     {
@@ -306,13 +306,14 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
      * @param array $params
      * @param bool $accessible
      * @return mixed
-     * @throws ReflectionException
+     * @throws Throwable
      */
     public function invoke(mixed $callable, array $params = [], bool $accessible = false): mixed
     {
         if ($callable instanceof Closure || (is_string($callable) && !str_contains($callable, '::'))) {
             return $this->invokeFunction($callable, $params);
         }
+
         return $this->invokeMethod($callable, $params, $accessible);
     }
 
@@ -322,7 +323,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
      * @param callable $function 函数或者闭包
      * @param array $params 参数
      * @return mixed
-     * @throws ReflectionException
+     * @throws Throwable
      */
     public function invokeFunction(callable $function, array $params = []): mixed
     {
@@ -373,7 +374,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
      * @param array $params 参数
      * @param bool $accessible 设置是否可访问
      * @return mixed
-     * @throws ReflectionException
+     * @throws Throwable
      */
     public function invokeMethod(string|array $method, array $params = [], bool $accessible = false): mixed
     {
@@ -392,10 +393,10 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
 
     /**
      * @param string $name
-     * @return mixed
-     * @throws ReflectionException
+     * @return object
+     * @throws Throwable
      */
-    public function __get(string $name): mixed
+    public function __get(string $name)
     {
         return $this->get($name);
     }
@@ -424,6 +425,9 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
         return $this->exists($offset);
     }
 
+    /**
+     * @throws Throwable
+     */
     #[\ReturnTypeWillChange]
     public function offsetGet($offset)
     {

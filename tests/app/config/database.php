@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use function Larmias\Framework\env;
+use function Larmias\Support\env;
 
 return [
     'default' => [

@@ -160,12 +160,11 @@ abstract class Worker implements WorkerInterface
         $callbacks = $this->callbacks[$event];
 
         foreach ($callbacks as $callback) {
-            if (is_callable($callback)) {
-                $this->container->invoke($callback, $args);
-            } else {
+            if (!is_callable($callback)) {
                 $object = $this->container->get($callback[0]);
-                $this->container->invoke([$object, $callback[1]], $args);
+                $callback = [$object, $callback[1]];
             }
+            call_user_func_array($callback, $args);
         }
     }
 

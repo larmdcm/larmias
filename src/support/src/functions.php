@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Larmias\Support;
 
 use Larmias\Context\ApplicationContext;
+use Larmias\Contracts\DotEnvInterface;
 use RuntimeException;
 use Stringable;
 use Throwable;
@@ -40,6 +41,44 @@ function invoke(mixed $callable, array $params = [], bool $accessible = false): 
     }
 
     return is_callable($callable) ? $callable(...$params) : throw new RuntimeException('invoke callable is not callable.');
+}
+
+/**
+ * 环境变量获取
+ * @param string $name
+ * @param mixed|null $default
+ * @return mixed
+ */
+function env(string $name, mixed $default = null): mixed
+{
+    if (ApplicationContext::hasContainer() && ApplicationContext::getContainer()->has(DotEnvInterface::class)) {
+        /** @var DotEnvInterface $dotenv */
+        $dotenv = make(DotEnvInterface::class);
+        return $dotenv->get($name, $default);
+    }
+
+    $value = getenv($name);
+    if ($value === false) {
+        return value($default);
+    }
+    switch (strtolower($value)) {
+        case 'true':
+        case '(true)':
+            return true;
+        case 'false':
+        case '(false)':
+            return false;
+        case 'empty':
+        case '(empty)':
+            return '';
+        case 'null':
+        case '(null)':
+            return null;
+    }
+    if (($valueLength = strlen($value)) > 1 && $value[0] === '"' && $value[$valueLength - 1] === '"') {
+        return substr($value, 1, -1);
+    }
+    return $value;
 }
 
 /**

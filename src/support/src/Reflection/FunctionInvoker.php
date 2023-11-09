@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Larmias\Support\Reflection;
 
 use ReflectionFunction;
+use ReflectionException;
 
 class FunctionInvoker
 {
@@ -18,7 +19,7 @@ class FunctionInvoker
      * FunctionInvoker constructor.
      *
      * @param callable $function
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public function __construct(callable $function)
     {
@@ -29,7 +30,7 @@ class FunctionInvoker
     /**
      * @param callable $function
      * @return FunctionInvoker
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public static function new(callable $function): FunctionInvoker
     {
@@ -39,11 +40,10 @@ class FunctionInvoker
     /**
      * @param array $args
      * @return mixed
-     * @throws \ReflectionException
      */
     public function invoke(array $args = []): mixed
     {
-        return \call_user_func_array($this->function, $args);
+        return call_user_func_array($this->function, $args);
     }
 
     /**

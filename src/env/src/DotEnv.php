@@ -40,11 +40,6 @@ class DotEnv implements DotEnvInterface, ArrayAccess
     ];
 
     /**
-     * @var array
-     */
-    protected array $data = [];
-
-    /**
      * @param string $path
      * @return bool
      */
@@ -123,7 +118,7 @@ class DotEnv implements DotEnvInterface, ArrayAccess
      */
     protected function getVariable(string $name): ?string
     {
-        $collect = [$this->data, $_ENV, $_SERVER];
+        $collect = [$_ENV];
         $value = null;
 
         foreach ($collect as $data) {
@@ -147,7 +142,8 @@ class DotEnv implements DotEnvInterface, ArrayAccess
      */
     protected function setVariable(string $name, string $value = ''): void
     {
-        $this->data[$name] = $value;
+        putenv("{$name}={$value}");
+        $_ENV[$name] = $value;
     }
 
     /**
@@ -289,6 +285,6 @@ class DotEnv implements DotEnvInterface, ArrayAccess
     #[\ReturnTypeWillChange]
     public function offsetUnset($offset): void
     {
-        unset($this->data[$offset]);
+        $this->set($offset, null);
     }
 }

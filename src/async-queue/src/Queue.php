@@ -5,14 +5,12 @@ declare(strict_types=1);
 namespace Larmias\AsyncQueue;
 
 use Larmias\AsyncQueue\Contracts\QueueDriverInterface;
-use Larmias\AsyncQueue\Contracts\JobInterface;
 use Larmias\AsyncQueue\Contracts\QueueInterface;
 use Larmias\AsyncQueue\Message\Message;
 use Larmias\Contracts\ConfigInterface;
 use Larmias\Contracts\ContainerInterface;
 use Larmias\AsyncQueue\Contracts\MessageInterface;
 use function is_null;
-use function session_create_id;
 
 class Queue implements QueueInterface
 {
@@ -30,14 +28,14 @@ class Queue implements QueueInterface
     }
 
     /**
-     * @param JobInterface $job
+     * @param string $handler
      * @param array $data
-     * @param float $delay
+     * @param int $delay
      * @return MessageInterface
      */
-    public function push(JobInterface $job, array $data = [], float $delay = 0): MessageInterface
+    public function push(string $handler, array $data = [], int $delay = 0): MessageInterface
     {
-        $message = new Message($job, $data, session_create_id());
+        $message = new Message($handler, $data);
         return $this->driver()->push($message, $delay);
     }
 

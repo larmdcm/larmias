@@ -29,15 +29,15 @@ interface MessageInterface
     public function setQueue(?string $queue): MessageInterface;
 
     /**
-     * @return JobInterface
+     * @return string
      */
-    public function getJob(): JobInterface;
+    public function getHandler(): string;
 
     /**
-     * @param JobInterface $job
+     * @param string $handler
      * @return MessageInterface
      */
-    public function setJob(JobInterface $job): MessageInterface;
+    public function setHandler(string $handler): MessageInterface;
 
     /**
      * @return array

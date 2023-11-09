@@ -8,10 +8,10 @@ interface QueueDriverInterface
 {
     /**
      * @param MessageInterface $message
-     * @param float $delay
+     * @param int $delay
      * @return MessageInterface
      */
-    public function push(MessageInterface $message, float $delay = 0): MessageInterface;
+    public function push(MessageInterface $message, int $delay = 0): MessageInterface;
 
     /**
      * @param float $timeout
@@ -34,29 +34,47 @@ interface QueueDriverInterface
 
     /**
      * @param MessageInterface $message
+     * @param int $delay
+     * @return MessageInterface|null
+     */
+    public function reload(MessageInterface $message, int $delay = 0): ?MessageInterface;
+
+    /**
+     * @param MessageInterface $message
      * @return bool
      */
     public function delete(MessageInterface $message): bool;
 
     /**
+     * @param string|null $queue
+     * @param float|null $waitTime
      * @return void
      */
-    public function consumer(): void;
+    public function consumer(?string $queue = null, ?float $waitTime = null): void;
 
     /**
      * @param string|null $queue
+     * @param string|null $type
      * @return bool
      */
-    public function flush(?string $queue = null): bool;
+    public function flush(?string $queue = null, ?string $type = null): bool;
 
     /**
      * @param string|null $queue
-     * @return array
+     * @return QueueStatusInterface
      */
-    public function info(?string $queue = null): array;
+    public function status(?string $queue = null): QueueStatusInterface;
 
     /**
+     * @param string|null $queue
      * @return int
      */
-    public function restoreFailMessage(): int;
+    public function reloadFailMessage(?string $queue = null): int;
+
+    /**
+     * @param string|null $queue
+     * @return int
+     */
+    public function reloadTimeoutMessage(?string $queue = null): int;
+
 }

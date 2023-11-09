@@ -7,6 +7,7 @@ namespace Larmias\Support\Reflection;
 use Closure;
 use ReflectionException;
 use ReflectionFunctionAbstract;
+use Throwable;
 
 class Invoker
 {
@@ -77,17 +78,17 @@ class Invoker
      * @param array $params
      * @param bool $accessible
      * @return mixed
-     * @throws ReflectionException
+     * @throws Throwable
      */
     public function invokeMethod(string|array $method, array $params = [], bool $accessible = false): mixed
     {
-        if (\is_array($method)) {
+        if (is_array($method)) {
             [$class, $method] = $method;
-            $class = \is_object($class) ? $class : $this->invokeClass($class);
+            $class = is_object($class) ? $class : $this->invokeClass($class);
         } else {
             [$class, $method] = explode('::', $method);
         }
-        $isObject = \is_object($class);
+        $isObject = is_object($class);
         $reflectMethod = $isObject ? ReflectionManager::reflectMethod($class, $method) : ReflectionManager::reflectMethod($class, $method, true);
         $params = $this->bindParameter($reflectMethod, $params);
         $type = $isObject ? self::INVOKE_METHOD : self::INVOKE_STATIC_METHOD;
@@ -95,7 +96,7 @@ class Invoker
             $type,
             fn() => $isObject ? ClassInvoker::invokeMethod([$class, $reflectMethod], $params, $accessible)
                 : StaticClassInvoker::invokeMethod($reflectMethod, $params, $accessible),
-            ['type' => $type, 'class' => $isObject ? \get_class($class) : $class, 'method' => $method, 'parameter' => $params]
+            ['type' => $type, 'class' => $isObject ? get_class($class) : $class, 'method' => $method, 'parameter' => $params]
         );
     }
 
@@ -105,7 +106,7 @@ class Invoker
      * @param callable $function 函数或者闭包
      * @param array $params 参数
      * @return mixed
-     * @throws ReflectionException
+     * @throws Throwable
      */
     public function invokeFunction(callable $function, array $params = []): mixed
     {
@@ -125,7 +126,7 @@ class Invoker
         if (!isset($this->resolveCallback[$type])) {
             return $handler();
         }
-        return \call_user_func($this->resolveCallback[$type], $handler, $args);
+        return call_user_func($this->resolveCallback[$type], $handler, $args);
     }
 
     /**
@@ -145,7 +146,7 @@ class Invoker
      * @param ReflectionFunctionAbstract $abstract
      * @param array $params
      * @return array
-     * @throws ReflectionException
+     * @throws Throwable
      */
     public function bindParameter(ReflectionFunctionAbstract $abstract, array $params = []): array
     {

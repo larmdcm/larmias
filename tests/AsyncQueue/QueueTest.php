@@ -10,7 +10,14 @@ class QueueTest extends TestCase
     {
         $id = session_create_id();
         $queue = $this->getQueue();
-        $this->assertNotEmpty($queue->push(new ExampleJob(), ['id' => $id])->getMessageId());
+        $this->assertNotEmpty($queue->push(ExampleJobHandler::class, ['id' => $id])->getMessageId());
+    }
+
+    public function testDelay(): void
+    {
+        $id = session_create_id();
+        $queue = $this->getQueue();
+        $this->assertNotEmpty($queue->push(ExampleJobHandler::class, ['id' => $id], 3)->getMessageId());
     }
 
     public function testPop(): void
@@ -19,7 +26,7 @@ class QueueTest extends TestCase
         $this->assertNotNull($driver->pop());
     }
 
-    public function testPopTimout(): void
+    public function testWaitPop(): void
     {
         $driver = $this->getQueue()->driver();
         $this->assertNotNull($driver->pop(3));
@@ -42,7 +49,7 @@ class QueueTest extends TestCase
         $id = session_create_id();
         $queue = $this->getQueue();
         $driver = $queue->driver();
-        $this->assertNotEmpty($queue->push(new ExampleJob(), ['id' => $id]));
+        $this->assertNotEmpty($queue->push(ExampleJobHandler::class, ['id' => $id]));
         var_dump($driver->info());
         $message = $driver->pop();
         $this->assertSame($id, $message->getData()['id']);
@@ -51,17 +58,17 @@ class QueueTest extends TestCase
         var_dump($driver->info());
     }
 
-    public function testInfo(): void
+    public function testStatus(): void
     {
         $driver = $this->getQueue()->driver();
-        var_dump($driver->info());
+        var_dump($driver->status());
         $this->assertTrue(true);
     }
 
     public function testRestoreFail(): void
     {
         $driver = $this->getQueue()->driver();
-        $this->assertTrue($driver->restoreFailMessage() > 0);
+        $this->assertTrue($driver->reloadFailMessage() > 0);
     }
 
     public function testFlush(): void

@@ -1,6 +1,6 @@
 <?php
 
-use Larmias\AsyncQueue\Contracts\JobInterface;
+use Larmias\AsyncQueue\Contracts\JobHandlerInterface;
 use Larmias\AsyncQueue\Contracts\MessageInterface;
 use Larmias\AsyncQueue\Contracts\QueueDriverInterface;
 
@@ -15,12 +15,12 @@ $config->load('./async_queue.php');
 $container->bind(\Larmias\Contracts\Redis\RedisFactoryInterface::class, \Larmias\Redis\RedisFactory::class);
 $container->bind(\Larmias\AsyncQueue\Contracts\QueueInterface::class, \Larmias\AsyncQueue\Queue::class);
 
-class ExampleJob implements JobInterface
+class ExampleJobHandler implements JobHandlerInterface
 {
-    public function handle(MessageInterface $message, QueueDriverInterface $queueDriver): void
+    public function handle(\Larmias\AsyncQueue\Contracts\JobInterface $job): void
     {
-        echo $message->getMessageId() . '-' . $message->getData()['name'] . ' job handler...' . PHP_EOL;
-        $queueDriver->ack($message);
+        echo $job->getMessage()->getMessageId() . '-' . $job->getData()['name'] . ' job handler...' . PHP_EOL;
+        $job->ack();
     }
 }
 

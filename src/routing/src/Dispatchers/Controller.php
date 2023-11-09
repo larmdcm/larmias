@@ -6,6 +6,7 @@ namespace Larmias\Routing\Dispatchers;
 
 use Larmias\Routing\Dispatcher;
 use RuntimeException;
+use Throwable;
 use function is_callable;
 use function is_string;
 use function explode;
@@ -16,6 +17,7 @@ class Controller extends Dispatcher
     /**
      * @param array $params
      * @return mixed
+     * @throws Throwable
      */
     public function execute(array $params = []): mixed
     {
@@ -27,6 +29,7 @@ class Controller extends Dispatcher
     /**
      * @param array $option
      * @return callable
+     * @throws Throwable
      */
     protected function getHandler(array $option): callable
     {

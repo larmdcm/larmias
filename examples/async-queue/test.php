@@ -18,10 +18,10 @@ $run(function (\Larmias\Contracts\Worker\WorkerInterface $worker, \Larmias\Engin
     /** @var QueueInterface $queue */
     $queue = $container->get(QueueInterface::class);
 
-    $queue->push(new ExampleJob(), ['name' => 'push']);
-    $queue->push(new ExampleJob(), ['name' => 'delay'], 5000);
+    $queue->push(ExampleJobHandler::class, ['name' => 'push']);
+    $queue->push(ExampleJobHandler::class, ['name' => 'delay'], 5000);
 
-    var_dump($queue->driver()->status());
+    var_dump($queue->driver()->info());
 
     $kernel->stop();
 });

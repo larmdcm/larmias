@@ -9,6 +9,8 @@ use InvalidArgumentException;
 use Larmias\Stringable\Str;
 use ReflectionFunctionAbstract;
 use ReflectionParameter;
+use ReflectionNamedType;
+use Throwable;
 
 class Parameter
 {
@@ -28,7 +30,7 @@ class Parameter
     /**
      * @param ...$args
      * @return array
-     * @throws \ReflectionException
+     * @throws Throwable
      */
     public function __invoke(...$args): array
     {
@@ -38,13 +40,14 @@ class Parameter
     /**
      * @param ...$args
      * @return array
-     * @throws \ReflectionException
+     * @throws Throwable
      */
     public function bind(...$args): array
     {
         if (is_null($this->reflect)) {
             throw new InvalidArgumentException('reflect is null.');
         }
+
         return $this->bindParams($this->reflect, static::getArgs(...$args));
     }
 
@@ -52,7 +55,7 @@ class Parameter
      * @param ReflectionFunctionAbstract $reflect
      * @param array $args
      * @return array
-     * @throws \ReflectionException
+     * @throws Throwable
      */
     public function bindReflect(ReflectionFunctionAbstract $reflect, array $args = []): array
     {
@@ -70,9 +73,10 @@ class Parameter
     }
 
     /**
+     * @param ReflectionFunctionAbstract $reflect
      * @param array $vars
      * @return array
-     * @throws \ReflectionException|\Throwable
+     * @throws Throwable
      */
     protected function bindParams(ReflectionFunctionAbstract $reflect, array $vars = []): array
     {
@@ -89,10 +93,10 @@ class Parameter
             $name = $param->getName();
             $lowerName = Str::snake($name);
 
-            /** @var \ReflectionNamedType $reflectionType */
+            /** @var ReflectionNamedType $reflectionType */
             $reflectionType = $param->getType();
 
-            if ($reflectionType && \method_exists($reflectionType, 'isBuiltin') && $reflectionType->isBuiltin() === false) {
+            if ($reflectionType && method_exists($reflectionType, 'isBuiltin') && $reflectionType->isBuiltin() === false) {
                 $args[] = $this->getObjectParam($reflectionType->getName(), $vars, $param);
             } elseif ($type == 1 && !empty($vars)) {
                 $args[] = array_shift($vars);
@@ -115,8 +119,9 @@ class Parameter
      *
      * @param string $className
      * @param array $vars
+     * @param ReflectionParameter $parameter
      * @return object|null
-     * @throws \Throwable
+     * @throws Throwable
      */
     protected function getObjectParam(string $className, array &$vars, ReflectionParameter $parameter): ?object
     {
@@ -137,7 +142,7 @@ class Parameter
      * @param string $className
      * @param ReflectionParameter $parameter
      * @return object|null
-     * @throws \Throwable
+     * @throws Throwable
      */
     protected function make(string $className, ReflectionParameter $parameter): ?object
     {
@@ -151,7 +156,7 @@ class Parameter
             $constructor = $reflect->getConstructor();
             $args = $constructor ? $this->bindParams($constructor) : [];
             return $reflect->newInstanceArgs($args);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             if ($parameter->isDefaultValueAvailable()) {
                 return $parameter->getDefaultValue();
             }

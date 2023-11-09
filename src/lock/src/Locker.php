@@ -32,6 +32,7 @@ class Locker implements LockerInterface
     /**
      * @param ContainerInterface $container
      * @param Key|string $key
+     * @param ConfigInterface $config
      */
     public function __construct(protected ContainerInterface $container, Key|string $key, ConfigInterface $config)
     {

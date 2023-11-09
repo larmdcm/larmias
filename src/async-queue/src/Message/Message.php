@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\AsyncQueue\Message;
 
-use Larmias\AsyncQueue\Contracts\JobInterface;
 use Larmias\AsyncQueue\Contracts\MessageInterface;
-use Larmias\Stringable\Str;
 use Serializable;
 use function serialize;
 use function unserialize;
@@ -14,19 +12,20 @@ use function unserialize;
 class Message implements MessageInterface, Serializable
 {
     /**
-     * @param JobInterface $job
+     * @param string $handler
      * @param array $data
      * @param string $messageId
      * @param int $attempts
      * @param int $maxAttempts
+     * @param string|null $queue
      */
     public function __construct(
-        protected JobInterface $job,
-        protected array        $data = [],
-        protected string       $messageId = '',
-        protected int          $attempts = 0,
-        protected int          $maxAttempts = 0,
-        protected ?string      $queue = null,
+        protected string  $handler,
+        protected array   $data = [],
+        protected string  $messageId = '',
+        protected int     $attempts = 0,
+        protected int     $maxAttempts = 0,
+        protected ?string $queue = null,
     )
     {
     }
@@ -50,20 +49,20 @@ class Message implements MessageInterface, Serializable
     }
 
     /**
-     * @return JobInterface
+     * @return string
      */
-    public function getJob(): JobInterface
+    public function getHandler(): string
     {
-        return $this->job;
+        return $this->handler;
     }
 
     /**
-     * @param JobInterface $job
+     * @param string $handler
      * @return MessageInterface
      */
-    public function setJob(JobInterface $job): MessageInterface
+    public function setHandler(string $handler): MessageInterface
     {
-        $this->job = $job;
+        $this->handler = $handler;
         return $this;
     }
 
@@ -145,11 +144,11 @@ class Message implements MessageInterface, Serializable
     public function serialize(): string
     {
         return serialize([
-            'message_id' => $this->messageId,
-            'job' => $this->job,
+            'messageId' => $this->messageId,
+            'handler' => $this->handler,
             'data' => $this->data,
             'attempts' => $this->attempts,
-            'max_attempts' => $this->maxAttempts,
+            'maxAttempts' => $this->maxAttempts,
             'queue' => $this->queue,
         ]);
     }
@@ -161,11 +160,11 @@ class Message implements MessageInterface, Serializable
     public function unserialize(string $data): void
     {
         $object = unserialize($data);
-        $this->messageId = $object['message_id'];
-        $this->job = $object['job'];
+        $this->messageId = $object['messageId'];
+        $this->handler = $object['handler'];
         $this->data = $object['data'];
         $this->attempts = $object['attempts'];
-        $this->maxAttempts = $object['max_attempts'];
+        $this->maxAttempts = $object['maxAttempts'];
         $this->queue = $object['queue'];
     }
 }

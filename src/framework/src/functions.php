@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Larmias\Framework;
 
-use Larmias\Contracts\DotEnvInterface;
 use Larmias\Contracts\StdoutLoggerInterface;
 use Larmias\Contracts\ApplicationInterface;
 use Larmias\Contracts\ConfigInterface;
@@ -84,19 +83,6 @@ function config(mixed $key = null, mixed $value = null): mixed
         return $config->set($key);
     }
     return str_starts_with($key, '?') ? $config->has($key) : $config->get($key, $value);
-}
-
-/**
- * 环境变量操作
- * @param string $name
- * @param mixed|null $default
- * @return mixed
- */
-function env(string $name, mixed $default = null): mixed
-{
-    /** @var DotEnvInterface $dotenv */
-    $dotenv = make(DotEnvInterface::class);
-    return $dotenv->get($name, $default);
 }
 
 /**

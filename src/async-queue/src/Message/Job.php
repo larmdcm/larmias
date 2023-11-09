@@ -5,52 +5,81 @@ declare(strict_types=1);
 namespace Larmias\AsyncQueue\Message;
 
 use Larmias\AsyncQueue\Contracts\JobInterface;
-use Serializable;
-use function serialize;
-use function unserialize;
+use Larmias\AsyncQueue\Contracts\MessageInterface;
+use Larmias\AsyncQueue\Contracts\QueueDriverInterface;
 
-abstract class Job implements JobInterface, Serializable
+class Job implements JobInterface
 {
     /**
-     * @var array
+     * @param MessageInterface $message
+     * @param QueueDriverInterface $queueDriver
      */
-    protected array $data = [];
+    public function __construct(protected MessageInterface $message, protected QueueDriverInterface $queueDriver)
+    {
+    }
+
+    /**
+     * @return bool
+     */
+    public function ack(): bool
+    {
+        return $this->queueDriver->ack($this->message);
+    }
+
+    /**
+     * @param int $delay
+     * @return MessageInterface
+     */
+    public function reload(int $delay = 0): MessageInterface
+    {
+        return $this->queueDriver->reload($this->message, $delay);
+    }
+
+    /**
+     * @return bool
+     */
+    public function fail(): bool
+    {
+        return $this->queueDriver->fail($this->message);
+    }
+
+    /**
+     * @return bool
+     */
+    public function delete(): bool
+    {
+        return $this->queueDriver->delete($this->message);
+    }
 
     /**
      * @return array
      */
     public function getData(): array
     {
-        return $this->data;
+        return $this->message->getData();
     }
 
     /**
-     * @param array $data
-     * @return JobInterface
+     * @return int
      */
-    public function setData(array $data): JobInterface
+    public function getAttempts(): int
     {
-        $this->data = $data;
-        return $this;
+        return $this->message->getAttempts();
     }
 
     /**
-     * @return string
+     * @return int
      */
-    public function serialize(): string
+    public function getMaxAttempts(): int
     {
-        return serialize([
-            'data' => $this->data,
-        ]);
+        return $this->message->getMaxAttempts();
     }
 
     /**
-     * @param string $data
-     * @return void
+     * @return MessageInterface
      */
-    public function unserialize(string $data): void
+    public function getMessage(): MessageInterface
     {
-        $object = unserialize($data);
-        $this->data = $object['data'];
+        return $this->message;
     }
 }

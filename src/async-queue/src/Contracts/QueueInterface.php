@@ -7,12 +7,12 @@ namespace Larmias\AsyncQueue\Contracts;
 interface QueueInterface
 {
     /**
-     * @param JobInterface $job
+     * @param string $handler
      * @param array $data
-     * @param float $delay
+     * @param int $delay
      * @return MessageInterface
      */
-    public function push(JobInterface $job, array $data = [], float $delay = 0): MessageInterface;
+    public function push(string $handler, array $data = [], int $delay = 0): MessageInterface;
 
     /**
      * @param string|null $name

@@ -25,7 +25,7 @@ class ConnectionTest extends TestCase
     public function testTransaction(): void
     {
         $connection = $this->getConnection();
-        $ctx = $connection->beginTransaction();
+        $connection->beginTransaction();
         try {
 
             $result = $connection->execute('update t_user set integral = integral + 1,update_time = now() where id = ?', [1]);
@@ -38,9 +38,9 @@ class ConnectionTest extends TestCase
             $this->actionUpdateUser(2);
             $this->actionUpdateUser(3);
 
-            $ctx->commit();
+            $connection->commit();
         } catch (\Throwable $e) {
-            $ctx->rollback();
+            $connection->rollback();
             throw $e;
         }
 
@@ -55,7 +55,7 @@ class ConnectionTest extends TestCase
     protected function actionUpdateUser(int $id): void
     {
         $connection = $this->getConnection();
-        $ctx = $connection->beginTransaction();
+        $connection->beginTransaction();
         try {
 
             $result = $connection->execute('update t_user set integral = integral + 1,update_time = now() where id = ?', [$id]);
@@ -64,9 +64,9 @@ class ConnectionTest extends TestCase
                 throw new \RuntimeException('修改用户信息失败');
             }
 
-            $ctx->commit();
+            $connection->commit();
         } catch (\Throwable $e) {
-            $ctx->rollback();
+            $connection->rollback();
             throw $e;
         }
     }

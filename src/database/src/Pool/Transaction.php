@@ -8,6 +8,7 @@ use Larmias\Database\Connections\Connection;
 use Larmias\Database\Contracts\TransactionInterface;
 use Larmias\Database\Exceptions\TransactionException;
 use function Larmias\Support\throw_if;
+use Throwable;
 
 class Transaction implements TransactionInterface
 {
@@ -30,23 +31,22 @@ class Transaction implements TransactionInterface
 
     /**
      * 开启事务
-     * @return TransactionInterface
-     * @throws \Throwable
+     * @return void
+     * @throws Throwable
      */
-    public function beginTransaction(): TransactionInterface
+    public function beginTransaction(): void
     {
         $this->transCount++;
         if ($this->transCount === 1) {
             throw_if($this->getConnection()->inTransaction(), TransactionException::class, 'Already in transaction');
-            $this->transaction = $this->getConnection()->beginTransaction();
+            $this->getConnection()->beginTransaction();
         }
-
-        return $this;
     }
 
     /**
      * 提交事务
      * @return void
+     * @throws Throwable
      */
     public function commit(): void
     {
@@ -56,7 +56,7 @@ class Transaction implements TransactionInterface
         $this->transCount--;
         if ($this->transCount === 0) {
             try {
-                $this->transaction->commit();
+                $this->getConnection()->commit();
             } finally {
                 $this->release();
             }
@@ -66,6 +66,7 @@ class Transaction implements TransactionInterface
     /**
      * 回滚事务
      * @return void
+     * @throws Throwable
      */
     public function rollback(): void
     {
@@ -75,7 +76,7 @@ class Transaction implements TransactionInterface
         $this->transCount--;
         if ($this->transCount === 0) {
             try {
-                $this->transaction->rollback();
+                $this->getConnection()->rollback();
             } finally {
                 $this->release();
             }
@@ -88,9 +89,10 @@ class Transaction implements TransactionInterface
      */
     public function release(): void
     {
+        $connection = $this->getConnection();
         $this->dbProxy->getContext()->destroy($this->dbProxy->getTransactionContextKey());
         $this->dbProxy->getContext()->destroy($this->dbProxy->getContextKey());
-        $this->getConnection()->release();
+        $connection->release();
     }
 
     /**
@@ -98,6 +100,8 @@ class Transaction implements TransactionInterface
      */
     public function getConnection(): Connection
     {
-        return $this->dbProxy->getConnection(true);
+        return $this->dbProxy->getContext()->remember($this->dbProxy->getContextKey(), function () {
+            return $this->dbProxy->getConnection();
+        });
     }
 }

@@ -7,6 +7,12 @@ namespace Larmias\Database\Contracts;
 interface TransactionInterface
 {
     /**
+     * 开启事务
+     * @return void
+     */
+    public function beginTransaction(): void;
+
+    /**
      * 事务提交
      * @return void
      */

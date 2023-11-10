@@ -7,7 +7,7 @@ namespace Larmias\Database\Contracts;
 use Closure;
 use Psr\EventDispatcher\EventDispatcherInterface;
 
-interface ConnectionInterface
+interface ConnectionInterface extends TransactionInterface
 {
     /**
      * @return bool
@@ -23,11 +23,6 @@ interface ConnectionInterface
      * @return bool
      */
     public function close(): bool;
-
-    /**
-     * @return TransactionInterface
-     */
-    public function beginTransaction(): TransactionInterface;
 
     /**
      * @param Closure $callback

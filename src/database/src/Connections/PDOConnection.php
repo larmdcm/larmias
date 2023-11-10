@@ -4,20 +4,23 @@ declare(strict_types=1);
 
 namespace Larmias\Database\Connections;
 
-use Larmias\Database\Connections\Transaction\PDOTransaction;
 use Larmias\Database\Contracts\ExecuteResultInterface;
-use Larmias\Database\Contracts\TransactionInterface;
 use Larmias\Database\Entity\ExecuteResult;
 use Larmias\Database\Events\QueryExecuted;
 use Larmias\Database\Events\StatementPrepared;
+use Larmias\Database\Events\TransactionBeginning;
+use Larmias\Database\Events\TransactionCommitted;
+use Larmias\Database\Events\TransactionRolledBack;
 use Larmias\Database\Exceptions\BindParamException;
 use Larmias\Database\Exceptions\PDOException;
+use Larmias\Database\Exceptions\TransactionException;
 use PDO;
 use PDOStatement;
 use Throwable;
 use Closure;
 use function is_numeric;
 use function addcslashes;
+use function Larmias\Support\throw_unless;
 use function substr_replace;
 use function strpos;
 use function strlen;
@@ -62,11 +65,6 @@ abstract class PDOConnection extends Connection
         PDO::ATTR_STRINGIFY_FETCHES => false,
         PDO::ATTR_EMULATE_PREPARES => false,
     ];
-
-    /**
-     * @var TransactionInterface|null
-     */
-    protected ?TransactionInterface $transaction = null;
 
     /**
      * 执行语句
@@ -230,16 +228,35 @@ abstract class PDOConnection extends Connection
 
     /**
      * 开启事务
-     * @return TransactionInterface
+     * @return void
      * @throws Throwable
      */
-    public function beginTransaction(): TransactionInterface
+    public function beginTransaction(): void
     {
-        if (!$this->transaction) {
-            $this->transaction = new PDOTransaction($this);
-        }
+        throw_unless($this->pdo->beginTransaction(), TransactionException::class, 'Transaction begin failed.');
+        $this->getEventDispatcher()->dispatch(new TransactionBeginning($this));
+    }
 
-        return $this->transaction->beginTransaction();
+    /**
+     * 提交事务
+     * @return void
+     * @throws \Throwable
+     */
+    public function commit(): void
+    {
+        throw_unless($this->pdo->commit(), TransactionException::class, 'Transaction commit failed.');
+        $this->getEventDispatcher()->dispatch(new TransactionCommitted($this));
+    }
+
+    /**
+     * 回滚事务
+     * @return void
+     * @throws \Throwable
+     */
+    public function rollback(): void
+    {
+        throw_unless($this->pdo->rollBack(), TransactionException::class, 'Transaction rollback failed.');
+        $this->getEventDispatcher()->dispatch(new TransactionRolledBack($this));
     }
 
     /**
@@ -250,13 +267,13 @@ abstract class PDOConnection extends Connection
      */
     public function transaction(Closure $callback): mixed
     {
-        $ctx = $this->beginTransaction();
+        $this->beginTransaction();
         try {
             $result = $callback();
-            $ctx->commit();
+            $this->commit();
             return $result;
         } catch (Throwable $e) {
-            $ctx->rollback();
+            $this->rollback();
             throw $e;
         }
     }

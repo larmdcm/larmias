@@ -9,7 +9,6 @@ use Larmias\Contracts\ContextInterface;
 use Larmias\Database\Contracts\ConnectionInterface;
 use Larmias\Database\Connections\Connection;
 use Larmias\Database\Contracts\ExecuteResultInterface;
-use Larmias\Database\Contracts\TransactionInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Throwable;
 use Closure;
@@ -108,18 +107,44 @@ class DbProxy implements ConnectionInterface
 
     /**
      * 开启事务
-     * @return TransactionInterface
+     * @return void
      * @throws Throwable
      */
-    public function beginTransaction(): TransactionInterface
+    public function beginTransaction(): void
     {
         /** @var Transaction $transaction */
         $transaction = $this->context->remember($this->getTransactionContextKey(), function () {
             return new Transaction($this);
         });
 
-        return $transaction->beginTransaction();
+        $transaction->beginTransaction();
     }
+
+    /**
+     * 提交事务
+     * @return void
+     * @throws \Throwable
+     */
+    public function commit(): void
+    {
+        /** @var Transaction $transaction */
+        $transaction = $this->context->get($this->getTransactionContextKey());
+        $transaction->commit();
+    }
+
+
+    /**
+     * 回滚事务
+     * @return void
+     * @throws \Throwable
+     */
+    public function rollback(): void
+    {
+        /** @var Transaction $transaction */
+        $transaction = $this->context->get($this->getTransactionContextKey());
+        $transaction->rollback();
+    }
+
 
     /**
      * @param Closure $callback
@@ -128,13 +153,13 @@ class DbProxy implements ConnectionInterface
      */
     public function transaction(Closure $callback): mixed
     {
-        $ctx = $this->beginTransaction();
+        $this->beginTransaction();
         try {
             $result = $callback();
-            $ctx->commit();
+            $this->commit();
             return $result;
         } catch (Throwable $e) {
-            $ctx->rollback();
+            $this->rollback();
             throw $e;
         }
     }
@@ -173,10 +198,9 @@ class DbProxy implements ConnectionInterface
     }
 
     /**
-     * @param bool $reuse
      * @return Connection
      */
-    public function getConnection(bool $reuse = false): Connection
+    public function getConnection(): Connection
     {
         $contextKey = $this->getContextKey();
         if ($this->context->has($contextKey)) {
@@ -184,9 +208,6 @@ class DbProxy implements ConnectionInterface
         }
         /** @var Connection $connection */
         $connection = $this->pool->get();
-        if ($reuse) {
-            $this->context->set($contextKey, $connection);
-        }
 
         $connection->setEventDispatcher($this->getEventDispatcher());
 

@@ -5,15 +5,16 @@ declare(strict_types=1);
 namespace Larmias\HttpServer\Contracts;
 
 use Larmias\Contracts\ExceptionHandlerInterface as BaseExceptionHandlerInterface;
-use Throwable;
 use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Throwable;
 
 interface ExceptionHandlerInterface extends BaseExceptionHandlerInterface
 {
     /**
-     * @param RequestInterface $request
+     * @param ServerRequestInterface $request
      * @param Throwable $e
      * @return PsrResponseInterface
      */
-    public function render(RequestInterface $request, Throwable $e): PsrResponseInterface;
+    public function render(ServerRequestInterface $request, Throwable $e): PsrResponseInterface;
 }

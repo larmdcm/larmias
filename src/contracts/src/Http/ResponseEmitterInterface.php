@@ -9,10 +9,10 @@ use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
 interface ResponseEmitterInterface
 {
     /**
-     * @param PsrResponseInterface $response
-     * @param ResponseInterface $rawResponse
+     * @param PsrResponseInterface $psrResponse
+     * @param ResponseInterface $response
      * @param bool $withContent
      * @return void
      */
-    public function emit(PsrResponseInterface $response, ResponseInterface $rawResponse, bool $withContent = true): void;
+    public function emit(PsrResponseInterface $psrResponse, ResponseInterface $response, bool $withContent = true): void;
 }

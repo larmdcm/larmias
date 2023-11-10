@@ -6,7 +6,7 @@ namespace Larmias\HttpServer;
 
 use Larmias\Contracts\FileInterface;
 use Larmias\Contracts\Http\ResponseEmitterInterface;
-use Larmias\Contracts\Http\ResponseInterface as RawResponseInterface;
+use Larmias\Contracts\Http\ResponseInterface;
 use Larmias\Support\Helper;
 use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
 use function method_exists;
@@ -16,32 +16,32 @@ class ResponseEmitter implements ResponseEmitterInterface
 {
     /**
      * response emit.
-     * @param PsrResponseInterface $response
-     * @param RawResponseInterface $rawResponse
+     * @param PsrResponseInterface $psrResponse
+     * @param ResponseInterface $response
      * @param bool $withContent
      * @return void
      */
-    public function emit(PsrResponseInterface $response, RawResponseInterface $rawResponse, bool $withContent = true): void
+    public function emit(PsrResponseInterface $psrResponse, ResponseInterface $response, bool $withContent = true): void
     {
-        $content = $response->getBody();
+        $content = $psrResponse->getBody();
 
-        $rawResponse = $rawResponse->withHeaders($response->getHeaders())
-            ->status($response->getStatusCode(), $response->getReasonPhrase());
+        $response = $response->withHeaders($psrResponse->getHeaders())
+            ->status($psrResponse->getStatusCode(), $psrResponse->getReasonPhrase());
 
         if ($content instanceof FileInterface) {
-            $rawResponse->sendFile($content->getFilename());
+            $response->sendFile($content->getFilename());
             return;
         }
 
-        if (method_exists($response, 'getCookies')) {
-            foreach ($response->getCookies() as $paths) {
+        if (method_exists($psrResponse, 'getCookies')) {
+            foreach ($psrResponse->getCookies() as $paths) {
                 foreach ($paths ?? [] as $items) {
                     foreach ($items ?? [] as $cookie) {
                         if (Helper::isMethodsExists($cookie, [
                             'isRaw', 'getValue', 'getName', 'getExpiresTime', 'getPath', 'getDomain', 'isSecure', 'isHttpOnly', 'getSameSite',
                         ])) {
                             $value = $cookie->isRaw() ? $cookie->getValue() : rawurlencode($cookie->getValue());
-                            $rawResponse->cookie(
+                            $response->cookie(
                                 $cookie->getName(), $value, $cookie->getExpiresTime(), $cookie->getPath(), $cookie->getDomain(),
                                 $cookie->isSecure(), $cookie->isHttpOnly(), $cookie->getSameSite()
                             );
@@ -52,9 +52,9 @@ class ResponseEmitter implements ResponseEmitterInterface
         }
 
         if ($withContent) {
-            $rawResponse->end((string)$content);
+            $response->end((string)$content);
         } else {
-            $rawResponse->end();
+            $response->end();
         }
     }
 }

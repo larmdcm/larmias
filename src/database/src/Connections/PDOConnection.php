@@ -238,6 +238,7 @@ abstract class PDOConnection extends Connection
         if (!$this->transaction) {
             $this->transaction = new PDOTransaction($this);
         }
+
         return $this->transaction->beginTransaction();
     }
 

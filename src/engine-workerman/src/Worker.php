@@ -10,7 +10,7 @@ use Workerman\Connection\TcpConnection;
 use Workerman\Lib\Timer as WorkerManTimer;
 use function file_get_contents;
 use function extension_loaded;
-use function Larmias\Engine\is_unix;
+use function Larmias\Support\is_unix;
 use function posix_kill;
 use function is_file;
 use function time;

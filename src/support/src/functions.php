@@ -187,3 +187,21 @@ function class_basename(mixed $class): string
     $class = is_object($class) ? get_class($class) : $class;
     return basename(str_replace('\\', '/', $class));
 }
+
+/**
+ * 获取CPU核心数
+ * @return int
+ */
+function get_cpu_num(): int
+{
+    return System::getCpuCoresNum();
+}
+
+/**
+ * 判断是否为UNIX系统
+ * @return bool
+ */
+function is_unix(): bool
+{
+    return System::isUnix();
+}

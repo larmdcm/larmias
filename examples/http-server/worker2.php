@@ -22,7 +22,7 @@ return [
             'host' => '0.0.0.0',
             'port' => 9863,
             'settings' => [
-                'worker_num' => \Larmias\Engine\get_cpu_num(),
+                'worker_num' => \Larmias\Support\get_cpu_num(),
             ],
             'callbacks' => [
                 Event::ON_REQUEST => [HttpServer::class, OnRequestInterface::ON_REQUEST]

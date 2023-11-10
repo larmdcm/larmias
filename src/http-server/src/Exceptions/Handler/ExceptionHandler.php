@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace Larmias\HttpServer\Exceptions\Handler;
 
 use Larmias\Contracts\ContainerInterface;
+use Larmias\Contracts\ContextInterface;
 use Larmias\Contracts\SessionInterface;
 use Larmias\ExceptionHandler\ExceptionHandler as BaseExceptionHandler;
 use Larmias\ExceptionHandler\Render\HtmlRender;
 use Larmias\ExceptionHandler\Render\JsonRender;
+use Larmias\Http\Message\Stream;
 use Larmias\HttpServer\Contracts\ExceptionHandlerInterface;
-use Larmias\HttpServer\Contracts\RequestInterface;
-use Larmias\HttpServer\Contracts\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Larmias\HttpServer\Exceptions\HttpException;
 use Larmias\HttpServer\Exceptions\HttpResponseException;
 use Larmias\Routing\Exceptions\RouteMethodNotAllowedException;
@@ -24,20 +25,17 @@ use function str_contains;
 
 class ExceptionHandler extends BaseExceptionHandler implements ExceptionHandlerInterface
 {
-    /**
-     * @param ContainerInterface $container
-     */
-    public function __construct(protected ContainerInterface $container)
+    public function __construct(protected ContainerInterface $container, protected ContextInterface $context)
     {
     }
 
     /**
-     * @param RequestInterface $request
+     * @param ServerRequestInterface $request
      * @param Throwable $e
      * @return PsrResponseInterface
      * @throws Throwable
      */
-    public function render(RequestInterface $request, Throwable $e): PsrResponseInterface
+    public function render(ServerRequestInterface $request, Throwable $e): PsrResponseInterface
     {
         return $this->whenResponse($e, function ($e) use ($request) {
             return $this->getRenderResponse($request, $e)->withStatus($this->getHttpCode($e));
@@ -89,31 +87,38 @@ class ExceptionHandler extends BaseExceptionHandler implements ExceptionHandlerI
     }
 
     /**
-     * @param RequestInterface $request
+     * @param ServerRequestInterface $request
      * @param Throwable $e
      * @return PsrResponseInterface
      * @throws Throwable
      */
-    protected function getRenderResponse(RequestInterface $request, Throwable $e): PsrResponseInterface
+    protected function getRenderResponse(ServerRequestInterface $request, Throwable $e): PsrResponseInterface
     {
-        /** @var ResponseInterface $response */
-        $response = $this->container->make(ResponseInterface::class);
+        /** @var PsrResponseInterface $response */
+        $response = $this->context->get(PsrResponseInterface::class);
         $render = $this->getRender($request);
         $headers = $e instanceof HttpException ? $e->getHeaders() : [];
-        if ($this->isJsonRequest($request)) {
-            $response = $response->json($render->render($e), headers: $headers);
-        } else {
-            $response = $response->html($render->render($e), headers: $headers);
+        $contents = $render->render($e);
+
+        if (!empty($headers) && method_exists($response, 'withHeaders')) {
+            $response = $response->withHeaders($headers);
         }
-        return $response;
+
+        if ($this->isJsonRequest($request)) {
+            $response = $response->withAddedHeader('content-type', 'application/json');
+        } else {
+            $response = $response->withAddedHeader('content-type', 'text/html; charset=utf-8');
+        }
+
+        return $response->withBody(Stream::create($contents));
     }
 
     /**
-     * @param RequestInterface $request
+     * @param ServerRequestInterface $request
      * @return RenderInterface
      * @throws Throwable
      */
-    protected function getRender(RequestInterface $request): RenderInterface
+    protected function getRender(ServerRequestInterface $request): RenderInterface
     {
         /** @var RenderInterface $render */
         $render = $this->container->make($this->isJsonRequest($request) ? JsonRender::class : HtmlRender::class, [], true);
@@ -130,10 +135,10 @@ class ExceptionHandler extends BaseExceptionHandler implements ExceptionHandlerI
     }
 
     /**
-     * @param RequestInterface $request
+     * @param ServerRequestInterface $request
      * @return bool
      */
-    protected function isJsonRequest(RequestInterface $request): bool
+    protected function isJsonRequest(ServerRequestInterface $request): bool
     {
         return str_contains($request->getHeaderLine('accept'), 'json');
     }

@@ -107,7 +107,8 @@
         "larmias/collection": "self.version",
         "larmias/stringable": "self.version",
         "larmias/support": "self.version",
-        "larmias/context": "self.version"
+        "larmias/context": "self.version",
+        "larmias/log-db": "self.version"
     },
     "suggest": {
         "ext-swoole": "Required to use swoole (^4.6.*)."
@@ -178,7 +179,8 @@
             "Larmias\\JWTAuth\\": "src/jwt-auth/src/",
             "Larmias\\Trace\\": "src/trace/src/",
             "Larmias\\VarDumper\\": "src/var-dump/src/",
-            "Larmias\\Testing\\": "src/testing/src/"
+            "Larmias\\Testing\\": "src/testing/src/",
+            "Larmias\\LogDb\\": "src/log-db/src/"
         }
     },
     "autoload-dev": {

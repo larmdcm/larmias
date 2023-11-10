@@ -182,7 +182,7 @@ class Rule
      */
     public function setOption(array $option): self
     {
-        $this->option = \array_merge($this->option, $option);
+        $this->option = array_merge($this->option, $option);
         return $this;
     }
 

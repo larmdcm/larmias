@@ -33,6 +33,7 @@ class Group
     /**
      * create group.
      *
+     * @param array $option
      * @param callable|null $callback
      * @return void
      */

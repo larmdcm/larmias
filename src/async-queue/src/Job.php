@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Larmias\AsyncQueue\Message;
+namespace Larmias\AsyncQueue;
 
 use Larmias\AsyncQueue\Contracts\JobInterface;
 use Larmias\AsyncQueue\Contracts\MessageInterface;

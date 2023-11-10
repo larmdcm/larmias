@@ -55,6 +55,7 @@ class CoreMiddleware implements CoreMiddlewareInterface
         foreach ($middleware as $item) {
             $this->push($item);
         }
+
         return $this;
     }
 
@@ -141,6 +142,10 @@ class CoreMiddleware implements CoreMiddlewareInterface
      */
     public function dispatch(mixed $passable, Closure $handler): mixed
     {
+        if (empty($this->queue)) {
+            return $handler($passable);
+        }
+
         return $this->pipeline()->send($passable)->then($handler);
     }
 

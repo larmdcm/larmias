@@ -14,6 +14,7 @@ ini_set('memory_limit', '1G');
 error_reporting(E_ALL);
 
 define('LARMIAS_BASE_PATH', dirname(__DIR__) . '/src');
+const LARMIAS_RUNTIME_PATH = __DIR__ . '/app/runtime';
 define('LARMIAS_COMPOSER_FILE', dirname(LARMIAS_BASE_PATH) . '/composer.json');
 
 $container = ApplicationContext::setContainer(Container::getInstance()->bind([

@@ -8,7 +8,7 @@ use Larmias\AsyncQueue\Contracts\JobHandlerInterface;
 use Larmias\AsyncQueue\Contracts\MessageInterface;
 use Larmias\AsyncQueue\Contracts\QueueDriverInterface;
 use Larmias\AsyncQueue\Exceptions\QueueException;
-use Larmias\AsyncQueue\Message\Job;
+use Larmias\AsyncQueue\Job;
 use Larmias\Contracts\Concurrent\ConcurrentInterface;
 use Larmias\Contracts\Concurrent\ParallelInterface;
 use Larmias\Contracts\ContainerInterface;
@@ -156,7 +156,11 @@ abstract class QueueDriver implements QueueDriverInterface
             $handler->handle(new Job($message, $this));
         } catch (Throwable $e) {
             $this->logger?->error(format_exception($e));
-            $this->fail($message);
+            if ($message->getAttempts() >= $message->getMaxAttempts()) {
+                $this->fail($message);
+            } else {
+                $this->reload($message);
+            }
         } finally {
             $this->timespan();
         }

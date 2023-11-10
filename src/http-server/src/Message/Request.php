@@ -134,7 +134,7 @@ class Request implements RequestInterface
      * @param null|mixed $default
      * @return null|UploadedFile|UploadedFile[]
      */
-    public function file(string $key, $default = null)
+    public function file(string $key, $default = null): array|UploadedFile|null
     {
         return Arr::get($this->getUploadedFiles(), $key, $default);
     }
@@ -151,9 +151,10 @@ class Request implements RequestInterface
     }
 
     /**
-     * Determine if the $keys is exist in parameters.
+     * Determine if the $keys is existed in parameters.
      *
      * @param array|string $keys
+     * @return bool
      */
     public function has(array|string $keys): bool
     {
@@ -163,6 +164,7 @@ class Request implements RequestInterface
     /**
      * Retrieve the data from request headers.
      *
+     * @param string $key
      * @param mixed $default
      * @return mixed
      */
@@ -310,14 +312,17 @@ class Request implements RequestInterface
      */
     protected function getInputData(): array
     {
-        $body = $this->getParsedBody();
-        $route = $this->route();
-        return array_merge(is_array($route) ? $route : [], $this->getQueryParams(), is_array($body) ? $body : []);
+        return $this->context->remember('http.request.getInputData', function () {
+            $body = $this->getParsedBody();
+            $route = $this->route();
+            return array_merge(is_array($route) ? $route : [], $this->getQueryParams(), is_array($body) ? $body : []);
+        });
     }
 
     /**
      * Check that the given file is a valid SplFileInfo instance.
      * @param mixed $file
+     * @return bool
      */
     protected function isValidFile(mixed $file): bool
     {

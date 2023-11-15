@@ -6,6 +6,7 @@ namespace Larmias\Engine\Swoole;
 
 use Larmias\Contracts\ContextInterface;
 use Larmias\Contracts\Coroutine\CoroutineInterface;
+use Closure;
 
 class Context implements ContextInterface
 {
@@ -59,7 +60,7 @@ class Context implements ContextInterface
      * @param int|null $cid
      * @return mixed
      */
-    public function remember(string $id, \Closure $closure, ?int $cid = null): mixed
+    public function remember(string $id, Closure $closure, ?int $cid = null): mixed
     {
         if (!$this->has($id, $cid)) {
             return $this->set($id, $closure(), $cid);

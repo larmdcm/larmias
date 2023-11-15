@@ -32,16 +32,6 @@ abstract class QueueDriver implements QueueDriverInterface
     protected array $config = [];
 
     /**
-     * @var ConcurrentInterface|null
-     */
-    protected ?ConcurrentInterface $concurrent = null;
-
-    /**
-     * @var ParallelInterface|null
-     */
-    protected ?ParallelInterface $parallel = null;
-
-    /**
      * @var PackerInterface
      */
     protected PackerInterface $packer;
@@ -116,20 +106,20 @@ abstract class QueueDriver implements QueueDriverInterface
     public function coHandle(): void
     {
         $concurrentLimit = $this->config['concurrent_limit'] ?? null;
+        $concurrent = null;
 
         if ($concurrentLimit) {
-            $this->concurrent = $this->container->make(ConcurrentInterface::class, ['limit' => (int)$concurrentLimit], true);
-        } else {
-            $this->parallel = $this->container->make(ParallelInterface::class, [], true);
+            $concurrent = $this->container->make(ConcurrentInterface::class, ['limit' => (int)$concurrentLimit], true);
         }
 
         while (true) {
             try {
-                if ($this->concurrent) {
-                    $this->concurrent->create([$this, 'handle']);
+                if ($concurrent) {
+                    $concurrent->create([$this, 'handle']);
                 } else {
-                    $this->parallel->add([$this, 'handle']);
-                    $this->parallel->wait();
+                    $parallel = $this->container->make(ParallelInterface::class, [], true);
+                    $parallel->add([$this, 'handle']);
+                    $parallel->wait();
                 }
             } catch (Throwable $e) {
                 $this->logger?->error(format_exception($e));

@@ -21,7 +21,7 @@ $run(function (\Larmias\Contracts\Worker\WorkerInterface $worker, \Larmias\Engin
     $queue->push(ExampleJobHandler::class, ['name' => 'push']);
     $queue->push(ExampleJobHandler::class, ['name' => 'delay'], 5000);
 
-    var_dump($queue->driver()->info());
+    var_dump($queue->driver()->status());
 
     $kernel->stop();
 });

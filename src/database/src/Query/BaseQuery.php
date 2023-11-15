@@ -855,13 +855,13 @@ abstract class BaseQuery implements QueryInterface
      */
     public function __call(string $method, array $args): mixed
     {
-        if (strtolower(substr($method, 0, 5)) == 'getby') {
+        if (strtolower(substr($method, 0, 6)) == 'findby') {
             // 根据某个字段获取记录
-            $field = Str::snake(substr($method, 5));
+            $field = Str::snake(substr($method, 6));
             return $this->where($field, '=', $args[0])->first();
-        } else if (strtolower(substr($method, 0, 10)) == 'getfieldby') {
+        } else if (strtolower(substr($method, 0, 11)) == 'findfieldby') {
             // 根据某个字段获取记录的某个值
-            $name = Str::snake(substr($method, 10));
+            $name = Str::snake(substr($method, 11));
             return $this->where($name, '=', $args[0])->value($args[1]);
         } else if (strtolower(substr($method, 0, 7)) == 'orWhere') {
             // orWhere查询

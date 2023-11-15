@@ -161,7 +161,7 @@ class CoreMiddleware implements CoreMiddlewareInterface
                 if (is_array($call) && is_string($call[0])) {
                     $call = [$this->container->make($call[0]), $call[1]];
                 }
-                return call_user_func($call, $request, $this->warpHandler($next), ...$params);
+                return call_user_func($call, $request, $this->wrapHandler($next), ...$params);
             };
         }, $this->queue));
     }
@@ -180,7 +180,7 @@ class CoreMiddleware implements CoreMiddlewareInterface
      * @param Closure $handler
      * @return mixed
      */
-    protected function warpHandler(Closure $handler): mixed
+    protected function wrapHandler(Closure $handler): mixed
     {
         return $handler;
     }

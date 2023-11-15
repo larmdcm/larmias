@@ -34,7 +34,7 @@ class Server extends BaseServer
 
                 $connection = new Connection($this->generateId(), $request, $response);
 
-                $this->trigger(Event::ON_OPEN, [$connection]);
+                Coroutine::create(fn() => $this->trigger(Event::ON_OPEN, [$connection]));
 
                 while (true) {
                     $data = $connection->recv();
@@ -49,7 +49,7 @@ class Server extends BaseServer
                 }
 
                 $connection->close();
-                $this->trigger(Event::ON_CLOSE, [$connection]);
+                Coroutine::create(fn() => $this->trigger(Event::ON_CLOSE, [$connection]));
             } catch (Throwable $e) {
                 $this->handleException($e);
             }

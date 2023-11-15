@@ -50,7 +50,9 @@ class Server extends BaseServer
         $this->server->handle(function (TcpConnection $tcpConnection) {
             try {
                 $connection = new Connection($this->generateId(), $tcpConnection, $this->packer);
-                $this->trigger(Event::ON_CONNECT, [$connection]);
+
+                Coroutine::create(fn() => $this->trigger(Event::ON_CONNECT, [$connection]));
+
                 $buffer = new Buffer();
                 while (true) {
                     $data = $connection->recv();
@@ -74,13 +76,13 @@ class Server extends BaseServer
                         $buffer->write($unpack[1]);
                         $bfString = $buffer->toString();
 
-                        Coroutine::create(function () use ($connection,$unpack) {
+                        Coroutine::create(function () use ($connection, $unpack) {
                             $this->trigger(Event::ON_RECEIVE, [$connection, $unpack[0]]);
                         });
                     }
                 }
                 $connection->close();
-                $this->trigger(Event::ON_CLOSE, [$connection]);
+                Coroutine::create(fn() => $this->trigger(Event::ON_CLOSE, [$connection]));
             } catch (Throwable $e) {
                 $this->handleException($e);
             }

@@ -103,7 +103,7 @@ class Server implements OnRequestInterface
     protected function dispatchRouter(ServerRequestInterface $request): PsrResponseInterface
     {
         $dispatched = Router::dispatch($request->getMethod(), $request->getUri()->getPath());
-        $this->context->set(ServerRequestInterface::class, $request->withAttribute(Dispatched::class, $dispatched));
+        $this->context->set(ServerRequestInterface::class, $request = $request->withAttribute(Dispatched::class, $dispatched));
         $option = $dispatched->rule->getOption();
         /** @var HttpRouteCoreMiddleware $httpRouteCoreMiddleware */
         $httpRouteCoreMiddleware = $this->container->get(HttpRouteCoreMiddleware::class);

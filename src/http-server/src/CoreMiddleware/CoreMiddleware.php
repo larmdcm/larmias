@@ -13,7 +13,7 @@ class CoreMiddleware extends BaseCoreMiddleware
      * @param Closure $handler
      * @return RequestHandler
      */
-    public function warpHandler(Closure $handler): RequestHandler
+    public function wrapHandler(Closure $handler): RequestHandler
     {
         return new RequestHandler($handler);
     }

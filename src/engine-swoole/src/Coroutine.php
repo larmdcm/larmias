@@ -10,7 +10,6 @@ use Larmias\Contracts\Coroutine\CoroutineInterface;
 use Larmias\Engine\Swoole\Coroutine\CoroutineCallable;
 use RuntimeException;
 use Swoole\Coroutine as SwooleCoroutine;
-use Swoole\Coroutine\Channel;
 use function max;
 use function sprintf;
 
@@ -26,27 +25,6 @@ class Coroutine implements CoroutineInterface
     {
         $coCallable = new CoroutineCallable();
         return $coCallable->execute($callable, ...$params);
-    }
-
-    /**
-     * 创建协程执行并等待协程执行完毕
-     * @param callable $callable
-     * @param ...$params
-     * @return void
-     */
-    public function runWithBarrier(callable $callable, ...$params): void
-    {
-        $channel = new Channel(1);
-
-        $this->create(function (...$params) use ($channel, $callable) {
-            $this->defer(function () use ($channel) {
-                $channel->close();
-            });
-
-            call_user_func_array($callable, $params);
-        }, ...$params);
-
-        $channel->pop();
     }
 
     /**

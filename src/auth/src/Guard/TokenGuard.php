@@ -23,9 +23,6 @@ class TokenGuard extends Guard
      */
     public function logout(): bool
     {
-        if ($this->guest()) {
-            return false;
-        }
         $this->identity = null;
         return true;
     }

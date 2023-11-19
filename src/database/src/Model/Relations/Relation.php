@@ -135,6 +135,7 @@ abstract class Relation
     {
         if (!$this->initQuery) {
             $this->initQuery();
+            $this->initQuery = true;
         }
 
         return $this->query;

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Larmias\Framework;
 
 use Larmias\Contracts\ApplicationInterface;
+use Larmias\Contracts\ConfigInterface;
 use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\ServiceProviderInterface;
 use Larmias\Contracts\ServiceDiscoverInterface;
@@ -17,11 +18,15 @@ abstract class ServiceProvider implements ServiceProviderInterface
 
     protected ?ServiceDiscoverInterface $serviceDiscover = null;
 
+    protected ConfigInterface $config;
+
     /**
      * @param ContainerInterface $container
      */
     public function __construct(protected ContainerInterface $container)
     {
+        $this->config = $this->container->get(ConfigInterface::class);
+
         if (method_exists($this, 'initialize')) {
             $this->container->invoke([$this, 'initialize']);
         }

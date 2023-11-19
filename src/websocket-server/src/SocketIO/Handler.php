@@ -83,11 +83,11 @@ class Handler implements HandlerInterface
                 $packet = Packet::fromString($enginePacket->data);
                 switch ($packet->type) {
                     case Packet::CONNECT:
-                        $this->onConnect($packet->data);
+                        $this->onConnect(array_shift($packet->data));
                         break;
                     case Packet::EVENT:
                         $type = array_shift($packet->data);
-                        $data = $packet->data;
+                        $data = array_shift($packet->data);
                         $result = $this->trigger($type, $data);
 
                         if ($packet->id !== null) {

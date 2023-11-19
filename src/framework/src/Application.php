@@ -218,7 +218,7 @@ class Application implements ApplicationInterface
         }
 
         if (!is_object($this->providers[$provider])) {
-            $this->providers[$provider] = $this->container->get($this->providers[$provider]);
+            $this->providers[$provider] = $this->container->make($this->providers[$provider],[],true);
         }
 
         return $this->providers[$provider];

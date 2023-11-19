@@ -14,21 +14,6 @@ use function is_string;
 class BootServiceProvider extends ServiceProvider
 {
     /**
-     * @var ConfigInterface
-     */
-    protected ConfigInterface $config;
-
-    /**
-     * 初始化
-     * @param ConfigInterface $config
-     * @return void
-     */
-    public function initialize(ConfigInterface $config): void
-    {
-        $this->config = $config;
-    }
-
-    /**
      * @return void
      */
     public function register(): void

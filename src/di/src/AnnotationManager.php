@@ -7,8 +7,8 @@ namespace Larmias\Di;
 use Larmias\Contracts\Annotation\AnnotationInterface;
 use Larmias\Di\Annotation\Inject;
 use Larmias\Di\Annotation\InvokeResolver;
-use Larmias\Di\AnnotationHandlers\InjectAnnotationHandler;
-use Larmias\Di\AnnotationHandlers\InvokeResolverAnnotationHandler;
+use Larmias\Di\AnnotationHandler\InjectAnnotationHandler;
+use Larmias\Di\AnnotationHandler\InvokeResolverAnnotationHandler;
 use RuntimeException;
 
 class AnnotationManager

@@ -6,12 +6,13 @@ namespace Larmias\Di\Annotation;
 
 use Larmias\Support\Reflection\ReflectionManager;
 use ReflectionProperty;
+use ReflectionException;
 
 abstract class AbstractAnnotation
 {
     /**
      * @return array
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public function toArray(): array
     {

@@ -22,6 +22,7 @@ abstract class ServiceProvider implements ServiceProviderInterface
 
     /**
      * @param ContainerInterface $container
+     * @throws \Throwable
      */
     public function __construct(protected ContainerInterface $container)
     {
@@ -119,5 +120,9 @@ abstract class ServiceProvider implements ServiceProviderInterface
         } else {
             $view->addLocation($path);
         }
+    }
+
+    public function registerAnnotation(): void
+    {
     }
 }

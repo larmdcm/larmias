@@ -35,7 +35,6 @@ class CsrfManager implements CsrfManagerInterface
 
     /**
      * 重新生成token
-     *
      * @return void
      */
     public function regenerateToken(): void

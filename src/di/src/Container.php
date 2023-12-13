@@ -45,7 +45,6 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
 
     /**
      * 容器回调
-     *
      * @var array
      */
     protected array $invokeCallback = [];
@@ -103,8 +102,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
     }
 
     /**
-     * 注册一个容器对象回调
-     *
+     * 注册容器对象回调
      * @param string|Closure $abstract
      * @param Closure|null $callback
      * @return void
@@ -123,7 +121,6 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
 
     /**
      * 创建类实例
-     *
      * @param string $abstract
      * @param array $params
      * @param boolean $newInstance
@@ -158,6 +155,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
     }
 
     /**
+     * 获取对象实例化作用域
      * @param string|object $object
      * @return Scope|null
      */
@@ -173,7 +171,6 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
 
     /**
      * 绑定类、闭包、实例、接口实现到容器
-     *
      * @param string|array $abstract
      * @param mixed|null $concrete
      * @param bool $force
@@ -203,7 +200,6 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
 
     /**
      * 不存在则绑定类、闭包、实例、接口实现到容器
-     *
      * @param array|string $abstract
      * @param mixed|null $concrete
      * @return ContainerInterface
@@ -215,7 +211,6 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
 
     /**
      * 绑定一个类实例到容器
-     *
      * @param string $abstract
      * @param object $instance
      * @param bool $force
@@ -232,7 +227,6 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
 
     /**
      * 获取类别名的真实类名
-     *
      * @param string $abstract
      * @return string
      */
@@ -249,7 +243,6 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
 
     /**
      * 获取容器中的对象实例
-     *
      * @param string $id
      * @return object
      * @throws Throwable
@@ -261,7 +254,6 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
 
     /**
      * 判断容器中是否存在类及标识
-     *
      * @param string $id
      * @return boolean
      */
@@ -272,7 +264,6 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
 
     /**
      * 判断容器中是否存在对象实例
-     *
      * @param string $abstract 类名或者标识
      * @return bool
      */
@@ -285,7 +276,6 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
 
     /**
      * 解绑容器中的对象实例
-     *
      * @param string $name
      * @return bool
      */
@@ -300,8 +290,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
     }
 
     /**
-     * 调用反射执行callable 支持参数绑定
-     *
+     * 调用反射执行callable
      * @param mixed $callable
      * @param array $params
      * @param bool $accessible
@@ -318,10 +307,9 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
     }
 
     /**
-     * 执行函数或者闭包方法 支持参数调用
-     *
-     * @param callable $function 函数或者闭包
-     * @param array $params 参数
+     * 执行函数或者闭包方法
+     * @param callable $function
+     * @param array $params
      * @return mixed
      * @throws Throwable
      */
@@ -331,10 +319,9 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
     }
 
     /**
-     * 调用反射执行类的实例化 支持依赖注入
-     *
-     * @param string $class 类名
-     * @param array $params 参数
+     * 调用反射执行类的实例化
+     * @param string $class
+     * @param array $params
      * @return object
      * @throws ReflectionException
      */
@@ -347,7 +334,6 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
 
     /**
      * 执行invokeClass回调
-     *
      * @param string $class 对象类名
      * @param object $object 容器对象实例
      * @return void
@@ -368,11 +354,10 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
     }
 
     /**
-     * 调用反射执行类的方法 支持参数绑定
-     *
-     * @param string|array $method 方法
-     * @param array $params 参数
-     * @param bool $accessible 设置是否可访问
+     * 调用反射执行类的方法
+     * @param string|array $method
+     * @param array $params
+     * @param bool $accessible
      * @return mixed
      * @throws Throwable
      */

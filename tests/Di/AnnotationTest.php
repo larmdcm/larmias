@@ -16,6 +16,7 @@ class AnnotationTest extends TestCase
 {
     /**
      * @return void
+     * @throws \ReflectionException
      */
     public function testScan(): void
     {

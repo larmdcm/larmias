@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\Framework;
 
+use Larmias\Contracts\Annotation\AnnotationInterface;
 use Larmias\Contracts\ApplicationInterface;
 use Larmias\Contracts\ConfigInterface;
 use Larmias\Contracts\ContainerInterface;
@@ -122,7 +123,36 @@ abstract class ServiceProvider implements ServiceProviderInterface
         }
     }
 
-    public function registerAnnotation(): void
+    /**
+     * 注册注解扫描路径
+     * @param string|array $path
+     * @return void
+     * @throws \Throwable
+     */
+    public function registerAnnotationScanPath(string|array $path): void
     {
+        if (!$this->container->has(AnnotationInterface::class)) {
+            return;
+        }
+        /** @var AnnotationInterface $annotation */
+        $annotation = $this->container->get(AnnotationInterface::class);
+        $annotation->addIncludePath($path);
+    }
+
+    /**
+     * 添加注解处理器
+     * @param string|array $annotations
+     * @param string $handler
+     * @return void
+     * @throws \Throwable
+     */
+    public function addAnnotationHandler(string|array $annotations, string $handler): void
+    {
+        if (!$this->container->has(AnnotationInterface::class)) {
+            return;
+        }
+        /** @var AnnotationInterface $annotation */
+        $annotation = $this->container->get(AnnotationInterface::class);
+        $annotation->addHandler($annotations, $handler);
     }
 }

@@ -4,7 +4,7 @@
     "type": "library",
     "keywords": [
         "larmias",
-      "DB",
+        "Database",
         "pdo",
         "mysql",
         "pool"

@@ -9,7 +9,6 @@ use Larmias\HttpServer\Routing\Url;
 
 /**
  * 获取URL对象
- *
  * @param string $url
  * @param array $vars
  * @return Url
@@ -22,8 +21,7 @@ function url(string $url = '', array $vars = []): Url
 }
 
 /**
- * 获取URL字符串
- *
+ * 构建URL字符串
  * @param string $url
  * @param array $vars
  * @return string

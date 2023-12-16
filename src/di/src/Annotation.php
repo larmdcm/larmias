@@ -46,6 +46,28 @@ class Annotation implements AnnotationInterface
     }
 
     /**
+     * 添加扫描路径
+     * @param string|array $path
+     * @return AnnotationInterface
+     */
+    public function addIncludePath(string|array $path): AnnotationInterface
+    {
+        $this->config['include_path'] = array_merge($this->config['include_path'], (array)$path);
+        return $this;
+    }
+
+    /**
+     * 添加扫描排除路径
+     * @param string|array $path
+     * @return AnnotationInterface
+     */
+    public function addExcludePath(string|array $path): AnnotationInterface
+    {
+        $this->config['exclude_path'] = array_merge($this->config['exclude_path'], (array)$path);
+        return $this;
+    }
+
+    /**
      * 注解扫描
      * @throws \ReflectionException
      */
@@ -213,6 +235,7 @@ class Annotation implements AnnotationInterface
     }
 
     /**
+     * 添加注解处理器
      * @param string|array $annotations
      * @param string $handler
      * @return self

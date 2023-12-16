@@ -29,7 +29,7 @@ class AnnotationManager
         static::registerHandler(static::$container[$name]);
     }
 
-    /**f
+    /**
      * @param string|array $annotations
      * @param string $handler
      * @return void
@@ -38,6 +38,30 @@ class AnnotationManager
     {
         foreach (static::$container as $annotation) {
             $annotation->addHandler($annotations, $handler);
+        }
+    }
+
+    /**
+     * 添加扫描路径
+     * @param string|array $path
+     * @return void
+     */
+    public static function addIncludePath(string|array $path): void
+    {
+        foreach (static::$container as $annotation) {
+            $annotation->addIncludePath($path);
+        }
+    }
+
+    /**
+     * 添加扫描排除路径
+     * @param string|array $path
+     * @return void
+     */
+    public static function addExcludePath(string|array $path): void
+    {
+        foreach (static::$container as $annotation) {
+            $annotation->addExcludePath($path);
         }
     }
 

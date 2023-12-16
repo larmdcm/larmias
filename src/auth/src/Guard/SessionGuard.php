@@ -34,11 +34,12 @@ class SessionGuard extends Guard
     }
 
     /**
+     * @param mixed|null $params
      * @return bool
      */
-    public function logout(): bool
+    public function logout(mixed $params = null): bool
     {
         $this->identity = null;
-        return $this->session->delete($this->authName);
+        return $this->session->delete($params ?: $this->authName);
     }
 }

@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Larmias\Database\Model\Contracts;
 
+use Closure;
 use Larmias\Database\Contracts\QueryInterface as BaseQueryInterface;
 use Larmias\Database\Exceptions\ResourceNotFoundException;
-use Larmias\Database\Model\Model;
-use Closure;
+use Larmias\Database\Model;
 
 interface QueryInterface extends BaseQueryInterface
 {

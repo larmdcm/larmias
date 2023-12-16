@@ -6,7 +6,7 @@ namespace Larmias\Database\Model\Relations;
 
 use Closure;
 use Larmias\Contracts\CollectionInterface;
-use Larmias\Database\Model\Model;
+use Larmias\Database\Model;
 
 class BelongsTo extends OneToOne
 {

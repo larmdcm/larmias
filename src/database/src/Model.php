@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Database\Model;
+namespace Larmias\Database;
 
 use Closure;
 use JsonSerializable;
@@ -12,6 +12,7 @@ use Larmias\Contracts\PaginatorInterface;
 use Larmias\Database\Contracts\ExpressionInterface;
 use Larmias\Database\Contracts\ManagerInterface;
 use Larmias\Database\Contracts\TransactionInterface;
+use Larmias\Database\Model\Collection;
 use Larmias\Database\Model\Concerns\Attribute;
 use Larmias\Database\Model\Concerns\Conversion;
 use Larmias\Database\Model\Concerns\ModelEvent;

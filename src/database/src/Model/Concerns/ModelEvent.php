@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\Database\Model\Concerns;
 
-use Larmias\Database\Model\Model;
+use Larmias\Database\Model;
 use Larmias\Stringable\Str;
 
 trait ModelEvent

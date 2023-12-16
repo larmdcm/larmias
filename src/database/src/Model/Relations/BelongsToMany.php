@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Larmias\Database\Model\Relations;
 
 use Closure;
-use Larmias\Database\Model\Contracts\QueryInterface;
-use Larmias\Database\Model\Contracts\CollectionInterface;
-use Larmias\Database\Model\Model;
-use Larmias\Database\Model\Pivot;
 use Larmias\Collection\Arr;
+use Larmias\Database\Model;
+use Larmias\Database\Model\Contracts\CollectionInterface;
+use Larmias\Database\Model\Contracts\QueryInterface;
+use Larmias\Database\Model\Pivot;
 use RuntimeException;
 use function is_array;
 use function is_numeric;

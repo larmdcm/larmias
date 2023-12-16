@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Larmias\Database\Model\Concerns;
 
 use Larmias\Database\Contracts\QueryInterface;
-use Larmias\Database\Model\Model;
+use Larmias\Database\Model;
 use function date;
 use function time;
 

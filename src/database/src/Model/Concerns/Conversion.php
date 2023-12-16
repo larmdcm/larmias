@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Larmias\Database\Model\Concerns;
 
+use Larmias\Database\Model;
 use Larmias\Database\Model\Contracts\CollectionInterface;
-use Larmias\Database\Model\Model;
 use Larmias\Stringable\Str;
 use function json_encode;
 

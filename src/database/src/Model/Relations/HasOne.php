@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Larmias\Database\Model\Relations;
 
 use Closure;
+use Larmias\Database\Model;
 use Larmias\Database\Model\Contracts\CollectionInterface;
-use Larmias\Database\Model\Model;
 
 class HasOne extends OneToOne
 {

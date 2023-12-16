@@ -85,6 +85,16 @@ abstract class Guard implements GuardInterface
     }
 
     /**
+     * @param IdentityInterface|null $user
+     * @return GuardInterface
+     */
+    public function setUser(?IdentityInterface $user): GuardInterface
+    {
+        $this->identity = $user;
+        return $this;
+    }
+
+    /**
      * @return int|string
      */
     public function id(): int|string

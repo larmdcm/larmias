@@ -4,21 +4,22 @@ declare(strict_types=1);
 
 namespace Larmias\Database\Model;
 
+use Closure;
+use Larmias\Collection\Arr;
+use Larmias\Database\Exceptions\ResourceNotFoundException;
+use Larmias\Database\Model;
 use Larmias\Database\Model\Concerns\ModelRelationQuery;
 use Larmias\Database\Model\Contracts\CollectionInterface;
 use Larmias\Database\Model\Contracts\QueryInterface;
 use Larmias\Database\Model\Contracts\ScopeInterface;
 use Larmias\Database\Query\BaseQuery;
-use Larmias\Database\Exceptions\ResourceNotFoundException;
-use Larmias\Collection\Arr;
-use Closure;
 use Larmias\Stringable\Str;
 use Throwable;
 use function array_filter;
 use function array_map;
-use function str_contains;
-use function Larmias\Support\throw_if;
 use function Larmias\Collection\data_get;
+use function Larmias\Support\throw_if;
+use function str_contains;
 
 class Query extends BaseQuery implements QueryInterface
 {

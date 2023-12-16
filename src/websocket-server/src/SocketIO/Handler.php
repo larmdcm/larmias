@@ -6,15 +6,16 @@ namespace Larmias\WebSocketServer\SocketIO;
 
 use Larmias\Contracts\ConfigInterface;
 use Larmias\Contracts\TimerInterface;
+use Larmias\Contracts\WebSocket\FrameInterface;
+use Larmias\WebSocketServer\AbstractHandler;
 use Larmias\WebSocketServer\Contracts\EventInterface;
 use Larmias\WebSocketServer\Contracts\HandlerInterface;
-use Larmias\WebSocketServer\Socket;
 use Throwable;
 use function json_encode;
 use function base64_encode;
 use function uniqid;
 
-class Handler implements HandlerInterface
+class Handler extends AbstractHandler implements HandlerInterface
 {
     /**
      * @var array
@@ -30,6 +31,11 @@ class Handler implements HandlerInterface
     protected int $eio;
 
     /**
+     * @var TimerInterface
+     */
+    protected TimerInterface $timer;
+
+    /**
      * @var int
      */
     protected int $pingTimeoutTimer;
@@ -39,10 +45,19 @@ class Handler implements HandlerInterface
      */
     protected int $pingIntervalTimer;
 
-    public function __construct(protected Socket $socket, protected TimerInterface $timer, protected EventInterface $event, ?ConfigInterface $config = null)
+    /**
+     * 初始化
+     * @param TimerInterface $timer
+     * @param ConfigInterface|null $config
+     * @return void
+     */
+    public function initialize(TimerInterface $timer, ?ConfigInterface $config = null): void
     {
-        $this->config['ping_interval'] = $config->get('websocket.ping_interval', 25000);
-        $this->config['ping_timeout'] = $config->get('websocket.ping_timeout', 60000);
+        $this->timer = $timer;
+        if ($config) {
+            $this->config['ping_interval'] = $config->get('websocket.ping_interval', 25000);
+            $this->config['ping_timeout'] = $config->get('websocket.ping_timeout', 60000);
+        }
     }
 
     /**
@@ -71,11 +86,12 @@ class Handler implements HandlerInterface
 
     /**
      * 处理接受消息
-     * @param mixed $data
+     * @param FrameInterface $frame
      * @return void
      */
-    public function message(mixed $data): void
+    public function message(FrameInterface $frame): void
     {
+        $data = $frame->getData();
         $enginePacket = EnginePacket::fromString($data);
         $this->resetPingTimeout($this->config['ping_interval'] + $this->config['ping_timeout']);
         switch ($enginePacket->type) {
@@ -88,8 +104,7 @@ class Handler implements HandlerInterface
                     case Packet::EVENT:
                         $type = array_shift($packet->data);
                         $data = array_shift($packet->data);
-                        $result = $this->trigger($type, $data);
-
+                        $result = $this->dispatch(Frame::from($frame, $data), fn() => $this->trigger($type, $data));
                         if ($packet->id !== null) {
                             $responsePacket = Packet::create(Packet::ACK, [
                                 'id' => $packet->id,
@@ -185,27 +200,5 @@ class Handler implements HandlerInterface
             $this->push(EnginePacket::ping());
             $this->resetPingTimeout($this->config['ping_timeout']);
         });
-    }
-
-    /**
-     * 推送数据
-     * @param mixed $data
-     * @return void
-     */
-    public function push(mixed $data): void
-    {
-        $this->socket->push($data);
-    }
-
-    /**
-     * 触发事件
-     * @param string $event
-     * @param ...$args
-     * @return mixed
-     */
-    public function trigger(string $event, ...$args): mixed
-    {
-        array_unshift($args, $this->socket);
-        return $this->event->trigger($event, ...$args);
     }
 }

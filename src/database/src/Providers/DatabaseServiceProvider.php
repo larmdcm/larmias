@@ -7,9 +7,9 @@ namespace Larmias\Database\Providers;
 use Larmias\Contracts\ConfigInterface;
 use Larmias\Database\Contracts\ManagerInterface;
 use Larmias\Database\Manager;
-use Larmias\Database\Model\Model;
-use Psr\EventDispatcher\EventDispatcherInterface;
+use Larmias\Database\Model;
 use Larmias\Framework\ServiceProvider;
+use Psr\EventDispatcher\EventDispatcherInterface;
 
 class DatabaseServiceProvider extends ServiceProvider
 {

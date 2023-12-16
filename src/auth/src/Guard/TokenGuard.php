@@ -19,9 +19,10 @@ class TokenGuard extends Guard
     }
 
     /**
+     * @param mixed|null $params
      * @return bool
      */
-    public function logout(): bool
+    public function logout(mixed $params = null): bool
     {
         $this->identity = null;
         return true;

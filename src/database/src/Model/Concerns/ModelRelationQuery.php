@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Larmias\Database\Model\Concerns;
 
-use Larmias\Database\Model\Contracts\CollectionInterface;
-use Larmias\Database\Model\Model;
-use Larmias\Database\Query\BaseQuery;
 use Larmias\Collection\Arr;
+use Larmias\Database\Model;
 use Larmias\Database\Model\Collection as ModelCollection;
+use Larmias\Database\Model\Contracts\CollectionInterface;
+use Larmias\Database\Query\BaseQuery;
 use function array_shift;
 use function explode;
 

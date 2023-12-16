@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\Database\Model\Relations;
 
-use Larmias\Database\Model\Model;
+use Larmias\Database\Model;
 
 abstract class OneToOne extends Relation
 {

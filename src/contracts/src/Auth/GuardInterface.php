@@ -33,6 +33,12 @@ interface GuardInterface
     public function user(): IdentityInterface;
 
     /**
+     * @param IdentityInterface|null $user
+     * @return GuardInterface
+     */
+    public function setUser(?IdentityInterface $user): GuardInterface;
+
+    /**
      * @return int|string
      */
     public function id(): int|string;
@@ -55,7 +61,8 @@ interface GuardInterface
     public function login(IdentityInterface $identity): mixed;
 
     /**
+     * @param mixed $params
      * @return bool
      */
-    public function logout(): bool;
+    public function logout(mixed $params = null): bool;
 }

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace LarmiasTest\Database\Model;
 
-use Larmias\Database\Model\Model;
+use Larmias\Database\Model;
 use Larmias\Database\Model\Relations\BelongsTo;
 
 /**

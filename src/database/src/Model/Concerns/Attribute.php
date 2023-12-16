@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Larmias\Database\Model\Concerns;
 
 use InvalidArgumentException;
+use Larmias\Database\Model;
 use Larmias\Database\Model\Contracts\CollectionInterface;
-use Larmias\Database\Model\Model;
 use Larmias\Database\Model\Relations\Relation;
 use Larmias\Stringable\Str;
 use function array_key_exists;

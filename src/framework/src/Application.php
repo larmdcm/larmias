@@ -171,7 +171,7 @@ class Application implements ApplicationInterface
      */
     protected function boot(): void
     {
-        $bootProviders = array_merge($this->config->get('app.providers', []), $this->getServiceConfig(ServiceDiscoverInterface::SERVICE_PROVIDER));
+        $bootProviders = array_merge($this->getServiceConfig(ServiceDiscoverInterface::SERVICE_PROVIDER), $this->config->get('app.providers', []));
 
         foreach ($bootProviders as $provider) {
             $this->register($provider);
@@ -218,7 +218,7 @@ class Application implements ApplicationInterface
         }
 
         if (!is_object($this->providers[$provider])) {
-            $this->providers[$provider] = $this->container->make($this->providers[$provider],[],true);
+            $this->providers[$provider] = $this->container->make($this->providers[$provider], [], true);
         }
 
         return $this->providers[$provider];

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace LarmiasTest\Database\Model;
 
+use Larmias\Database\Model;
 use Larmias\Database\Model\Contracts\QueryInterface;
-use Larmias\Database\Model\Model;
 
 class UserScopeModel extends Model
 {

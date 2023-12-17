@@ -697,7 +697,7 @@ abstract class BaseQuery implements QueryInterface
         if (!empty($this->options['soft_delete'])) {
             [$field, $condition] = $this->options['soft_delete'];
             $this->where([
-                [$field, ...$condition]
+                [$this->buildField($field), ...$condition]
             ]);
         }
 
@@ -713,11 +713,31 @@ abstract class BaseQuery implements QueryInterface
         if (!empty($this->options['soft_delete'])) {
             [$field, $condition] = $this->options['soft_delete'];
             if ($condition) {
-                return $this->buildSoftDelete($field, $condition);
+                return $this->buildSoftDelete($this->buildField($field), $condition);
             }
         }
 
         return $this->builder->delete($this->getOptions());
+    }
+
+    /**
+     * 构建解析`字段`
+     * @param string $field
+     * @return string
+     */
+    protected function buildField(string $field): string
+    {
+        $table = $this->getTable();
+
+        if (isset($this->options['alias'][$table])) {
+            $table = $this->options['alias'][$table];
+        }
+
+        return Str::template($field, [
+            'table' => $table,
+        ], [
+            'open' => '${', 'close' => '}',
+        ]);
     }
 
     /**

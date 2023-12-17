@@ -15,10 +15,15 @@ trait Authenticate
 {
     /**
      * @param AuthManager|null $authManager
+     * @param bool $force
      * @return void
      */
-    public function setAuthManager(?AuthManager $authManager = null): void
+    public function setAuthManager(?AuthManager $authManager = null, bool $force = false): void
     {
+        if (!$force && Auth::hasAuthManager()) {
+            return;
+        }
+
         if (!$authManager) {
             $authManager = $this->newAuthManager();
         }

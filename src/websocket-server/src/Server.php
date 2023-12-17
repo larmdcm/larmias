@@ -41,7 +41,7 @@ class Server implements OnOpenInterface, OnMessageInterface, OnCloseInterface
      */
     public function onMessage(ConnectionInterface $connection, FrameInterface $frame): void
     {
-        $this->handlerManager->get($connection->getId())?->message($frame, $frame->getData());
+        $this->handlerManager->get($connection->getId())?->message($frame);
     }
 
     /**

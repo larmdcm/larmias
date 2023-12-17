@@ -17,6 +17,11 @@ interface EventInterface
     public const ON_DISCONNECT = 'disconnect';
 
     /**
+     * @var string
+     */
+    public const ON_CLOSE = 'close';
+
+    /**
      * 监听事件
      * @param string $name
      * @param callable $callback

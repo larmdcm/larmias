@@ -18,6 +18,11 @@ class Socket
      */
     protected int $id;
 
+    /**
+     * @var bool
+     */
+    protected bool $closed = false;
+
     public function __construct(
         protected ContainerInterface         $container,
         protected ConnectionManagerInterface $connectionManager,
@@ -119,11 +124,26 @@ class Socket
     }
 
     /**
+     * 是否已关闭连接
+     * @return bool
+     */
+    public function isClosed(): bool
+    {
+        return $this->closed;
+    }
+
+    /**
      * 关闭连接
      * @return bool
      */
     public function close(): bool
     {
+        if ($this->closed) {
+            return true;
+        }
+
+        $this->closed = true;
+
         return (bool)$this->getConnection()?->close();
     }
 }

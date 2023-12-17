@@ -88,7 +88,7 @@ trait SoftDelete
      */
     protected function withNoTrashed(QueryInterface $query): void
     {
-        $softDeleteField = $query->getTable() . '.' . $this->softDeleteField;
+        $softDeleteField = '${table}.' . $this->softDeleteField;
         $condition = $this->softDeleteValue === null ? ['null'] : ['=', $this->softDeleteValue];
         $query->useSoftDelete($softDeleteField, $condition);
     }

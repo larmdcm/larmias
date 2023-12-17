@@ -12,8 +12,12 @@ class Frame implements FrameInterface
     {
     }
 
-    public static function from(FrameInterface $frame, array $data): static
+    public static function from(FrameInterface $frame, ?array $data = null): static
     {
+        if ($data === null) {
+            $data = $frame->getData();
+        }
+
         return new static($frame->getFd(), $data, $frame->getOpcode(), $frame->isFinish());
     }
 

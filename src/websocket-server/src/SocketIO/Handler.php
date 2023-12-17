@@ -141,6 +141,7 @@ class Handler extends AbstractHandler implements HandlerInterface
      */
     public function close(): void
     {
+        $this->trigger(EventInterface::ON_CLOSE);
         if (isset($this->pingTimeoutTimer)) {
             $this->timer->del($this->pingTimeoutTimer);
         }

@@ -46,6 +46,14 @@ class Auth
     }
 
     /**
+     * @return bool
+     */
+    public static function hasAuthManager(): bool
+    {
+        return static::$context->has(static::getContextKey());
+    }
+
+    /**
      * @param string|null $name
      * @return GuardInterface
      */

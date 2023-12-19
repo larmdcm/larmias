@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace Larmias\WebSocketServer;
 
 use Larmias\Contracts\ContainerInterface;
+use Larmias\Contracts\Http\RequestInterface;
 use Larmias\Contracts\WebSocket\ConnectionInterface;
 use Larmias\WebSocketServer\Contracts\ConnectionManagerInterface;
 use Larmias\WebSocketServer\Contracts\PusherInterface;
 use Larmias\WebSocketServer\Contracts\RoomInterface;
+use Larmias\WebSocketServer\Contracts\SidProviderInterface;
 
 class Socket
 {
@@ -27,6 +29,7 @@ class Socket
         protected ContainerInterface         $container,
         protected ConnectionManagerInterface $connectionManager,
         protected RoomInterface              $room,
+        protected SidProviderInterface       $sidProvider,
     )
     {
     }
@@ -48,7 +51,7 @@ class Socket
      */
     public function push(mixed $data): void
     {
-        $this->to($this->getId())->push($data);
+        $this->to($this->getSid())->push($data);
     }
 
     /**
@@ -59,7 +62,7 @@ class Socket
      */
     public function emit(string $event, ...$data): void
     {
-        $this->makePusher()->to($this->id)->emit($event, ...$data);
+        $this->makePusher()->to($this->getSid())->emit($event, ...$data);
     }
 
     /**
@@ -69,7 +72,7 @@ class Socket
      */
     public function join(array|string $rooms): self
     {
-        $this->room->join($this->id, $rooms);
+        $this->room->join($this->getSid(), $rooms);
         return $this;
     }
 
@@ -80,7 +83,7 @@ class Socket
      */
     public function leave(array|string $rooms): self
     {
-        $this->room->leave($this->id, $rooms);
+        $this->room->leave($this->getSid(), $rooms);
         return $this;
     }
 
@@ -90,8 +93,17 @@ class Socket
     public function makePusher(): PusherInterface
     {
         /** @var PusherInterface $pusher */
-        $pusher = $this->container->make(PusherInterface::class, [], true);
+        $pusher = $this->container->make(PusherInterface::class, ['sidProvider' => $this->sidProvider], true);
         return $pusher;
+    }
+
+    /**
+     * 获取SocketIO id
+     * @return string
+     */
+    public function getSid(): string
+    {
+        return $this->sidProvider->getSid($this->id);
     }
 
     /**
@@ -115,12 +127,21 @@ class Socket
     }
 
     /**
-     * 获取连接
-     * @return ConnectionInterface|null
+     * 获取当前连接
+     * @return ConnectionInterface
      */
-    public function getConnection(): ?ConnectionInterface
+    public function getConnection(): ConnectionInterface
     {
         return $this->connectionManager->get($this->id);
+    }
+
+    /**
+     * 获取当前请求
+     * @return RequestInterface
+     */
+    public function getRequest(): RequestInterface
+    {
+        return $this->getConnection()->getRequest();
     }
 
     /**
@@ -144,6 +165,6 @@ class Socket
 
         $this->closed = true;
 
-        return (bool)$this->getConnection()?->close();
+        return $this->getConnection()->close();
     }
 }

@@ -24,10 +24,10 @@ interface EventInterface
     /**
      * 监听事件
      * @param string $name
-     * @param callable $callback
+     * @param mixed $handler
      * @return EventInterface
      */
-    public function on(string $name, callable $callback): EventInterface;
+    public function on(string $name, mixed $handler): EventInterface;
 
     /**
      * 是否监听事件

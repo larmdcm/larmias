@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\WebSocketServer;
 
+use Larmias\Contracts\ContainerInterface;
 use Larmias\WebSocketServer\Contracts\EventInterface;
 
 class Event implements EventInterface
@@ -13,15 +14,19 @@ class Event implements EventInterface
      */
     protected array $events = [];
 
+    public function __construct(protected ContainerInterface $container)
+    {
+    }
+
     /**
      * 监听事件
      * @param string $name
-     * @param callable $callback
+     * @param mixed $handler
      * @return EventInterface
      */
-    public function on(string $name, callable $callback): EventInterface
+    public function on(string $name, mixed $handler): EventInterface
     {
-        $this->events[$name] = $callback;
+        $this->events[$name] = $handler;
         return $this;
     }
 
@@ -46,6 +51,7 @@ class Event implements EventInterface
         if (!$this->hasListen($name)) {
             return false;
         }
-        return call_user_func($this->events[$name], ...$args);
+
+        return $this->container->invoke($this->events[$name], $args);
     }
 }

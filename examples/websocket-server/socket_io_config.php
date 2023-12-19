@@ -58,7 +58,7 @@ return [
                     $socket->emit('message', 'emit message.');
                 });
 
-                $event->on(EventInterface::ON_DISCONNECT, function (Socket $socket, mixed $data) {
+                $event->on(EventInterface::ON_CLOSE, function (Socket $socket) {
                     println('客户端断开连接:%s', $socket->getId());
                 });
             }

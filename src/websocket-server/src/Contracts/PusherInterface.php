@@ -30,11 +30,11 @@ interface PusherInterface
 
     /**
      * 给指定连接发送数据
-     * @param int $id
+     * @param string $sid
      * @param mixed $data
      * @return void
      */
-    public function sendMessage(int $id, mixed $data): void;
+    public function sendMessage(string $sid, mixed $data): void;
 
     /**
      * 数据消息编码

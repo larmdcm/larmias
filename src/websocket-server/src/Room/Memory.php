@@ -20,11 +20,11 @@ class Memory implements RoomInterface
 
     /**
      * 加入房间.
-     * @param int $id
+     * @param string $id
      * @param array|string $rooms
      * @return void
      */
-    public function join(int $id, array|string $rooms): void
+    public function join(string $id, array|string $rooms): void
     {
         $rooms = is_string($rooms) ? explode(',', $rooms) : $rooms;
         foreach ($rooms as $room) {
@@ -42,11 +42,11 @@ class Memory implements RoomInterface
 
     /**
      * 离开房间.
-     * @param int $id
+     * @param string $id
      * @param array|string $rooms
      * @return void
      */
-    public function leave(int $id, array|string $rooms): void
+    public function leave(string $id, array|string $rooms): void
     {
         $rooms = is_string($rooms) ? explode(',', $rooms) : $rooms;
         foreach ($rooms as $room) {

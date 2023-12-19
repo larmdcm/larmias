@@ -6,6 +6,7 @@ namespace Larmias\WebSocketServer;
 
 use Larmias\Contracts\ContainerInterface;
 use Larmias\WebSocketServer\Contracts\HandlerInterface;
+use Larmias\WebSocketServer\Contracts\SidProviderInterface;
 
 class HandlerManager
 {
@@ -34,8 +35,10 @@ class HandlerManager
     public function remember(int $id): HandlerInterface
     {
         if (!isset($this->handlers[$id])) {
+            /** @var SidProviderInterface $sidProvider */
+            $sidProvider = $this->container->make(SidProviderInterface::class, [], true);
             /** @var Socket $socket */
-            $socket = $this->container->make(Socket::class, [], true);
+            $socket = $this->container->make(Socket::class, ['sidProvider' => $sidProvider], true);
             $socket->setId($id);
             $this->handlers[$id] = $this->container->make(HandlerInterface::class, ['socket' => $socket], true);
         }

@@ -81,7 +81,7 @@ class RouteAnnotationHandler implements RouteAnnotationHandlerInterface
      * @param array $param
      * @return void
      */
-    protected function collectClass(array $param)
+    protected function collectClass(array $param): void
     {
         switch ($param['annotation']) {
             case Controller::class:
@@ -97,7 +97,7 @@ class RouteAnnotationHandler implements RouteAnnotationHandlerInterface
      * @param array $param
      * @return void
      */
-    protected function collectMethod(array $param)
+    protected function collectMethod(array $param): void
     {
         switch ($param['annotation']) {
             case Mapping::class:

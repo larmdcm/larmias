@@ -7,6 +7,7 @@ namespace Larmias\Constants;
 use Larmias\Contracts\TranslatorInterface;
 use Larmias\Constants\Annotation\Dict;
 use Larmias\Constants\Annotation\Text;
+use Larmias\Constants\Exceptions\ConstantsException;
 use ReflectionClass;
 use function array_merge;
 use function str_starts_with;

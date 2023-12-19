@@ -12,8 +12,6 @@ use Larmias\WebSocketServer\Contracts\EventInterface;
 use Larmias\WebSocketServer\Contracts\HandlerInterface;
 use Throwable;
 use function json_encode;
-use function base64_encode;
-use function uniqid;
 
 class Handler extends AbstractHandler implements HandlerInterface
 {
@@ -68,7 +66,7 @@ class Handler extends AbstractHandler implements HandlerInterface
     {
         $this->eio = (int)$this->socket->getConnection()->getRequest()->query('EIO');
         $payload = json_encode([
-            'sid' => base64_encode(uniqid()),
+            'sid' => $this->socket->getSid(),
             'upgrades' => [],
             'pingInterval' => $this->config['ping_interval'],
             'pingTimeout' => $this->config['ping_timeout'],
@@ -96,38 +94,49 @@ class Handler extends AbstractHandler implements HandlerInterface
         $this->resetPingTimeout($this->config['ping_interval'] + $this->config['ping_timeout']);
         switch ($enginePacket->type) {
             case EnginePacket::MESSAGE:
-                $packet = Packet::fromString($enginePacket->data);
-                switch ($packet->type) {
-                    case Packet::CONNECT:
-                        $this->onConnect(array_shift($packet->data));
-                        break;
-                    case Packet::EVENT:
-                        $type = array_shift($packet->data);
-                        $data = array_shift($packet->data);
-                        $result = $this->dispatch(Frame::from($frame, $data), fn() => $this->trigger($type, $data));
-                        if ($packet->id !== null) {
-                            $responsePacket = Packet::create(Packet::ACK, [
-                                'id' => $packet->id,
-                                'nsp' => $packet->nsp,
-                                'data' => $result,
-                            ]);
-                            $this->push($responsePacket);
-                        }
-                        break;
-                    case Packet::DISCONNECT:
-                        $this->trigger(EventInterface::ON_DISCONNECT);
-                        $this->socket->close();
-                        break;
-                    default:
-                        $this->socket->close();
-                        break;
-                }
+                $this->handleMessage($frame, $enginePacket);
                 break;
             case EnginePacket::PING:
                 $this->push(EnginePacket::pong($enginePacket->data));
                 break;
             case EnginePacket::PONG:
                 $this->schedulePing();
+                break;
+            default:
+                $this->socket->close();
+                break;
+        }
+    }
+
+    /**
+     * 处理消息
+     * @param FrameInterface $frame
+     * @param EnginePacket $enginePacket
+     * @return void
+     */
+    protected function handleMessage(FrameInterface $frame, EnginePacket $enginePacket): void
+    {
+        $packet = Packet::fromString($enginePacket->data);
+        switch ($packet->type) {
+            case Packet::CONNECT:
+                $this->onConnect(array_shift($packet->data));
+                break;
+            case Packet::EVENT:
+                $type = array_shift($packet->data);
+                $data = array_shift($packet->data);
+                $result = $this->dispatch(Frame::from($frame, $data), fn() => $this->trigger($type, $data));
+                if ($packet->id !== null) {
+                    $responsePacket = Packet::create(Packet::ACK, [
+                        'id' => $packet->id,
+                        'nsp' => $packet->nsp,
+                        'data' => $result,
+                    ]);
+                    $this->push($responsePacket);
+                }
+                break;
+            case Packet::DISCONNECT:
+                $this->trigger(EventInterface::ON_DISCONNECT);
+                $this->socket->close();
                 break;
             default:
                 $this->socket->close();
@@ -162,7 +171,7 @@ class Handler extends AbstractHandler implements HandlerInterface
             $this->trigger(EventInterface::ON_CONNECT, $data);
             $packet = Packet::create(Packet::CONNECT);
             if ($this->eio >= 4) {
-                $packet->data = ['sid' => base64_encode(uniqid())];
+                $packet->data = ['sid' => $this->socket->getSid()];
             }
         } catch (Throwable $e) {
             $packet = Packet::create(Packet::CONNECT_ERROR, [

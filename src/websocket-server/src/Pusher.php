@@ -7,6 +7,7 @@ namespace Larmias\WebSocketServer;
 use Larmias\WebSocketServer\Contracts\ConnectionManagerInterface;
 use Larmias\WebSocketServer\Contracts\PusherInterface;
 use Larmias\WebSocketServer\Contracts\RoomInterface;
+use Larmias\WebSocketServer\Contracts\SidProviderInterface;
 use Larmias\WebSocketServer\Message\Event as EventMessage;
 use function in_array;
 use function array_unique;
@@ -18,7 +19,11 @@ class Pusher implements PusherInterface
      */
     protected array $to = [];
 
-    public function __construct(protected ConnectionManagerInterface $connectionManager, protected RoomInterface $room)
+    public function __construct(
+        protected ConnectionManagerInterface $connectionManager,
+        protected RoomInterface              $room,
+        protected SidProviderInterface       $sidProvider,
+    )
     {
     }
 
@@ -77,12 +82,13 @@ class Pusher implements PusherInterface
 
     /**
      * 给指定连接发送数据
-     * @param int $id
+     * @param string $sid
      * @param mixed $data
      * @return void
      */
-    public function sendMessage(int $id, mixed $data): void
+    public function sendMessage(string $sid, mixed $data): void
     {
+        $id = $this->sidProvider->getId($sid);
         $connection = $this->connectionManager->get($id);
         $connection?->send($this->encodeMessage($data));
     }

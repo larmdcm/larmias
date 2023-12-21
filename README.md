@@ -1,66 +1,24 @@
 <p align="center">
-    <h1 align="center">Larmias</h1>
+    <br>
+    <img src="./build/resource/logo.jpg" alt="Larmias"  />
+    <br>
 </p>
 
-<p align="center">轻量 • 简单 • 快速</p>
+## 简介
 
-<p align="center">
-<a href="https://github.com/larmdcm/larmias/issues"><img src="https://img.shields.io/github/issues/larmdcm/larmias" alt=""></a>
-<a href="https://github.com/larmdcm/larmias"><img src="https://img.shields.io/github/stars/larmdcm/larmias" alt=""></a>
-<img src="https://img.shields.io/badge/php-%3E%3D8.0-brightgreen" alt="">
-<img src="https://img.shields.io/badge/license-MIT-blue" alt="">
-</p>
+Larmais一个现代化高性能常驻内存的php开发框架，支持多引擎容器如 Workerman、Swoole等引擎容器，支持HTTP Server、WebSocket、TCP Server、UDP Server 以及多进程等功能。遵循PSR设计规范，采用依赖注入设计，确保支持 `可替换` 和 `可复用` 的特性，引擎驱动设计理念使切换容器只需切换对应驱动即可完成底层引擎的切换。
 
-# 介绍
+## 请帮忙 Star 一下
 
-Larmias 是一个现代化高性能常驻内存多引擎框架，支持 Workerman 引擎和 Swoole 引擎，支持 HTTP Server、WebSocket、TCP Server、UDP Server 以及多进程等功能。
-所有标准组件均基于 [PSR 标准](https://www.php-fig.org/psr) 实现，并采用强大的依赖注入设计，确保支持 `可替换` 和 `可复用` 的特性，让开发者能够更加方便地进行组件的定制和拓展。
+- https://github.com/larmdcm/larmias
 
-## 组件
+## 项目由来
 
-Larmias 框架提供以下组件：
+这个框架其实一开始源自于在学习Socket编程的路上自写了一个`PHP`网络开发框架`WorkerS`（类WorkerMan，支持http，websocket协议）然后想开发一个web开发框架来和这个socket框架组合起来（有点像现在workerman和webman的关系），后来觉得既然都在写了不如写全点顺便研究研究其它PHP开发框架的编程思想，然后便一发不可收拾起来，在往后的时间中慢慢完善了起来，这个框架也不能说是完全自研可以说是参考了各大框架的思想再按照自己的想法组合起来，也算是站在巨人的肩膀上吧！（不要说我抄袭Q_Q！）那么在php开发框架百家齐放的今天，为什么还要再造一个框架使用呢？答案当然是我自己开发用得爽就行！
 
-- `larmias/log`：基于 Psr3 的日志组件，支持多通道记录日志；
-- `larmias/http-message`：基于 Psr7 的 HTTP 消息组件；
-- `larmias/routing`：符合 Psr7 规范的路由组件；
-- `larmias/di`：基于 Psr11 的依赖注入容器；
-- `larmias/event`：基于 Psr14 的事件组件；
-- `larmias/http-server`：基于 Psr15 的 HTTP 服务组件；
-- `larmias/cache`：基于 Psr16 的缓存组件，支持 File、Redis(可扩展)；
-- `larmias/database`：数据库组件，支持连接池；
-- `larmias/session`：支持多驱动的 Session 组件；
-- `larmias/view`：Blade 视图组件；
-- `larmias/validator`：验证器组件；
-- `larmias/async-queue`：异步队列组件；
-- `larmias/auth`：用户认证组件；
-- `larmias/captcha`：验证码组件；
-- `larmias/command`：命令行组件；
-- `larmias/config`：配置读写组件；
-- `larmias/contracts`：框架契约；
-- `larmias/engine`：基础引擎组件；
-- `larmias/engine-swoole`：基于swoole实现的引擎组件；
-- `larmias/engine-workerman`：基于workerman实现的引擎组件；
-- `larmias/enum`：枚举组件；
-- `larmias/env`：环境变量读写组件；
-- `larmias/exception-hander`：异常处理组件；
-- `larmias/lock`：锁组件支持Redis；
-- `larmias/pool`：连接池组件；
-- `larmias/redis`：redis组件，支持连接池；
-- `larmias/snowflake`：雪花算法组件；
-- `larmias/support`：常用工具组件；
-- `larmias/translation`：翻译组件；
-- `larmias/timer`：定时器组件；
-- `larmias/throttle`：限流组件；
-- `larmias/shared-memory`：内存数据库组件；
-- `larmias/task`：异步任务组件；
-- `larmias/crontab`：定时任务组件；
+## 设计理念
 
-## 许可证
+**Larmias（拉米亚斯）**
 
-Larmias 框架基于 MIT开源许可证，详细信息请参见 LICENSE 文件。
-
-## 贡献一览
-
-[![Contributor over time](https://contributor-overtime-api.apiseven.com/contributors-svg?chart=contributorOverTime&repo=larmdcm/larmias)](https://contributor-overtime-api.apiseven.com/contributors-svg?chart=contributorOverTime&repo=larmdcm/larmias)
-
-欢迎有兴趣的朋友参与开发
+- 对于简单，简洁的API设计和易于理解的接口，尽最大努力做到`全的轻量化`。
+- 对于高效，常驻内存设计，采用事件循环模型，充分利用操作系统的多进程能力，处理并发任务，避免阻塞和等待。

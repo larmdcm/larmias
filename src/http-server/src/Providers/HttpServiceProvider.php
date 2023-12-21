@@ -8,6 +8,7 @@ use Larmias\Contracts\Annotation\AnnotationInterface;
 use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\Http\ResponseEmitterInterface;
 use Larmias\Contracts\ServiceProviderInterface;
+use Larmias\HttpServer\Annotation\AutoController;
 use Larmias\HttpServer\Annotation\Controller;
 use Larmias\HttpServer\Annotation\DeleteMapping;
 use Larmias\HttpServer\Annotation\GetMapping;
@@ -56,6 +57,7 @@ class HttpServiceProvider implements ServiceProviderInterface
             /** @var AnnotationInterface $annotation */
             $annotation = $this->container->get(AnnotationInterface::class);
             $annotation->addHandler([
+                AutoController::class,
                 Controller::class,
                 RequestMapping::class,
                 GetMapping::class,

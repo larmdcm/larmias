@@ -26,9 +26,9 @@ class RedisProxy implements ConnectionInterface
     protected ContextInterface $context;
 
     /**
-     * @var CoroutineInterface
+     * @var CoroutineInterface|null
      */
-    protected CoroutineInterface $coroutine;
+    protected ?CoroutineInterface $coroutine = null;
 
     /**
      * @param ContainerInterface $container
@@ -38,7 +38,9 @@ class RedisProxy implements ConnectionInterface
     public function __construct(protected ContainerInterface $container, protected array $config = [])
     {
         $this->context = $this->container->get(ContextInterface::class);
-        $this->coroutine = $this->container->get(CoroutineInterface::class);
+        if ($this->context->inCoroutine()) {
+            $this->coroutine = $this->container->get(CoroutineInterface::class);
+        }
         $this->redisPool = new RedisPool($this->container, $this->config['pool'] ?? [], $this->config);
     }
 

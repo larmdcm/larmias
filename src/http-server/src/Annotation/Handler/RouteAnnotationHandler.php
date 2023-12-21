@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\HttpServer\Annotation\Handler;
 
+use Larmias\HttpServer\Annotation\AutoController;
 use Larmias\HttpServer\Annotation\Controller;
 use Larmias\HttpServer\Annotation\DeleteMapping;
 use Larmias\HttpServer\Annotation\GetMapping;
@@ -14,6 +15,7 @@ use Larmias\HttpServer\Annotation\PostMapping;
 use Larmias\HttpServer\Annotation\PutMapping;
 use Larmias\HttpServer\Annotation\RequestMapping;
 use Larmias\HttpServer\Routing\Router;
+use Larmias\Support\Reflection\ReflectionManager;
 use function array_merge;
 
 class RouteAnnotationHandler implements RouteAnnotationHandlerInterface
@@ -30,14 +32,22 @@ class RouteAnnotationHandler implements RouteAnnotationHandlerInterface
 
     /**
      * @return void
+     * @throws \ReflectionException
      */
     public function handle(): void
     {
         foreach (static::$container['controller'] as $class => $controller) {
-            $routes = static::$container['routes'][$class] ?? [];
+
+            if ($controller instanceof AutoController) {
+                $routes = static::buildClassRoutes($class);
+            } else {
+                $routes = static::$container['routes'][$class] ?? [];
+            }
+
             if (empty($routes)) {
                 continue;
             }
+
             Router::group($this->buildControllerPrefix($controller->prefix), function () use ($routes) {
                 foreach ($routes as $route) {
                     $value = $route['value'][0];
@@ -84,6 +94,7 @@ class RouteAnnotationHandler implements RouteAnnotationHandlerInterface
     protected function collectClass(array $param): void
     {
         switch ($param['annotation']) {
+            case AutoController::class:
             case Controller::class:
                 static::$container['controller'][$param['class']] = $param['value'][0];
                 break;
@@ -126,5 +137,31 @@ class RouteAnnotationHandler implements RouteAnnotationHandlerInterface
             $result = array_merge($result, $item->middleware);
         }
         return $result;
+    }
+
+    /**
+     * 构建类路由
+     * @param string $class
+     * @return array
+     * @throws \ReflectionException
+     */
+    protected function buildClassRoutes(string $class): array
+    {
+        $object = ReflectionManager::reflectClass($class);
+        $methods = $object->getMethods(\ReflectionMethod::IS_PUBLIC);
+        $routes = [];
+        foreach ($methods as $method) {
+            $methodName = $method->getName();
+            $mapping = new RequestMapping('/' . $methodName);
+            $routes[] = [
+                'class' => $class,
+                'method' => $methodName,
+                'value' => [
+                    [$mapping]
+                ]
+            ];
+        }
+
+        return $routes;
     }
 }

@@ -1,11 +1,10 @@
 {
-    "name": "larmias/websocket-server",
-    "description": "A websocket-server component for larmias.",
+    "name": "larmias/dispatcher",
+    "description": "A dispatcher component for larmias.",
     "type": "library",
     "keywords": [
         "larmias",
-        "server",
-        "websocket"
+        "dispatcher"
     ],
     "homepage": "https://larmias.com/",
     "license": "MIT",
@@ -21,13 +20,13 @@
     },
     "autoload": {
         "psr-4": {
-            "Larmias\\WebSocketServer\\": "src/"
+            "Larmias\\Dispatcher\\": "src/"
         }
     },
     "extra": {
         "larmias": {
             "providers": [
-                "Larmias\\WebSocketServer\\Providers\\WebSocketServerServiceProvider"
+                "Larmias\\Dispatcher\\Providers\\DispatcherServiceProvider"
             ]
         }
     }

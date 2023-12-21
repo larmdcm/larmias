@@ -9,7 +9,7 @@ use Attribute;
 #[Attribute(Attribute::TARGET_METHOD)]
 class Event
 {
-    public function __construct(public string $event = 'event')
+    public function __construct(public ?string $event = null)
     {
     }
 }

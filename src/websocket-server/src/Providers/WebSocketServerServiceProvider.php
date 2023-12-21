@@ -8,6 +8,7 @@ use Larmias\Contracts\Annotation\AnnotationInterface;
 use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\ServiceProviderInterface;
 use Larmias\WebSocketServer\Annotation\Handler\EventHandler;
+use Larmias\WebSocketServer\Annotation\Event as AnnotationEvent;
 use Larmias\WebSocketServer\ConnectionManager;
 use Larmias\WebSocketServer\Contracts\ConnectionManagerInterface;
 use Larmias\WebSocketServer\Contracts\EventInterface;
@@ -42,7 +43,7 @@ class WebSocketServerServiceProvider implements ServiceProviderInterface
             /** @var AnnotationInterface $annotation */
             $annotation = $this->container->get(AnnotationInterface::class);
             $annotation->addHandler([
-                Event::class,
+                AnnotationEvent::class,
             ], EventHandler::class);
         }
     }

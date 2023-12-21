@@ -38,9 +38,9 @@ abstract class Pool implements PoolInterface
     protected ContextInterface $context;
 
     /**
-     * @var CoroutineInterface
+     * @var CoroutineInterface|null
      */
-    protected CoroutineInterface $coroutine;
+    protected ?CoroutineInterface $coroutine = null;
 
     /**
      * @var TimerInterface
@@ -84,7 +84,9 @@ abstract class Pool implements PoolInterface
     public function __construct(protected ContainerInterface $container, array $options = [])
     {
         $this->context = $this->container->get(ContextInterface::class);
-        $this->coroutine = $this->container->get(CoroutineInterface::class);
+        if ($this->context->inCoroutine()) {
+            $this->coroutine = $this->container->get(CoroutineInterface::class);
+        }
         $this->timer = $this->container->get(TimerInterface::class);
         $this->options = array_merge($this->options, $options);
         $this->initPoolOption();

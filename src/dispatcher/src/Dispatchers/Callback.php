@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Routing\Dispatchers;
+namespace Larmias\Dispatcher\Dispatchers;
 
-use Larmias\Routing\Dispatcher;
+use Larmias\Dispatcher\AbstractDispatcher;
 
-class Callback extends Dispatcher
+class Callback extends AbstractDispatcher
 {
     /**
      * @param array $params
      * @return mixed
      */
-    public function execute(array $params = []): mixed
+    public function dispatch(array $params = []): mixed
     {
         return $this->container->invoke($this->rule->getHandler(), $params);
     }

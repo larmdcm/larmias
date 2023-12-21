@@ -71,6 +71,9 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
         }));
 
         $this->invoker->resolving(Invoker::INVOKE_METHOD, function (Closure $process, array $args) {
+            if (InvokeResolver::isEmpty()) {
+                return $process();
+            }
             return InvokeResolver::process($process, $args);
         });
 

@@ -26,9 +26,11 @@ class EventHandler implements AnnotationHandlerInterface
 
     public function handle(): void
     {
-        foreach (static::$container['events'] as $event) {
-            $value = $event['value'][0];
-            $this->event->on($value->event, [$event['class'], $event['method']]);
+        foreach (static::$container['events'] as $events) {
+            foreach ($events as $event) {
+                $value = $event['value'][0];
+                $this->event->on($value->event ?: $event['method'], [$event['class'], $event['method']]);
+            }
         }
     }
 

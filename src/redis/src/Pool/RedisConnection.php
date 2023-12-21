@@ -9,7 +9,6 @@ use Larmias\Pool\Connection as BaseConnection;
 use RuntimeException;
 use Throwable;
 use Redis;
-use RedisException;
 use function array_merge;
 
 class RedisConnection extends BaseConnection implements ConnectionInterface
@@ -46,7 +45,7 @@ class RedisConnection extends BaseConnection implements ConnectionInterface
 
     /**
      * @return bool
-     * @throws RedisException
+     * @throws Throwable
      */
     public function connect(): bool
     {
@@ -74,7 +73,7 @@ class RedisConnection extends BaseConnection implements ConnectionInterface
 
     /**
      * @return bool
-     * @throws RedisException
+     * @throws Throwable
      */
     public function reset(): bool
     {
@@ -97,7 +96,7 @@ class RedisConnection extends BaseConnection implements ConnectionInterface
 
     /**
      * @return bool
-     * @throws RedisException
+     * @throws Throwable
      */
     public function isConnected(): bool
     {
@@ -106,7 +105,7 @@ class RedisConnection extends BaseConnection implements ConnectionInterface
 
     /**
      * @return bool
-     * @throws RedisException
+     * @throws Throwable
      */
     public function reconnect(): bool
     {
@@ -121,7 +120,7 @@ class RedisConnection extends BaseConnection implements ConnectionInterface
 
     /**
      * @return bool
-     * @throws RedisException
+     * @throws Throwable
      */
     public function close(): bool
     {
@@ -170,7 +169,7 @@ class RedisConnection extends BaseConnection implements ConnectionInterface
      * @param int $port
      * @param float $timeout
      * @return Redis
-     * @throws RedisException
+     * @throws Throwable
      */
     protected function createRedis(string $host, int $port, float $timeout): Redis
     {

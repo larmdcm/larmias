@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Larmias\Routing;
 
+use Larmias\Contracts\Dispatcher\RuleInterface;
 use function array_merge;
 
-class Rule
+class Rule implements RuleInterface
 {
     /**
      * @var string

@@ -33,6 +33,14 @@ class InvokeResolver
     }
 
     /**
+     * @return bool
+     */
+    public static function isEmpty(): bool
+    {
+        return empty(static::$collect);
+    }
+
+    /**
      * @param Closure $process
      * @param array $args
      * @return mixed

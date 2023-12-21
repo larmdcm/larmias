@@ -4,24 +4,25 @@ declare(strict_types=1);
 
 namespace Larmias\Routing;
 
-use Larmias\Contracts\ContainerInterface;
-use Larmias\Routing\Contracts\RouterInterface;
-use Larmias\Routing\Exceptions\RouteException;
-use Larmias\Routing\Exceptions\RouteNotFoundException;
-use Larmias\Routing\Exceptions\RouteMethodNotAllowedException;
-use Larmias\Collection\Arr;
 use FastRoute\Dispatcher as FastRouteDispatcher;
 use FastRoute\RouteCollector;
-use function FastRoute\simpleDispatcher;
-use function count;
-use function strtoupper;
-use function is_callable;
-use function is_string;
-use function is_file;
-use function is_array;
+use Larmias\Collection\Arr;
+use Larmias\Contracts\ContainerInterface;
+use Larmias\Contracts\Dispatcher\DispatcherFactoryInterface;
+use Larmias\Routing\Contracts\RouterInterface;
+use Larmias\Routing\Exceptions\RouteException;
+use Larmias\Routing\Exceptions\RouteMethodNotAllowedException;
+use Larmias\Routing\Exceptions\RouteNotFoundException;
 use function call_user_func;
+use function count;
 use function end;
+use function FastRoute\simpleDispatcher;
 use function implode;
+use function is_array;
+use function is_callable;
+use function is_file;
+use function is_string;
+use function strtoupper;
 
 class Router implements RouterInterface
 {
@@ -71,11 +72,10 @@ class Router implements RouterInterface
     protected array $queue = [];
 
     /**
-     * RouterAbstract __construct.
-     *
      * @param ContainerInterface $container
+     * @param DispatcherFactoryInterface $dispatcherFactory
      */
-    public function __construct(protected ContainerInterface $container)
+    public function __construct(protected ContainerInterface $container, protected DispatcherFactoryInterface $dispatcherFactory)
     {
         $this->group = new Group();
         $this->routeName = new RouteName();
@@ -212,7 +212,7 @@ class Router implements RouterInterface
         if ($routeInfo[0] === FastRouteDispatcher::FOUND) {
             /** @var Rule $rule */
             $rule = $routeInfo[1];
-            return new Dispatched(Dispatcher::create($this->container, $rule), $rule, $routeInfo[2]);
+            return new Dispatched($this->dispatcherFactory->make($rule), $rule, $routeInfo[2]);
         }
         throw new ($routeInfo[0] === FastRouteDispatcher::NOT_FOUND ? RouteNotFoundException::class : RouteMethodNotAllowedException::class);
     }

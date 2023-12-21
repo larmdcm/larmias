@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Larmias\WebSocketServer;
 
 use Larmias\Contracts\ContainerInterface;
+use Larmias\Contracts\Dispatcher\DispatcherFactoryInterface;
+use Larmias\Contracts\Dispatcher\RuleInterface;
 use Larmias\WebSocketServer\Contracts\EventInterface;
 
 class Event implements EventInterface
@@ -12,9 +14,9 @@ class Event implements EventInterface
     /**
      * @var callable[]
      */
-    protected array $events = [];
+    public array $events = [];
 
-    public function __construct(protected ContainerInterface $container)
+    public function __construct(protected ContainerInterface $container, protected DispatcherFactoryInterface $dispatcherFactory)
     {
     }
 
@@ -52,6 +54,21 @@ class Event implements EventInterface
             return false;
         }
 
-        return $this->container->invoke($this->events[$name], $args);
+        return $this->dispatcherFactory->make(new class($this->events[$name]) implements RuleInterface {
+            public function __construct(protected mixed $handler)
+            {
+
+            }
+
+            public function getHandler(): array
+            {
+                return $this->handler;
+            }
+
+            public function getOption(?string $name = null): array
+            {
+                return [];
+            }
+        })->dispatch($args);
     }
 }

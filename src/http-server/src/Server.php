@@ -108,7 +108,7 @@ class Server implements OnRequestInterface
         /** @var HttpRouteCoreMiddleware $httpRouteCoreMiddleware */
         $httpRouteCoreMiddleware = $this->container->get(HttpRouteCoreMiddleware::class);
         return $httpRouteCoreMiddleware->set($option['middleware'])->dispatch($request, function () use ($dispatched) {
-            return $this->wrapResultAsResponse($dispatched->dispatcher->run($dispatched->params));
+            return $this->wrapResultAsResponse($dispatched->dispatcher->dispatch($dispatched->params));
         });
     }
 

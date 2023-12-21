@@ -2,24 +2,24 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Routing\Dispatchers;
+namespace Larmias\Dispatcher\Dispatchers;
 
-use Larmias\Routing\Dispatcher;
+use Larmias\Dispatcher\AbstractDispatcher;
 use RuntimeException;
 use Throwable;
-use function is_callable;
-use function is_string;
 use function explode;
 use function is_array;
+use function is_callable;
+use function is_string;
 
-class Controller extends Dispatcher
+class Controller extends AbstractDispatcher
 {
     /**
      * @param array $params
      * @return mixed
      * @throws Throwable
      */
-    public function execute(array $params = []): mixed
+    public function dispatch(array $params = []): mixed
     {
         $option = $this->rule->getOption();
         $handler = $this->getHandler($option);
@@ -47,7 +47,7 @@ class Controller extends Dispatcher
         }
         $className = $handler[0];
         if (is_string($className)) {
-            if ($option['namespace'] !== '') {
+            if (isset($option['namespace']) && $option['namespace'] !== '') {
                 $className = $option['namespace'] . "\\" . $className;
             }
             $instance = $this->container->get($className);

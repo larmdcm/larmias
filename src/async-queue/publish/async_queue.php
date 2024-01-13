@@ -12,7 +12,7 @@ return [
             // redis name
             'redis_name' => 'default',
             // 键前缀
-            'prefix' => 'queues:',
+            'prefix' => 'queue:',
             // 队列名称
             'name' => 'default',
             // 任务处理超时时间
@@ -27,7 +27,7 @@ return [
             // redis name
             'redis_name' => 'default',
             // 键前缀
-            'prefix' => 'queues:',
+            'prefix' => 'queue:',
             // 队列名称
             'name' => 'default',
             // 等待时间（秒）

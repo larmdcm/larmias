@@ -181,8 +181,7 @@
             "Larmias\\JWTAuth\\": "src/jwt-auth/src/",
             "Larmias\\Trace\\": "src/trace/src/",
             "Larmias\\VarDumper\\": "src/var-dump/src/",
-            "Larmias\\Testing\\": "src/testing/src/",
-            "Larmias\\LogDb\\": "src/log-db/src/"
+            "Larmias\\Testing\\": "src/testing/src/"
         }
     },
     "autoload-dev": {

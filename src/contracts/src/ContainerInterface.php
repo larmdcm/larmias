@@ -11,17 +11,15 @@ interface ContainerInterface extends PsrContainerInterface
 {
     /**
      * 创建类实例
-     *
      * @param string $abstract
      * @param array $params
      * @param boolean $newInstance
-     * @return mixed
+     * @return object
      */
     public function make(string $abstract, array $params = [], bool $newInstance = false): object;
 
     /**
      * 绑定类、闭包、实例、接口实现到容器
-     *
      * @param string|array $abstract
      * @param mixed|null $concrete
      * @param bool $force
@@ -31,7 +29,6 @@ interface ContainerInterface extends PsrContainerInterface
 
     /**
      * 不存在则绑定类、闭包、实例、接口实现到容器
-     *
      * @param string|array $abstract
      * @param mixed|null $concrete
      * @return ContainerInterface
@@ -40,7 +37,6 @@ interface ContainerInterface extends PsrContainerInterface
 
     /**
      * 绑定一个类实例到容器
-     *
      * @param string $abstract
      * @param object $instance
      * @param bool $force
@@ -50,7 +46,6 @@ interface ContainerInterface extends PsrContainerInterface
 
     /**
      * 获取类别名的真实类名
-     *
      * @param string $abstract
      * @return string
      */
@@ -58,7 +53,6 @@ interface ContainerInterface extends PsrContainerInterface
 
     /**
      * 解绑容器中的对象实例
-     *
      * @param string $name
      * @return bool
      */
@@ -66,7 +60,6 @@ interface ContainerInterface extends PsrContainerInterface
 
     /**
      * 判断容器中是否存在对象实例
-     *
      * @param string $abstract 类名或者标识
      * @return bool
      */
@@ -74,7 +67,6 @@ interface ContainerInterface extends PsrContainerInterface
 
     /**
      * 调用反射执行callable 支持参数绑定
-     *
      * @param mixed $callable
      * @param array $params
      * @param bool $accessible
@@ -84,7 +76,6 @@ interface ContainerInterface extends PsrContainerInterface
 
     /**
      * 注册一个容器对象回调
-     *
      * @param string|Closure $abstract
      * @param Closure|null $callback
      * @return void

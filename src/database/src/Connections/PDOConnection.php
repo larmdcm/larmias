@@ -152,7 +152,7 @@ abstract class PDOConnection extends Connection
             $result = $statement->bindValue($param, $value, $type);
             if (!$result) {
                 throw new BindParamException(sprintf(
-                    'Error occurred  when binding parameters type: %d,param:%s,value:%s', $type, $param, $value
+                    'Error occurred when binding parameters type: %d,param:%s,value:%s', $type, $param, $value
                 ), $this->config, $this->executeSql, $bindings);
             }
         }

@@ -14,12 +14,20 @@
   ],
   "require": {
     "php": ">=8.0",
-    "symfony/finder": "^4.3.2|^5.1"
+    "symfony/finder": "^4.3.2|^5.1",
+    "knplabs/github-api": "^3.0",
+    "guzzlehttp/guzzle": "^7.0.1",
+    "http-interop/http-factory-guzzle": "^1.0"
   },
   "autoload": {
     "psr-4": {
     },
     "files": [
     ]
+  },
+  "config": {
+    "allow-plugins": {
+      "php-http/discovery": true
+    }
   }
 }

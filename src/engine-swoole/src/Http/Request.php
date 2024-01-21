@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Larmias\Engine\Swoole\Http;
 
 use Larmias\Contracts\Http\RequestInterface;
+use Larmias\Support\Codec\Json;
 use Swoole\Http\Request as SwooleRequest;
 use function Larmias\Collection\data_get;
 use function strstr;
@@ -41,7 +42,22 @@ class Request implements RequestInterface
      */
     public function post(?string $key = null, mixed $default = null): mixed
     {
-        return data_get($this->request->post, $key, $default);
+        $rawContentType = (string)$this->header('content-type');
+        $contentType = '';
+        if ($rawContentType) {
+            if (($pos = strpos($rawContentType, ';')) !== false) {
+                $contentType = strtolower(substr($rawContentType, 0, $pos));
+            } else {
+                $contentType = strtolower($rawContentType);
+            }
+        }
+
+        $data = match ($contentType) {
+            'application/json' => Json::decode($this->rawBody() ?: '[]'),
+            default => $this->request->post,
+        };
+
+        return data_get($data, $key, $default);
     }
 
     /**

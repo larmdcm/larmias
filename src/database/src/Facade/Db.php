@@ -60,7 +60,7 @@ use Larmias\Database\Contracts\ExpressionInterface;
  * @method static QueryInterface comment(string $comment)
  * @method static ExpressionInterface raw(string $sql, array $bindings = [])
  * @method static int execute(string $sql, array $bindings = [])
- * @method static int query(string $sql, array $bindings = [])
+ * @method static mixed query(string $sql, array $bindings = [])
  * @method static string buildSql(int $buildType = QueryInterface::BUILD_SQL_SELECT, bool $sub = false)
  * @method static int count(string $field = '*')
  * @method static float sum(string $field)

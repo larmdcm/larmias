@@ -65,15 +65,6 @@ class Driver implements DriverInterface
      * @param bool $force
      * @return void
      */
-    public function restart(bool $force = true): void
-    {
-        Worker::command(__FUNCTION__, $force);
-    }
-
-    /**
-     * @param bool $force
-     * @return void
-     */
     public function reload(bool $force = true): void
     {
         Worker::command(__FUNCTION__, $force);

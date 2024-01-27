@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\Engine\WorkerMan;
 
+use Larmias\Engine\Constants;
 use Workerman\Events\Select;
 use Workerman\Worker as BaseWorkerManWorker;
 use Workerman\Connection\TcpConnection;
@@ -48,8 +49,8 @@ class Worker extends BaseWorkerManWorker
         $isUnix = is_unix();
         WorkerManTimer::delAll();
         if (!static::$globalEvent) {
-            $event_loop_class = $isUnix ? static::getEventLoopName() : Select::class;
-            static::$globalEvent = new $event_loop_class;
+            $eventLoopClass = $isUnix ? static::getEventLoopName() : Select::class;
+            static::$globalEvent = new $eventLoopClass;
         }
         WorkerManTimer::init(static::$globalEvent);
     }
@@ -60,32 +61,32 @@ class Worker extends BaseWorkerManWorker
      */
     public static function initConfig(array $config): void
     {
-        if (isset($config['daemonize'])) {
-            Worker::$daemonize = $config['daemonize'];
+        if (isset($config[Constants::OPTION_DAEMONIZE])) {
+            Worker::$daemonize = $config[Constants::OPTION_DAEMONIZE];
         }
 
-        if (!empty($config['event_loop_class'])) {
-            Worker::$eventLoopClass = $config['event_loop_class'];
+        if (!empty($config[Constants::OPTION_EVENT_LOOP_CLASS])) {
+            Worker::$eventLoopClass = $config[Constants::OPTION_EVENT_LOOP_CLASS];
         }
 
-        if (!empty($config['stdout_file'])) {
-            Worker::$stdoutFile = $config['stdout_file'];
+        if (!empty($config[Constants::OPTION_STDOUT_FILE])) {
+            Worker::$stdoutFile = $config[Constants::OPTION_STDOUT_FILE];
         }
 
-        if (!empty($config['pid_file'])) {
-            Worker::$pidFile = $config['pid_file'];
+        if (!empty($config[Constants::OPTION_PID_FILE])) {
+            Worker::$pidFile = $config[Constants::OPTION_PID_FILE];
         }
 
-        if (!empty($config['log_file'])) {
-            Worker::$logFile = $config['log_file'];
+        if (!empty($config[Constants::OPTION_LOG_FILE])) {
+            Worker::$logFile = $config[Constants::OPTION_LOG_FILE];
         }
 
-        if (!empty($config['max_send_buffer_size'])) {
-            TcpConnection::$defaultMaxSendBufferSize = $config['max_send_buffer_size'];
+        if (!empty($config[Constants::OPTION_PACKAGE_MAX_LENGTH])) {
+            TcpConnection::$defaultMaxPackageSize = $config[Constants::OPTION_PACKAGE_MAX_LENGTH];
         }
 
-        if (!empty($config['max_package_size'])) {
-            TcpConnection::$defaultMaxPackageSize = $config['max_package_size'];
+        if (!empty($config[Constants::OPTION_SEND_PACKAGE_MAX_LENGTH])) {
+            TcpConnection::$defaultMaxSendBufferSize = $config[Constants::OPTION_SEND_PACKAGE_MAX_LENGTH];
         }
     }
 

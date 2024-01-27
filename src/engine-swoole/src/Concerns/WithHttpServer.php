@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\Engine\Swoole\Concerns;
 
+use Larmias\Engine\Constants;
 use Larmias\Engine\Swoole\Server;
 use Swoole\Coroutine\Http\Server as HttpServer;
 use Swoole\Http\Request as SwooleRequest;
@@ -27,8 +28,8 @@ trait WithHttpServer
     public function initHttpServer(): void
     {
         $this->httpServer = new HttpServer($this->getWorkerConfig()->getHost(), $this->getWorkerConfig()->getPort(),
-            $this->getSettings('ssl', false),
-            $this->getSettings('reuse_port', true)
+            $this->getSettings(Constants::OPTION_SSL, false),
+            $this->getSettings(Constants::OPTION_REUSE_PORT, true)
         );
 
         $this->httpServer->set($this->getServerSettings());

@@ -159,7 +159,8 @@ class Application implements ApplicationInterface
         /** @var ConfigInterface $config */
         $config = $this->container->get(ConfigInterface::class);
         $this->config = $config;
-        foreach (glob($configPath . '*' . '.' . $this->configExt) as $filename) {
+        $files = glob($configPath . '*' . '.' . $this->configExt);
+        foreach ($files as $filename) {
             $this->config->load($filename);
         }
     }

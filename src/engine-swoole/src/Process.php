@@ -7,11 +7,14 @@ namespace Larmias\Engine\Swoole;
 use Larmias\Engine\Constants;
 use Larmias\Engine\Event;
 use Throwable;
-use function usleep;
-use function sleep;
 
 class Process extends Worker
 {
+    /**
+     * @var int
+     */
+    protected int $loopSpanTime = 5;
+
     /**
      * @param Throwable $e
      * @return void
@@ -41,9 +44,9 @@ class Process extends Worker
             try {
                 if ($this->hasListen(Event::ON_WORKER)) {
                     $this->trigger(Event::ON_WORKER, [$this]);
-                    usleep(1000);
+                    $this->timespan();
                 } else {
-                    sleep(5);
+                    sleep($this->loopSpanTime);
                 }
             } catch (Throwable $e) {
                 $this->handleException($e);

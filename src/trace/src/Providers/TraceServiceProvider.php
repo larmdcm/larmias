@@ -31,6 +31,10 @@ class TraceServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        if (!$this->config->has('trace')) {
+            return;
+        }
+
         $this->setListener();
         $this->publishes(static::class, [
             __DIR__ . '/../../publish/trace.php' => $this->app->getConfigPath() . 'trace.php',

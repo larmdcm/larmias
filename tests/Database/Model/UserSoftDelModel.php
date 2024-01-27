@@ -12,7 +12,7 @@ use Larmias\Database\Model\Concerns\SoftDelete;
  * @property string $username
  * @property int $integral
  */
-class UserTModel extends Model
+class UserSoftDelModel extends Model
 {
     use SoftDelete;
 

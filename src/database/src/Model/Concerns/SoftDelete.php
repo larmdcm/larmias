@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace Larmias\Database\Model\Concerns;
 
-use Larmias\Database\Contracts\QueryInterface;
+use Larmias\Database\Model\Contracts\QueryInterface;
 use Larmias\Database\Model;
+use Closure;
 use function date;
 use function time;
 
@@ -15,19 +16,83 @@ use function time;
 trait SoftDelete
 {
     /**
+     * 是否包含软删除数据
+     * @var bool
+     */
+    protected bool $withTrashed = false;
+
+    /**
+     * 软删除字段
      * @var string
      */
     protected string $softDeleteField = 'deleted';
 
     /**
+     * 软删除默认值
      * @var string|int|null
      */
-    protected string|int|null $softDeleteValue = 0;
+    protected string|int|null $softDeleteDefaultValue = 0;
 
     /**
+     * 设置是否强制删除
      * @var bool
      */
-    protected bool $force = false;
+    protected bool $forceDelete = false;
+
+    /**
+     * 判断当前实例是否被软删除
+     * @return bool
+     */
+    public function trashed(): bool
+    {
+        $value = $this->getOriginValue($this->softDeleteField);
+        if (is_null($this->softDeleteDefaultValue)) {
+            return $value !== null;
+        }
+        return $value != $this->softDeleteDefaultValue;
+    }
+
+    /**
+     * 查询包含软删除数据
+     * @return QueryInterface
+     */
+    public static function withTrashed(): QueryInterface
+    {
+        return static::new()->withTrashedData(true)->newQuery();
+    }
+
+    /**
+     * 查询包含软删除数据
+     * @return QueryInterface
+     */
+    public function queryWithTrashed(): QueryInterface
+    {
+        return $this->withTrashedData(true)->newQuery();
+    }
+
+    /**
+     * 只查询软删除数据
+     * @return QueryInterface
+     */
+    public static function onlyTrashed(): QueryInterface
+    {
+        $model = new static();
+        $query = $model->newQuery();
+        $model->withInTrashed($query);
+        return $query;
+    }
+
+
+    /**
+     * 只查询软删除数据
+     * @return QueryInterface
+     */
+    public function queryOnlyTrashed(): QueryInterface
+    {
+        $query = $this->newQuery();
+        $this->withInTrashed($query);
+        return $query;
+    }
 
     /**
      * 删除
@@ -35,27 +100,50 @@ trait SoftDelete
      */
     public function delete(): bool
     {
-        if (!$this->isExists()) {
+        if ($this->trashed() || !$this->isExists()) {
             return false;
         }
 
-        $data = [
-            $this->softDeleteField => $this->getSoftDeleteValue(),
-        ];
+        return $this->whenFireEvent(['deleting', 'deleted'], function (Closure $before, Closure $after) {
+            if (!$before()) {
+                return false;
+            }
 
-        $this->setAttributes($data);
+            if ($this->isForceDelete()) {
+                $result = $this->newQuery()->removeOptions('soft_delete')->delete() > 0;
+            } else {
+                $result = $this->save([
+                    $this->softDeleteField => $this->getSoftDeleteValue(),
+                ]);
+            }
 
-        if ($this->isForce()) {
-            $result = $this->query()->removeOptions('soft_delete')->where($this->getWhere())->delete() > 0;
-        } else {
-            $result = $this->save();
-        }
-
-        if ($result) {
             $this->exists(false);
+            $after();
+
+            return $result;
+        });
+    }
+
+    /**
+     * 恢复被软删除的记录
+     * @return bool
+     */
+    public function restore(): bool
+    {
+        if (!$this->trashed() || !$this->isExists()) {
+            return false;
         }
 
-        return $result;
+        return $this->whenFireEvent(['restoring', 'restored'], function (Closure $before, Closure $after) {
+            if (!$before()) {
+                return false;
+            }
+            $data = [$this->softDeleteField => $this->softDeleteDefaultValue];
+            $result = $this->save($data);
+            $this->exists(true);
+            $after();
+            return $result;
+        });
     }
 
     /**
@@ -89,27 +177,50 @@ trait SoftDelete
     protected function withNoTrashed(QueryInterface $query): void
     {
         $softDeleteField = '${table}.' . $this->softDeleteField;
-        $condition = $this->softDeleteValue === null ? ['null'] : ['=', $this->softDeleteValue];
+        $condition = $this->softDeleteDefaultValue === null ? ['null'] : ['=', $this->softDeleteDefaultValue];
         $query->useSoftDelete($softDeleteField, $condition);
+    }
+
+    /**
+     * 查询软删除字段
+     * @param QueryInterface $query
+     * @return void
+     */
+    protected function withInTrashed(QueryInterface $query): void
+    {
+        $softDeleteField = '${table}.' . $this->softDeleteField;
+        $condition = $this->softDeleteDefaultValue === null ? ['not null'] : ['<>', $this->softDeleteDefaultValue];
+        $query->useSoftDelete($softDeleteField, $condition);
+    }
+
+    /**
+     * 是否包含软删除数据
+     * @param bool $withTrashed
+     * @return self
+     */
+    protected function withTrashedData(bool $withTrashed): self
+    {
+        $this->withTrashed = $withTrashed;
+        return $this;
     }
 
     /**
      * 是否强制删除
      * @return bool
      */
-    public function isForce(): bool
+    public function isForceDelete(): bool
     {
-        return $this->force;
+        return $this->forceDelete;
     }
 
     /**
      * 设置强制删除
-     * @param bool $force
+     * @param bool $forceDelete
      * @return Model|SoftDelete
      */
-    public function force(bool $force): self
+    public function forceDelete(bool $forceDelete): self
     {
-        $this->force = $force;
+        $this->forceDelete = $forceDelete;
         return $this;
     }
 }

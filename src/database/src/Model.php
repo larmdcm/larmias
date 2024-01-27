@@ -216,10 +216,10 @@ abstract class Model implements ModelInterface, Arrayable, Jsonable, Stringable,
     /**
      * 删除数据
      * @param array|string|int|Closure $id
-     * @param bool $force
+     * @param bool $forceDelete
      * @return bool
      */
-    public static function destroy(array|string|int|Closure $id, bool $force = false): bool
+    public static function destroy(array|string|int|Closure $id, bool $forceDelete = false): bool
     {
         if (empty($id)) {
             return false;
@@ -243,8 +243,8 @@ abstract class Model implements ModelInterface, Arrayable, Jsonable, Stringable,
 
         /** @var Model $item */
         foreach ($resultSet as $item) {
-            if (method_exists($item, 'force')) {
-                $item->force($force);
+            if (method_exists($item, 'forceDelete')) {
+                $item->forceDelete($forceDelete);
             }
             $item->delete();
         }
@@ -265,12 +265,9 @@ abstract class Model implements ModelInterface, Arrayable, Jsonable, Stringable,
             if (!$before()) {
                 return false;
             }
-
             $result = $this->isExists() ? $this->updateData() : $this->insertData();
-            if ($result) {
-                $after();
-                $this->refreshOrigin();
-            }
+            $after();
+            $this->refreshOrigin();
             return $result;
         });
     }
@@ -292,10 +289,8 @@ abstract class Model implements ModelInterface, Arrayable, Jsonable, Stringable,
             }
 
             $result = $this->newQuery()->delete() > 0;
-            if ($result) {
-                $this->exists(false);
-                $after();
-            }
+            $this->exists(false);
+            $after();
 
             return $result;
         });
@@ -368,9 +363,7 @@ abstract class Model implements ModelInterface, Arrayable, Jsonable, Stringable,
 
             $result = $query->data($data)->update() > 0;
 
-            if ($result) {
-                $after();
-            }
+            $after();
 
             return $result;
         });
@@ -442,7 +435,7 @@ abstract class Model implements ModelInterface, Arrayable, Jsonable, Stringable,
      */
     protected function setQueryWhere(QueryInterface $query): void
     {
-        if (isset($this->softDeleteField) && method_exists($this, 'withNoTrashed')) {
+        if (property_exists($this, 'withTrashed') && !$this->withTrashed && method_exists($this, 'withNoTrashed')) {
             $this->withNoTrashed($query);
         }
     }

@@ -4,9 +4,13 @@ declare(strict_types=1);
 
 namespace Larmias\Engine\Swoole;
 
+use Larmias\Engine\Constants;
+use Larmias\Engine\Swoole\Concerns\WithWaiter;
 use Larmias\Engine\Swoole\Contracts\WorkerInterface;
 use Larmias\Engine\Worker as BaseWorker;
+use Swoole\Coroutine\Channel;
 use Swoole\Process as SwooleProcess;
+use Swoole\Coroutine;
 use Throwable;
 use function Larmias\Support\format_exception;
 use function Larmias\Support\println;
@@ -14,6 +18,8 @@ use const SIGTERM;
 
 abstract class Worker extends BaseWorker implements WorkerInterface
 {
+    use WithWaiter;
+
     /**
      * @var array
      */
@@ -82,6 +88,36 @@ abstract class Worker extends BaseWorker implements WorkerInterface
     public function getType(): int
     {
         return $this->getWorkerConfig()->getType();
+    }
+
+    /**
+     * 等待运行结束
+     * @param callable $callback
+     * @return void
+     */
+    public function wait(callable $callback): void
+    {
+        $quit = new Channel(1);
+        Coroutine::create(function () use ($quit) {
+            Coroutine::defer(fn() => $quit->close());
+            while (ProcessManager::isRunning()) {
+                $this->timespan();
+            }
+        });
+        $quit->pop();
+        call_user_func($callback);
+        if (isset($this->waiter)) {
+            $this->waiter->wait(fn() => $this->waiter->done());
+        }
+    }
+
+    /**
+     * @return void
+     */
+    public function timespan(): void
+    {
+        $time = (int)$this->getSettings(Constants::OPTION_PROCESS_TICK_INTERVAL, 1);
+        usleep($time * 1000);
     }
 
     /**

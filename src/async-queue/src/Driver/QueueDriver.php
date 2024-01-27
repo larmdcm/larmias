@@ -46,6 +46,8 @@ abstract class QueueDriver implements QueueDriverInterface
      */
     protected ?float $waitTime = null;
 
+    protected ?ConcurrentInterface $concurrent = null;
+
     /**
      * @param ContainerInterface $container
      * @param ContextInterface $context
@@ -63,6 +65,7 @@ abstract class QueueDriver implements QueueDriverInterface
     {
         $this->config = array_merge($this->config, $config);
         $this->packer = new PhpSerializerPacker();
+        $this->concurrent = $this->getConcurrent();
         if (method_exists($this, 'initialize')) {
             $this->container->invoke([$this, 'initialize']);
         }
@@ -96,7 +99,7 @@ abstract class QueueDriver implements QueueDriverInterface
         if ($this->context->inCoroutine()) {
             $this->coHandle();
         } else {
-            $this->timer->tick(1, [$this, 'handle']);
+            $this->handle();
         }
     }
 
@@ -105,29 +108,42 @@ abstract class QueueDriver implements QueueDriverInterface
      */
     public function coHandle(): void
     {
+        try {
+            if ($this->concurrent) {
+                $this->concurrent->create([$this, 'handle']);
+            } else {
+                /** @var ParallelInterface $parallel */
+                $parallel = $this->container->make(ParallelInterface::class, [], true);
+                $parallel->add([$this, 'handle']);
+                $parallel->wait();
+            }
+        } catch (Throwable $e) {
+            $this->logger?->error(format_exception($e));
+        } finally {
+            $this->timespan();
+        }
+    }
+
+    /**
+     * @return ConcurrentInterface|null
+     */
+    protected function getConcurrent(): ?ConcurrentInterface
+    {
+        if (!$this->context->inCoroutine()) {
+            return null;
+        }
+
         $concurrentLimit = $this->config['concurrent_limit'] ?? null;
+        /** @var ConcurrentInterface|null $concurrent */
         $concurrent = null;
 
         if ($concurrentLimit) {
             $concurrent = $this->container->make(ConcurrentInterface::class, ['limit' => (int)$concurrentLimit], true);
         }
 
-        while (true) {
-            try {
-                if ($concurrent) {
-                    $concurrent->create([$this, 'handle']);
-                } else {
-                    $parallel = $this->container->make(ParallelInterface::class, [], true);
-                    $parallel->add([$this, 'handle']);
-                    $parallel->wait();
-                }
-            } catch (Throwable $e) {
-                $this->logger?->error(format_exception($e));
-            } finally {
-                $this->timespan();
-            }
-        }
+        return $concurrent;
     }
+
 
     /**
      * @return void

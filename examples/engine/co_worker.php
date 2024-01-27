@@ -68,7 +68,7 @@ $kernel->setConfig(\Larmias\Engine\EngineConfig::build(config: [
         }
     ],
     'settings' => [
-        'mode' => \Larmias\Engine\Swoole\Contracts\ManagerInterface::MODE_CO_WORKER,
+        'mode' => \Larmias\Engine\Constants::SCHEDULER_CO_WORKER,
     ],
 ]));
 

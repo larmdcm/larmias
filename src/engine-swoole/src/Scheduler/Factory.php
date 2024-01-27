@@ -17,7 +17,7 @@ class Factory
     public static function make(int $type): SchedulerInterface
     {
         $class = match ($type) {
-            Constants::SCHEDULER_WORKER => WorkerPoolScheduler::class,
+            Constants::SCHEDULER_WORKER_POOL => WorkerPoolScheduler::class,
             Constants::SCHEDULER_CO_WORKER => CoWorkerScheduler::class,
             default => throw new RuntimeException('type error.')
         };

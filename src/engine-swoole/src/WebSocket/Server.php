@@ -11,7 +11,6 @@ use Larmias\Engine\Event;
 use Swoole\Http\Request as SwooleRequest;
 use Swoole\Http\Response as SwooleResponse;
 use Swoole\WebSocket\CloseFrame;
-use Swoole\Coroutine;
 use Throwable;
 
 class Server extends BaseServer
@@ -25,6 +24,7 @@ class Server extends BaseServer
     {
         $this->initIdAtomic();
         $this->initHttpServer();
+        $this->initWaiter();
 
         $this->httpServer->handle('/', function (SwooleRequest $req, SwooleResponse $resp) {
             try {
@@ -34,7 +34,7 @@ class Server extends BaseServer
 
                 $connection = new Connection($this->generateId(), $request, $response);
 
-                Coroutine::create(fn() => $this->trigger(Event::ON_OPEN, [$connection]));
+                $this->waiter->add(fn() => $this->trigger(Event::ON_OPEN, [$connection]));
 
                 while (true) {
                     $data = $connection->recv();
@@ -42,19 +42,21 @@ class Server extends BaseServer
                         break;
                     }
 
-                    Coroutine::create(function () use ($connection, $data) {
+                    $this->waiter->add(function () use ($connection, $data) {
                         $frame = Frame::from($data);
-                        $this->trigger(Event::ON_MESSAGE, [$connection, $frame]);
+                        $this->waiter->wait(fn() => $this->trigger(Event::ON_MESSAGE, [$connection, $frame]));
                     });
                 }
 
                 $connection->close();
-                Coroutine::create(fn() => $this->trigger(Event::ON_CLOSE, [$connection]));
+                $this->waiter->add(fn() => $this->trigger(Event::ON_CLOSE, [$connection]));
             } catch (Throwable $e) {
                 $this->handleException($e);
             }
         });
 
-        $this->httpServer->start();
+        $this->waiter->add(fn() => $this->httpServer->start());
+
+        $this->wait(fn() => $this->httpServer->shutdown());
     }
 }

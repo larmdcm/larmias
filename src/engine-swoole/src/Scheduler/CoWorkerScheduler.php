@@ -10,7 +10,7 @@ use Swoole\Coroutine;
 use Swoole\Coroutine\Scheduler;
 use const SWOOLE_HOOK_ALL;
 
-class CoWorkerScheduler implements SchedulerInterface
+class CoWorkerScheduler extends AbstractScheduler
 {
     /**
      * @param WorkerInterface[] $workers

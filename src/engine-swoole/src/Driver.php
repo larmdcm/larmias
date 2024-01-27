@@ -7,6 +7,7 @@ namespace Larmias\Engine\Swoole;
 use Larmias\Engine\Constants;
 use Larmias\Engine\Contracts\DriverInterface;
 use Larmias\Engine\Contracts\KernelInterface;
+use Larmias\Engine\Swoole\Contracts\SchedulerInterface;
 use Larmias\Engine\Swoole\Http\Server as HttpServer;
 use Larmias\Engine\Swoole\Scheduler\Factory as SchedulerFactory;
 use Larmias\Engine\Swoole\Tcp\Server as TcpServer;
@@ -15,11 +16,7 @@ use Larmias\Engine\Swoole\WebSocket\Server as WebSocketServer;
 use Larmias\Engine\Swoole\Contracts\WorkerInterface;
 use Larmias\Engine\Swoole\Coroutine\Channel;
 use Larmias\Engine\WorkerType;
-use Swoole\Process as SwooleProcess;
 use RuntimeException;
-use const SIGUSR1;
-use const SIGTERM;
-use function function_exists;
 use function get_class;
 use function array_filter;
 
@@ -38,16 +35,14 @@ class Driver implements DriverInterface
     public function run(KernelInterface $kernel): void
     {
         $settings = $kernel->getConfig()->getSettings();
-        $mode = $settings['mode'] ?? Constants::MODE_BASE;
-        $schedulerType = $settings['scheduler_type'] ?? Constants::SCHEDULER_WORKER_POOL;
+        $mode = $settings[Constants::OPTION_MODE] ?? Constants::MODE_BASE;
         $workers = $kernel->getWorkers();
 
         if ($mode == Constants::MODE_WORKER) {
-            $schedulerType = Constants::SCHEDULER_CO_WORKER;
             $workers = [$this->getMainWorker($workers)];
         }
 
-        $scheduler = SchedulerFactory::make($schedulerType);
+        $scheduler = $this->makeScheduler($settings);
 
         foreach ($workers as $worker) {
             if (!($worker instanceof WorkerInterface)) {
@@ -58,6 +53,24 @@ class Driver implements DriverInterface
         }
 
         $scheduler->start();
+    }
+
+    /**
+     * @param array $settings
+     * @return SchedulerInterface
+     */
+    protected function makeScheduler(array $settings): SchedulerInterface
+    {
+        $schedulerType = $settings[Constants::OPTION_SCHEDULER_TYPE] ?? Constants::SCHEDULER_WORKER_POOL;
+        $mode = $settings[Constants::OPTION_MODE] ?? Constants::MODE_BASE;
+
+        if ($mode == Constants::MODE_WORKER) {
+            $schedulerType = Constants::SCHEDULER_CO_WORKER;
+        }
+
+        $scheduler = SchedulerFactory::make($schedulerType);
+        $scheduler->set($settings);
+        return $scheduler;
     }
 
     /**
@@ -79,18 +92,7 @@ class Driver implements DriverInterface
      */
     public function stop(bool $force = true): void
     {
-        if (function_exists('posix_getppid')) {
-            SwooleProcess::kill(posix_getppid(), SIGTERM);
-        }
-    }
-
-    /**
-     * @param bool $force
-     * @return void
-     */
-    public function restart(bool $force = true): void
-    {
-        $this->stop($force);
+        $this->makeScheduler($this->config)->stop($force);
     }
 
     /**
@@ -99,9 +101,7 @@ class Driver implements DriverInterface
      */
     public function reload(bool $force = true): void
     {
-        if (function_exists('posix_getppid')) {
-            SwooleProcess::kill(posix_getppid(), SIGUSR1);
-        }
+        $this->makeScheduler($this->config)->reload($force);
     }
 
     /**

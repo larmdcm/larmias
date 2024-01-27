@@ -22,12 +22,6 @@ interface DriverInterface
      * @param bool $force
      * @return void
      */
-    public function restart(bool $force = true): void;
-
-    /**
-     * @param bool $force
-     * @return void
-     */
     public function reload(bool $force = true): void;
 
     /**

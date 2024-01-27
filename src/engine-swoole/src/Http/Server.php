@@ -6,7 +6,6 @@ namespace Larmias\Engine\Swoole\Http;
 
 use Larmias\Engine\Swoole\Concerns\WithHttpServer;
 use Larmias\Engine\Swoole\Server as BaseServer;
-use Swoole\Coroutine;
 use Swoole\Http\Request as SwooleRequest;
 use Swoole\Http\Response as SwooleResponse;
 use Larmias\Engine\Event;
@@ -22,9 +21,10 @@ class Server extends BaseServer
     public function process(): void
     {
         $this->initHttpServer();
+        $this->initWaiter();
 
         $this->httpServer->handle('/', function (SwooleRequest $req, SwooleResponse $resp) {
-            Coroutine::create(function () use ($req, $resp) {
+            $this->waiter->add(function () use ($req, $resp) {
                 try {
                     [$request, $response] = $this->makeRequestAndResponse($req, $resp);
                     $this->trigger(Event::ON_REQUEST, [$request, $response]);
@@ -34,6 +34,8 @@ class Server extends BaseServer
             });
         });
 
-        $this->httpServer->start();
+        $this->waiter->add(fn() => $this->httpServer->start());
+
+        $this->wait(fn() => $this->httpServer->shutdown());
     }
 }

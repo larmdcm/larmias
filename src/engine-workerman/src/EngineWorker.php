@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\Engine\WorkerMan;
 
+use Larmias\Engine\Constants;
 use Larmias\Engine\Worker as BaseWorker;
 use Larmias\Engine\Timer;
 use Larmias\Engine\Event;
@@ -23,7 +24,6 @@ class EngineWorker extends BaseWorker
      */
     public function initialize(): void
     {
-        parent::initialize();
         $this->worker = $this->makeWorker($this->getMakeWorkerConfig());
     }
 
@@ -36,11 +36,24 @@ class EngineWorker extends BaseWorker
         try {
             $this->start($worker->id);
             if ($this->hasListen(Event::ON_WORKER)) {
-                $processTickInterval = $this->getSettings('process_tick_interval', 1);
+                $processTickInterval = $this->getSettings(Constants::OPTION_PROCESS_TICK_INTERVAL, 1);
                 Timer::tick($processTickInterval, function () {
                     $this->trigger(Event::ON_WORKER, [$this]);
                 });
             }
+        } catch (Throwable $e) {
+            $this->handleException($e);
+        }
+    }
+
+    /**
+     * @return void
+     * @throws Throwable
+     */
+    public function onWorkerStop(): void
+    {
+        try {
+            $this->stop();
         } catch (Throwable $e) {
             $this->handleException($e);
         }
@@ -60,15 +73,21 @@ class EngineWorker extends BaseWorker
      */
     public function makeWorker(array $config = []): Worker
     {
-        $worker = new Worker($config['listen'] ?? null, $config['context'] ?? []);
+        $context = $config[Constants::OPTION_RAW_CONTEXT] ?? [];
+
+        if (!empty($config[Constants::OPTION_BACKLOG])) {
+            $context['socket']['backlog'] = $config[Constants::OPTION_BACKLOG];
+        }
+
+        $worker = new Worker($config['listen'] ?? null, $context);
 
         $propertyMap = [
-            'count' => 'worker_num',
-            'user' => 'user',
-            'group' => 'group',
+            'count' => Constants::OPTION_WORKER_NUM,
+            'user' => Constants::OPTION_USER,
+            'group' => Constants::OPTION_GROUP,
+            'reusePort' => Constants::OPTION_REUSE_PORT,
+            'transport' => Constants::OPTION_TRANSPORT,
             'reloadable' => 'reloadable',
-            'reusePort' => 'reuse_port',
-            'transport' => 'transport',
             'protocol' => 'protocol',
         ];
 

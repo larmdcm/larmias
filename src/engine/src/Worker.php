@@ -14,6 +14,7 @@ use Larmias\Contracts\SignalHandlerInterface;
 use Larmias\Contracts\TimerInterface;
 use Larmias\Contracts\Worker\WorkerInterface as BaseWorkerInterface;
 use Larmias\Engine\Bootstrap\WorkerStartCallback;
+use Larmias\Engine\Bootstrap\WorkerStopCallback;
 use Larmias\Engine\Contracts\EngineConfigInterface;
 use Larmias\Engine\Contracts\KernelInterface;
 use Larmias\Engine\Contracts\WorkerConfigInterface;
@@ -34,6 +35,11 @@ abstract class Worker implements WorkerInterface
      * @var string
      */
     public const ON_WORKER_START = 'onWorkerStart';
+
+    /**
+     * @var string
+     */
+    public const ON_WORKER_STOP = 'onWorkerStop';
 
     /**
      * @var array
@@ -59,15 +65,10 @@ abstract class Worker implements WorkerInterface
     public function __construct(protected ContainerInterface $container, protected KernelInterface $kernel, protected WorkerConfigInterface $workerConfig)
     {
         $this->engineConfig = $this->kernel->getConfig();
-        $this->initialize();
-    }
-
-    /**
-     * @return void
-     */
-    public function initialize(): void
-    {
         $this->registerEventCallback();
+        if (method_exists($this, 'initialize')) {
+            $this->container->invoke([$this, 'initialize']);
+        }
     }
 
     /**
@@ -80,6 +81,15 @@ abstract class Worker implements WorkerInterface
         $this->reset();
         $this->bind();
         $this->trigger(static::ON_WORKER_START, [$this]);
+    }
+
+    /**
+     * @return void
+     * @throws Throwable
+     */
+    public function stop(): void
+    {
+        $this->trigger(static::ON_WORKER_STOP, [$this]);
     }
 
     /**
@@ -234,6 +244,7 @@ abstract class Worker implements WorkerInterface
     protected function registerEventCallback(): void
     {
         $defaultCallbacks[static::ON_WORKER_START] = [WorkerStartCallback::class, 'onWorkerStart'];
+        $defaultCallbacks[static::ON_WORKER_STOP] = [WorkerStopCallback::class, 'onWorkerStop'];
         $this->callbacks = $this->mergeCallbacks($this->engineConfig->getCallbacks(), $this->workerConfig->getCallbacks(), $defaultCallbacks);
     }
 

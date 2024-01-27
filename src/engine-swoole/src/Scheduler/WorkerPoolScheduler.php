@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace Larmias\Engine\Swoole\Scheduler;
 
+use Larmias\Engine\Constants;
 use Larmias\Engine\Swoole\Contracts\SchedulerInterface;
 use Larmias\Engine\Swoole\Contracts\WorkerInterface;
-use Swoole\Process\Pool;
+use Larmias\Engine\Swoole\Process\Worker;
+use Larmias\Engine\Swoole\Process\WorkerPool;
 use Swoole\Constant;
-use Swoole\Runtime;
 use function count;
-use const SWOOLE_IPC_UNIXSOCK;
 
-class WorkerPoolScheduler implements SchedulerInterface
+class WorkerPoolScheduler extends AbstractScheduler
 {
     /**
      * @param WorkerInterface[] $workers
@@ -39,13 +39,50 @@ class WorkerPoolScheduler implements SchedulerInterface
      */
     public function start(): void
     {
-        $pool = new Pool(count($this->workers), SWOOLE_IPC_UNIXSOCK, 0, true);
-        $pool->on(Constant::EVENT_WORKER_START, function (Pool $pool, int $workerId) {
+        $pool = $this->makeWorkerPool();
+        $pool->on(Constant::EVENT_WORKER_START, function (Worker $process) {
+            $workerId = $process->getId();
             $worker = $this->workers[$workerId];
-            Runtime::enableCoroutine($worker->getSettings('enable_coroutine', true));
             $worker->workerStart($workerId);
             $worker->process();
         });
         $pool->start();
+    }
+
+    /**
+     * @param bool $force
+     * @return void
+     */
+    public function stop(bool $force = true): void
+    {
+        $this->makeWorkerPool()->stop();
+    }
+
+    /**
+     * @param bool $force
+     * @return void
+     */
+    public function reload(bool $force = true): void
+    {
+        $this->makeWorkerPool()->reload();
+    }
+
+    /**
+     * @return WorkerPool
+     */
+    protected function makeWorkerPool(): WorkerPool
+    {
+        $pool = new WorkerPool();
+        $pool->set([
+            'log_debug' => $this->settings[Constants::OPTION_LOG_DEBUG] ?? false,
+            'daemonize' => $this->settings[Constants::OPTION_DAEMONIZE] ?? false,
+            'worker_num' => count($this->workers),
+            'enable_coroutine' => $this->settings[Constants::OPTION_ENABLE_COROUTINE] ?? true,
+            'max_wait_time' => $this->settings[Constants::OPTION_MAX_WAIT_TIME] ?? 3,
+            'stop_wait_time' => $this->settings[Constants::OPTION_STOP_WAIT_TIME] ?? 3,
+            'worker_auto_recover' => $this->settings[Constants::OPTION_WORKER_AUTO_RECOVER] ?? true,
+            'pid_file' => $this->settings[Constants::OPTION_PID_FILE] ?? null,
+        ]);
+        return $pool;
     }
 }

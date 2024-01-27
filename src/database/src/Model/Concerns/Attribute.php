@@ -267,7 +267,7 @@ trait Attribute
      */
     public function getOriginValue(string $name, mixed $default = null): mixed
     {
-        return data_get($this->data, $name, $default);
+        return data_get($this->origin, $name, $default);
     }
 
     /**

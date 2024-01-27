@@ -13,6 +13,7 @@ class Hash
 {
     /**
      * @param string $password
+     * @param string|int|null $algo
      * @param array $options
      */
     public function __construct(protected string $password, protected string|int|null $algo = PASSWORD_DEFAULT, protected array $options = [])

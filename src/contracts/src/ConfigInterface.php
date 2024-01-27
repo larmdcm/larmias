@@ -8,7 +8,6 @@ interface ConfigInterface
 {
     /**
      * 加载文件配置
-     *
      * @param string $file
      * @param string|null $key
      * @return array
@@ -17,7 +16,6 @@ interface ConfigInterface
 
     /**
      * 获取配置是否存在
-     *
      * @param string $key
      * @return boolean
      */
@@ -25,7 +23,6 @@ interface ConfigInterface
 
     /**
      * 设置配置参数.
-     *
      * @param string|array $key
      * @param mixed $value
      * @return array
@@ -34,7 +31,6 @@ interface ConfigInterface
 
     /**
      * 获取配置参数
-     *
      * @param string|null $key
      * @param mixed $default
      * @return mixed
@@ -43,7 +39,6 @@ interface ConfigInterface
 
     /**
      * 数组配置追加
-     *
      * @param string $key
      * @param mixed $value
      * @return array
@@ -52,7 +47,6 @@ interface ConfigInterface
 
     /**
      * 获取全部配置
-     *
      * @return array
      */
     public function all(): array;

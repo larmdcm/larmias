@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\Engine\Swoole\Tcp;
 
+use Larmias\Engine\Constants;
 use Larmias\Engine\Swoole\Concerns\WithIdAtomic;
 use Larmias\Engine\Swoole\Contracts\PackerInterface;
 use Larmias\Engine\Swoole\Packer\Buffer;
@@ -12,7 +13,6 @@ use Larmias\Engine\Swoole\Server as BaseServer;
 use Swoole\Coroutine\Server as CoServer;
 use Swoole\Coroutine\Server\Connection as TcpConnection;
 use Swoole\Exception as SwooleException;
-use Swoole\Coroutine;
 use Larmias\Engine\Event;
 use Throwable;
 
@@ -37,10 +37,11 @@ class Server extends BaseServer
     public function process(): void
     {
         $this->initIdAtomic();
+        $this->initWaiter();
 
         $this->server = new CoServer($this->getWorkerConfig()->getHost(), $this->getWorkerConfig()->getPort(),
-            $this->getSettings('ssl', false),
-            $this->getSettings('reuse_port', true)
+            $this->getSettings(Constants::OPTION_SSL, false),
+            $this->getSettings(Constants::OPTION_REUSE_PORT, true)
         );
 
         $this->server->set($this->getServerSettings());
@@ -51,7 +52,7 @@ class Server extends BaseServer
             try {
                 $connection = new Connection($this->generateId(), $tcpConnection, $this->packer);
 
-                Coroutine::create(fn() => $this->trigger(Event::ON_CONNECT, [$connection]));
+                $this->waiter->add(fn() => $this->trigger(Event::ON_CONNECT, [$connection]));
 
                 $buffer = new Buffer();
                 while (true) {
@@ -75,20 +76,19 @@ class Server extends BaseServer
                         }
                         $buffer->write($unpack[1]);
                         $bfString = $buffer->toString();
-
-                        Coroutine::create(function () use ($connection, $unpack) {
-                            $this->trigger(Event::ON_RECEIVE, [$connection, $unpack[0]]);
-                        });
+                        $this->waiter->add(fn() => $this->trigger(Event::ON_RECEIVE, [$connection, $unpack[0]]));
                     }
                 }
                 $connection->close();
-                Coroutine::create(fn() => $this->trigger(Event::ON_CLOSE, [$connection]));
+                $this->waiter->add(fn() => $this->trigger(Event::ON_CLOSE, [$connection]));
             } catch (Throwable $e) {
                 $this->handleException($e);
             }
         });
 
-        $this->server->start();
+        $this->waiter->add(fn() => $this->server->start());
+
+        $this->wait(fn() => $this->server->shutdown());
     }
 
     /**

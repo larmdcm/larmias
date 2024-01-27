@@ -6,7 +6,7 @@ namespace LarmiasTest\Database;
 
 use LarmiasTest\Database\Model\UserModel;
 use LarmiasTest\Database\Model\UserScopeModel;
-use LarmiasTest\Database\Model\UserTModel;
+use LarmiasTest\Database\Model\UserSoftDelModel;
 use LarmiasTest\Database\Model\UserInfoModel;
 
 class ModelTest extends TestCase
@@ -118,7 +118,7 @@ class ModelTest extends TestCase
      */
     public function testGenUniqueId(): void
     {
-        $id = UserTModel::new()->generateUniqueId();
+        $id = UserSoftDelModel::new()->generateUniqueId();
         var_dump($id);
         $this->assertNotEmpty($id);
     }
@@ -128,7 +128,7 @@ class ModelTest extends TestCase
      */
     public function testSoftDelete(): void
     {
-        $model = UserTModel::where('id', '>', 0)->orderBy('id', 'DESC')->first();
+        $model = UserSoftDelModel::where('id', '>', 0)->orderBy('id', 'DESC')->first();
         $this->assertTrue($model->isExists());
         $model->delete();
         $this->assertFalse($model->isExists());
@@ -139,7 +139,7 @@ class ModelTest extends TestCase
      */
     public function testHiddenAndGuard(): void
     {
-        $model = UserTModel::create([
+        $model = UserSoftDelModel::create([
             'username' => mt_rand(111111, 666666),
             'password' => '123456',
             'status' => 0,
@@ -147,7 +147,7 @@ class ModelTest extends TestCase
 
         var_dump($model->toArray());
 
-        $this->assertNotEquals(0, UserTModel::find($model->id)->status);
+        $this->assertNotEquals(0, UserSoftDelModel::find($model->id)->status);
     }
 
     /**

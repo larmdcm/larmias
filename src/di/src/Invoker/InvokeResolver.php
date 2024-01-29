@@ -70,10 +70,25 @@ class InvokeResolver
             if (isset($pipes[$handlerClass])) {
                 continue;
             }
+
             foreach ($annotations as $annotation) {
-                if (AnnotationCollector::has([
-                    $args['class'], 'method', $args['method'], $annotation
-                ])) {
+                if (str_contains($annotation, '::')) {
+                    [$annotClass, $method] = explode('::', $annotation);
+                } else {
+                    [$annotClass, $method] = [$annotation, '*'];
+                }
+
+                if ($method == '*') {
+                    $check = AnnotationCollector::has(implode('.', [
+                        $args['class'], 'class', $annotClass
+                    ]));
+                } else {
+                    $check = AnnotationCollector::has(implode('.', [
+                        $args['class'], 'method', $method, $annotClass
+                    ]));
+                }
+
+                if ($check) {
                     $pipes[$handlerClass] = $handler;
                     break;
                 }

@@ -45,7 +45,7 @@ class WorkerHotUpdateProcess
         if (!$this->enabled) {
             return;
         }
-        
+
         $this->watcher->watch(function (string $path, int $event) use ($worker) {
             $worker->getKernel()->reload();
         });

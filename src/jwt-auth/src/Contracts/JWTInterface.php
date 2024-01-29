@@ -33,11 +33,25 @@ interface JWTInterface
     public function refreshToken(string $token): UnencryptedToken;
 
     /**
+     * 拉黑token
+     * @param string $token
+     * @return bool
+     */
+    public function blockToken(string $token): bool;
+
+    /**
      * 解析token
      * @param string $token
      * @return UnencryptedToken
      */
     public function parseToken(string $token): UnencryptedToken;
+
+    /**
+     * 获取token解析的data
+     * @param string $token
+     * @return array
+     */
+    public function getParsedData(string $token): array;
 
     /**
      * 获取当前场景

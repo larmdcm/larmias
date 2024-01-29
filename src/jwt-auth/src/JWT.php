@@ -112,9 +112,32 @@ class JWT extends AbstractJWT
      */
     public function refreshToken(string $token): UnencryptedToken
     {
-        $claims = $this->parseToken($token)->claims()->all();
+        $tokenObj = $this->parseToken($token);
+        $config = $this->getCurrSceneConfig();
+        // 验证token是否存在黑名单
+        if ($config['blacklist_enabled'] && $this->blackList->has($tokenObj, $config)) {
+            throw new TokenBlacklistException('The token is in blacklist.');
+        }
+        $claims = $tokenObj->claims()->all();
         unset($claims['iat'], $claims['nbf'], $claims['exp'], $claims['jti']);
         return $this->getToken($claims);
+    }
+
+    /**
+     * 拉黑token
+     * @param string $token
+     * @return bool
+     */
+    public function blockToken(string $token): bool
+    {
+        $tokenObj = $this->parseToken($token);
+        $config = $this->getCurrSceneConfig();
+        // 验证token是否存在黑名单
+        if ($config['blacklist_enabled'] && $this->blackList->has($tokenObj, $config)) {
+            throw new TokenBlacklistException('The token is in blacklist.');
+        }
+
+        return $this->blackList->add($tokenObj, $config);
     }
 
     /**
@@ -129,6 +152,16 @@ class JWT extends AbstractJWT
         $parser = Configuration::forSymmetricSigner($signer, $this->getKey($config))
             ->parser();
         return $parser->parse($token);
+    }
+
+    /**
+     * 获取token解析的data
+     * @param string $token
+     * @return array
+     */
+    public function getParsedData(string $token): array
+    {
+        return $this->parseToken($token)->claims()->all();
     }
 
     /**

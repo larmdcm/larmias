@@ -27,7 +27,6 @@ class AuthHeaderParser implements ParserInterface
     {
     }
 
-
     /**
      * @return string
      */
@@ -40,14 +39,29 @@ class AuthHeaderParser implements ParserInterface
     }
 
     /**
+     * @return string
+     */
+    public function getHeaderName(): string
+    {
+        return $this->headerName;
+    }
+
+    /**
      * @param string $name
      * @return self
      */
     public function setHeaderName(string $name): self
     {
         $this->headerName = $name;
-
         return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getHeaderPrefix(): string
+    {
+        return $this->prefix;
     }
 
     /**
@@ -57,7 +71,6 @@ class AuthHeaderParser implements ParserInterface
     public function setHeaderPrefix(string $prefix): self
     {
         $this->prefix = $prefix;
-
         return $this;
     }
 }

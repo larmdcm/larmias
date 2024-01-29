@@ -70,6 +70,7 @@ class Driver implements DriverInterface
 
         $scheduler = SchedulerFactory::make($schedulerType);
         $scheduler->set($settings);
+
         return $scheduler;
     }
 

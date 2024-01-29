@@ -30,5 +30,5 @@ interface BlacklistInterface
      * @param array $config
      * @return bool
      */
-    public function delete(UnencryptedToken $token, array $config = []): bool;
+    public function remove(UnencryptedToken $token, array $config = []): bool;
 }

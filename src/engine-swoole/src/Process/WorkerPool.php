@@ -207,12 +207,13 @@ class WorkerPool
      */
     public function stop(): bool
     {
-        if (!$this->command(BaseWorker::EXIT_STOP)) {
+        $masterPid = $this->getMasterPid();
+        if (!$masterPid) {
             return false;
         }
         $stopTime = time();
-        $masterPid = $this->getMasterPid();
         $stopWaitTime = $this->config['stop_wait_time'] + $this->config['max_wait_time'];
+        SwooleProcess::kill($masterPid, SIGTERM);
         while (true) {
             if (SwooleProcess::kill($masterPid, 0)) {
                 if (time() - $stopTime > $stopWaitTime) {
@@ -231,7 +232,12 @@ class WorkerPool
      */
     public function reload(): bool
     {
-        return $this->command(BaseWorker::EXIT_RELOAD);
+        $masterPid = $this->getMasterPid();
+        if (!$masterPid) {
+            return false;
+        }
+        SwooleProcess::kill($masterPid, SIGUSR1);
+        return true;
     }
 
     /**

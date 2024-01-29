@@ -135,17 +135,6 @@ class Kernel implements KernelInterface
     /**
      * @param bool $force
      * @return void
-     * @throws Throwable
-     */
-    public function restart(bool $force = true): void
-    {
-        $this->driver->restart($force);
-        $this->run();
-    }
-
-    /**
-     * @param bool $force
-     * @return void
      */
     public function reload(bool $force = true): void
     {

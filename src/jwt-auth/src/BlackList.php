@@ -62,14 +62,14 @@ class BlackList implements BlacklistInterface
         }
 
         if ($config['login_type'] == 'mpop') {
-            return $graceTime >= time();
+            return $graceTime < time();
         }
 
         if (!is_null($claims[RegisteredClaims::ISSUED_AT])) {
-            return $claims[RegisteredClaims::ISSUED_AT]->getTimestamp() - $graceTime >= 0;
+            return $claims[RegisteredClaims::ISSUED_AT]->getTimestamp() - $graceTime <= 0;
         }
 
-        return false;
+        return true;
     }
 
     /**
@@ -79,7 +79,7 @@ class BlackList implements BlacklistInterface
      * @return bool
      * @throws InvalidArgumentException
      */
-    public function delete(UnencryptedToken $token, array $config = []): bool
+    public function remove(UnencryptedToken $token, array $config = []): bool
     {
         $claims = $token->claims()->all();
         $cacheKey = $this->getCacheKey($claims[RegisteredClaims::ID], $config);

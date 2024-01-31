@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Support\Encryption;
+namespace Larmias\Codec\Encoder;
 
-use Larmias\Contracts\DataCodingInterface;
-use function base64_decode;
+use Larmias\Contracts\EncoderInterface;
 use function base64_encode;
+use function base64_decode;
 use function str_replace;
 use function strlen;
 use function substr;
 
-class Base64 implements DataCodingInterface
+class Base64 implements EncoderInterface
 {
     /**
      * @param string $data

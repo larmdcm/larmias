@@ -11,7 +11,7 @@ use Larmias\Http\Message\Stream;
 use Larmias\Http\Message\Uri;
 use Larmias\Http\Utils\Request\Handler\CurlRequestHandler;
 use Larmias\Http\Utils\Request\Handler\RequestHandlerInterface;
-use Larmias\Support\Codec\Json;
+use Larmias\Codec\Json;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;

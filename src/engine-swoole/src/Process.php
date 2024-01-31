@@ -11,11 +11,6 @@ use Throwable;
 class Process extends Worker
 {
     /**
-     * @var int
-     */
-    protected int $loopSpanTime = 5;
-
-    /**
      * @param Throwable $e
      * @return void
      * @throws Throwable
@@ -44,10 +39,8 @@ class Process extends Worker
             try {
                 if ($this->hasListen(Event::ON_WORKER)) {
                     $this->trigger(Event::ON_WORKER, [$this]);
-                    $this->timespan();
-                } else {
-                    sleep($this->loopSpanTime);
                 }
+                $this->timespan();
             } catch (Throwable $e) {
                 $this->handleException($e);
             }

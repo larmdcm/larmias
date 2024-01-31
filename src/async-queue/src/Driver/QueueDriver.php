@@ -16,7 +16,7 @@ use Larmias\Contracts\ContextInterface;
 use Larmias\Contracts\LoggerInterface;
 use Larmias\Contracts\PackerInterface;
 use Larmias\Contracts\TimerInterface;
-use Larmias\Support\Packer\PhpSerializerPacker;
+use Larmias\Codec\Packer\PhpSerializerPacker;
 use Throwable;
 use function array_merge;
 use function Larmias\Support\format_exception;

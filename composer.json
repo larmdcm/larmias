@@ -108,11 +108,12 @@
         "larmias/collection": "self.version",
         "larmias/stringable": "self.version",
         "larmias/support": "self.version",
+        "larmias/codec": "self.version",
         "larmias/context": "self.version",
         "larmias/log-db": "self.version"
     },
     "suggest": {
-        "ext-swoole": "Required to use swoole (^4.6.*)."
+        "ext-swoole": "Required to use swoole (^4.8.*)."
     },
     "autoload": {
         "files": [
@@ -131,6 +132,7 @@
             "Larmias\\Macroable\\": "src/macroable/src/",
             "Larmias\\Collection\\": "src/collection/src/",
             "Larmias\\Stringable\\": "src/stringable/src/",
+            "Larmias\\Codec\\": "src/codec/src/",
             "Larmias\\Support\\": "src/support/src/",
             "Larmias\\Context\\": "src/context/src/",
             "Larmias\\Contracts\\": "src/contracts/src/",

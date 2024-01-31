@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Larmias\Engine\Swoole\Http;
 
 use Larmias\Contracts\Http\RequestInterface;
-use Larmias\Support\Codec\Json;
+use Larmias\Codec\Json;
 use Swoole\Http\Request as SwooleRequest;
 use function Larmias\Collection\data_get;
 use function strstr;

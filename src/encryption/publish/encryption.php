@@ -7,7 +7,7 @@ return [
     'handlers' => [
         'aes' => [
             'driver' => \Larmias\Encryption\Driver\OpenSSL::class,
-            'data_coding' => \Larmias\Support\Encryption\Base64::class,
+            'encoder' => \Larmias\Codec\Encoder\Base64::class,
             'key' => 'aBigsecret_ofAtleast32Characters',
             'iv' => null,
             'cipher' => 'aes-128-cbc',

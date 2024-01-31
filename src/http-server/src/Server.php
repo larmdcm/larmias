@@ -25,7 +25,7 @@ use Larmias\Contracts\ContainerInterface;
 use Larmias\HttpServer\Routing\Router;
 use Larmias\Routing\Dispatched;
 use Larmias\Collection\Arr;
-use Larmias\Support\Codec\Json;
+use Larmias\Codec\Json;
 use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\ServerRequestInterface;

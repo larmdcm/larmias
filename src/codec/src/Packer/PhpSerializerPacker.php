@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Support\Packer;
+namespace Larmias\Codec\Packer;
 
 use Larmias\Contracts\PackerInterface;
 use function serialize;

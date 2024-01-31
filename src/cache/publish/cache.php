@@ -9,7 +9,7 @@ return [
     'stores' => [
         'file' => [
             'driver' => \Larmias\Cache\Driver\File::class,
-            'packer' => \Larmias\Support\Packer\PhpSerializerPacker::class,
+            'packer' => \Larmias\Codec\Packer\PhpSerializerPacker::class,
             'expire' => 0,
             'path' => null,
             'prefix' => '',
@@ -18,7 +18,7 @@ return [
         ],
         'redis' => [
             'driver' => \Larmias\Cache\Driver\Redis::class,
-            'packer' => \Larmias\Support\Packer\PhpSerializerPacker::class,
+            'packer' => \Larmias\Codec\Packer\PhpSerializerPacker::class,
             'expire' => 0,
             'prefix' => '',
             'handler' => null

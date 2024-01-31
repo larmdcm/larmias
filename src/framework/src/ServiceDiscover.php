@@ -12,7 +12,7 @@ use Larmias\Engine\Timer;
 use Larmias\Event\Annotation\Listener;
 use Larmias\Framework\Annotation\Provider;
 use Larmias\Process\Annotation\Process;
-use Larmias\Support\FileSystem\FileSystem;
+use Larmias\Support\FileSystem;
 use RuntimeException;
 use function array_column;
 use function array_merge;

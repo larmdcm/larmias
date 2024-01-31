@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Larmias\Framework;
 
 use Larmias\Contracts\VendorPublishInterface;
-use Larmias\Support\FileSystem\FileSystem;
+use Larmias\Support\FileSystem;
 use RuntimeException;
 use function dirname;
 use function str_replace;

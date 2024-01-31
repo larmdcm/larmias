@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\Contracts;
 
-interface DataCodingInterface
+interface EncoderInterface
 {
     /**
      * @param string $data

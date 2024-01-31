@@ -5,24 +5,24 @@ declare(strict_types=1);
 namespace Larmias\Encryption\Driver;
 
 use Larmias\Contracts\ContainerInterface;
-use Larmias\Contracts\DataCodingInterface;
+use Larmias\Contracts\EncoderInterface;
 use Larmias\Contracts\Encryption\EncryptorInterface;
 use function array_merge;
 
-abstract class Driver implements EncryptorInterface, DataCodingInterface
+abstract class Driver implements EncryptorInterface, EncoderInterface
 {
     /**
      * @var array|string[]
      */
     protected array $config = [
         'key' => null,
-        'data_coding' => null,
+        'encoder' => null,
     ];
 
     /**
-     * @var DataCodingInterface|null
+     * @var EncoderInterface|null
      */
-    protected ?DataCodingInterface $dataCoding = null;
+    protected ?EncoderInterface $dataCoding = null;
 
     /**
      * @param ContainerInterface $container
@@ -31,9 +31,9 @@ abstract class Driver implements EncryptorInterface, DataCodingInterface
     public function __construct(protected ContainerInterface $container, array $config = [])
     {
         $this->config = array_merge($this->config, $config);
-        if ($this->config['data_coding']) {
-            /** @var DataCodingInterface $dataCoding */
-            $dataCoding = $this->container->make($this->config['data_coding']);
+        if ($this->config['encoder']) {
+            /** @var EncoderInterface $dataCoding */
+            $dataCoding = $this->container->make($this->config['encoder']);
             $this->dataCoding = $dataCoding;
         }
     }

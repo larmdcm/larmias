@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\ExceptionHandler\Render;
 
-use Larmias\Support\Codec\Json;
+use Larmias\Codec\Json;
 use Throwable;
 use function Larmias\Support\format_exception;
 use function Larmias\Support\println;

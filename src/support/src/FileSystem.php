@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Support\FileSystem;
+namespace Larmias\Support;
 
 use FilesystemIterator;
 use Generator;
+use Larmias\Support\FileSystem\FileNotFoundException;
 use SplFileInfo;
 use SplFileObject;
 use Symfony\Component\Finder\Finder;

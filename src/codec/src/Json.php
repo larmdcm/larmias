@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Support\Codec;
+namespace Larmias\Codec;
 
 use InvalidArgumentException;
 use Larmias\Contracts\Arrayable;

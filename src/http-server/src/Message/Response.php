@@ -12,7 +12,7 @@ use Larmias\Http\Message\Exceptions\FileException;
 use Larmias\Http\Message\Stream;
 use Larmias\Http\Message\Stream\FileStream;
 use Larmias\HttpServer\Contracts\ResponseInterface;
-use Larmias\Support\Codec\Json;
+use Larmias\Codec\Json;
 use Larmias\Support\MimeType;
 use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
 use Psr\Http\Message\StreamInterface;

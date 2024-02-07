@@ -57,4 +57,9 @@ class Connection implements ConnectionInterface
         $this->connection->close();
         return true;
     }
+
+    public function recv(): mixed
+    {
+        return null;
+    }
 }

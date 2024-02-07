@@ -6,9 +6,9 @@ namespace Larmias\Engine\Swoole\Tcp;
 
 use Larmias\Engine\Constants;
 use Larmias\Engine\Swoole\Concerns\WithIdAtomic;
-use Larmias\Engine\Swoole\Contracts\PackerInterface;
-use Larmias\Engine\Swoole\Packer\Buffer;
-use Larmias\Engine\Swoole\Packer\EmptyPacker;
+use Larmias\Contracts\PackerInterface;
+use Larmias\Stringable\StringBuffer;
+use Larmias\Codec\Packer\EmptyPacker;
 use Larmias\Engine\Swoole\Server as BaseServer;
 use Swoole\Coroutine\Server as CoServer;
 use Swoole\Coroutine\Server\Connection as TcpConnection;
@@ -54,7 +54,7 @@ class Server extends BaseServer
 
                 $this->waiter->add(fn() => $this->trigger(Event::ON_CONNECT, [$connection]));
 
-                $buffer = new Buffer();
+                $buffer = new StringBuffer();
                 while (true) {
                     $data = $connection->recv();
                     if ($data === '' || $data === false) {
@@ -62,11 +62,10 @@ class Server extends BaseServer
                     }
 
                     $buffer->append($data);
-                    $bfString = $buffer->toString();
 
-                    while (!empty($bfString)) {
+                    while (!$buffer->isEmpty()) {
                         try {
-                            $unpack = $this->packer->unpack($bfString);
+                            $unpack = $this->packer->unpack($buffer->toString());
                         } catch (Throwable $e) {
                             $this->printException($e);
                             $buffer->flush();
@@ -75,7 +74,6 @@ class Server extends BaseServer
                             break;
                         }
                         $buffer->write($unpack[1]);
-                        $bfString = $buffer->toString();
                         $this->waiter->add(fn() => $this->trigger(Event::ON_RECEIVE, [$connection, $unpack[0]]));
                     }
                 }

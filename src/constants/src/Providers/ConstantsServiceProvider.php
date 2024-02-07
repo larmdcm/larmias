@@ -16,7 +16,6 @@ class ConstantsServiceProvider implements ServiceProviderInterface
      */
     public function __construct(protected ContainerInterface $container)
     {
-
     }
 
     /**

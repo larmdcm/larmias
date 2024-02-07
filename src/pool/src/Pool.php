@@ -245,7 +245,7 @@ abstract class Pool implements PoolInterface
         $length = $this->channel->length();
         for ($i = 0; $i < $length; $i++) {
             $connection = $this->channel->pop($this->poolOption->getWaitTimeout());
-            if (($lifetime > 0 && $now - $connection->getConnectTime() > $lifetime) || !$connection->ping()) {
+            if (!$connection->isConnected() || !$connection->ping() || ($lifetime > 0 && $now - $connection->getConnectTime() > $lifetime)) {
                 $this->disConnection($connection);
             } else {
                 $this->channel->push($connection);

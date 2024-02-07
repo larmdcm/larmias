@@ -14,6 +14,12 @@ interface ConnectionInterface
     public function send(mixed $data): mixed;
 
     /**
+     * 接收数据。
+     * @return mixed
+     */
+    public function recv(): mixed;
+
+    /**
      * 关闭连接.
      * @return bool
      */
@@ -21,7 +27,7 @@ interface ConnectionInterface
 
     /**
      * 获取原生连接对象
-     * @return object
+     * @return mixed
      */
-    public function getRawConnection(): object;
+    public function getRawConnection(): mixed;
 }

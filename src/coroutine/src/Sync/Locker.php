@@ -58,6 +58,7 @@ class Locker implements LockerInterface
                     Coroutine::resume($id);
                 }
             }
+            unset(self::$container[$key]);
         }
 
         return true;

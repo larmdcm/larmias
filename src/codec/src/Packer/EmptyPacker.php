@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Engine\Swoole\Packer;
+namespace Larmias\Codec\Packer;
 
-use Larmias\Engine\Swoole\Contracts\PackerInterface;
+use Larmias\Contracts\PackerInterface;
 
 class EmptyPacker implements PackerInterface
 {
     /**
-     * @param string $data
+     * @param mixed $data
      * @return string
      */
-    public function pack(string $data): string
+    public function pack(mixed $data): string
     {
         return $data;
     }

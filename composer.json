@@ -110,7 +110,8 @@
         "larmias/support": "self.version",
         "larmias/codec": "self.version",
         "larmias/context": "self.version",
-        "larmias/log-db": "self.version"
+        "larmias/json-rpc": "self.version",
+        "larmias/client": "self.version"
     },
     "suggest": {
         "ext-swoole": "Required to use swoole (^4.8.*)."
@@ -183,7 +184,9 @@
             "Larmias\\JWTAuth\\": "src/jwt-auth/src/",
             "Larmias\\Trace\\": "src/trace/src/",
             "Larmias\\VarDumper\\": "src/var-dump/src/",
-            "Larmias\\Testing\\": "src/testing/src/"
+            "Larmias\\Testing\\": "src/testing/src/",
+            "Larmias\\JsonRpc\\": "src/json-rpc/src/",
+            "Larmias\\Client\\": "src/client/src/"
         }
     },
     "autoload-dev": {
@@ -231,7 +234,8 @@
                 "Larmias\\View\\Providers\\ViewServiceProvider",
                 "Larmias\\WebSocketServer\\Providers\\WebSocketServerServiceProvider",
                 "Larmias\\JWTAuth\\Providers\\JWTAuthServiceProvider",
-                "Larmias\\Trace\\Providers\\TraceServiceProvider"
+                "Larmias\\Trace\\Providers\\TraceServiceProvider",
+                "Larmias\\JsonRpc\\Providers\\JsonRpcServiceProvider"
             ]
         }
     },

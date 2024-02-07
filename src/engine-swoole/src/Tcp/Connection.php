@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Larmias\Engine\Swoole\Tcp;
 
 use Larmias\Contracts\Tcp\ConnectionInterface;
-use Larmias\Engine\Swoole\Contracts\PackerInterface;
+use Larmias\Contracts\PackerInterface;
 use Swoole\Coroutine\Server\Connection as TcpConnection;
 
 class Connection implements ConnectionInterface
@@ -41,7 +41,7 @@ class Connection implements ConnectionInterface
      */
     public function send(mixed $data): mixed
     {
-        return $this->connection->send($this->packer->pack((string)$data));
+        return $this->connection->send($this->packer->pack($data));
     }
 
     /**

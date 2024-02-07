@@ -25,3 +25,5 @@ $container = ApplicationContext::setContainer(Container::getInstance()->bind([
 $app = $container->make(ApplicationInterface::class, ['rootPath' => __DIR__ . '/app']);
 
 $app->discover();
+
+return $app;

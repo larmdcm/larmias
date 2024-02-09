@@ -28,7 +28,7 @@ class FramePacker implements PackerInterface
      */
     public function pack(mixed $data): string
     {
-        return pack(self::HEADER_PACK, strlen($data) + self::HEADER_SIZE);
+        return pack(self::HEADER_PACK, strlen($data) + self::HEADER_SIZE) . $data;
     }
 
     /**

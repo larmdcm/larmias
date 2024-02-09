@@ -29,4 +29,10 @@ interface ClientInterface extends ConnectionInterface
      * @return ClientInterface
      */
     public function set(array $settings = []): ClientInterface;
+
+    /**
+     * 获取socket
+     * @return mixed
+     */
+    public function getSocket(): mixed;
 }

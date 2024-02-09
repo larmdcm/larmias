@@ -51,9 +51,9 @@ class Str extends Command
     /**
      * @param string $key
      * @param int $step
-     * @return int|false
+     * @return string|false
      */
-    public function incr(string $key, int $step = 1): int|false
+    public function incr(string $key, int $step = 1): string|false
     {
         $result = $this->client->command('str:incr', [$key, $step]);
         return $result && $result->success ? $result->data : false;
@@ -62,9 +62,9 @@ class Str extends Command
     /**
      * @param string $key
      * @param int $step
-     * @return int|false
+     * @return string|false
      */
-    public function decr(string $key, int $step = 1): int|false
+    public function decr(string $key, int $step = 1): string|false
     {
         $result = $this->client->command('str:decr', [$key, $step]);
         return $result && $result->success ? $result->data : false;

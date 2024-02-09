@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Larmias\SharedMemory\Client;
 
+use Larmias\Client\Socket;
+use Larmias\Contracts\Client\SocketInterface;
 use Larmias\Contracts\EventLoopInterface;
 use Larmias\Contracts\TimerInterface;
 use Larmias\SharedMemory\Client\Command\Channel;
@@ -11,25 +13,11 @@ use Larmias\SharedMemory\Client\Command\Str;
 use Larmias\SharedMemory\Exceptions\ClientException;
 use Larmias\SharedMemory\Message\Command;
 use Larmias\SharedMemory\Message\Result;
+use Larmias\Support\Traits\HasEvents;
 use function array_merge;
-use function stream_set_blocking;
-use function stream_set_write_buffer;
-use function stream_set_read_buffer;
-use function stream_socket_client;
 use function strlen;
 use function pack;
-use function fwrite;
-use function fread;
 use function unpack;
-use function is_resource;
-use function sprintf;
-use function fclose;
-use function feof;
-use function call_user_func_array;
-use function usleep;
-use function microtime;
-use function set_error_handler;
-use function restore_error_handler;
 use const PHP_SAPI;
 
 /**
@@ -38,6 +26,8 @@ use const PHP_SAPI;
  */
 class Client
 {
+    use HasEvents;
+
     /**
      * @var string
      */
@@ -52,11 +42,6 @@ class Client
      * @var string
      */
     public const EVENT_CLOSE = 'close';
-
-    /**
-     * @var resource
-     */
-    protected $socket;
 
     /**
      * @var array
@@ -76,9 +61,9 @@ class Client
     ];
 
     /**
-     * @var boolean
+     * @var SocketInterface
      */
-    protected bool $connected = false;
+    protected SocketInterface $socket;
 
     /**
      * @var array
@@ -114,6 +99,7 @@ class Client
     public function __construct(array $options = [])
     {
         $this->options = array_merge($this->options, $options);
+        $this->socket = new Socket();
         foreach ($this->options['event'] as $event => $callback) {
             $this->on($event, $callback);
         }
@@ -143,23 +129,23 @@ class Client
     public function connect(): bool
     {
         if (!$this->isConnected()) {
-            $this->socket = $this->createSocket();
-            $this->connected = true;
+            if ($this->options['async']) {
+                $this->socket->set([
+                    'blocking' => false,
+                    'read_buffer_size' => 0,
+                ]);
+            }
+            $this->socket->connect($this->options['host'], $this->options['port'], $this->options['timeout']);
             if ($this->options['password'] !== '') {
                 $this->auth($this->options['password']);
             }
             if ($this->options['select'] !== 'default') {
                 $this->select($this->options['select']);
             }
-            if ($this->options['async']) {
-                stream_set_blocking($this->socket, false);
-                stream_set_write_buffer($this->socket, 0);
-                stream_set_read_buffer($this->socket, 0);
-            }
             $this->ping();
-            $this->trigger(self::EVENT_CONNECT, $this);
+            $this->fireEvent(self::EVENT_CONNECT, $this);
         }
-        return $this->connected;
+        return $this->isConnected();
     }
 
     /**
@@ -245,7 +231,7 @@ class Client
         }
         $len = strlen($data) + 4;
         $data = pack('N', $len) . $data;
-        $result = fwrite($this->socket, $data, $len);
+        $result = $this->socket->send($data);
         return $result === $len;
     }
 
@@ -261,12 +247,13 @@ class Client
 
         $protocolLen = 4;
 
-        $buffer = fread($this->socket, $protocolLen);
+        $buffer = $this->socket->recv($protocolLen);
         if ($buffer === '' || $buffer === false) {
             return null;
         }
+
         $length = unpack('Nlength', $buffer)['length'];
-        $buffer = fread($this->socket, $length - $protocolLen);
+        $buffer = $this->socket->recv($length - $protocolLen);
 
         return Result::parse($buffer);
     }
@@ -278,19 +265,10 @@ class Client
     public function close(bool $destroy = false): bool
     {
         $this->clearPing();
-        if (is_resource($this->socket)) {
-            if (static::$eventLoop) {
-                static::$eventLoop->offReadable($this->socket);
-                static::$eventLoop->offWritable($this->socket);
-            }
-            fclose($this->socket);
-        }
-        $this->trigger(self::EVENT_CLOSE, $this);
+        $this->socket->close();
+        $this->fireEvent(self::EVENT_CLOSE, $this);
         if (!$destroy && $this->options['break_reconnect']) {
             $this->reconnect();
-            $this->connected = $this->isConnected();
-        } else {
-            $this->connected = false;
         }
         return true;
     }
@@ -302,7 +280,7 @@ class Client
     {
         if ($this->close(true)) {
             $result = $this->connect();
-            $this->trigger(self::EVENT_RECONNECT, $this);
+            $this->fireEvent(self::EVENT_RECONNECT, $this);
             return $result;
         }
         return false;
@@ -313,7 +291,7 @@ class Client
      */
     public function isConnected(): bool
     {
-        return $this->connected && !feof($this->socket) && is_resource($this->socket);
+        return $this->socket->isConnected();
     }
 
     /**
@@ -325,69 +303,11 @@ class Client
     }
 
     /**
-     * @return resource
+     * @return SocketInterface
      */
-    public function getSocket()
+    public function getSocket(): SocketInterface
     {
         return $this->socket;
-    }
-
-    /**
-     * @param string $event
-     * @param callable $callback
-     * @return self
-     */
-    public function on(string $event, callable $callback): self
-    {
-        $this->events[$event][] = $callback;
-        return $this;
-    }
-
-    /**
-     * @param string $event
-     * @param ...$args
-     * @return void
-     */
-    public function trigger(string $event, ...$args): void
-    {
-        if (isset($this->events[$event])) {
-            foreach ($this->events[$event] as $callback) {
-                call_user_func_array($callback, $args);
-            }
-        }
-    }
-
-    /**
-     * @return resource
-     */
-    protected function createSocket()
-    {
-        $socket = function () {
-            set_error_handler(fn() => null);
-            $conn = stream_socket_client(
-                sprintf('tcp://%s:%d', $this->options['host'], $this->options['port']), $errCode, $errMsg,
-                $this->options['timeout']
-            );
-            restore_error_handler();
-            if (!is_resource($conn)) {
-                throw new ClientException($errMsg, $errCode);
-            }
-            return $conn;
-        };
-
-        $tryTimeout = $this->options['connect_try_timeout'] ?? 0;
-        $beginTime = microtime(true);
-
-        while (true) {
-            try {
-                return $socket();
-            } catch (ClientException $e) {
-                if ($tryTimeout === 0 || microtime(true) - $beginTime > $tryTimeout / 1000) {
-                    throw $e;
-                }
-                usleep(100000);
-            }
-        }
     }
 
     /**

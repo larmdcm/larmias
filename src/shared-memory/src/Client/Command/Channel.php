@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Larmias\SharedMemory\Client\Command;
 
+use Larmias\Client\AsyncSocket;
+use Larmias\Codec\Packer\FramePacker;
+use Larmias\Contracts\Client\AsyncSocketInterface;
 use Larmias\SharedMemory\Client\Client;
-use function call_user_func;
-use function is_array;
+use Larmias\SharedMemory\Message\Result;
 
 class Channel extends Command
 {
@@ -14,6 +16,11 @@ class Channel extends Command
      * @var array
      */
     protected array $callbacks = [];
+
+    /**
+     * @var AsyncSocketInterface
+     */
+    protected AsyncSocketInterface $asyncSocket;
 
     /**
      * @return void
@@ -24,7 +31,9 @@ class Channel extends Command
             'auto_connect' => true,
             'async' => true,
             'event' => [
-                Client::EVENT_CONNECT => [$this, 'onConnect']
+                Client::EVENT_CONNECT => function (Client $client) {
+                    $this->onConnect($client);
+                }
             ]
         ]);
     }
@@ -33,14 +42,14 @@ class Channel extends Command
      * @param Client $client
      * @return void
      */
-    public function onConnect(Client $client): void
+    protected function onConnect(Client $client): void
     {
-        Client::getEventLoop()->onReadable($client->getSocket(), function () use ($client) {
-            $result = $client->read();
-            if (!$result) {
-                $client->close();
-                return;
-            }
+        $this->asyncSocket = new AsyncSocket(Client::getEventLoop(), $client->getSocket());
+        $this->asyncSocket->set([
+            'packer_class' => FramePacker::class,
+        ]);
+        $this->asyncSocket->on(AsyncSocketInterface::ON_MESSAGE, function (mixed $data) {
+            $result = Result::parse($data);
             if (!$result->success || !is_array($result->data) || !isset($result->data['type'])) {
                 return;
             }

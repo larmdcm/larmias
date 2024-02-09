@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Client\Exceptions;
+namespace Larmias\Contracts\Client;
 
 use RuntimeException;
 use Throwable;

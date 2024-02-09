@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\Client;
 
-use Larmias\Client\Exceptions\ClientException;
+use Larmias\Contracts\Client\ClientException;
 use Larmias\Contracts\Client\SocketInterface;
 
 class Socket implements SocketInterface
@@ -29,6 +29,14 @@ class Socket implements SocketInterface
         'write_buffer_size' => null,
         'context' => [],
     ];
+
+    /**
+     * @param array $config
+     */
+    public function __construct(array $config = [])
+    {
+        $this->set($config);
+    }
 
     /**
      * @param string $host
@@ -101,7 +109,7 @@ class Socket implements SocketInterface
     }
 
     /**
-     * @return mixed
+     * @return resource
      */
     public function getSocket(): mixed
     {

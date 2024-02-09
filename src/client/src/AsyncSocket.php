@@ -2,45 +2,32 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Client\Connections;
+namespace Larmias\Client;
 
-use Larmias\Contracts\ContainerInterface;
+use Larmias\Contracts\Client\AsyncSocketInterface;
+use Larmias\Contracts\Client\SocketInterface;
 use Larmias\Contracts\EventLoopInterface;
 use Larmias\Contracts\PackerInterface;
-use Larmias\Contracts\Tcp\ConnectionInterface;
 use Larmias\Stringable\StringBuffer;
-use Larmias\Client\Socket;
+use Larmias\Support\Traits\HasEvents;
 use Throwable;
-use SplQueue;
 
-class TcpConnection implements ConnectionInterface
+class AsyncSocket implements AsyncSocketInterface
 {
+    use HasEvents;
+
     /**
      * @var array
      */
     protected array $config = [
-        'host' => '127.0.0.1',
-        'port' => 2000,
-        'timeout' => 3,
+        'max_read_size' => 65535,
         'packer_class' => null,
-        'max_read_size' => 87380,
-        'max_package_size' => 1048576,
     ];
-
-    /**
-     * @var Socket
-     */
-    protected Socket $socket;
 
     /**
      * @var PackerInterface|null
      */
     protected ?PackerInterface $packer = null;
-
-    /**
-     * @var EventLoopInterface
-     */
-    protected EventLoopInterface $eventLoop;
 
     /**
      * 接收数据缓冲区
@@ -55,36 +42,30 @@ class TcpConnection implements ConnectionInterface
     protected StringBuffer $sendBuffer;
 
     /**
-     * @var SplQueue
+     * @var SocketInterface
      */
-    protected SplQueue $messageQueue;
+    protected SocketInterface $socket;
 
     /**
-     * @param ContainerInterface $container
-     * @param array $config
-     * @throws Throwable
+     * @param EventLoopInterface $eventLoop
+     * @param SocketInterface|null $socket
      */
     public function __construct(
-        protected ContainerInterface $container,
-        array                        $config = []
+        protected EventLoopInterface $eventLoop,
+        ?SocketInterface             $socket = null,
     )
     {
-        $this->config = array_merge($this->config, $config);
-        $this->eventLoop = $this->container->get(EventLoopInterface::class);
-        if ($this->config['packer_class']) {
-            $this->packer = $this->container->get($this->config['packer_class']);
-        }
         $this->recvBuffer = new StringBuffer();
         $this->sendBuffer = new StringBuffer();
-        $this->messageQueue = new SplQueue();
-        $this->socket = new Socket();
-        $this->socket->set([
-            'blocking' => true,
-            'read_buffer_size' => 0,
-            'write_buffer_size' => 0,
-        ]);
+        $this->socket = $socket ?: new Socket();
+        if ($this->socket->isConnected()) {
+            $this->eventLoop->onReadable($this->socket->getSocket(), [$this, 'onRead']);
+        }
     }
 
+    /**
+     * @return void
+     */
     public function onRead(): void
     {
         $buffer = $this->socket->recv($this->config['max_read_size']);
@@ -113,37 +94,6 @@ class TcpConnection implements ConnectionInterface
     /**
      * @return void
      */
-    public function handleProtocolMessage(): void
-    {
-        while (!$this->recvBuffer->isEmpty()) {
-            $bfString = $this->recvBuffer->toString();
-            try {
-                $unpack = $this->packer->unpack($bfString);
-            } catch (Throwable) {
-                $this->recvBuffer->flush();
-                $unpack = [];
-            }
-            if (empty($unpack)) {
-                break;
-            }
-            $this->recvBuffer->write($unpack[1]);
-            $this->handleMessage($unpack[0]);
-        }
-    }
-
-
-    /**
-     * @param mixed $data
-     * @return void
-     */
-    protected function handleMessage(mixed $data): void
-    {
-        $this->messageQueue->enqueue($data);
-    }
-
-    /**
-     * @return void
-     */
     public function onWrite(): void
     {
         if (!$this->isConnected()) {
@@ -164,6 +114,36 @@ class TcpConnection implements ConnectionInterface
         } else {
             $this->close();
         }
+    }
+
+    /**
+     * @return void
+     */
+    protected function handleProtocolMessage(): void
+    {
+        while (!$this->recvBuffer->isEmpty()) {
+            $bfString = $this->recvBuffer->toString();
+            try {
+                $unpack = $this->packer->unpack($bfString);
+            } catch (Throwable) {
+                $this->recvBuffer->flush();
+                $unpack = [];
+            }
+            if (empty($unpack)) {
+                break;
+            }
+            $this->recvBuffer->write($unpack[1]);
+            $this->handleMessage($unpack[0]);
+        }
+    }
+
+    /**
+     * @param mixed $data
+     * @return void
+     */
+    protected function handleMessage(mixed $data): void
+    {
+        $this->fireEvent(self::ON_MESSAGE, $data);
     }
 
     /**
@@ -214,26 +194,26 @@ class TcpConnection implements ConnectionInterface
     }
 
     /**
-     * @return mixed
-     */
-    public function recv(): mixed
-    {
-        if ($this->messageQueue->isEmpty()) {
-            return null;
-        }
-
-        return $this->messageQueue->dequeue();
-    }
-
-    /**
+     * @param string $host
+     * @param int $port
+     * @param float $timeout
      * @return bool
      */
-    public function connect(): bool
+    public function connect(string $host, int $port, float $timeout = 0): bool
     {
-        $connected = $this->socket->connect($this->config['host'], $this->config['port'], $this->config['timeout']);
+        $connected = $this->socket->isConnected();
+
+        if (!$connected) {
+            $this->socket->set([
+                'blocking' => false,
+            ]);
+            $connected = $this->socket->connect($this->config['host'], $this->config['port'], $this->config['timeout']);
+        }
+
         if ($connected) {
             $this->eventLoop->onReadable($this->socket->getSocket(), [$this, 'onRead']);
         }
+
         return $connected;
     }
 
@@ -255,20 +235,27 @@ class TcpConnection implements ConnectionInterface
         return $this->socket->close();
     }
 
+
     /**
-     * @return Socket
+     * @param array $config
+     * @return AsyncSocketInterface
      */
-    public function getRawConnection(): Socket
+    public function set(array $config = []): AsyncSocketInterface
     {
-        return $this->socket;
+        $this->config = array_merge($this->config, $config);
+        $this->socket->set($this->config);
+        if ($this->config['packer_class']) {
+            $this->packer = new $this->config['packer_class'];
+        }
+        return $this;
     }
 
     /**
-     * @return int
+     * @return mixed
      */
-    public function getId(): int
+    public function getSocket(): mixed
     {
-        return $this->socket->getFd();
+        return $this->socket->getSocket();
     }
 
     /**

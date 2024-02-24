@@ -4,8 +4,12 @@ declare(strict_types=1);
 
 namespace Larmias\Task\Client;
 
+use Larmias\Client\AsyncSocket;
+use Larmias\Codec\Packer\FramePacker;
+use Larmias\Contracts\Client\AsyncSocketInterface;
 use Larmias\Contracts\ContainerInterface;
 use Larmias\SharedMemory\Client\Client as BaseClient;
+use Larmias\SharedMemory\Message\Result;
 use Larmias\Task\Task;
 use function is_array;
 use function implode;
@@ -19,6 +23,11 @@ class Client extends BaseClient
     public SyncWait $syncWait;
 
     /**
+     * @var AsyncSocketInterface
+     */
+    protected AsyncSocketInterface $asyncSocket;
+
+    /**
      * @param ContainerInterface $container
      * @param array $options
      * @throws \Throwable
@@ -26,8 +35,8 @@ class Client extends BaseClient
     public function __construct(ContainerInterface $container, array $options = [])
     {
         $options['async'] = true;
-        $options['event'][self::EVENT_CONNECT] = [$this, 'onConnect'];
-        $options['connect_try_timeout'] = $options['connect_try_timeout'] ?? 3000;
+        $options['event'][self::EVENT_CONNECT] = fn(Client $client) => $this->onConnect($client);
+        $options['timeout'] = $options['timeout'] ?? 3;
         $this->syncWait = $container->get(SyncWait::class);
         parent::__construct($options);
     }
@@ -41,33 +50,32 @@ class Client extends BaseClient
      * @param Client $client
      * @return void
      */
-    public function onConnect(Client $client): void
+    protected function onConnect(Client $client): void
     {
-        static::getEventLoop()->onReadable($client->getSocket(), function () use ($client) {
-            $result = $client->read();
-            if (!$result) {
-                $client->close();
-                return;
-            }
-
+        $this->asyncSocket = new AsyncSocket(Client::getEventLoop(), $client->getSocket());
+        $this->asyncSocket->set([
+            'packer_class' => FramePacker::class,
+        ]);
+        $this->asyncSocket->on(AsyncSocketInterface::ON_MESSAGE, function (mixed $data) {
+            $result = Result::parse($data);
             if (!$result->success || !is_array($result->data) || !isset($result->data['type'])) {
                 return;
             }
             switch ($result->data['type']) {
                 case 'publish':
-                    $this->fireEvent(['publish', $result->data['task_id']], $result->data);
+                    $this->triggerEvent(['publish', $result->data['task_id']], $result->data);
                     break;
                 case 'subscribe':
-                    $this->fireEvent(['subscribe', $result->data['name']], $result->data);
+                    $this->triggerEvent(['subscribe', $result->data['name']], $result->data);
                     break;
                 case 'getInfo':
-                    $this->fireEvent(['getInfo', $result->data['key']], $result->data['value']);
+                    $this->triggerEvent(['getInfo', $result->data['key']], $result->data['value']);
                     break;
                 case 'setInfo':
-                    $this->fireEvent(['setInfo', $result->data['key']], $result->data);
+                    $this->triggerEvent(['setInfo', $result->data['key']], $result->data);
                     break;
                 case 'message':
-                    $this->fireEvent(['message', $result->data['name']], $result->data);
+                    $this->triggerEvent(['message', $result->data['name']], $result->data);
                     break;
                 case 'finish':
                     if (isset($result->data['task_id'])) {
@@ -170,7 +178,7 @@ class Client extends BaseClient
      * @param ...$args
      * @return mixed
      */
-    protected function fireEvent(string|array $name, ...$args): mixed
+    protected function triggerEvent(string|array $name, ...$args): mixed
     {
         if (is_array($name)) {
             $name = implode('.', $name);

@@ -50,7 +50,7 @@ class Query extends BaseQuery implements QueryInterface
     }
 
     /**
-     * 插入数据返回新增ID
+     * 批量插入数据
      * @param array|null $data
      * @return int
      */

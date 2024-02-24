@@ -57,7 +57,6 @@ class Client
         'timeout' => 3,
         'event' => [],
         'async' => false,
-        'connect_try_timeout' => 0,
     ];
 
     /**

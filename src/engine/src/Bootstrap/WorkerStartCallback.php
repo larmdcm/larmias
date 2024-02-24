@@ -9,8 +9,8 @@ use Larmias\Engine\Event;
 use Larmias\Engine\Events\WorkerStart;
 use Larmias\Engine\Events\AfterWorkerStart;
 use Larmias\Contracts\ContainerInterface;
-use Psr\EventDispatcher\EventDispatcherInterface;
 use Larmias\Contracts\StdoutLoggerInterface;
+use Psr\EventDispatcher\EventDispatcherInterface;
 
 class WorkerStartCallback
 {

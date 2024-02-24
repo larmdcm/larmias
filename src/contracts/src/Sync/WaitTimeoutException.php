@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Coroutine\Exceptions;
+namespace Larmias\Contracts\Sync;
 
 use RuntimeException;
 

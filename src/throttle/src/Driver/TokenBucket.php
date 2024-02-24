@@ -35,17 +35,17 @@ class TokenBucket extends Driver
             return true;
         }
 
-        $create_num = floor(($microTime - $lastTime) * $rate);
-        $token_left = (int)min($maxRequests, $storeNum + $create_num);
+        $createNum = floor(($microTime - $lastTime) * $rate);
+        $tokenLeft = (int)min($maxRequests, $storeNum + $createNum);
 
-        if ($token_left < 1) {
+        if ($tokenLeft < 1) {
             $tmp = (int)ceil($duration / $maxRequests);
             $this->setWaitSeconds($tmp - ($microTime - $lastTime) % $tmp);
             return false;
         }
-        $this->setCurRequests($maxRequests - $token_left);
+        $this->setCurRequests($maxRequests - $tokenLeft);
         $this->cache->set($key, $microTime, $duration);
-        $this->cache->set($assistKey, $token_left - 1, $duration);
+        $this->cache->set($assistKey, $tokenLeft - 1, $duration);
         return true;
     }
 }

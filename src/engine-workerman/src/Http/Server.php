@@ -8,9 +8,9 @@ use Larmias\Context\Context;
 use Larmias\Engine\Event;
 use Workerman\Connection\TcpConnection;
 use Workerman\Protocols\Http\Request as WorkerRequest;
-use Throwable;
 use Larmias\Engine\WorkerMan\Server as BaseServer;
 use Larmias\Engine\WorkerMan\Context as WorkerContext;
+use Throwable;
 
 class Server extends BaseServer
 {
@@ -20,6 +20,8 @@ class Server extends BaseServer
     protected string $protocol = 'http';
 
     /**
+     * @param TcpConnection $connection
+     * @param WorkerRequest $request
      * @return void
      */
     public function onMessage(TcpConnection $connection, WorkerRequest $request): void

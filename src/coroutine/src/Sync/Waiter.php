@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace Larmias\Coroutine\Sync;
 
 use Closure;
+use Larmias\Contracts\Sync\WaiterInterface;
 use Larmias\Coroutine\Coroutine;
 use Larmias\Coroutine\ChannelFactory;
 use Larmias\Coroutine\Exceptions\ExceptionThrower;
-use Larmias\Coroutine\Exceptions\WaitTimeoutException;
+use Larmias\Contracts\Sync\WaitTimeoutException;
 use Throwable;
 
-class Waiter
+class Waiter implements WaiterInterface
 {
     protected float $pushTimeout = 10.0;
 

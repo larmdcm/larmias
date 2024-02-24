@@ -51,7 +51,6 @@ class Scan extends Driver
     {
         $this->finder = $this->getFinder($this->includes, $this->excludes);
         $this->files = $this->getFiles();
-
         $this->timer->tick($this->intervalTime, function () use ($callback) {
             $files = $this->getFiles();
             $this->checkFiles($this->files, $files, $callback);

@@ -31,9 +31,7 @@ class Channel extends Command
             'auto_connect' => true,
             'async' => true,
             'event' => [
-                Client::EVENT_CONNECT => function (Client $client) {
-                    $this->onConnect($client);
-                }
+                Client::EVENT_CONNECT => fn(Client $client) => $this->onConnect($client)
             ]
         ]);
     }

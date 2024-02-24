@@ -36,8 +36,8 @@ class Locker implements LockerInterface
         self::$container[$key][] = Coroutine::id();
 
         Coroutine::yield();
-
-        return false;
+        
+        return $this->lock($key);
     }
 
     /**
@@ -53,12 +53,12 @@ class Locker implements LockerInterface
 
         if (isset(self::$container[$key])) {
             $ids = self::$container[$key];
+            unset(self::$container[$key]);
             foreach ($ids as $id) {
                 if ($id > 0) {
                     Coroutine::resume($id);
                 }
             }
-            unset(self::$container[$key]);
         }
 
         return true;

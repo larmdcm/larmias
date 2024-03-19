@@ -349,6 +349,9 @@ abstract class Builder implements BuilderInterface
         foreach ($where as $logic => $wheres) {
             foreach ($wheres as $whereItem) {
                 $condition = $this->parseWhereItem($whereItem);
+                if (is_empty($condition)) {
+                    continue;
+                }
                 if ($firstLogic) {
                     $values[] = empty($values) ? $this->buildWhere($condition) : $this->buildWhereLogic($condition, $logic);
                 } else {
@@ -555,7 +558,8 @@ abstract class Builder implements BuilderInterface
         }
 
         if ($where instanceof Closure) {
-            return '( ' . $this->parseWhere($where()->getOptions()['where'], false) . ' )';
+            $subWhere = $this->parseWhere($where()->getOptions()['where'], false);
+            return $subWhere ? '( ' . $subWhere . ' )' : '';
         }
 
         return $this->parseWhereOp($where);

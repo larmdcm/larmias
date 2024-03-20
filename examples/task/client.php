@@ -32,7 +32,7 @@ $kernel->setConfig(EngineConfig::build([
             ],
             'callbacks' => [
                 \Larmias\Engine\Event::ON_WORKER_START => function () use ($container) {
-                    \Larmias\SharedMemory\Client\Client::setEventLoop(\Larmias\Engine\EventLoop::getEvent());
+                    \Larmias\SharedMemory\Client\Connection::setEventLoop(\Larmias\Engine\EventLoop::getEvent());
                     /** @var \Larmias\Contracts\TaskExecutorInterface $executor */
                     $executor = $container->make(\Larmias\Contracts\TaskExecutorInterface::class);
                     $executor->execute(function () {

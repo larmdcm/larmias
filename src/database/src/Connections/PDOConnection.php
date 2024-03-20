@@ -223,6 +223,7 @@ abstract class PDOConnection extends Connection
      */
     public function isInsertSql(string $sql): bool
     {
+        $sql = strtoupper($sql);
         return str_starts_with($sql, 'INSERT') || str_starts_with($sql, 'REPLACE');
     }
 

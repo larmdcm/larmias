@@ -6,7 +6,7 @@ namespace Larmias\Task;
 
 use Larmias\Contracts\ContainerInterface;
 use Larmias\Task\Enum\WorkerStatus;
-use Larmias\Task\Client\Client;
+use Larmias\Task\Client\Connection;
 use Throwable;
 use function Larmias\Support\format_exception;
 use function Larmias\Support\println;
@@ -28,9 +28,9 @@ class TaskWorker
     ];
 
     /**
-     * @var Client
+     * @var Connection
      */
-    protected Client $client;
+    protected Connection $client;
 
     /**
      * @var int
@@ -56,7 +56,7 @@ class TaskWorker
     public function __construct(protected ContainerInterface $container, array $config = [])
     {
         $this->config = array_merge($this->config, $config);
-        $this->client = new Client($this->container, $this->config);
+        $this->client = new Connection($this->container, $this->config);
     }
 
     /**

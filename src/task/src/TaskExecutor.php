@@ -7,15 +7,15 @@ namespace Larmias\Task;
 use Closure;
 use Larmias\Contracts\ConfigInterface;
 use Larmias\Contracts\ContainerInterface;
-use Larmias\Task\Client\Client;
+use Larmias\Task\Client\Connection;
 use Larmias\Task\Contracts\TaskExecutorInterface;
 
 class TaskExecutor implements TaskExecutorInterface
 {
     /**
-     * @var Client
+     * @var Connection
      */
-    protected Client $client;
+    protected Connection $client;
 
     /**
      * @param ContainerInterface $container
@@ -24,7 +24,7 @@ class TaskExecutor implements TaskExecutorInterface
      */
     public function __construct(protected ContainerInterface $container, protected ConfigInterface $config)
     {
-        $this->client = new Client($this->container, $this->config->get('task', []));
+        $this->client = new Connection($this->container, $this->config->get('task', []));
     }
 
     /**

@@ -2,7 +2,7 @@
 
 require '../bootstrap.php';
 
-use Larmias\SharedMemory\Client\Client;
+use Larmias\SharedMemory\Client\Connection;
 use Larmias\Engine\Kernel;
 use Larmias\Engine\EngineConfig;
 
@@ -28,9 +28,9 @@ $kernel->setConfig(EngineConfig::build([
             ],
             'callbacks' => [
                 \Larmias\Engine\Event::ON_WORKER_START => function () {
-                    Client::setEventLoop(\Larmias\Engine\EventLoop::getEvent());
+                    Connection::setEventLoop(\Larmias\Engine\EventLoop::getEvent());
 
-                    $client = new Client([
+                    $client = new Connection([
                         'password' => '123456'
                     ]);
 

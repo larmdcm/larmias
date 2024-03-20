@@ -2,7 +2,7 @@
 
 require '../bootstrap.php';
 
-use Larmias\SharedMemory\Client\Client;
+use Larmias\SharedMemory\Client\Connection;
 use Larmias\Engine\Kernel;
 use Larmias\Engine\EngineConfig;
 
@@ -33,7 +33,7 @@ $kernel->setConfig(EngineConfig::build([
                     $clients = [];
 
                     for ($i = 0; $i < 100; $i++) {
-                        $client = new Client([
+                        $client = new Connection([
                             'password' => '123456',
                         ]);
                         $clients[] = $client;
@@ -43,7 +43,7 @@ $kernel->setConfig(EngineConfig::build([
 
                     /**
                      * @var int $k
-                     * @var Client $client
+                     * @var Connection $client
                      */
                     foreach ($clients as $k => $client) {
                         for ($i = 0; $i < 100; $i++) {

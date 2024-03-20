@@ -8,6 +8,7 @@ use Larmias\Contracts\ContainerInterface;
 use Larmias\SharedMemory\Command\AuthCommand;
 use Larmias\SharedMemory\Command\ChannelCommand;
 use Larmias\SharedMemory\Command\Command;
+use Larmias\SharedMemory\Command\QueueCommand;
 use Larmias\SharedMemory\Command\StrCommand;
 use Larmias\SharedMemory\Command\PingCommand;
 use Larmias\SharedMemory\Command\SelectCommand;
@@ -28,6 +29,7 @@ class CommandExecutor implements CommandExecutorInterface
         MessageCommand::COMMAND_SELECT => SelectCommand::class,
         MessageCommand::COMMAND_STR => StrCommand::class,
         MessageCommand::COMMAND_CHANNEL => ChannelCommand::class,
+        MessageCommand::COMMAND_QUEUE => QueueCommand::class,
     ];
 
     /**

@@ -19,7 +19,7 @@ $run->set(['driver' => Driver::class, 'settings' => [
 ]]);
 
 $run(function (WorkerInterface $worker, KernelInterface $kernel) use ($app) {
-    \Larmias\SharedMemory\Client\Client::setEventLoop(\Larmias\Engine\EventLoop::getEvent());
+    \Larmias\SharedMemory\Client\Connection::setEventLoop(\Larmias\Engine\EventLoop::getEvent());
     /** @var \Larmias\Contracts\TaskExecutorInterface $executor */
     $executor = $app->getContainer()->get(\Larmias\Contracts\TaskExecutorInterface::class);
     $executor->execute(function () {

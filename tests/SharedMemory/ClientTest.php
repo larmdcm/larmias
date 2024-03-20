@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace LarmiasTest\SharedMemory;
 
-use Larmias\SharedMemory\Client\Client;
+use Larmias\SharedMemory\Client\Connection;
 
 class ClientTest extends TestCase
 {
@@ -13,17 +13,17 @@ class ClientTest extends TestCase
      */
     public function testStr(): void
     {
-        $client = new Client(['password' => '123456', 'break_reconnect' => false]);
-        $this->assertTrue($client->str->set("key1", "hello"));
-        $this->assertTrue($client->str->set("key2", "world"));
-        $this->assertTrue($client->str->exists("key1"));
-        $this->assertSame(2, $client->str->count());
-        $this->assertSame('hello', $client->str->get("key1"));
-        $this->assertSame('world', $client->str->get("key2"));
-        $this->assertSame('1', $client->str->incr('key3'));
-        $this->assertSame('0', $client->str->decr('key3'));
-        $this->assertTrue($client->str->clear());
-        $this->assertSame(0, $client->str->count());
+        $client = new Connection(['password' => '123456', 'break_reconnect' => false]);
+        $this->assertTrue($client->strSet("key1", "hello"));
+        $this->assertTrue($client->strSet("key2", "world"));
+        $this->assertTrue($client->strExists("key1"));
+        $this->assertSame(2, $client->strCount());
+        $this->assertSame('hello', $client->strGet("key1"));
+        $this->assertSame('world', $client->strGet("key2"));
+        $this->assertSame('1', $client->strIncr('key3'));
+        $this->assertSame('0', $client->strDecr('key3'));
+        $this->assertTrue($client->strClear());
+        $this->assertSame(0, $client->strCount());
         $this->assertTrue($client->close());
     }
 }

@@ -21,15 +21,12 @@ $kernel->setConfig(EngineConfig::build([
             ],
             'callbacks' => [
                 Event::ON_WORKER_START => function () {
-                    $channel = new Larmias\SharedMemory\Client\Channel(['password' => '123456']);
-                    $channel->subscribe(['chat', 'public'], function ($data) {
-                        var_dump($data);
-                    });
-                    $channel->publish('chat', 'hello chat');
-                    $channel->publish('public', 'hello public');
-                    $channel->channels(function ($data) {
-                        var_dump($data);
-                    });
+                    $client = new Larmias\SharedMemory\Client\Connection(['auto_connect' => true, 'password' => '123456']);
+                    var_dump($client->enqueue('test', 'data1'));
+                    var_dump($client->qeIsEmpty('test'));
+                    var_dump($client->qeCount('test'));
+                    var_dump($client->dequeue('test'));
+                    var_dump($client->dequeue('test'));
                 }
             ]
         ]

@@ -8,9 +8,9 @@ use Larmias\Client\Socket;
 use Larmias\Contracts\Client\SocketInterface;
 use Larmias\Contracts\EventLoopInterface;
 use Larmias\Contracts\TimerInterface;
-use Larmias\SharedMemory\Client\Command\Channel;
+use Larmias\SharedMemory\Client\Command\Queue;
 use Larmias\SharedMemory\Client\Command\Str;
-use Larmias\SharedMemory\Exceptions\ClientException;
+use Larmias\SharedMemory\Client\Command\Channel;
 use Larmias\SharedMemory\Message\Command;
 use Larmias\SharedMemory\Message\Result;
 use Larmias\Support\Traits\HasEvents;
@@ -20,13 +20,9 @@ use function pack;
 use function unpack;
 use const PHP_SAPI;
 
-/**
- * @property Str $str
- * @property Channel $channel
- */
-class Client
+class Connection
 {
-    use HasEvents;
+    use HasEvents, Str, Queue, Channel;
 
     /**
      * @var string
@@ -67,14 +63,6 @@ class Client
     /**
      * @var array
      */
-    protected array $commands = [
-        'str' => Str::class,
-        'channel' => Channel::class,
-    ];
-
-    /**
-     * @var array
-     */
     protected array $container = [];
 
     /**
@@ -105,21 +93,6 @@ class Client
         if ($this->options['auto_connect']) {
             $this->connect();
         }
-    }
-
-    /**
-     * @param string $name
-     * @return mixed|null
-     */
-    public function __get(string $name)
-    {
-        if (isset($this->container[$name])) {
-            return $this->container[$name];
-        }
-        if (!isset($this->commands[$name])) {
-            throw new ClientException('command ' . $name . ' does not exist.');
-        }
-        return $this->container[$name] = new $this->commands[$name]($this);
     }
 
     /**

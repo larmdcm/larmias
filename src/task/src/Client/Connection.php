@@ -8,14 +8,14 @@ use Larmias\Client\AsyncSocket;
 use Larmias\Codec\Packer\FramePacker;
 use Larmias\Contracts\Client\AsyncSocketInterface;
 use Larmias\Contracts\ContainerInterface;
-use Larmias\SharedMemory\Client\Client as BaseClient;
+use Larmias\SharedMemory\Client\Connection as BaseClient;
 use Larmias\SharedMemory\Message\Result;
 use Larmias\Task\Task;
 use function is_array;
 use function implode;
 use function call_user_func_array;
 
-class Client extends BaseClient
+class Connection extends BaseClient
 {
     /**
      * @var SyncWait
@@ -35,7 +35,7 @@ class Client extends BaseClient
     public function __construct(ContainerInterface $container, array $options = [])
     {
         $options['async'] = true;
-        $options['event'][self::EVENT_CONNECT] = fn(Client $client) => $this->onConnect($client);
+        $options['event'][self::EVENT_CONNECT] = fn(Connection $client) => $this->onConnect($client);
         $options['timeout'] = $options['timeout'] ?? 3;
         $this->syncWait = $container->get(SyncWait::class);
         parent::__construct($options);
@@ -47,12 +47,12 @@ class Client extends BaseClient
     protected array $callbacks = [];
 
     /**
-     * @param Client $client
+     * @param Connection $client
      * @return void
      */
-    protected function onConnect(Client $client): void
+    protected function onConnect(Connection $client): void
     {
-        $this->asyncSocket = new AsyncSocket(Client::getEventLoop(), $client->getSocket());
+        $this->asyncSocket = new AsyncSocket(Connection::getEventLoop(), $client->getSocket());
         $this->asyncSocket->set([
             'packer_class' => FramePacker::class,
         ]);

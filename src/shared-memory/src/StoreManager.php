@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Larmias\SharedMemory;
 
 use Larmias\SharedMemory\Contracts\ChannelInterface;
+use Larmias\SharedMemory\Contracts\QueueInterface;
 use Larmias\SharedMemory\Contracts\StrInterface;
 use Larmias\SharedMemory\Store\Channel;
+use Larmias\SharedMemory\Store\Queue;
 use Larmias\SharedMemory\Store\Str;
 
 class StoreManager
@@ -22,6 +24,7 @@ class StoreManager
     protected static array $container = [
         StrInterface::class => Str::class,
         ChannelInterface::class => Channel::class,
+        QueueInterface::class => Queue::class,
     ];
 
     /**
@@ -53,6 +56,17 @@ class StoreManager
     {
         return static::getStore(__FUNCTION__, function () {
             return new static::$container[ChannelInterface::class];
+        });
+    }
+
+    /**
+     * @return QueueInterface
+     * @throws \Throwable
+     */
+    public static function queue(): QueueInterface
+    {
+        return static::getStore(__FUNCTION__, function () {
+            return new static::$container[QueueInterface::class];
         });
     }
 

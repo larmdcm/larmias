@@ -36,6 +36,11 @@ class Command implements Stringable
     public const COMMAND_CHANNEL = 'channel';
 
     /**
+     * @var string
+     */
+    public const COMMAND_QUEUE = 'queue';
+
+    /**
      * @param string $name
      * @param array $args
      */

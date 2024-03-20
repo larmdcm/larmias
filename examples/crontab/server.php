@@ -77,7 +77,7 @@ $kernel->setConfig(EngineConfig::build([
     'callbacks' => [
         Event::ON_WORKER_START => [
             function () {
-                \Larmias\SharedMemory\Client\Client::setEventLoop(\Larmias\Engine\EventLoop::getEvent());
+                \Larmias\SharedMemory\Client\Connection::setEventLoop(\Larmias\Engine\EventLoop::getEvent());
                 $container = require '../di/container.php';
                 $container->make(\Larmias\Contracts\ConfigInterface::class)->set([
                     'task' => [

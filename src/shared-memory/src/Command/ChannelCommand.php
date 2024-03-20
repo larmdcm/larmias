@@ -20,6 +20,7 @@ class ChannelCommand extends Command
 
     /**
      * @return void
+     * @throws \Throwable
      */
     public function initialize(): void
     {
@@ -96,6 +97,7 @@ class ChannelCommand extends Command
     /**
      * @param ConnectionInterface $connection
      * @return void
+     * @throws \Throwable
      */
     public static function onClose(ConnectionInterface $connection): void
     {

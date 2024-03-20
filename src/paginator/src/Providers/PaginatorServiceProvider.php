@@ -36,7 +36,7 @@ class PaginatorServiceProvider implements ServiceProviderInterface
      */
     public function boot(): void
     {
-        Paginator::currentPathResolver(function (string $varPage) {
+        Paginator::currentPageResolver(function (string $varPage) {
             $context = $this->container->get(ContextInterface::class);
             if (!$context->has(ServerRequestInterface::class)) {
                 return 1;

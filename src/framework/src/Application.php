@@ -388,13 +388,14 @@ class Application implements ApplicationInterface
         $config = $this->getServiceConfig($name, true);
         $processConfig = $this->getDiscoverConfig(ServiceDiscoverInterface::SERVICE_PROCESS, []);
         foreach ($processConfig as $item) {
+            $class = $item['class'];
             $config['workers'][] = [
                 'name' => $item['args']['name'],
                 'type' => WorkerType::WORKER_PROCESS,
                 'settings' => ['worker_num' => $item['args']['count']],
                 'callbacks' => [
-                    Event::ON_WORKER_START => [$item['class'], 'onStart'],
-                    Event::ON_WORKER => [$item['class'], 'handle'],
+                    Event::ON_WORKER_START => [$class, 'onWorkerStart'],
+                    Event::ON_WORKER => [$class, 'handle'],
                 ],
             ];
         }

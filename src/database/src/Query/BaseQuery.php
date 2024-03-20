@@ -810,7 +810,6 @@ abstract class BaseQuery implements QueryInterface
         ];
 
         $config = array_merge($defaultConfig, $config);
-
         if (!$config['page']) {
             $config['page'] = Paginator::getCurrentPage($config['page_name']);
         }

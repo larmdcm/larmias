@@ -248,6 +248,14 @@ class Connection
     /**
      * @return bool
      */
+    public function destroy(): bool
+    {
+        return $this->close(true);
+    }
+
+    /**
+     * @return bool
+     */
     public function reconnect(): bool
     {
         if ($this->close(true)) {
@@ -296,7 +304,7 @@ class Connection
                 $this->close();
                 return;
             }
-            $this->sendCommand(Command::COMMAND_PING);
+            $this->command(Command::COMMAND_PING);
         });
     }
 

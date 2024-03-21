@@ -16,7 +16,7 @@ trait Str
      * @param mixed|null $default
      * @return mixed
      */
-    public function strGet(string $key, mixed $default = null): mixed
+    public function get(string $key, mixed $default = null): mixed
     {
         $result = $this->command('str:get', [$key]);
         return $result && $result->success ? $result->data : $default;
@@ -27,7 +27,7 @@ trait Str
      * @param string $value
      * @return bool
      */
-    public function strSet(string $key, string $value): bool
+    public function set(string $key, string $value): bool
     {
         $result = $this->command('str:set', [$key, $value]);
         return $result && $result->success;
@@ -37,7 +37,7 @@ trait Str
      * @param string $key
      * @return bool
      */
-    public function strDel(string $key): bool
+    public function del(string $key): bool
     {
         $result = $this->command('str:del', [$key]);
         return $result && $result->success;
@@ -47,7 +47,7 @@ trait Str
      * @param string $key
      * @return bool
      */
-    public function strExists(string $key): bool
+    public function exists(string $key): bool
     {
         $result = $this->command('str:exists', [$key]);
         return $result && $result->success ? $result->data : false;
@@ -56,30 +56,30 @@ trait Str
     /**
      * @param string $key
      * @param int $step
-     * @return string|false
+     * @return int|false
      */
-    public function strIncr(string $key, int $step = 1): string|false
+    public function incr(string $key, int $step = 1): int|false
     {
         $result = $this->command('str:incr', [$key, $step]);
-        return $result && $result->success ? $result->data : false;
+        return $result && $result->success ? (int)$result->data : false;
     }
 
     /**
      * @param string $key
      * @param int $step
-     * @return string|false
+     * @return int|false
      */
-    public function strDecr(string $key, int $step = 1): string|false
+    public function decr(string $key, int $step = 1): int|false
     {
         $result = $this->command('str:decr', [$key, $step]);
-        return $result && $result->success ? $result->data : false;
+        return $result && $result->success ? (int)$result->data : false;
     }
 
 
     /**
      * @return bool
      */
-    public function strClear(): bool
+    public function clear(): bool
     {
         $result = $this->command('str:clear');
         return $result && $result->success;
@@ -88,7 +88,7 @@ trait Str
     /**
      * @return int|null
      */
-    public function strCount(): ?int
+    public function count(): ?int
     {
         $result = $this->command('str:count');
         return $result && $result->success ? (int)$result->data : null;

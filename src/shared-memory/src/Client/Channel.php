@@ -4,70 +4,30 @@ declare(strict_types=1);
 
 namespace Larmias\SharedMemory\Client;
 
-use Larmias\Client\AsyncSocket;
-use Larmias\Codec\Packer\FramePacker;
-use Larmias\Contracts\Client\AsyncSocketInterface;
-use Larmias\SharedMemory\Message\Result;
+use Larmias\SharedMemory\Client\Command\AsyncCommand;
 
-class Channel
+class Channel extends AsyncCommand
 {
     /**
-     * @var array
-     */
-    protected array $callbacks = [];
-
-    /**
-     * @var AsyncSocketInterface
-     */
-    protected AsyncSocketInterface $asyncSocket;
-
-    /**
-     * @var Connection
-     */
-    protected Connection $conn;
-
-    /**
-     * @param array $options
-     */
-    public function __construct(array $options = [])
-    {
-        $options['async'] = true;
-        $options['event'] = array_merge($options['event'] ?? [], [
-            Connection::EVENT_CONNECT => fn(Connection $conn) => $this->onConnect($conn)
-        ]);
-        $this->conn = new Connection($options);
-    }
-
-    /**
-     * @param Connection $conn
+     * @param array $data
      * @return void
      */
-    protected function onConnect(Connection $conn): void
+    protected function onMessage(array $data): void
     {
-        $this->asyncSocket = new AsyncSocket(Connection::getEventLoop(), $conn->getSocket());
-        $this->asyncSocket->set([
-            'packer_class' => FramePacker::class,
-        ]);
-        $this->asyncSocket->on(AsyncSocketInterface::ON_MESSAGE, function (mixed $data) {
-            $result = Result::parse($data);
-            if (!$result->success || !is_array($result->data) || !isset($result->data['type'])) {
-                return;
-            }
-            switch ($result->data['type']) {
-                case 'message':
-                    if (isset($this->callbacks['message'][$result->data['channel']])) {
-                        call_user_func($this->callbacks['message'][$result->data['channel']], $result->data);
+        switch ($data['type']) {
+            case 'message':
+                if (isset($this->callbacks['message'][$data['channel']])) {
+                    call_user_func($this->callbacks['message'][$data['channel']], $data);
+                }
+                break;
+            case 'channels':
+                if (isset($this->callbacks['channels'])) {
+                    foreach ($this->callbacks['channels'] as $callback) {
+                        call_user_func($callback, $data);
                     }
-                    break;
-                case 'channels':
-                    if (isset($this->callbacks['channels'])) {
-                        foreach ($this->callbacks['channels'] as $callback) {
-                            call_user_func($callback, $result->data);
-                        }
-                    }
-                    break;
-            }
-        });
+                }
+                break;
+        }
     }
 
     /**

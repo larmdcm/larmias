@@ -72,7 +72,7 @@ class ClientConnection extends BaseConnection
     public function ping(): bool
     {
         try {
-            return $this->conn->sendCommand(Command::COMMAND_PING);
+            return (bool)$this->conn->command(Command::COMMAND_PING)?->success;
         } catch (Throwable) {
             return false;
         }

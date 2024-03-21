@@ -18,6 +18,7 @@ trait Channel
      */
     public function publish(string|array $channels, string $message): bool
     {
-        return $this->sendCommand('channel:publish', [$channels, $message]);
+        $result = $this->command('channel:publish', [$channels, $message]);
+        return $result && $result->success;
     }
 }

@@ -44,6 +44,7 @@ class Command
 
     /**
      * @return ConnectionInterface
+     * @throws \Throwable
      */
     public function getConnection(): ConnectionInterface
     {

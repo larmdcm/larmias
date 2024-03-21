@@ -211,6 +211,11 @@ abstract class Pool implements PoolInterface
             $this->options['max_idle_time'],
             $this->options['wait_timeout'],
         );
+
+        if (!$this->context->inCoroutine()) {
+            $this->poolOption->setMinActive(1);
+            $this->poolOption->setMaxActive(1);
+        }
     }
 
     /**

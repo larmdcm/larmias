@@ -124,7 +124,7 @@ class Connection
      * @param array $options
      * @return self
      */
-    public function set(array $options = []): self
+    public function setOptions(array $options = []): self
     {
         $this->options = array_merge($this->options, $options);
         return $this;

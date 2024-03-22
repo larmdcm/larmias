@@ -114,7 +114,7 @@ class Connection
             if ($this->options['select'] !== 'default') {
                 $this->select($this->options['select']);
             }
-            $this->ping();
+            $this->startPing();
             $this->fireEvent(self::EVENT_CONNECT, $this);
         }
         return $this->isConnected();
@@ -165,6 +165,14 @@ class Connection
             return true;
         }
         return false;
+    }
+
+    /**
+     * @return bool
+     */
+    public function ping(): bool
+    {
+        return (bool)$this->command(Command::COMMAND_PING)?->success;
     }
 
     /**
@@ -293,18 +301,16 @@ class Connection
     /**
      * @return void
      */
-    protected function ping(): void
+    protected function startPing(): void
     {
         if (!$this->options['ping_interval'] || !$this->isCli() || !static::$timer) {
             return;
         }
         $this->clearPing();
         $this->options['ping_interval_id'] = static::$timer->tick($this->options['ping_interval'], function () {
-            if (!$this->isConnected()) {
+            if (!$this->isConnected() || !$this->ping()) {
                 $this->close();
-                return;
             }
-            $this->command(Command::COMMAND_PING);
         });
     }
 

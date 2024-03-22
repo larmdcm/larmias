@@ -29,6 +29,7 @@ class ChannelCommand extends Command
 
     /**
      * @return array
+     * @throws \Throwable
      */
     public function subscribe(): array
     {
@@ -40,6 +41,7 @@ class ChannelCommand extends Command
 
     /**
      * @return array
+     * @throws \Throwable
      */
     public function unsubscribe(): array
     {
@@ -74,6 +76,7 @@ class ChannelCommand extends Command
 
     /**
      * @return array
+     * @throws \Throwable
      */
     public function channels(): array
     {
@@ -85,6 +88,7 @@ class ChannelCommand extends Command
 
     /**
      * @return array
+     * @throws \Throwable
      */
     public function close(): array
     {

@@ -92,7 +92,7 @@ class Connection
      */
     protected function shouldUseSameConnection(string $name): bool
     {
-        return in_array($name, ['select']);
+        return $name == 'select';
     }
 
     /**
@@ -101,54 +101,5 @@ class Connection
     protected function getContextKey(): string
     {
         return 'shared-memory.client.connections.' . $this->config['name'];
-    }
-
-    /**
-     * @return bool
-     */
-    public function connect(): bool
-    {
-        return $this->__call(__FUNCTION__, func_get_args());
-    }
-
-    /**
-     * @return bool
-     */
-    public function reconnect(): bool
-    {
-        return $this->__call(__FUNCTION__, func_get_args());
-    }
-
-    /**
-     * @return bool
-     */
-    public function close(): bool
-    {
-        return $this->__call(__FUNCTION__, func_get_args());
-    }
-
-    /**
-     * @return \Redis
-     */
-    public function getRaw(): \Redis
-    {
-        return $this->__call(__FUNCTION__, func_get_args());
-    }
-
-    /**
-     * @return int
-     */
-    public function getDatabase(): int
-    {
-        return $this->__call(__FUNCTION__, func_get_args());
-    }
-
-    /**
-     * @param int $db
-     * @return void
-     */
-    public function setDatabase(int $db): void
-    {
-        $this->__call(__FUNCTION__, func_get_args());
     }
 }

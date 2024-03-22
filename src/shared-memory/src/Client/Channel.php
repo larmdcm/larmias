@@ -32,6 +32,16 @@ class Channel extends AsyncCommand
 
     /**
      * @param string|array $channels
+     * @param string $message
+     * @return bool
+     */
+    public function publish(string|array $channels, string $message): bool
+    {
+        return $this->conn->sendCommand('channel:publish', [$channels, $message]);
+    }
+
+    /**
+     * @param string|array $channels
      * @param callable $callback
      * @return bool
      */
@@ -51,16 +61,6 @@ class Channel extends AsyncCommand
     public function unsubscribe(string|array $channels): bool
     {
         return $this->conn->sendCommand('channel:unsubscribe', $channels);
-    }
-
-    /**
-     * @param string|array $channels
-     * @param string $message
-     * @return bool
-     */
-    public function publish(string|array $channels, string $message): bool
-    {
-        return $this->conn->publish($channels, $message);
     }
 
     /**

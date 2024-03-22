@@ -6,7 +6,6 @@ namespace Larmias\SharedMemory\Client\Pool;
 
 use Larmias\Pool\Connection as BaseConnection;
 use Larmias\SharedMemory\Client\Connection;
-use Larmias\SharedMemory\Message\Command;
 use Throwable;
 
 class ClientConnection extends BaseConnection
@@ -71,11 +70,7 @@ class ClientConnection extends BaseConnection
      */
     public function ping(): bool
     {
-        try {
-            return (bool)$this->conn->command(Command::COMMAND_PING)?->success;
-        } catch (Throwable) {
-            return false;
-        }
+        return $this->conn->ping();
     }
 
     /**
@@ -83,7 +78,7 @@ class ClientConnection extends BaseConnection
      */
     public function close(): bool
     {
-        return $this->conn->close(true);
+        return $this->conn->close();
     }
 
     /**

@@ -56,14 +56,13 @@ class Pusher implements PusherInterface
         foreach ($this->to as $item) {
             $clients = $this->room->getClients((string)$item);
             if (!empty($clients)) {
-                $ids[] = array_merge($ids, $clients);
+                $ids = array_merge($ids, $clients);
             } else {
                 $ids[] = $item;
             }
         }
 
         $ids = array_unique($ids);
-
         foreach ($ids as $id) {
             $this->sendMessage($id, $data);
         }

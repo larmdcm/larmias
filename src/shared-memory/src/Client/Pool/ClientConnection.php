@@ -13,7 +13,13 @@ class ClientConnection extends BaseConnection
     /**
      * @var array
      */
-    protected array $config = [];
+    protected array $config = [
+        'host' => '127.0.0.1',
+        'port' => 2000,
+        'password' => '',
+        'select' => 'default',
+        'timeout' => 3,
+    ];
 
     /**
      * @var Connection
@@ -31,6 +37,11 @@ class ClientConnection extends BaseConnection
     public function __construct(array $config = [])
     {
         $this->config = array_merge($this->config, $config);
+        $this->config['auto_connect'] = false;
+        $this->config['break_reconnect'] = false;
+        $this->config['ping_interval'] = 0;
+        $this->config['async'] = false;
+        $this->config['event'] = [];
     }
 
     /**
@@ -38,11 +49,8 @@ class ClientConnection extends BaseConnection
      */
     public function connect(): bool
     {
-        $this->config['auto_connect'] = false;
-        $this->config['break_reconnect'] = false;
-        $this->config['ping_interval'] = 0;
-        $this->config['async'] = false;
         $this->conn = new Connection($this->config);
+        $this->setDatabase($this->config['select']);
         return $this->conn->connect();
     }
 
@@ -61,8 +69,11 @@ class ClientConnection extends BaseConnection
     public function reset(): bool
     {
         $db = (string)$this->config['select'];
-        $this->setDatabase($db);
-        return $this->conn->select($db) !== false;
+        if ($db !== $this->database) {
+            $this->setDatabase($db);
+            return $this->conn->select($db) !== false;
+        }
+        return true;
     }
 
     /**

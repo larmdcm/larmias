@@ -44,7 +44,7 @@ class Server extends BaseServer
 
                     $this->waiter->add(function () use ($connection, $data) {
                         $frame = Frame::from($data);
-                        $this->waiter->wait(fn() => $this->trigger(Event::ON_MESSAGE, [$connection, $frame]));
+                        $this->trigger(Event::ON_MESSAGE, [$connection, $frame]);
                     });
                 }
 

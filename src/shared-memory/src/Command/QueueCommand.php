@@ -9,6 +9,7 @@ use Larmias\SharedMemory\ConnectionManager;
 use Larmias\SharedMemory\Contracts\QueueInterface;
 use Larmias\SharedMemory\Message\Result;
 use Larmias\SharedMemory\StoreManager;
+use SplQueue;
 
 class QueueCommand extends Command
 {
@@ -34,6 +35,7 @@ class QueueCommand extends Command
     public function enqueue(string $key, string $data): bool
     {
         $res = $this->queue->enqueue($key, $data);
+        $failQueue = new SplQueue();
         while ($this->queue->hasConsumer($key) && !$this->queue->isEmpty($key)) {
             $item = $this->queue->dequeue($key);
             $consumer = $this->queue->dispatchConsumer($key);
@@ -41,14 +43,16 @@ class QueueCommand extends Command
             if ($connection) {
                 $connection->send(Result::build([
                     'type' => 'consume',
-                    'data' => [
-                        'queue' => $key,
-                        'item' => $item,
-                    ],
+                    'queue' => $key,
+                    'data' => $item,
                 ]));
             } else {
-                $this->queue->enqueue($key, $item);
+                $failQueue->enqueue($item);
             }
+        }
+
+        while (!$failQueue->isEmpty()) {
+            $this->queue->enqueue($key, $failQueue->dequeue());
         }
 
         return $res;

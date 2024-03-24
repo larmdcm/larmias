@@ -7,6 +7,8 @@ namespace Larmias\Coroutine;
 use Larmias\Contracts\Coroutine\ChannelInterface;
 use Larmias\Coroutine\Concurrent\Parallel;
 use Closure;
+use Larmias\Coroutine\Sync\Locker;
+use Larmias\Coroutine\Sync\Once;
 use Larmias\Coroutine\Sync\Waiter;
 
 /**
@@ -60,4 +62,30 @@ function channel(int $size = 0): ChannelInterface
 function defer(callable $callable): void
 {
     Coroutine::defer($callable);
+}
+
+/**
+ * @param callable $callable
+ * @param string|null $key
+ * @return mixed
+ */
+function try_lock(callable $callable, ?string $key = null): mixed
+{
+    $locker = Locker::getInstance();
+    try {
+        $locker->lock($key);
+        return $callable();
+    } finally {
+        $locker->unlock($key);
+    }
+}
+
+/**
+ * @param callable $callable
+ * @param string|null $key
+ * @return bool
+ */
+function once(callable $callable, ?string $key = null): bool
+{
+    return Once::getInstance()->do($callable, $key);
 }

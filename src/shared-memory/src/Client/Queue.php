@@ -14,12 +14,8 @@ class Queue extends AsyncCommand
      */
     protected function onMessage(array $data): void
     {
-        switch ($data['type']) {
-            case 'consume':
-                if (isset($this->callbacks['consume'][$data['queue']])) {
-                    call_user_func($this->callbacks['consume'][$data['queue']], $data['item']);
-                }
-                break;
+        if (isset($data['queue']) && isset($this->callbacks[$data['type']][$data['queue']])) {
+            call_user_func($this->callbacks[$data['type']][$data['queue']], $data['data']);
         }
     }
 
@@ -31,7 +27,7 @@ class Queue extends AsyncCommand
     public function addConsumer(string $queue, callable $callback): bool
     {
         $this->callbacks['consume'][$queue] = $callback;
-        return $this->conn->sendCommand('channel:addConsumer', [$queue]);
+        return $this->conn->sendCommand('queue:addConsumer', [$queue]);
     }
 
     /**
@@ -40,7 +36,7 @@ class Queue extends AsyncCommand
      */
     public function delConsumer(string $queue): bool
     {
-        return $this->conn->sendCommand('channel:delConsumer', [$queue]);
+        return $this->conn->sendCommand('queue:delConsumer', [$queue]);
     }
 
     /**
@@ -49,6 +45,6 @@ class Queue extends AsyncCommand
      */
     public function hasConsumer(string $queue): bool
     {
-        return $this->conn->sendCommand('channel:hasConsumer', [$queue]);
+        return $this->conn->sendCommand('queue:hasConsumer', [$queue]);
     }
 }

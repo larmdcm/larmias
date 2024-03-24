@@ -78,8 +78,11 @@ class RedisConnection extends BaseConnection implements ConnectionInterface
     public function reset(): bool
     {
         $db = (int)$this->config['db'];
-        $this->setDatabase($db);
-        return $this->redis->select($db) !== false;
+        if ($db !== $this->database) {
+            $this->setDatabase($db);
+            return $this->redis->select($db) !== false;
+        }
+        return true;
     }
 
     /**

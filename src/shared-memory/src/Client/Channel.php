@@ -17,13 +17,13 @@ class Channel extends AsyncCommand
         switch ($data['type']) {
             case 'message':
                 if (isset($this->callbacks['message'][$data['channel']])) {
-                    call_user_func($this->callbacks['message'][$data['channel']], $data);
+                    call_user_func($this->callbacks['message'][$data['channel']], $data['data']);
                 }
                 break;
             case 'channels':
                 if (isset($this->callbacks['channels'])) {
                     foreach ($this->callbacks['channels'] as $callback) {
-                        call_user_func($callback, $data);
+                        call_user_func($callback, $data['data']);
                     }
                 }
                 break;

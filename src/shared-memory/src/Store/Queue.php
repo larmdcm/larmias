@@ -198,9 +198,8 @@ class Queue implements QueueInterface
             return false;
         }
 
-        $k = key($this->consumer[$key]);
-        $id = $this->consumer[$key][$k];
-        unset($this->consumer[$key][$k]);
+        $id = key($this->consumer[$key]);
+        unset($this->consumer[$key][$id]);
         $this->addConsumer($key, $id);
         return $id;
     }

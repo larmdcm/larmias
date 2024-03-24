@@ -50,11 +50,15 @@ class Memory implements RoomInterface
     {
         $rooms = is_string($rooms) ? explode(',', $rooms) : $rooms;
         foreach ($rooms as $room) {
+            if (empty($this->rooms[$room])) {
+                continue;
+            }
+
             if (!in_array($id, $this->rooms[$room])) {
                 continue;
             }
 
-            $this->rooms[$room][] = array_values(array_diff($this->rooms[$room], [$id]));
+            $this->rooms[$room] = array_values(array_diff($this->rooms[$room], [$id]));
         }
     }
 

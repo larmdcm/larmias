@@ -100,6 +100,6 @@ class Connection
      */
     protected function getContextKey(): string
     {
-        return 'shared-memory.client.connections.' . $this->config['name'];
+        return 'shared-memory.client.connection';
     }
 }

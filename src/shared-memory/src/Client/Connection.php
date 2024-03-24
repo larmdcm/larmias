@@ -308,7 +308,8 @@ class Connection
         }
         $this->clearPing();
         $this->options['ping_interval_id'] = static::$timer->tick($this->options['ping_interval'], function () {
-            if (!$this->isConnected() || !$this->ping()) {
+            $this->ping();
+            if (!$this->isConnected()) {
                 $this->close();
             }
         });

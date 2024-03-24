@@ -18,6 +18,23 @@ class Locker implements LockerInterface
     protected static array $container = [];
 
     /**
+     * @var LockerInterface|null
+     */
+    protected static ?LockerInterface $instance = null;
+
+    /**
+     * @return LockerInterface
+     */
+    public static function getInstance(): LockerInterface
+    {
+        if (!static::$instance) {
+            static::$instance = new static();
+        }
+
+        return static::$instance;
+    }
+
+    /**
      * 加锁
      * @param string|null $key
      * @return bool
@@ -36,7 +53,7 @@ class Locker implements LockerInterface
         self::$container[$key][] = Coroutine::id();
 
         Coroutine::yield();
-        
+
         return $this->lock($key);
     }
 

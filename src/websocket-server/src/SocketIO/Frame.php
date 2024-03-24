@@ -12,7 +12,7 @@ class Frame implements FrameInterface
     {
     }
 
-    public static function from(FrameInterface $frame, ?array $data = null): static
+    public static function from(FrameInterface $frame, mixed $data = null): static
     {
         if ($data === null) {
             $data = $frame->getData();

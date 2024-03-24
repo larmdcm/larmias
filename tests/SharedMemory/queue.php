@@ -21,12 +21,22 @@ $kernel->setConfig(EngineConfig::build([
             ],
             'callbacks' => [
                 Event::ON_WORKER_START => function () {
-                    $client = new Larmias\SharedMemory\Client\Connection(['auto_connect' => true, 'password' => '123456']);
-                    var_dump($client->enqueue('test', 'data1'));
-                    var_dump($client->qeIsEmpty('test'));
-                    var_dump($client->qeCount('test'));
-                    var_dump($client->dequeue('test'));
-                    var_dump($client->dequeue('test'));
+                    $connection = \Larmias\Support\make(\Larmias\SharedMemory\Client\Proxy\Client::class);
+                    \Larmias\Engine\Timer::tick(1000, function () use ($connection) {
+                        $connection->enqueue('test', (string)mt_rand(100, 666));
+                    });
+
+                    $queue1 = new \Larmias\SharedMemory\Client\Queue(['password' => '123456']);
+                    $queue1->addConsumer('test', function ($data) {
+                        var_dump('1:' . $data);
+                    });
+
+//                    $queue2 = new \Larmias\SharedMemory\Client\Queue(['password' => '123456']);
+//                    $queue2->addConsumer('test', function ($data) {
+//                        var_dump('2:' . $data);
+//                    });
+
+                    // $connection->enqueue('test', (string)mt_rand(100, 666));
                 }
             ]
         ]

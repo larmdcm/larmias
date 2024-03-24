@@ -12,8 +12,6 @@ use Larmias\Contracts\Pool\ConnectionInterface;
 use Larmias\Contracts\Pool\PoolInterface;
 use Larmias\Contracts\Pool\PoolOptionInterface;
 use Larmias\Contracts\TimerInterface;
-use Psr\Container\ContainerExceptionInterface;
-use Psr\Container\NotFoundExceptionInterface;
 use RuntimeException;
 use Throwable;
 use function time;
@@ -78,8 +76,7 @@ abstract class Pool implements PoolInterface
     /**
      * @param ContainerInterface $container
      * @param array $options
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
+     * @throws Throwable
      */
     public function __construct(protected ContainerInterface $container, array $options = [])
     {
@@ -180,8 +177,7 @@ abstract class Pool implements PoolInterface
 
     /**
      * @return void
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
+     * @throws Throwable
      */
     protected function initialize(): void
     {
@@ -196,7 +192,7 @@ abstract class Pool implements PoolInterface
                 }
             }
         };
-        $this->context->inCoroutine() ? $this->coroutine->create($handler) : $handler();
+        $handler();
     }
 
     /**
@@ -297,10 +293,10 @@ abstract class Pool implements PoolInterface
     {
         $now = time();
         $connection = $this->createConnection();
-        $connection->connect();
         $connection->setPool($this);
         $connection->setLastActiveTime($now);
         $connection->setConnectTime($now);
+        $connection->connect();
         $this->connectionCount++;
         return $connection;
     }

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Larmias\Task\Client;
 
 use Larmias\Client\AsyncSocket;
-use Larmias\Codec\Packer\FramePacker;
+use Larmias\Codec\Protocol\FrameProtocol;
 use Larmias\Contracts\Client\AsyncSocketInterface;
 use Larmias\Contracts\ContainerInterface;
 use Larmias\SharedMemory\Client\Connection as BaseClient;
@@ -54,7 +54,7 @@ class Connection extends BaseClient
     {
         $this->asyncSocket = new AsyncSocket(Connection::getEventLoop(), $client->getSocket());
         $this->asyncSocket->set([
-            'packer_class' => FramePacker::class,
+            'protocol' => FrameProtocol::class,
         ]);
         $this->asyncSocket->on(AsyncSocketInterface::ON_MESSAGE, function (mixed $data) {
             $result = Result::parse($data);

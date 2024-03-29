@@ -172,7 +172,6 @@ class FileHandler implements LoggerHandlerInterface
 
     /**
      * 检查日志文件大小并自动生成备份文件
-     *
      * @param string $destination
      * @return void
      */

@@ -67,6 +67,12 @@ class Constants
     public const OPTION_TRANSPORT = 'transport';
 
     /**
+     * 应用层协议
+     * @var string
+     */
+    public const OPTION_PROTOCOL = 'protocol';
+
+    /**
      * 守护进程化
      * @var string
      */

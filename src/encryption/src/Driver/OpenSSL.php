@@ -14,7 +14,7 @@ class OpenSSL extends Driver
     protected array $config = [
         'key' => null,
         'iv' => null,
-        'encoder' => null,
+        'packer' => null,
         'cipher' => 'aes-128-cbc',
         'options' => \OPENSSL_RAW_DATA,
         'digest' => 'SHA512',

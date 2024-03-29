@@ -46,6 +46,16 @@ class StringBuffer implements Stringable
     }
 
     /**
+     * @param int $offset
+     * @param int|null $length
+     * @return string
+     */
+    public function peek(int $offset, ?int $length = null): string
+    {
+        return substr($this->buffer, $offset, $length);
+    }
+
+    /**
      * @return void
      */
     public function flush(): void

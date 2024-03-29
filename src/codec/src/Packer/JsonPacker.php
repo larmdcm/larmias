@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Larmias\Codec\Packer;
 
+use Larmias\Codec\Json;
 use Larmias\Contracts\PackerInterface;
 
-class EmptyPacker implements PackerInterface
+class JsonPacker implements PackerInterface
 {
     /**
      * @param mixed $data
@@ -14,15 +15,15 @@ class EmptyPacker implements PackerInterface
      */
     public function pack(mixed $data): string
     {
-        return $data;
+        return Json::encode($data);
     }
 
     /**
      * @param string $data
-     * @return string[]
+     * @return mixed
      */
-    public function unpack(string $data): array
+    public function unpack(string $data): mixed
     {
-        return [$data, ''];
+        return Json::decode($data);
     }
 }

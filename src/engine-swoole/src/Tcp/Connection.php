@@ -5,18 +5,119 @@ declare(strict_types=1);
 namespace Larmias\Engine\Swoole\Tcp;
 
 use Larmias\Contracts\Tcp\ConnectionInterface;
-use Larmias\Contracts\PackerInterface;
+use Larmias\Contracts\ProtocolInterface;
+use Larmias\Stringable\StringBuffer;
+use Larmias\Support\ProtocolHandler;
+use Swoole\Coroutine;
+use Swoole\Coroutine\Channel;
 use Swoole\Coroutine\Server\Connection as TcpConnection;
+use Closure;
 
 class Connection implements ConnectionInterface
 {
     /**
+     * @var ProtocolInterface|null
+     */
+    protected ?ProtocolInterface $protocol = null;
+
+    /**
+     * @var StringBuffer
+     */
+    protected StringBuffer $buffer;
+
+    /**
+     * @var Channel
+     */
+    protected Channel $channel;
+
+    /**
+     * @var array
+     */
+    protected array $options = [];
+
+    /**
+     * @var bool
+     */
+    protected bool $closed = false;
+
+    /**
      * @param int $id
      * @param TcpConnection $connection
-     * @param PackerInterface $packer
      */
-    public function __construct(protected int $id, protected TcpConnection $connection, protected PackerInterface $packer)
+    public function __construct(protected int $id, protected TcpConnection $connection)
     {
+        $this->buffer = new StringBuffer();
+        $this->channel = new Channel();
+    }
+
+    /**
+     * @param mixed $data
+     * @return mixed
+     */
+    public function send(mixed $data): mixed
+    {
+        return $this->connection->send($this->protocol ? $this->protocol->pack($data) : $data);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function recv(): mixed
+    {
+        return $this->channel->pop();
+    }
+
+    /**
+     * @return void
+     */
+    public function startCoRecv(): void
+    {
+        Coroutine::create(function () {
+            $protocolHandler = new ProtocolHandler($this->protocol);
+            while (!$this->closed) {
+                $data = $this->connection->recv();
+                if ($data === '' || $data === false) {
+                    $this->channel->push($data);
+                    break;
+                }
+                $protocolHandler->handle($data, function (mixed $packageData) {
+                    $this->channel->push($packageData);
+                });
+            }
+        });
+    }
+
+    /**
+     * @return bool
+     */
+    public function close(): bool
+    {
+        if (!$this->closed) {
+            $this->closed = $this->connection->close();
+        }
+
+        return $this->closed;
+    }
+
+    /**
+     * @param array $options
+     * @return self
+     */
+    public function setOptions(array $options): self
+    {
+        $this->options = array_merge($this->options, $options);
+        if (!empty($options['protocol'])) {
+            $this->protocol = $this->newProtocol();
+        }
+        return $this;
+    }
+
+    /**
+     * @return TcpConnection
+     */
+    public function getRawConnection(): TcpConnection
+    {
+        return $this->connection;
     }
 
     /**
@@ -36,35 +137,19 @@ class Connection implements ConnectionInterface
     }
 
     /**
-     * @param mixed $data
-     * @return mixed
+     * @return ProtocolInterface|null
      */
-    public function send(mixed $data): mixed
+    protected function newProtocol(): ?ProtocolInterface
     {
-        return $this->connection->send($this->packer->pack($data));
-    }
+        $protocol = $this->options['protocol'] ?? null;
+        if (!$protocol) {
+            return null;
+        }
 
-    /**
-     * @return mixed
-     */
-    public function recv(): mixed
-    {
-        return $this->connection->recv();
-    }
+        if ($protocol instanceof Closure) {
+            return $protocol($this);
+        }
 
-    /**
-     * @return bool
-     */
-    public function close(): bool
-    {
-        return $this->connection->close();
-    }
-
-    /**
-     * @return TcpConnection
-     */
-    public function getRawConnection(): TcpConnection
-    {
-        return $this->connection;
+        return new $protocol();
     }
 }

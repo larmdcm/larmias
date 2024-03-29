@@ -7,14 +7,14 @@ namespace Larmias\Contracts;
 interface EncoderInterface
 {
     /**
-     * @param string $data
+     * @param mixed $data
      * @return string
      */
-    public function encode(string $data): string;
+    public function encode(mixed $data): string;
 
     /**
      * @param string $data
-     * @return string
+     * @return mixed
      */
-    public function decode(string $data): string;
+    public function decode(string $data): mixed;
 }

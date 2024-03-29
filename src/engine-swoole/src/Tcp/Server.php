@@ -6,9 +6,6 @@ namespace Larmias\Engine\Swoole\Tcp;
 
 use Larmias\Engine\Constants;
 use Larmias\Engine\Swoole\Concerns\WithIdAtomic;
-use Larmias\Contracts\PackerInterface;
-use Larmias\Stringable\StringBuffer;
-use Larmias\Codec\Packer\EmptyPacker;
 use Larmias\Engine\Swoole\Server as BaseServer;
 use Swoole\Coroutine\Server as CoServer;
 use Swoole\Coroutine\Server\Connection as TcpConnection;
@@ -26,11 +23,6 @@ class Server extends BaseServer
     protected CoServer $server;
 
     /**
-     * @var PackerInterface
-     */
-    protected PackerInterface $packer;
-
-    /**
      * @return void
      * @throws SwooleException
      */
@@ -46,36 +38,26 @@ class Server extends BaseServer
 
         $this->server->set($this->getServerSettings());
 
-        $this->packer = $this->newPacker();
+        $protocol = $this->getSettings('protocol');
 
-        $this->server->handle(function (TcpConnection $tcpConnection) {
+        $this->server->handle(function (TcpConnection $tcpConnection) use ($protocol) {
             try {
-                $connection = new Connection($this->generateId(), $tcpConnection, $this->packer);
+                $connection = new Connection($this->generateId(), $tcpConnection);
+
+                $connection->setOptions([
+                    'protocol' => $protocol,
+                ]);
+
+                $connection->startCoRecv();
 
                 $this->waiter->add(fn() => $this->trigger(Event::ON_CONNECT, [$connection]));
 
-                $buffer = new StringBuffer();
                 while (true) {
                     $data = $connection->recv();
                     if ($data === '' || $data === false) {
                         break;
                     }
-
-                    $buffer->append($data);
-
-                    while (!$buffer->isEmpty()) {
-                        try {
-                            $unpack = $this->packer->unpack($buffer->toString());
-                        } catch (Throwable $e) {
-                            $this->printException($e);
-                            $buffer->flush();
-                        }
-                        if (empty($unpack)) {
-                            break;
-                        }
-                        $buffer->write($unpack[1]);
-                        $this->waiter->add(fn() => $this->trigger(Event::ON_RECEIVE, [$connection, $unpack[0]]));
-                    }
+                    $this->waiter->add(fn() => $this->trigger(Event::ON_RECEIVE, [$connection, $data]));
                 }
                 $connection->close();
                 $this->waiter->add(fn() => $this->trigger(Event::ON_CLOSE, [$connection]));
@@ -87,14 +69,5 @@ class Server extends BaseServer
         $this->waiter->add(fn() => $this->server->start());
 
         $this->wait(fn() => $this->server->shutdown());
-    }
-
-    /**
-     * @return PackerInterface
-     */
-    protected function newPacker(): PackerInterface
-    {
-        $packerClass = $this->getSettings('packer', EmptyPacker::class);
-        return new $packerClass();
     }
 }

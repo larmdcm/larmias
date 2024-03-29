@@ -7,10 +7,10 @@ namespace Larmias\Client;
 use Larmias\Contracts\Client\AsyncSocketInterface;
 use Larmias\Contracts\Client\SocketInterface;
 use Larmias\Contracts\EventLoopInterface;
-use Larmias\Contracts\PackerInterface;
+use Larmias\Contracts\ProtocolInterface;
 use Larmias\Stringable\StringBuffer;
+use Larmias\Support\ProtocolHandler;
 use Larmias\Support\Traits\HasEvents;
-use Throwable;
 
 class AsyncSocket implements AsyncSocketInterface
 {
@@ -21,19 +21,18 @@ class AsyncSocket implements AsyncSocketInterface
      */
     protected array $config = [
         'max_read_size' => 65535,
-        'packer_class' => null,
+        'protocol' => null,
     ];
 
     /**
-     * @var PackerInterface|null
+     * @var ProtocolInterface|null
      */
-    protected ?PackerInterface $packer = null;
+    protected ?ProtocolInterface $protocol = null;
 
     /**
-     * 接收数据缓冲区
-     * @var StringBuffer
+     * @var ProtocolHandler
      */
-    protected StringBuffer $recvBuffer;
+    protected ProtocolHandler $protocolHandler;
 
     /**
      * 发送数据缓冲区
@@ -55,9 +54,9 @@ class AsyncSocket implements AsyncSocketInterface
         ?SocketInterface             $socket = null,
     )
     {
-        $this->recvBuffer = new StringBuffer();
         $this->sendBuffer = new StringBuffer();
         $this->socket = $socket ?: new Socket();
+        $this->protocolHandler = new ProtocolHandler();
         if ($this->socket->isConnected()) {
             $this->eventLoop->onReadable($this->socket->getSocket(), [$this, 'onRead']);
         }
@@ -75,20 +74,9 @@ class AsyncSocket implements AsyncSocketInterface
             return;
         }
 
-        $this->recvBuffer->append($buffer);
-
-        if ($this->packer !== null) {
-            $this->handleProtocolMessage();
-            return;
-        }
-
-        if ($this->recvBuffer->isEmpty()) {
-            return;
-        }
-
-        $this->handleMessage($this->recvBuffer->toString());
-
-        $this->recvBuffer->flush();
+        $this->protocolHandler->handle($buffer, function (mixed $data) {
+            $this->fireEvent(self::ON_MESSAGE, $data);
+        });
     }
 
     /**
@@ -117,36 +105,6 @@ class AsyncSocket implements AsyncSocketInterface
     }
 
     /**
-     * @return void
-     */
-    protected function handleProtocolMessage(): void
-    {
-        while (!$this->recvBuffer->isEmpty()) {
-            $bfString = $this->recvBuffer->toString();
-            try {
-                $unpack = $this->packer->unpack($bfString);
-            } catch (Throwable) {
-                $this->recvBuffer->flush();
-                $unpack = [];
-            }
-            if (empty($unpack)) {
-                break;
-            }
-            $this->recvBuffer->write($unpack[1]);
-            $this->handleMessage($unpack[0]);
-        }
-    }
-
-    /**
-     * @param mixed $data
-     * @return void
-     */
-    protected function handleMessage(mixed $data): void
-    {
-        $this->fireEvent(self::ON_MESSAGE, $data);
-    }
-
-    /**
      * @param mixed $data
      * @return int|false
      */
@@ -157,8 +115,8 @@ class AsyncSocket implements AsyncSocketInterface
             return false;
         }
 
-        if ($this->packer) {
-            $data = $this->packer->pack($data);
+        if ($this->protocol) {
+            $data = $this->protocol->pack($data);
             if ($data === '') {
                 return false;
             }
@@ -244,8 +202,9 @@ class AsyncSocket implements AsyncSocketInterface
     {
         $this->config = array_merge($this->config, $config);
         $this->socket->set($this->config);
-        if ($this->config['packer_class']) {
-            $this->packer = new $this->config['packer_class'];
+        if ($this->config['protocol']) {
+            $this->protocol = new $this->config['protocol'];
+            $this->protocolHandler->setProtocol($this->protocol);
         }
         return $this;
     }

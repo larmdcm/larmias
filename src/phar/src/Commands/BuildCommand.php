@@ -4,19 +4,24 @@ declare(strict_types=1);
 
 namespace Larmias\Phar\Commands;
 
-use Larmias\Command\Command;
+use Larmias\Framework\Commands\Command;
 use Larmias\Contracts\ConfigInterface;
-use Larmias\Contracts\ContainerInterface;
+use Larmias\Phar\Builder;
 
 class BuildCommand extends Command
 {
-    public function __construct(protected ContainerInterface $container, protected ConfigInterface $config)
-    {
-        parent::__construct('phar:build');
-    }
+    /**
+     * @var string
+     */
+    protected string $name = 'phar:build';
 
     public function handle(): void
     {
-        $pharConfig = $this->config->get('phar');
+        /** @var ConfigInterface $config */
+        $config = $this->container->get(ConfigInterface::class);
+        $pharConfig = $config->get('phar', []);
+        $builder = new Builder($pharConfig);
+        $builder->build();
+        $this->output->writeln('Write requests to the Phar archive, save changes to disk.');
     }
 }

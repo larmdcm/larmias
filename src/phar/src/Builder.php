@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\Phar;
 
+use Larmias\Stringable\Str;
 use Larmias\Support\FileSystem;
 use Phar;
 use RuntimeException;
@@ -14,13 +15,13 @@ class Builder
      * @var array
      */
     protected array $config = [
-        'phar_file' => '/tmp/larmias.phar',
+        'build_dir' => '',
+        'phar_file' => '${build_dir}/larmias.phar',
         'main_file' => 'bin/larmias.php',
         'phar_alias' => 'larmias',
-        'build_dir' => '',
         'exclude_pattern' => '#^(?!.*(composer.json|/.github/|/.idea/|/.git/|/.setting/|/runtime/|/vendor-bin/|/build/))(.*)$#',
         'exclude_files' => [
-            '.env', 'LICENSE', 'composer.json', 'composer.lock'
+            '.env', 'LICENSE', 'composer.json', 'composer.lock', 'larmias.phar'
         ],
     ];
 
@@ -49,10 +50,15 @@ class Builder
     public function build(): void
     {
         $this->checkEnv();
-        $pharFile = $this->config['phar_file'];
-        $buildDir = dirname($pharFile);
-        if (!$this->fileSystem->isDirectory($buildDir)) {
-            $this->fileSystem->makeDirectory($buildDir, 0755, true, true);
+
+        if (empty($this->config['build_dir'])) {
+            throw new RuntimeException('config not set build dir.');
+        }
+
+        $pharFile = Str::template($this->config['phar_file'], $this->config);
+        $pharBaseDir = dirname($pharFile);
+        if (!$this->fileSystem->isDirectory($pharBaseDir)) {
+            $this->fileSystem->makeDirectory($pharBaseDir, 0755, true, true);
         }
 
         if ($this->fileSystem->isFile($pharFile)) {

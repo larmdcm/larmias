@@ -75,8 +75,12 @@ class Annotation implements AnnotationInterface
     {
         $files = Finder::create()->include($this->config['include_path'])->exclude($this->config['exclude_path'])->includeExt('php')->files();
         foreach ($files as $file) {
-            $realPath = $file->getRealPath();
+            $realPath = $file->getPath() . DIRECTORY_SEPARATOR . $file->getFilename();
             $classes = ReflectUtil::getAllClassesInFile($realPath);
+            if (empty($classes)) {
+                continue;
+            }
+
             if (isset($classes[1])) {
                 require_once $realPath;
             }

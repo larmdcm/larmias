@@ -15,7 +15,7 @@ class LineFormatter implements FormatterInterface
      * @var array|string[]
      */
     protected array $config = [
-        'format' => '[{datetime}][{channel}.{level}] {message} {context}' . PHP_EOL,
+        'format' => '[${datetime}][${channel}.${level}] ${message} ${context}' . PHP_EOL,
         'date_format' => 'Y-m-d H:i:s',
     ];
 

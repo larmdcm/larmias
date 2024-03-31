@@ -735,8 +735,6 @@ abstract class BaseQuery implements QueryInterface
 
         return Str::template($field, [
             'table' => $table,
-        ], [
-            'open' => '${', 'close' => '}',
         ]);
     }
 

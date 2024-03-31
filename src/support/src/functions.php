@@ -124,7 +124,6 @@ function is_empty(mixed $value): bool
  * @param Throwable|string $exception
  * @param  ...$parameters
  * @return void
- *
  * @throws Throwable
  */
 function throw_if(mixed $condition, Throwable|string $exception, ...$parameters): void

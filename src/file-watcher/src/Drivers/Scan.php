@@ -111,7 +111,7 @@ class Scan extends Driver
         $files = [];
         /** @var SplFileInfo $file */
         foreach ($this->finder as $file) {
-            $realPath = $file->getRealPath();
+            $realPath = $file->getPath() . DIRECTORY_SEPARATOR . $file->getFilename();
             $files[$realPath] = md5_file($realPath);
         }
         return $files;

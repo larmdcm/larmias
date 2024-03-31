@@ -14,16 +14,7 @@ class Builder
     /**
      * @var array
      */
-    protected array $config = [
-        'build_dir' => '',
-        'phar_file' => '${build_dir}/larmias.phar',
-        'main_file' => 'bin/larmias.php',
-        'phar_alias' => 'larmias',
-        'exclude_pattern' => '#^(?!.*(composer.json|/.github/|/.idea/|/.git/|/.setting/|/runtime/|/vendor-bin/|/build/))(.*)$#',
-        'exclude_files' => [
-            '.env', 'LICENSE', 'composer.json', 'composer.lock', 'larmias.phar'
-        ],
-    ];
+    protected array $config = [];
 
     /**
      * @var FileSystem
@@ -40,7 +31,7 @@ class Builder
      */
     public function __construct(array $config = [])
     {
-        $this->config = array_merge($this->config, $config);
+        $this->config = array_merge(require dirname(__DIR__) . '/publish/phar.php', $config);
         $this->fileSystem = new FileSystem();
     }
 
@@ -101,6 +92,12 @@ class Builder
      */
     protected function getPharStub(): string
     {
-        return '#!/usr/bin/env php' . PHP_EOL . $this->phar->createDefaultStub($this->config['main_file']);
+        return sprintf("#!/usr/bin/env php 
+<?php
+define('LARMIAS_IN_PHAR', true);
+Phar::mapPhar('%s');
+require 'phar://%s/%s';
+__HALT_COMPILER();
+", $this->config['phar_alias'], $this->config['phar_alias'], $this->config['main_file']);
     }
 }

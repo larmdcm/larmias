@@ -62,7 +62,7 @@ class VendorPublish implements VendorPublishInterface
                     $targetDir = str_replace('\\', '/', $dir);
                     $files = $this->fileSystem->allFiles($sourceDir);
                     foreach ($files as $file) {
-                        $sourceFile = str_replace('\\', '/', $file->getRealPath());
+                        $sourceFile = str_replace('\\', '/', $file->getPath() . DIRECTORY_SEPARATOR . $file->getFilename());
                         $basePath = str_replace($sourceDir . '/', '', $sourceFile);
                         $targetFile = $targetDir . '/' . $basePath;
                         if (!$this->fileSystem->isFile($targetFile) || $force) {

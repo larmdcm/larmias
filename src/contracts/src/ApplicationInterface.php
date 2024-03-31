@@ -97,4 +97,14 @@ interface ApplicationInterface
      * @return self
      */
     public function setConfigExt(string $configExt): ApplicationInterface;
+
+    /**
+     * @return string
+     */
+    public function getEnvFile(): string;
+
+    /**
+     * @param string $envFile
+     */
+    public function setEnvFile(string $envFile): void;
 }

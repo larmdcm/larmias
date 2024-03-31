@@ -26,6 +26,7 @@ use Larmias\Framework\Listeners\WorkerStartListener;
 use Larmias\Framework\Logger\StdoutLogger;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\EventDispatcher\ListenerProviderInterface;
+use DirectoryIterator;
 use Closure;
 use Throwable;
 use function rtrim;
@@ -87,14 +88,22 @@ class Application implements ApplicationInterface
     protected bool $isInit = false;
 
     /**
+     * @var string
+     */
+    protected string $envFile = '';
+
+    /**
      * @param ContainerInterface $container
      * @param string $rootPath
      */
     public function __construct(protected ContainerInterface $container, string $rootPath = '')
     {
-        $this->rootPath = rtrim($rootPath ?: dirname(realpath($rootPath))) . DIRECTORY_SEPARATOR;
-        $this->configPath = $this->rootPath . 'config' . DIRECTORY_SEPARATOR;
-        $this->runtimePath = $this->rootPath . 'runtime' . DIRECTORY_SEPARATOR;
+        $realPath = $rootPath ?: realpath($rootPath);
+        if ($rootPath || $realPath) {
+            $this->rootPath = rtrim($rootPath ?: dirname($realPath)) . DIRECTORY_SEPARATOR;
+            $this->configPath = $this->rootPath . 'config' . DIRECTORY_SEPARATOR;
+            $this->runtimePath = $this->rootPath . 'runtime' . DIRECTORY_SEPARATOR;
+        }
         $this->container->bindIf([
             ConsoleInterface::class => ConsoleApplication::class,
             StdoutLoggerInterface::class => StdoutLogger::class,
@@ -137,7 +146,7 @@ class Application implements ApplicationInterface
      */
     protected function loadEnv(): void
     {
-        $file = $this->getRootPath() . '.env';
+        $file = $this->envFile ?: $this->getRootPath() . '.env';
         if (is_file($file)) {
             /** @var DotEnvInterface $dotenv */
             $dotenv = $this->container->make(DotEnvInterface::class);
@@ -159,9 +168,12 @@ class Application implements ApplicationInterface
         /** @var ConfigInterface $config */
         $config = $this->container->get(ConfigInterface::class);
         $this->config = $config;
-        $files = glob($configPath . '*' . '.' . $this->configExt);
-        foreach ($files as $filename) {
-            $this->config->load($filename);
+        $fileIter = new DirectoryIterator($configPath);
+        while ($fileIter->valid()) {
+            if ($fileIter->isFile() && $fileIter->getExtension() === $this->configExt) {
+                $this->config->load($fileIter->getPath() . DIRECTORY_SEPARATOR . $fileIter->getFilename());
+            }
+            $fileIter->next();
         }
     }
 
@@ -264,6 +276,73 @@ class Application implements ApplicationInterface
     }
 
     /**
+     * 获取服务配置
+     * @param string $name
+     * @param bool $loadConfigPath
+     * @return array
+     */
+    public function getServiceConfig(string $name, bool $loadConfigPath = false): array
+    {
+        $getConfig = function () use ($name, $loadConfigPath) {
+            $files = [__DIR__ . '/../config/' . $name . '.php'];
+            if ($loadConfigPath && $this->configExt === 'php') {
+                $files[] = $this->getConfigPath() . $name . '.' . $this->configExt;
+            }
+            $config = [];
+            foreach ($files as $file) {
+                if (!is_file($file)) {
+                    continue;
+                }
+                $config = array_merge($config, require $file);
+            }
+            return $config;
+        };
+
+        $config = $getConfig();
+
+        return match ($name) {
+            'providers', 'commands', 'listeners' => array_merge($config, isset($this->discoverConfig[$name]) ? array_column($this->discoverConfig[$name], 'class') : []),
+            default => $config,
+        };
+    }
+
+    /**
+     * 获取引擎配置
+     * @param string $name
+     * @return array
+     */
+    public function getEngineConfig(string $name = 'engine'): array
+    {
+        $config = $this->getServiceConfig($name, true);
+        $processConfig = $this->getDiscoverConfig(ServiceDiscoverInterface::SERVICE_PROCESS, []);
+        foreach ($processConfig as $item) {
+            $class = $item['class'];
+            $config['workers'][] = [
+                'name' => $item['args']['name'],
+                'type' => WorkerType::WORKER_PROCESS,
+                'settings' => ['worker_num' => $item['args']['count']],
+                'callbacks' => [
+                    Event::ON_WORKER_START => [$class, 'onWorkerStart'],
+                    Event::ON_WORKER => [$class, 'handle'],
+                ],
+            ];
+        }
+
+        return $config;
+    }
+
+
+    /**
+     * @param string|null $name
+     * @param mixed|null $default
+     * @return array
+     */
+    public function getDiscoverConfig(?string $name = null, mixed $default = null): array
+    {
+        return $name ? $this->discoverConfig[$name] ?? $default : $this->discoverConfig;
+    }
+
+    /**
      * Get the value of rootPath
      *
      * @return string
@@ -348,70 +427,27 @@ class Application implements ApplicationInterface
     }
 
     /**
-     * 获取服务配置
-     * @param string $name
-     * @param bool $loadConfigPath
-     * @return array
+     * @return string
      */
-    public function getServiceConfig(string $name, bool $loadConfigPath = false): array
+    public function getEnvFile(): string
     {
-        $getConfig = function () use ($name, $loadConfigPath) {
-            $files = [__DIR__ . '/../config/' . $name . '.php'];
-            if ($loadConfigPath && $this->configExt === 'php') {
-                $files[] = $this->getConfigPath() . $name . '.' . $this->configExt;
-            }
-            $config = [];
-            foreach ($files as $file) {
-                if (!is_file($file)) {
-                    continue;
-                }
-                $config = array_merge($config, require $file);
-            }
-            return $config;
-        };
-
-        $config = $getConfig();
-
-        return match ($name) {
-            'providers', 'commands', 'listeners' => array_merge($config, isset($this->discoverConfig[$name]) ? array_column($this->discoverConfig[$name], 'class') : []),
-            default => $config,
-        };
+        return $this->envFile;
     }
 
     /**
-     * 获取引擎配置
-     * @param string $name
-     * @return array
+     * @param string $envFile
      */
-    public function getEngineConfig(string $name = 'engine'): array
+    public function setEnvFile(string $envFile): void
     {
-        $config = $this->getServiceConfig($name, true);
-        $processConfig = $this->getDiscoverConfig(ServiceDiscoverInterface::SERVICE_PROCESS, []);
-        foreach ($processConfig as $item) {
-            $class = $item['class'];
-            $config['workers'][] = [
-                'name' => $item['args']['name'],
-                'type' => WorkerType::WORKER_PROCESS,
-                'settings' => ['worker_num' => $item['args']['count']],
-                'callbacks' => [
-                    Event::ON_WORKER_START => [$class, 'onWorkerStart'],
-                    Event::ON_WORKER => [$class, 'handle'],
-                ],
-            ];
-        }
-
-        return $config;
+        $this->envFile = $envFile;
     }
 
-
     /**
-     * @param string|null $name
-     * @param mixed|null $default
-     * @return array
+     * @return bool
      */
-    public function getDiscoverConfig(?string $name = null, mixed $default = null): array
+    public function isInit(): bool
     {
-        return $name ? $this->discoverConfig[$name] ?? $default : $this->discoverConfig;
+        return $this->isInit;
     }
 
     /**

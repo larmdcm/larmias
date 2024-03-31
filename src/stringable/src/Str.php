@@ -267,7 +267,7 @@ class Str
      * @param array|string[] $options
      * @return string
      */
-    public static function template(string $content, array $vars = [], array $options = ['open' => '{', 'close' => '}']): string
+    public static function template(string $content, array $vars = [], array $options = ['open' => '${', 'close' => '}']): string
     {
         return \preg_replace_callback(\sprintf(
             '/%s([\w]+)%s/', \preg_quote($options['open']), \preg_quote($options['close'])

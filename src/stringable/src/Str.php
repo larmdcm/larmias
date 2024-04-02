@@ -11,17 +11,17 @@ class Str
     use Macroable;
 
     /**
-     * @var string
+     * @var int
      */
     public const CONVERT_SNAKE = 1;
 
     /**
-     * @var string
+     * @var int
      */
     public const CONVERT_CAMEL = 2;
 
     /**
-     * @var string
+     * @var int
      */
     public const CONVERT_STUDLY = 3;
 

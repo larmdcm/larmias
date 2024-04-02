@@ -53,7 +53,7 @@ class Connection extends BaseClient
     protected function onConnect(Connection $client): void
     {
         $this->asyncSocket = new AsyncSocket(Connection::getEventLoop(), $client->getSocket());
-        $this->asyncSocket->set([
+        $this->asyncSocket->setOptions([
             'protocol' => FrameProtocol::class,
         ]);
         $this->asyncSocket->on(AsyncSocketInterface::ON_MESSAGE, function (mixed $data) {

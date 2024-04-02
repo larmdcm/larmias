@@ -17,10 +17,10 @@ interface BaseSocketInterface
 
     /**
      * 配置
-     * @param array $config
+     * @param array $options
      * @return BaseSocketInterface
      */
-    public function set(array $config = []): BaseSocketInterface;
+    public function setOptions(array $options = []): BaseSocketInterface;
 
     /**
      * 发送数据.

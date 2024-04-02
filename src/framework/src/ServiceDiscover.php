@@ -8,12 +8,14 @@ use Closure;
 use Larmias\Command\Annotation\Command;
 use Larmias\Contracts\ApplicationInterface;
 use Larmias\Contracts\ServiceDiscoverInterface;
+use Larmias\Di\AnnotationCollector;
 use Larmias\Engine\Timer;
 use Larmias\Event\Annotation\Listener;
 use Larmias\Framework\Annotation\Provider;
 use Larmias\Process\Annotation\Process;
 use Larmias\Support\FileSystem;
 use RuntimeException;
+use Throwable;
 use function array_column;
 use function array_merge;
 use function array_values;
@@ -62,6 +64,7 @@ class ServiceDiscover implements ServiceDiscoverInterface
 
     /**
      * @param ApplicationInterface $app
+     * @throws Throwable
      */
     public function __construct(protected ApplicationInterface $app)
     {
@@ -72,7 +75,7 @@ class ServiceDiscover implements ServiceDiscoverInterface
      * 发现服务配置
      * @param Closure $callback
      * @return void
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function discover(Closure $callback): void
     {
@@ -81,9 +84,7 @@ class ServiceDiscover implements ServiceDiscoverInterface
             if ($pid === -1) {
                 throw new RuntimeException('fork process error.');
             } else if ($pid === 0) {
-                if (method_exists($this->app, 'setIsInit')) {
-                    $this->app->setIsInit(true);
-                }
+                $this->app->setIsInitialize(true);
                 run(function () {
                     try {
                         $this->handle();
@@ -189,13 +190,12 @@ class ServiceDiscover implements ServiceDiscoverInterface
 
     /**
      * @return void
+     * @throws Throwable
      */
     protected function handle(): void
     {
         $this->serviceProvider();
-        if (method_exists($this->app, 'setIsInit')) {
-            $this->app->setIsInit(false);
-        }
+        $this->app->setIsInitialize(false);
         $this->app->initialize();
         $this->annotation();
         $this->generate();
@@ -234,6 +234,7 @@ class ServiceDiscover implements ServiceDiscoverInterface
 
     /**
      * @return void
+     * @throws Throwable
      */
     protected function serviceProvider(): void
     {
@@ -273,7 +274,7 @@ class ServiceDiscover implements ServiceDiscoverInterface
     protected function annotation(): void
     {
         if (class_exists('\Larmias\Di\AnnotationCollector')) {
-            foreach (\Larmias\Di\AnnotationCollector::all() as $item) {
+            foreach (AnnotationCollector::all() as $item) {
                 if (!isset($this->annotationCollect[$item['annotation']])) {
                     continue;
                 }

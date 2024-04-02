@@ -28,7 +28,9 @@
     },
     "extra": {
         "larmias": {
-
+            "providers": [
+                "Larmias\\Client\\Providers\\ClientServiceProvider"
+            ]
         }
     }
 }

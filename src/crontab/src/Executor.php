@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Larmias\Crontab;
 
-use Larmias\Contracts\ContainerInterface;
-use Larmias\Contracts\LockerFactoryInterface;
 use Larmias\Crontab\Contracts\ExecutorInterface;
+use Larmias\Contracts\LockerFactoryInterface;
+use Larmias\Contracts\ContainerInterface;
 use Closure;
 use Larmias\Contracts\TimerInterface;
 use Throwable;

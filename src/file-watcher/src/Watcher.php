@@ -6,7 +6,7 @@ namespace Larmias\FileWatcher;
 
 use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\FileWatcherInterface;
-use Larmias\FileWatcher\Drivers\Scan;
+use Larmias\FileWatcher\Driver\Scan;
 use function array_merge;
 
 class Watcher implements FileWatcherInterface

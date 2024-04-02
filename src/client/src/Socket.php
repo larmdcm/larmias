@@ -22,7 +22,7 @@ class Socket implements SocketInterface
     /**
      * @var array
      */
-    protected array $config = [
+    protected array $options = [
         'rw_timeout' => 0,
         'blocking' => true,
         'read_buffer_size' => null,
@@ -31,11 +31,11 @@ class Socket implements SocketInterface
     ];
 
     /**
-     * @param array $config
+     * @param array $options
      */
-    public function __construct(array $config = [])
+    public function __construct(array $options = [])
     {
-        $this->set($config);
+        $this->setOptions($options);
     }
 
     /**
@@ -55,12 +55,12 @@ class Socket implements SocketInterface
     }
 
     /**
-     * @param array $config
+     * @param array $options
      * @return SocketInterface
      */
-    public function set(array $config = []): SocketInterface
+    public function setOptions(array $options = []): SocketInterface
     {
-        $this->config = array_merge($this->config, $config);
+        $this->options = array_merge($this->options, $options);
         return $this;
     }
 
@@ -128,8 +128,8 @@ class Socket implements SocketInterface
         $socket = function () use ($host, $port, $timeout) {
             set_error_handler(fn() => null);
             $context = null;
-            if (!empty($this->config['context'])) {
-                $context = stream_context_create($this->config['context']);
+            if (!empty($this->options['context'])) {
+                $context = stream_context_create($this->options['context']);
             }
             $conn = stream_socket_client(
                 sprintf('tcp://%s:%d', $host, $port), $errCode, $errMsg,
@@ -140,13 +140,13 @@ class Socket implements SocketInterface
                 throw new ClientException($errMsg, $errCode);
             }
 
-            stream_set_timeout($conn, $this->config['rw_timeout']);
-            stream_set_blocking($conn, $this->config['blocking']);
-            if (!is_null($this->config['write_buffer_size'])) {
-                stream_set_write_buffer($conn, $this->config['write_buffer_size']);
+            stream_set_timeout($conn, $this->options['rw_timeout']);
+            stream_set_blocking($conn, $this->options['blocking']);
+            if (!is_null($this->options['write_buffer_size'])) {
+                stream_set_write_buffer($conn, $this->options['write_buffer_size']);
             }
-            if (!is_null($this->config['read_buffer_size'])) {
-                stream_set_read_buffer($conn, $this->config['read_buffer_size']);
+            if (!is_null($this->options['read_buffer_size'])) {
+                stream_set_read_buffer($conn, $this->options['read_buffer_size']);
             }
 
             return $conn;

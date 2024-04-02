@@ -4,35 +4,25 @@ declare(strict_types=1);
 
 namespace Larmias\Client;
 
+use Larmias\Client\Traits\Protocol;
 use Larmias\Contracts\Client\AsyncSocketInterface;
 use Larmias\Contracts\Client\SocketInterface;
 use Larmias\Contracts\EventLoopInterface;
-use Larmias\Contracts\ProtocolInterface;
-use Larmias\Stringable\StringBuffer;
-use Larmias\Support\ProtocolHandler;
 use Larmias\Support\Traits\HasEvents;
+use Larmias\Stringable\StringBuffer;
 
 class AsyncSocket implements AsyncSocketInterface
 {
-    use HasEvents;
+    use HasEvents, Protocol;
 
     /**
      * @var array
      */
-    protected array $config = [
+    protected array $options = [
         'max_read_size' => 65535,
         'protocol' => null,
+        'max_package_size' => 0,
     ];
-
-    /**
-     * @var ProtocolInterface|null
-     */
-    protected ?ProtocolInterface $protocol = null;
-
-    /**
-     * @var ProtocolHandler
-     */
-    protected ProtocolHandler $protocolHandler;
 
     /**
      * 发送数据缓冲区
@@ -56,7 +46,7 @@ class AsyncSocket implements AsyncSocketInterface
     {
         $this->sendBuffer = new StringBuffer();
         $this->socket = $socket ?: new Socket();
-        $this->protocolHandler = new ProtocolHandler();
+        $this->initProtocolHandler();
         if ($this->socket->isConnected()) {
             $this->eventLoop->onReadable($this->socket->getSocket(), [$this, 'onRead']);
         }
@@ -67,7 +57,7 @@ class AsyncSocket implements AsyncSocketInterface
      */
     public function onRead(): void
     {
-        $buffer = $this->socket->recv($this->config['max_read_size']);
+        $buffer = $this->socket->recv($this->options['max_read_size']);
 
         if ($buffer === '' || $buffer === false || !$this->isConnected()) {
             $this->close();
@@ -162,10 +152,10 @@ class AsyncSocket implements AsyncSocketInterface
         $connected = $this->socket->isConnected();
 
         if (!$connected) {
-            $this->socket->set([
+            $this->socket->setOptions([
                 'blocking' => false,
             ]);
-            $connected = $this->socket->connect($this->config['host'], $this->config['port'], $this->config['timeout']);
+            $connected = $this->socket->connect($this->options['host'], $this->options['port'], $this->options['timeout']);
         }
 
         if ($connected) {
@@ -195,17 +185,14 @@ class AsyncSocket implements AsyncSocketInterface
 
 
     /**
-     * @param array $config
+     * @param array $options
      * @return AsyncSocketInterface
      */
-    public function set(array $config = []): AsyncSocketInterface
+    public function setOptions(array $options = []): AsyncSocketInterface
     {
-        $this->config = array_merge($this->config, $config);
-        $this->socket->set($this->config);
-        if ($this->config['protocol']) {
-            $this->protocol = new $this->config['protocol'];
-            $this->protocolHandler->setProtocol($this->protocol);
-        }
+        $this->options = array_merge($this->options, $options);
+        $this->socket->setOptions($this->options);
+        $this->initProtocolHandler($this->options);
         return $this;
     }
 

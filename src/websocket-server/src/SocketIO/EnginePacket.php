@@ -84,6 +84,6 @@ class EnginePacket
 
     public function toString(): string
     {
-        return (string)$this->type . $this->data;
+        return $this->type . $this->data;
     }
 }

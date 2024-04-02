@@ -227,6 +227,7 @@
                 "Larmias\\Process\\Providers\\ProcessServiceProvider",
                 "Larmias\\Redis\\Providers\\RedisServiceProvider",
                 "Larmias\\Session\\Providers\\SessionServiceProvider",
+                "Larmias\\Client\\Providers\\ClientServiceProvider",
                 "Larmias\\SharedMemory\\Providers\\SharedMemoryServiceProvider",
                 "Larmias\\Snowflake\\Providers\\SnowflakeServiceProvider",
                 "Larmias\\Task\\Providers\\TaskServiceProvider",

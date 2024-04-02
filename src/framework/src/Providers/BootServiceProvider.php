@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace Larmias\Framework\Providers;
 
-use Larmias\Contracts\ConfigInterface;
 use Larmias\Event\ListenerProviderFactory;
+use Larmias\Framework\Commands\Reload;
+use Larmias\Framework\Commands\Start;
+use Larmias\Framework\Commands\Stop;
+use Larmias\Framework\Commands\VendorPublish;
 use Larmias\Framework\ServiceProvider;
 use Psr\EventDispatcher\ListenerProviderInterface;
 use function is_int;
@@ -19,10 +22,10 @@ class BootServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->commands([
-            \Larmias\Framework\Commands\Start::class,
-            \Larmias\Framework\Commands\Stop::class,
-            \Larmias\Framework\Commands\Reload::class,
-            \Larmias\Framework\Commands\VendorPublish::class,
+            Start::class,
+            Stop::class,
+            Reload::class,
+            VendorPublish::class,
         ]);
     }
 

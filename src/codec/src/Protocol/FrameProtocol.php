@@ -52,6 +52,6 @@ class FrameProtocol implements ProtocolInterface
      */
     public function unpack(string $data): string
     {
-        return substr($data, 4);
+        return substr($data, self::HEADER_SIZE);
     }
 }

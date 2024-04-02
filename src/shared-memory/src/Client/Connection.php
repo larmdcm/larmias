@@ -59,12 +59,7 @@ class Connection
      * @var SocketInterface
      */
     protected SocketInterface $socket;
-
-    /**
-     * @var array
-     */
-    protected array $container = [];
-
+    
     /**
      * @var array
      */
@@ -102,7 +97,7 @@ class Connection
     {
         if (!$this->isConnected()) {
             if ($this->options['async']) {
-                $this->socket->set([
+                $this->socket->setOptions([
                     'blocking' => false,
                     'read_buffer_size' => 0,
                 ]);

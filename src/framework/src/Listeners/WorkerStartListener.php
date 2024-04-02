@@ -12,7 +12,6 @@ class WorkerStartListener implements ListenerInterface
 {
     /**
      * WorkerStartListener constructor.
-     *
      * @param ApplicationInterface $app
      */
     public function __construct(protected ApplicationInterface $app)

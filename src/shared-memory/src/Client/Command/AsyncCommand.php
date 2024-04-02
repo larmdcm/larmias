@@ -46,7 +46,7 @@ abstract class AsyncCommand
     protected function onConnect(Connection $conn): void
     {
         $this->asyncSocket = new AsyncSocket(Connection::getEventLoop(), $conn->getSocket());
-        $this->asyncSocket->set([
+        $this->asyncSocket->setOptions([
             'protocol' => FrameProtocol::class,
         ]);
         $this->asyncSocket->on(AsyncSocketInterface::ON_MESSAGE, function (mixed $data) {

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Larmias\FileWatcher\Drivers;
+namespace Larmias\FileWatcher\Driver;
 
 use Larmias\Contracts\TimerInterface;
 use Symfony\Component\Finder\Finder;
@@ -11,7 +11,7 @@ use function md5_file;
 use function is_dir;
 use function pathinfo;
 
-class Scan extends Driver
+class Scan extends AbstractDriver
 {
     /**
      * @var Finder

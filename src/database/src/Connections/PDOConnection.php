@@ -241,7 +241,7 @@ abstract class PDOConnection extends Connection
     /**
      * 提交事务
      * @return void
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function commit(): void
     {
@@ -252,7 +252,7 @@ abstract class PDOConnection extends Connection
     /**
      * 回滚事务
      * @return void
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function rollback(): void
     {

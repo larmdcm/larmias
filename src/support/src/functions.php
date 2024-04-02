@@ -83,11 +83,11 @@ function env(string $name, mixed $default = null): mixed
 
 /**
  * 换行打印输出
- * @param string|Stringable|null $format
+ * @param string|Stringable $format
  * @param ...$args
  * @return void
  */
-function println(string|Stringable $format = null, ...$args): void
+function println(string|Stringable $format, ...$args): void
 {
     printf($format . PHP_EOL, ...$args);
 }
@@ -185,6 +185,17 @@ function class_basename(mixed $class): string
 {
     $class = is_object($class) ? get_class($class) : $class;
     return basename(str_replace('\\', '/', $class));
+}
+
+/**
+ * 类是否实现了某个接口
+ * @param mixed $class
+ * @param mixed $interface
+ * @return bool
+ */
+function class_has_implement(mixed $class, string $interface): bool
+{
+    return in_array($interface, class_implements($class));
 }
 
 /**

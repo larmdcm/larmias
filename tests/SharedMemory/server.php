@@ -24,8 +24,8 @@ $kernel->setConfig(EngineConfig::build([
                 'worker_num' => 1,
                 'auth_password' => '123456',
                 'console_output' => true,
-//                'protocol' => \Workerman\Protocols\Frame::class,
-                'protocol' => \Larmias\Codec\Protocol\FrameProtocol::class,
+//                \Larmias\Engine\Constants::OPTION_PROTOCOL => \Workerman\Protocols\Frame::class,
+                \Larmias\Engine\Constants::OPTION_PROTOCOL => \Larmias\Codec\Protocol\FrameProtocol::class,
             ],
             'callbacks' => [
                 Event::ON_WORKER_START => [SharedMemoryServer::class, 'onWorkerStart'],

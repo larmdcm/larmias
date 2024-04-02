@@ -21,7 +21,6 @@ class ProtocolHandler
      */
     protected StringBuffer $buffer;
 
-
     /**
      * @param ProtocolInterface|null $protocol
      * @param int $maxPackageSize
@@ -38,7 +37,6 @@ class ProtocolHandler
      */
     public function handle(mixed $data, Closure $callback): void
     {
-
         if (!$this->protocol) {
             $callback($data);
             return;

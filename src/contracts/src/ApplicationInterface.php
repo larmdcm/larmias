@@ -107,4 +107,14 @@ interface ApplicationInterface
      * @param string $envFile
      */
     public function setEnvFile(string $envFile): void;
+
+    /**
+     * @return bool
+     */
+    public function isInitialize(): bool;
+
+    /**
+     * @param bool $isInitialize
+     */
+    public function setIsInitialize(bool $isInitialize): void;
 }

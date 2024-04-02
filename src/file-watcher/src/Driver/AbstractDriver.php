@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Larmias\FileWatcher\Drivers;
+namespace Larmias\FileWatcher\Driver;
 
 use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\FileWatcherInterface;
 use function method_exists;
 use function array_merge;
 
-abstract class Driver implements FileWatcherInterface
+abstract class AbstractDriver implements FileWatcherInterface
 {
     /**
      * @var array

@@ -13,6 +13,9 @@ use Larmias\Contracts\DotEnvInterface;
 use Larmias\Contracts\ServiceProviderInterface;
 use Larmias\Contracts\StdoutLoggerInterface;
 use Larmias\Contracts\VendorPublishInterface;
+use Larmias\Contracts\Worker\OnWorkerHandleInterface;
+use Larmias\Contracts\Worker\OnWorkerStartInterface;
+use Larmias\Contracts\Worker\OnWorkerStopInterface;
 use Larmias\Engine\Contracts\KernelInterface;
 use Larmias\Engine\Event;
 use Larmias\Engine\Kernel;
@@ -29,12 +32,12 @@ use Psr\EventDispatcher\ListenerProviderInterface;
 use DirectoryIterator;
 use Closure;
 use Throwable;
+use function Larmias\Support\class_has_implement;
 use function rtrim;
 use function dirname;
 use function date_default_timezone_set;
 use function is_file;
 use function is_dir;
-use function glob;
 use function array_keys;
 use function array_merge;
 use function array_column;
@@ -85,7 +88,7 @@ class Application implements ApplicationInterface
     /**
      * @var bool
      */
-    protected bool $isInit = false;
+    protected bool $isInitialize = false;
 
     /**
      * @var string
@@ -130,14 +133,14 @@ class Application implements ApplicationInterface
      */
     public function initialize(): void
     {
-        if ($this->isInit) {
+        if ($this->isInitialize) {
             return;
         }
         $this->loadConfig();
         date_default_timezone_set($this->config->get('app.default_timezone', 'Asia/Shanghai'));
         $this->container->bind($this->config->get('dependencies', []));
         $this->boot();
-        $this->isInit = true;
+        $this->isInitialize = true;
     }
 
     /**
@@ -317,14 +320,21 @@ class Application implements ApplicationInterface
         $processConfig = $this->getDiscoverConfig(ServiceDiscoverInterface::SERVICE_PROCESS, []);
         foreach ($processConfig as $item) {
             $class = $item['class'];
+            $workerCallbacks = [];
+            if (class_has_implement($class, OnWorkerStartInterface::class)) {
+                $workerCallbacks[Event::ON_WORKER_START] = [$class, 'onWorkerStart'];
+            }
+            if (class_has_implement($class, OnWorkerHandleInterface::class)) {
+                $workerCallbacks[Event::ON_WORKER] = [$class, 'onWorkerHandle'];
+            }
+            if (class_has_implement($class, OnWorkerStopInterface::class)) {
+                $workerCallbacks[Event::ON_WORKER_STOP] = [$class, 'onWorkerStop'];
+            }
             $config['workers'][] = [
                 'name' => $item['args']['name'],
                 'type' => WorkerType::WORKER_PROCESS,
                 'settings' => ['worker_num' => $item['args']['count']],
-                'callbacks' => [
-                    Event::ON_WORKER_START => [$class, 'onWorkerStart'],
-                    Event::ON_WORKER => [$class, 'handle'],
-                ],
+                'callbacks' => $workerCallbacks,
             ];
         }
 
@@ -445,16 +455,16 @@ class Application implements ApplicationInterface
     /**
      * @return bool
      */
-    public function isInit(): bool
+    public function isInitialize(): bool
     {
-        return $this->isInit;
+        return $this->isInitialize;
     }
 
     /**
-     * @param bool $isInit
+     * @param bool $isInitialize
      */
-    public function setIsInit(bool $isInit): void
+    public function setIsInitialize(bool $isInitialize): void
     {
-        $this->isInit = $isInit;
+        $this->isInitialize = $isInitialize;
     }
 }

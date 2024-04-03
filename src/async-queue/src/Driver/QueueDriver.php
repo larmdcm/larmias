@@ -46,6 +46,9 @@ abstract class QueueDriver implements QueueDriverInterface
      */
     protected ?float $waitTime = null;
 
+    /**
+     * @var ConcurrentInterface|null
+     */
     protected ?ConcurrentInterface $concurrent = null;
 
     /**

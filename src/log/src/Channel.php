@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace Larmias\Log;
 
-use Larmias\Contracts\LoggerInterface;
+use Larmias\Contracts\Logger\ChannelInterface;
 use Larmias\Log\Contracts\FormatterInterface;
-use Larmias\Log\Contracts\LoggerHandlerInterface;
 use Larmias\Log\Events\LogWrite;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use function in_array;
 
-class Channel implements LoggerInterface
+class Channel implements ChannelInterface
 {
     /**
      * @var array
@@ -31,7 +30,7 @@ class Channel implements LoggerInterface
         protected array                     $handlers,
         protected FormatterInterface        $formatter,
         protected array                     $allowLevel = [],
-        protected bool                      $realtimeWrite = false,
+        protected bool                      $realtimeWrite = true,
         protected ?EventDispatcherInterface $eventDispatcher = null,
     )
     {
@@ -181,7 +180,6 @@ class Channel implements LoggerInterface
 
     /**
      * Logger __call.
-     *
      * @param string $method
      * @param array $parameters
      * @return void
@@ -193,7 +191,6 @@ class Channel implements LoggerInterface
 
     /**
      * 写日志
-     *
      * @param string|\Stringable $message
      * @param string $level
      * @param array $context
@@ -207,25 +204,30 @@ class Channel implements LoggerInterface
 
     /**
      * 记录日志
-     *
      * @param string|\Stringable $message
      * @param string $level
      * @param array $context
-     * @param bool $realtimeWrite
+     * @param bool|null $realtimeWrite
      * @return bool
      */
-    public function record(string|\Stringable $message, string $level, array $context = [], bool $realtimeWrite = false): bool
+    public function record(string|\Stringable $message, string $level, array $context = [], ?bool $realtimeWrite = null): bool
     {
         if (!empty($this->allowLevel) && !in_array($level, $this->allowLevel)) {
             return true;
         }
+
         $this->logs[$level][] = [
             'message' => $message,
             'level' => $level,
             'context' => $context,
             'content' => $this->formatter->format($message, $this->name, $level, $context)
         ];
-        if (!$this->realtimeWrite || !$realtimeWrite) {
+
+        if ($realtimeWrite === null) {
+            $realtimeWrite = $this->realtimeWrite;
+        }
+
+        if ($realtimeWrite) {
             return $this->save();
         }
         return true;
@@ -233,7 +235,6 @@ class Channel implements LoggerInterface
 
     /**
      * 保存
-     *
      * @return bool
      */
     public function save(): bool
@@ -248,6 +249,21 @@ class Channel implements LoggerInterface
         return true;
     }
 
+    /**
+     * @return bool
+     */
+    public function isRealtimeWrite(): bool
+    {
+        return $this->realtimeWrite;
+    }
+
+    /**
+     * @param bool $realtimeWrite
+     */
+    public function setRealtimeWrite(bool $realtimeWrite): void
+    {
+        $this->realtimeWrite = $realtimeWrite;
+    }
 
     /**
      * 清除内存日志信息

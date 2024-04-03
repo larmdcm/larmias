@@ -20,6 +20,28 @@ use const T_WHITESPACE;
 class ReflectUtil
 {
     /**
+     * @var array
+     */
+    protected static array $cache = [];
+
+    /**
+     * 判断类是否实现了某个接口
+     * @param mixed $class
+     * @param string $interface
+     * @return bool
+     */
+    public static function classHasImplement(mixed $class, string $interface): bool
+    {
+        $className = is_object($class) ? get_class($class) : $class;
+        $key = 'class.interface.' . $className;
+        if (!isset(static::$cache[$key])) {
+            static::$cache[$key] = class_implements($class) ?: [];
+        }
+
+        return in_array($interface, static::$cache[$key]);
+    }
+
+    /**
      * 设置对象属性
      * @param ReflectionProperty $refProperty
      * @param object $object

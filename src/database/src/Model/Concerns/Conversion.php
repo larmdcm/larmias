@@ -55,7 +55,6 @@ trait Conversion
         return $this;
     }
 
-
     /**
      * 设置需要隐藏的输出属性
      * @param array $hidden

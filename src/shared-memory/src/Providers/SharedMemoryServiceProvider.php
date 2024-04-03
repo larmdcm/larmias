@@ -5,11 +5,8 @@ declare(strict_types=1);
 namespace Larmias\SharedMemory\Providers;
 
 use Larmias\Contracts\ContainerInterface;
-use Larmias\Contracts\EventLoopInterface;
 use Larmias\Contracts\ServiceProviderInterface;
-use Larmias\Contracts\TimerInterface;
 use Larmias\SharedMemory\Auth;
-use Larmias\SharedMemory\Client\Connection;
 use Larmias\SharedMemory\CommandExecutor;
 use Larmias\SharedMemory\Contracts\AuthInterface;
 use Larmias\SharedMemory\Contracts\CommandExecutorInterface;
@@ -46,12 +43,5 @@ class SharedMemoryServiceProvider implements ServiceProviderInterface
      */
     public function boot(): void
     {
-        if ($this->container->has(TimerInterface::class)) {
-            Connection::setTimer($this->container->get(TimerInterface::class));
-        }
-
-        if ($this->container->has(EventLoopInterface::class)) {
-            Connection::setEventLoop($this->container->get(EventLoopInterface::class));
-        }
     }
 }

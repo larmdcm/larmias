@@ -19,6 +19,7 @@ use function function_exists;
 use function json_decode;
 use function json_last_error;
 use function is_array;
+use function basename;
 use const JSON_ERROR_NONE;
 
 class Translator implements TranslatorInterface
@@ -167,7 +168,7 @@ class Translator implements TranslatorInterface
 
             foreach ($list as $item) {
                 if (is_dir($item)) {
-                    $this->load(glob($item . DIRECTORY_SEPARATOR . '*.*'), $locale, \basename($item));
+                    $this->load(glob($item . DIRECTORY_SEPARATOR . '*.*'), $locale, basename($item));
                 } else {
                     $this->load($item, $locale);
                 }

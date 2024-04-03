@@ -6,8 +6,8 @@ namespace Larmias\Log\Providers;
 
 use Larmias\Contracts\LoggerInterface;
 use Psr\Log\LoggerInterface as PsrLoggerInterface;
-use Larmias\Log\Logger;
 use Larmias\Framework\ServiceProvider;
+use Larmias\Log\Logger;
 
 class LogServiceProvider extends ServiceProvider
 {

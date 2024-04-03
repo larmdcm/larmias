@@ -7,6 +7,7 @@ namespace Larmias\SharedMemory\Client;
 use Larmias\Contracts\ConfigInterface;
 use Larmias\Contracts\ContainerInterface;
 use Larmias\SharedMemory\Client\Proxy\Connection as ProxyConnection;
+use Throwable;
 
 class ClientFactory
 {
@@ -34,7 +35,7 @@ class ClientFactory
 
     /**
      * @return ProxyConnection
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function makeProxy(): ProxyConnection
     {

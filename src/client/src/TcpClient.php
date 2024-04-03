@@ -84,6 +84,7 @@ class TcpClient
                 ]);
             }
             $this->socket->connect($this->options['host'], $this->options['port'], $this->options['timeout']);
+            $this->connectAfter();
             $this->fireEvent(Constants::EVENT_CONNECT, $this);
             $this->startPing();
         }
@@ -207,8 +208,15 @@ class TcpClient
     {
         $this->options = array_merge($this->options, $options);
         $this->initProtocolHandler($this->options);
-
         return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getOptions(): array
+    {
+        return $this->options;
     }
 
     /**
@@ -305,5 +313,12 @@ class TcpClient
     public function __destruct()
     {
         $this->destroy();
+    }
+
+    /**
+     * @return void
+     */
+    protected function connectAfter(): void
+    {
     }
 }

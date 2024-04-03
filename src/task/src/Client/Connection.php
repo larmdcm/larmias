@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Larmias\Task\Client;
 
 use Larmias\Client\AsyncSocket;
-use Larmias\Codec\Protocol\FrameProtocol;
+use Larmias\Client\Constants;
 use Larmias\Contracts\Client\AsyncSocketInterface;
 use Larmias\Contracts\ContainerInterface;
 use Larmias\SharedMemory\Client\Connection as BaseClient;
@@ -35,7 +35,7 @@ class Connection extends BaseClient
     public function __construct(ContainerInterface $container, array $options = [])
     {
         $options['async'] = true;
-        $options['event'][self::EVENT_CONNECT] = fn(Connection $client) => $this->onConnect($client);
+        $options['event'][Constants::EVENT_CONNECT] = fn(Connection $client) => $this->onConnect($client);
         $options['timeout'] = $options['timeout'] ?? 3;
         $this->syncWait = $container->get(SyncWait::class);
         parent::__construct($options);
@@ -54,7 +54,8 @@ class Connection extends BaseClient
     {
         $this->asyncSocket = new AsyncSocket(Connection::getEventLoop(), $client->getSocket());
         $this->asyncSocket->setOptions([
-            'protocol' => FrameProtocol::class,
+            'protocol' => $this->options['protocol'],
+            'max_package_size' => $this->options['max_package_size'] ?? 0,
         ]);
         $this->asyncSocket->on(AsyncSocketInterface::ON_MESSAGE, function (mixed $data) {
             $result = Result::parse($data);

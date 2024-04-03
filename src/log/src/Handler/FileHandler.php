@@ -61,6 +61,7 @@ class FileHandler implements LoggerHandlerInterface
     }
 
     /**
+     * 保存日志
      * @param array $logs
      * @return bool
      */
@@ -89,7 +90,6 @@ class FileHandler implements LoggerHandlerInterface
 
     /**
      * 日志写入
-     *
      * @param array $logs
      * @param string $destination
      * @return bool
@@ -112,7 +112,6 @@ class FileHandler implements LoggerHandlerInterface
 
     /**
      * 获取主日志文件名
-     *
      * @return string
      */
     protected function getMasterLogFile(): string
@@ -151,7 +150,6 @@ class FileHandler implements LoggerHandlerInterface
 
     /**
      * 获取独立日志文件名
-     *
      * @param string $path
      * @param string $type
      * @return string

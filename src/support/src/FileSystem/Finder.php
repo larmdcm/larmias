@@ -26,6 +26,7 @@ use function str_contains;
  * @method Finder excludeFile(array|string $file)
  * @method Finder includeExt(array|string $ext)
  * @method Finder excludeExt(array|string $ext)
+ * @method Finder depth(int $depth)
  */
 class Finder
 {
@@ -39,6 +40,7 @@ class Finder
         'exclude_file' => [],
         'include_ext' => [],
         'exclude_ext' => [],
+        'depth' => 0,
     ];
 
     /**
@@ -63,9 +65,10 @@ class Finder
 
     /**
      * @param string $path
+     * @param int $depth
      * @return SplFileInfo[]
      */
-    protected function findFiles(string $path): array
+    protected function findFiles(string $path, int $depth = 0): array
     {
         $files = [];
         if (str_contains($path, '*')) {
@@ -78,10 +81,15 @@ class Finder
             if (!($info instanceof SplFileInfo)) {
                 $info = new SplFileInfo($info);
             }
+
+            if ($this->options['depth'] > 0 && $depth >= $this->options['depth']) {
+                break;
+            }
+
             /** @var SplFileInfo $info */
             if ($info->isDir() && !$info->isLink()) {
                 if ($this->checkDir($info)) {
-                    $files = array_merge($this->findFiles($info->getPathname()), $files);
+                    $files = array_merge($this->findFiles($info->getPathname(), ++$depth), $files);
                 }
             } else {
                 if ($this->checkFile($info)) {

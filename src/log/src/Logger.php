@@ -9,6 +9,7 @@ use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\LoggerInterface;
 use Larmias\Log\Contracts\FormatterInterface;
 use Larmias\Collection\Arr;
+use Stringable;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use function is_null;
 
@@ -33,12 +34,12 @@ class Logger implements LoggerInterface
     /**
      * System is unusable.
      *
-     * @param string|\Stringable $message
+     * @param string|Stringable $message
      * @param array $context
      *
      * @return void
      */
-    public function emergency(string|\Stringable $message, array $context = []): void
+    public function emergency(string|Stringable $message, array $context = []): void
     {
         $this->log(__FUNCTION__, $message, $context);
     }
@@ -49,12 +50,12 @@ class Logger implements LoggerInterface
      * Example: Entire website down, database unavailable, etc. This should
      * trigger the SMS alerts and wake you up.
      *
-     * @param string|\Stringable $message
+     * @param string|Stringable $message
      * @param array $context
      *
      * @return void
      */
-    public function alert(string|\Stringable $message, array $context = []): void
+    public function alert(string|Stringable $message, array $context = []): void
     {
         $this->log(__FUNCTION__, $message, $context);
     }
@@ -64,12 +65,12 @@ class Logger implements LoggerInterface
      *
      * Example: Application component unavailable, unexpected exception.
      *
-     * @param string|\Stringable $message
+     * @param string|Stringable $message
      * @param array $context
      *
      * @return void
      */
-    public function critical(string|\Stringable $message, array $context = []): void
+    public function critical(string|Stringable $message, array $context = []): void
     {
         $this->log(__FUNCTION__, $message, $context);
     }
@@ -78,12 +79,12 @@ class Logger implements LoggerInterface
      * Runtime errors that do not require immediate action but should typically
      * be logged and monitored.
      *
-     * @param string|\Stringable $message
+     * @param string|Stringable $message
      * @param array $context
      *
      * @return void
      */
-    public function error(string|\Stringable $message, array $context = []): void
+    public function error(string|Stringable $message, array $context = []): void
     {
         $this->log(__FUNCTION__, $message, $context);
     }
@@ -94,12 +95,12 @@ class Logger implements LoggerInterface
      * Example: Use of deprecated APIs, poor use of an API, undesirable things
      * that are not necessarily wrong.
      *
-     * @param string|\Stringable $message
+     * @param string|Stringable $message
      * @param array $context
      *
      * @return void
      */
-    public function warning(string|\Stringable $message, array $context = []): void
+    public function warning(string|Stringable $message, array $context = []): void
     {
         $this->log(__FUNCTION__, $message, $context);
     }
@@ -107,12 +108,12 @@ class Logger implements LoggerInterface
     /**
      * Normal but significant events.
      *
-     * @param string|\Stringable $message
+     * @param string|Stringable $message
      * @param array $context
      *
      * @return void
      */
-    public function notice(string|\Stringable $message, array $context = []): void
+    public function notice(string|Stringable $message, array $context = []): void
     {
         $this->log(__FUNCTION__, $message, $context);
     }
@@ -122,12 +123,12 @@ class Logger implements LoggerInterface
      *
      * Example: User logs in, SQL logs.
      *
-     * @param string|\Stringable $message
+     * @param string|Stringable $message
      * @param array $context
      *
      * @return void
      */
-    public function info(string|\Stringable $message, array $context = []): void
+    public function info(string|Stringable $message, array $context = []): void
     {
         $this->log(__FUNCTION__, $message, $context);
     }
@@ -135,12 +136,12 @@ class Logger implements LoggerInterface
     /**
      * Detailed debug information.
      *
-     * @param string|\Stringable $message
+     * @param string|Stringable $message
      * @param array $context
      *
      * @return void
      */
-    public function debug(string|\Stringable $message, array $context = []): void
+    public function debug(string|Stringable $message, array $context = []): void
     {
         $this->log(__FUNCTION__, $message, $context);
     }
@@ -148,12 +149,12 @@ class Logger implements LoggerInterface
     /**
      * Sql log info.
      *
-     * @param string|\Stringable $message
+     * @param string|Stringable $message
      * @param array $context
      *
      * @return void
      */
-    public function sql(string|\Stringable $message, array $context = []): void
+    public function sql(string|Stringable $message, array $context = []): void
     {
         $this->log(__FUNCTION__, $message, $context);
     }
@@ -162,12 +163,12 @@ class Logger implements LoggerInterface
      * Logs with an arbitrary level.
      *
      * @param mixed $level
-     * @param string|\Stringable $message
+     * @param string|Stringable $message
      * @param array $context
      *
      * @return void
      */
-    public function log($level, string|\Stringable $message, array $context = []): void
+    public function log($level, string|Stringable $message, array $context = []): void
     {
         $this->record($message, (string)$level, $context);
     }
@@ -175,12 +176,12 @@ class Logger implements LoggerInterface
     /**
      * 写日志
      *
-     * @param string|\Stringable $message
+     * @param string|Stringable $message
      * @param string $level
      * @param array $context
      * @return bool
      */
-    public function write(string|\Stringable $message, string $level, array $context = []): bool
+    public function write(string|Stringable $message, string $level, array $context = []): bool
     {
         return $this->record($message, $level, $context, true);
     }
@@ -189,13 +190,13 @@ class Logger implements LoggerInterface
     /**
      * 记录日志
      *
-     * @param string|\Stringable $message
+     * @param string|Stringable $message
      * @param string $level
      * @param array $context
-     * @param bool $realtimeWrite
+     * @param bool|null $realtimeWrite
      * @return bool
      */
-    public function record(string|\Stringable $message, string $level, array $context = [], bool $realtimeWrite = false): bool
+    public function record(string|Stringable $message, string $level, array $context = [], ?bool $realtimeWrite = null): bool
     {
         $name = $this->getConfig('level_channels.' . $level);
         return $this->channel($name)->record($message, $level, $context, $realtimeWrite);
@@ -203,7 +204,6 @@ class Logger implements LoggerInterface
 
     /**
      * save current channel.
-     *
      * @param string|null $name
      * @return boolean
      */

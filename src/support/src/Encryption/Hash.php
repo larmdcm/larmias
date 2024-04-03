@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Larmias\Support\Encryption;
 
 use function array_merge;
-use function password_hash;
 use function password_verify;
+use function password_hash;
 use const PASSWORD_DEFAULT;
 
 class Hash

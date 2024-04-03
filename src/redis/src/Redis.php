@@ -13,9 +13,9 @@ use Larmias\Contracts\Redis\RedisFactoryInterface;
 class Redis
 {
     /**
-     * @var string
+     * @var string|null
      */
-    protected string $name = 'default';
+    protected ?string $name = null;
 
     /**
      * @param RedisFactoryInterface $factory

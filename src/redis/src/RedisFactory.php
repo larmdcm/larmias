@@ -26,14 +26,18 @@ class RedisFactory implements RedisFactoryInterface
     }
 
     /**
-     * @param string $name
+     * @param string|null $name
      * @return ConnectionInterface
      * @throws Throwable
      */
-    public function get(string $name = 'default'): ConnectionInterface
+    public function get(?string $name = null): ConnectionInterface
     {
+        if (is_null($name)) {
+            $name = $this->config->get('default', 'default');
+        }
+
         if (!isset($this->proxies[$name])) {
-            $config = $this->config->get('redis.' . $name, []);
+            $config = $this->config->get('redis.connections.' . $name, []);
             $config['name'] = $name;
             $this->proxies[$name] = new RedisProxy($this->container, $config);
         }

@@ -69,7 +69,7 @@ class TcpClientConnection extends BaseConnection
     /**
      * @return TcpClient
      */
-    public function getRawClient(): TcpClient
+    public function getRawConnection(): TcpClient
     {
         return $this->client;
     }

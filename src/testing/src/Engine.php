@@ -6,8 +6,8 @@ namespace Larmias\Testing;
 
 use Larmias\Contracts\ApplicationInterface;
 use Larmias\Contracts\ContainerInterface;
-use Larmias\Engine\Constants;
 use Larmias\Engine\Contracts\KernelInterface;
+use Larmias\Engine\Constants;
 use Larmias\Engine\EngineConfig;
 use Larmias\Engine\Event;
 use Larmias\Engine\Timer;

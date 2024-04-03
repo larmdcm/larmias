@@ -6,6 +6,7 @@ namespace Larmias\Support;
 
 use Larmias\Context\ApplicationContext;
 use Larmias\Contracts\DotEnvInterface;
+use Larmias\Support\Reflection\ReflectUtil;
 use RuntimeException;
 use Stringable;
 use Throwable;
@@ -87,7 +88,7 @@ function env(string $name, mixed $default = null): mixed
  * @param ...$args
  * @return void
  */
-function println(string|Stringable $format, ...$args): void
+function println(string|Stringable $format = '', ...$args): void
 {
     printf($format . PHP_EOL, ...$args);
 }
@@ -100,7 +101,7 @@ function println(string|Stringable $format, ...$args): void
  */
 function format_exception(Throwable $e, bool $trace = true): string
 {
-    $message = $e->getMessage() . sprintf(' %s(code:%d) at %s:%d', get_class($e), $e->getCode(), $e->getFile(), $e->getLine());
+    $message = $e->getMessage() . sprintf(' %s(code:%d) in %s:%d', get_class($e), $e->getCode(), $e->getFile(), $e->getLine());
     if ($trace) {
         $message = $message . PHP_EOL . '[stacktrace]' . PHP_EOL . $e->getTraceAsString();
     }
@@ -195,7 +196,7 @@ function class_basename(mixed $class): string
  */
 function class_has_implement(mixed $class, string $interface): bool
 {
-    return in_array($interface, class_implements($class));
+    return ReflectUtil::classHasImplement($class, $interface);
 }
 
 /**

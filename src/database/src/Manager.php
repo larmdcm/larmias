@@ -57,12 +57,13 @@ class Manager implements ManagerInterface
      */
     public function connection(?string $name = null): ConnectionInterface
     {
-        $name = $name ?: 'default';
+        $connections = $this->config['connections'] ?? [];
+        $name = $name ?: ($this->config['default'] ?? 'default');
 
         if (!isset($this->proxies[$name])) {
-            throw_unless(isset($this->config[$name]), RuntimeException::class, 'config not set:' . $name);
-            $this->config[$name]['name'] = $name;
-            $proxy = new DbProxy($this->container, $this->config[$name]);
+            throw_unless(isset($connections[$name]), RuntimeException::class, 'config not set:' . $name);
+            $connections[$name]['name'] = $name;
+            $proxy = new DbProxy($this->container, $connections[$name]);
             $proxy->setEventDispatcher($this->getEventDispatcher());
             $this->proxies[$name] = $proxy;
         }

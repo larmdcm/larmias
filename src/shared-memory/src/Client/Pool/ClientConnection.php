@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\SharedMemory\Client\Pool;
 
+use Larmias\Codec\Protocol\FrameProtocol;
 use Larmias\Pool\Connection as BaseConnection;
 use Larmias\SharedMemory\Client\Connection;
 use Throwable;
@@ -19,6 +20,7 @@ class ClientConnection extends BaseConnection
         'password' => '',
         'select' => 'default',
         'timeout' => 3,
+        'protocol' => FrameProtocol::class,
     ];
 
     /**
@@ -95,7 +97,7 @@ class ClientConnection extends BaseConnection
     /**
      * @return Connection
      */
-    public function getRaw(): Connection
+    public function getRawConnection(): Connection
     {
         return $this->conn;
     }

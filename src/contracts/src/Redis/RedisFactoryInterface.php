@@ -7,8 +7,8 @@ namespace Larmias\Contracts\Redis;
 interface RedisFactoryInterface
 {
     /**
-     * @param string $name
+     * @param string|null $name
      * @return ConnectionInterface
      */
-    public function get(string $name = 'default'): ConnectionInterface;
+    public function get(?string $name = null): ConnectionInterface;
 }

@@ -30,6 +30,8 @@ $kernel->setConfig(EngineConfig::build([
             'callbacks' => [
                 Event::ON_CONNECT => function (ConnectionInterface $connection) {
                     println('【%d】客户端连接', $connection->getId());
+                    $connection->send('hello');
+                    $connection->send('world');
                 },
                 Event::ON_RECEIVE => function (ConnectionInterface $connection, mixed $data) {
                     println('【%d】客户端消息：%s', $connection->getId(), $data);

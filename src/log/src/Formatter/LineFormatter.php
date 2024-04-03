@@ -6,6 +6,10 @@ namespace Larmias\Log\Formatter;
 
 use Larmias\Log\Contracts\FormatterInterface;
 use Larmias\Stringable\Str;
+use DateTime;
+use Stringable;
+use DateTimeZone;
+use function date_default_timezone_get;
 use function array_merge;
 use function var_export;
 
@@ -29,20 +33,20 @@ class LineFormatter implements FormatterInterface
 
 
     /**
-     * @param string|\Stringable $message
+     * @param string|Stringable $message
      * @param string $channel
      * @param string $level
      * @param array $context
      * @return string
      */
-    public function format(string|\Stringable $message, string $channel, string $level, array $context = []): string
+    public function format(string|Stringable $message, string $channel, string $level, array $context = []): string
     {
         $message = (string)$message;
         if (!empty($context)) {
             $message = Str::template($message, $context);
         }
-        $datetime = \DateTime::createFromFormat('0.u00 U', microtime())
-            ->setTimezone(new \DateTimeZone(date_default_timezone_get()))->format($this->config['date_format']);
+        $datetime = DateTime::createFromFormat('0.u00 U', microtime())
+            ->setTimezone(new DateTimeZone(date_default_timezone_get()))->format($this->config['date_format']);
         return Str::template($this->config['format'], [
             'datetime' => $datetime,
             'channel' => $channel,

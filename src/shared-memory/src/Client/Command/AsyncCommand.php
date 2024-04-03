@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Larmias\SharedMemory\Client\Command;
 
 use Larmias\Client\AsyncSocket;
-use Larmias\Codec\Protocol\FrameProtocol;
+use Larmias\Client\Constants;
 use Larmias\Contracts\Client\AsyncSocketInterface;
 use Larmias\SharedMemory\Client\Connection;
 use Larmias\SharedMemory\Message\Result;
@@ -34,7 +34,7 @@ abstract class AsyncCommand
     {
         $options['async'] = true;
         $options['event'] = array_merge($options['event'] ?? [], [
-            Connection::EVENT_CONNECT => fn(Connection $conn) => $this->onConnect($conn)
+            Constants::EVENT_CONNECT => fn(Connection $conn) => $this->onConnect($conn)
         ]);
         $this->conn = new Connection($options);
     }
@@ -45,9 +45,11 @@ abstract class AsyncCommand
      */
     protected function onConnect(Connection $conn): void
     {
+        $options = $conn->getOptions();
         $this->asyncSocket = new AsyncSocket(Connection::getEventLoop(), $conn->getSocket());
         $this->asyncSocket->setOptions([
-            'protocol' => FrameProtocol::class,
+            'protocol' => $options['protocol'],
+            'max_package_size' => $options['max_package_size'] ?? 0,
         ]);
         $this->asyncSocket->on(AsyncSocketInterface::ON_MESSAGE, function (mixed $data) {
             $result = Result::parse($data);

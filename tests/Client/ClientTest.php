@@ -18,16 +18,24 @@ class ClientTest extends TestCase
     /**
      * @return void
      */
-    public function testSocket(): void
+    public function testSocketConnect(): void
     {
         $socket = new Socket();
         $socket->setOptions(['rw_timeout' => 0]);
-        $this->assertTrue($socket->connect('127.0.0.1', 2000, 30));
+        $this->assertTrue($socket->connect('127.0.0.1', 2000, 3));
         $this->assertTrue($socket->isConnected());
-        var_dump($socket->send("hello"));
-        var_dump($socket->recv());
         $this->assertTrue($socket->close());
         $this->assertFalse($socket->isConnected());
+    }
+
+    /**
+     * @return void
+     */
+    public function testSocketDelayRead(): void
+    {
+        $socket = new Socket();
+        $this->assertTrue($socket->connect('127.0.0.1', 2000, 3));
+        var_dump($socket->recv());
     }
 
     /**

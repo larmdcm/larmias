@@ -27,9 +27,9 @@ use Larmias\Command\Application as ConsoleApplication;
 use Larmias\Contracts\ServiceDiscoverInterface;
 use Larmias\Framework\Listeners\WorkerStartListener;
 use Larmias\Framework\Logger\StdoutLogger;
+use Larmias\Support\FileSystem\Finder;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\EventDispatcher\ListenerProviderInterface;
-use DirectoryIterator;
 use Closure;
 use Throwable;
 use function Larmias\Support\class_has_implement;
@@ -171,12 +171,9 @@ class Application implements ApplicationInterface
         /** @var ConfigInterface $config */
         $config = $this->container->get(ConfigInterface::class);
         $this->config = $config;
-        $fileIter = new DirectoryIterator($configPath);
-        while ($fileIter->valid()) {
-            if ($fileIter->isFile() && $fileIter->getExtension() === $this->configExt) {
-                $this->config->load($fileIter->getPath() . DIRECTORY_SEPARATOR . $fileIter->getFilename());
-            }
-            $fileIter->next();
+        $files = Finder::create()->include($configPath)->includeExt($this->configExt)->depth(1)->files();
+        foreach ($files as $file) {
+            $this->config->load($file->getPath() . DIRECTORY_SEPARATOR . $file->getFilename());
         }
     }
 

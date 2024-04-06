@@ -50,7 +50,7 @@ class Captcha
             $this->config = array_merge($this->config, is_array($config) ? $config : $config->get('captcha', []));
         }
 
-        if (!$this->config['font']) {
+        if (is_null($this->config['font'])) {
             $this->config['font'] = dirname(__DIR__) . '/resources/fonts/captcha.ttf';
         }
     }
@@ -122,7 +122,7 @@ class Captcha
             if ($this->config['font'] && is_file($this->config['font'])) {
                 imagettftext($this->image, 16, mt_rand(-30, 30), intval($x * $i + mt_rand(1, 5)), intval($this->config['height'] / 1.4), $color, $this->config['font'], $code[$i]);
             } else {
-                imagestring($this->image, 5, intval($i * $this->config['width'] / $this->$this->config['font_size'] + mt_rand(1, 10)), mt_rand(1, intval($this->config['height'] / 2)), $code[$i], $color);
+                imagestring($this->image, 5, intval($i * $this->config['width'] / $this->config['font_size'] + mt_rand(1, 10)), mt_rand(1, intval($this->config['height'] / 2)), $code[$i], $color);
             }
         }
     }

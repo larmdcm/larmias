@@ -6,6 +6,7 @@ namespace Larmias\ExceptionHandler;
 
 use Psr\Log\LoggerInterface;
 use Throwable;
+use function Larmias\Support\format_exception;
 
 class ReportExceptionHandler extends ExceptionHandler
 {
@@ -50,9 +51,9 @@ class ReportExceptionHandler extends ExceptionHandler
         if ($this->isDontReport($e)) {
             return;
         }
-        
+
         try {
-            $this->logger?->log($this->levels[get_class($e)] ?? 'error', $e->getMessage(), ['exception' => $e->getTraceAsString()]);
+            $this->logger?->log($this->levels[get_class($e)] ?? 'error', format_exception($e));
         } catch (Throwable) {
         }
     }

@@ -40,7 +40,7 @@ abstract class Authentication implements AuthenticationInterface
     public function authenticate(mixed $parameter): ?IdentityInterface
     {
         $id = $this->getCredentials($parameter);
-        return $id ? $this->repository->findIdentity($id) : null;
+        return $id ? $this->repository->findIdentity(array_merge($this->config, ['credentials' => $id])) : null;
     }
 
     /**

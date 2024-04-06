@@ -113,6 +113,7 @@ class Connection extends TcpClient
         if ($this->options['password'] !== '') {
             $this->auth($this->options['password']);
         }
+        
         if ($this->options['select'] !== 'default') {
             $this->select($this->options['select']);
         }

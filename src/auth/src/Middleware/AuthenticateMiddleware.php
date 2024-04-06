@@ -10,6 +10,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use Closure;
 
 class AuthenticateMiddleware implements MiddlewareInterface
 {
@@ -36,6 +37,17 @@ class AuthenticateMiddleware implements MiddlewareInterface
     {
         $this->setAuthManager();
         $this->authenticate($request, $this->guards);
-        return $handler->handle($request);
+        return $this->checkAuth(function () use ($handler, $request) {
+            return $handler->handle($request);
+        });
+    }
+
+    /**
+     * @param Closure $next
+     * @return ResponseInterface
+     */
+    protected function checkAuth(Closure $next): ResponseInterface
+    {
+        return $next();
     }
 }

@@ -12,7 +12,7 @@ class TokenAuthentication extends Authentication
      * @var array
      */
     protected array $config = [
-        'auth_name' => 'token',
+        'token_name' => 'token',
     ];
 
     /**
@@ -22,6 +22,6 @@ class TokenAuthentication extends Authentication
     public function getCredentials(mixed $parameter): string
     {
         /** @var ServerRequestInterface $parameter */
-        return $parameter->getHeaderLine($this->config['auth_name']);
+        return $parameter->getHeaderLine($this->config['token_name'] ?? 'token');
     }
 }

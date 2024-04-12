@@ -11,8 +11,6 @@ use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\Dispatcher\DispatcherFactoryInterface;
 use Larmias\Routing\Contracts\RouterInterface;
 use Larmias\Routing\Exceptions\RouteException;
-use Larmias\Routing\Exceptions\RouteMethodNotAllowedException;
-use Larmias\Routing\Exceptions\RouteNotFoundException;
 use function call_user_func;
 use function count;
 use function end;
@@ -207,14 +205,8 @@ class Router implements RouterInterface
     {
         $this->collectGroup();
         $this->collectRoute();
-
         $routeInfo = $this->dispatcher->dispatch($method, $route);
-        if ($routeInfo[0] === FastRouteDispatcher::FOUND) {
-            /** @var Rule $rule */
-            $rule = $routeInfo[1];
-            return new Dispatched($this->dispatcherFactory->make($rule), $rule, $routeInfo[2]);
-        }
-        throw new ($routeInfo[0] === FastRouteDispatcher::NOT_FOUND ? RouteNotFoundException::class : RouteMethodNotAllowedException::class);
+        return new Dispatched($routeInfo[0], $routeInfo[1], $routeInfo[2]);
     }
 
     /**

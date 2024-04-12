@@ -67,11 +67,12 @@ interface ServiceDiscoverInterface
     /**
      * 添加进程服务
      * @param string $process
-     * @param string $name
-     * @param int $count
+     * @param string|null $name
+     * @param int|null $num
+     * @param array $options
      * @return void
      */
-    public function addProcess(string $process, string $name, int $count = 1): void;
+    public function addProcess(string $process, ?string $name = null, ?int $num = 1, array $options = []): void;
 
     /**
      * 添加事件监听服务

@@ -37,6 +37,7 @@ class BootServiceProvider extends ServiceProvider
     {
         $this->publishes(static::class, [
             __DIR__ . '/../../publish/app.php' => $this->app->getConfigPath() . 'app.php',
+            __DIR__ . '/../../publish/process.php' => $this->app->getConfigPath() . 'process.php',
         ]);
 
         $this->registerListener();

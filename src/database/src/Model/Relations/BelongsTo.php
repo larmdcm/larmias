@@ -28,7 +28,7 @@ class BelongsTo extends OneToOne
      */
     public function eagerlyResultSet(CollectionInterface $resultSet, string $relation, mixed $option): void
     {
-        $model = $this->newModel();
+        $query = $this->newModel()->newQuery();
 
         $foreignKeyValues = $resultSet->filter(fn(Model $item) => isset($item->{$this->foreignKey}))
             ->map(fn(Model $item) => $item->{$this->foreignKey})
@@ -40,12 +40,12 @@ class BelongsTo extends OneToOne
         }
 
         if ($option instanceof Closure) {
-            $option($model);
+            $option($query);
         } else if (is_array($option) && !empty($option)) {
-            $model->with($option);
+            $query->with($option);
         }
 
-        $data = $model->whereIn($this->localKey, $foreignKeyValues)->get()->pluck(null, $this->localKey);
+        $data = $query->whereIn($this->localKey, $foreignKeyValues)->get()->pluck(null, $this->localKey);
 
         if ($data->isNotEmpty()) {
             /** @var Model $result */

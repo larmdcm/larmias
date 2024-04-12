@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Larmias\HttpServer\Exceptions;
 
 use RuntimeException;
-use Throwable;
 
 class HttpException extends RuntimeException
 {
@@ -22,16 +21,15 @@ class HttpException extends RuntimeException
     /**
      * HttpException constructor.
      *
-     * @param int $statusCode
      * @param string $message
+     * @param int $statusCode
      * @param array $headers
-     * @param int $code
      */
-    public function __construct(int $statusCode = 500, string $message = 'http exception.', Throwable $previous = null, array $headers = [], $code = 0)
+    public function __construct(string $message = 'http exception.', int $statusCode = 500, array $headers = [])
     {
         $this->statusCode = $statusCode;
         $this->headers = $headers;
-        parent::__construct($message, $code, $previous);
+        parent::__construct($message);
     }
 
     /**

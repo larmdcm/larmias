@@ -83,6 +83,11 @@ class Kernel implements KernelInterface
      */
     public function addWorker(WorkerConfigInterface $workerConfig): ?WorkerInterface
     {
+        $enabled = $workerConfig->getSettings()[Constants::OPTION_ENABLED] ?? true;
+        if (!$enabled) {
+            return null;
+        }
+
         $class = match ($workerConfig->getType()) {
             WorkerType::TCP_SERVER => $this->driver->getTcpServerClass(),
             WorkerType::UPD_SERVER => $this->driver->getUdpServerClass(),

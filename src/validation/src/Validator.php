@@ -6,6 +6,7 @@ namespace Larmias\Validation;
 
 use Larmias\Contracts\TranslatorInterface;
 use Larmias\Collection\Arr;
+use Larmias\Validation\Concerns\ValidateRules;
 use Larmias\Validation\Exceptions\ValidateException;
 use Larmias\Validation\Exceptions\RuleException;
 use Larmias\Contracts\ValidatorInterface;
@@ -23,6 +24,8 @@ use function call_user_func_array;
 
 class Validator implements ValidatorInterface
 {
+    use ValidateRules;
+
     /**
      * @var array
      */
@@ -32,11 +35,6 @@ class Validator implements ValidatorInterface
      * @var Rules[]
      */
     protected array $rules = [];
-
-    /**
-     * @var array
-     */
-    protected array $attributes = [];
 
     /**
      * @var array
@@ -77,11 +75,7 @@ class Validator implements ValidatorInterface
         'integer' => ':attribute must be integer',
         'float' => ':attribute must be float',
         'boolean' => ':attribute must be bool',
-        'email' => ':attribute not a valid email address',
-        'mobile' => ':attribute not a valid mobile',
         'array' => ':attribute must be a array',
-        'accepted' => ':attribute must be yes,on or 1',
-        'date' => ':attribute not a valid datetime',
         'max' => 'max size of :attribute must be :rule',
         'min' => 'min size of :attribute must be :rule',
         'in' => ':attribute must be in :rule',
@@ -90,6 +84,28 @@ class Validator implements ValidatorInterface
         'notBetween' => ':attribute not between :0 - :1',
         'length' => 'size of :attribute must be :rule',
         'confirm' => ':attribute out of accord with :2',
+        'different' => ':attribute cannot be same with :2',
+        'egt' => ':attribute must greater than or equal :rule',
+        'gt' => ':attribute must greater than :rule',
+        'elt' => ':attribute must less than or equal :rule',
+        'lt' => ':attribute must less than :rule',
+        'eq' => ':attribute must equal :rule',
+        'accepted' => ':attribute must be yes,on or 1',
+        'date' => ':attribute not a valid datetime',
+        'dateFormat' => ':attribute must be dateFormat of :rule',
+        'email' => ':attribute not a valid email address',
+        'mobile' => ':attribute not a valid mobile',
+        'idCard' => ':attribute not a valid idCard',
+        'url' => ':attribute not a valid url',
+        'activeUrl' => ':attribute not a valid activeUrl',
+        'ip' => ':attribute not a valid ip',
+        'zip' => ':attribute not a valid zip',
+        'macAddr' => ':attribute not a valid macAddr',
+        'regex' => ':attribute not a valid regex',
+        'file' => ':attribute not a valid file',
+        'image' => ':attribute not a valid image',
+        'fileMime' => ':attribute not a valid fileMime',
+        'fileExt' => ':attribute not a valid fileExt',
         'default_message' => ':attribute verification failed',
     ];
 
@@ -129,8 +145,9 @@ class Validator implements ValidatorInterface
      * @param array $data
      * @param array $rules
      * @param array $messages
+     * @param array $attributes
      */
-    public function __construct(protected array $data = [], array $rules = [], protected array $messages = [])
+    public function __construct(protected array $data = [], array $rules = [], protected array $messages = [], protected array $attributes = [])
     {
         $this->rule($rules);
 
@@ -152,11 +169,12 @@ class Validator implements ValidatorInterface
      * @param array $data
      * @param array $rules
      * @param array $messages
+     * @param array $attributes
      * @return Validator
      */
-    public static function make(array $data = [], array $rules = [], array $messages = []): Validator
+    public static function make(array $data = [], array $rules = [], array $messages = [], array $attributes = []): Validator
     {
-        return new static($data, $rules, $messages);
+        return new static($data, $rules, $messages, $attributes);
     }
 
     /**
@@ -182,7 +200,6 @@ class Validator implements ValidatorInterface
 
     /**
      * 验证
-     *
      * @return bool
      */
     public function fails(): bool
@@ -209,8 +226,14 @@ class Validator implements ValidatorInterface
             if (isset($this->append[$field])) {
                 $ruleItems->merge($this->append[$field]);
             }
+
+            $hasRequired = $ruleItems->has('required');
+
+            /** @var Rule $ruleItem */
             foreach ($ruleItems as $ruleItem) {
-                /** @var Rule $ruleItem */
+                if ($ruleItem->getName() !== 'required' && !$hasRequired && !ValidateUtils::isRequired($value)) {
+                    continue;
+                }
                 $check = $this->checkRule($ruleItem, $field, $value);
                 if (!$check) {
                     $errors[$field][] = $this->getValidateMessage($ruleItem, $field);
@@ -259,21 +282,17 @@ class Validator implements ValidatorInterface
 
         $method = 'validate' . Str::studly($name);
         array_unshift($args, $value);
+        array_unshift($args, $field);
+
         if (isset($this->validateHandlers[$name])) {
-            array_unshift($args, $field);
             return call_user_func_array($this->validateHandlers[$name], $args);
         }
 
         if (method_exists($this, $method)) {
-            array_unshift($args, $field);
             return call_user_func_array([$this, $method], $args);
         }
 
-        try {
-            return call_user_func_array([Validate::class, $name], $args);
-        } catch (RuleException $e) {
-            throw new RuleException($e->getMessage(), $ruleItem);
-        }
+        throw new RuleException('rule is not exists:' . $name, $ruleItem);
     }
 
     /**
@@ -507,6 +526,17 @@ class Validator implements ValidatorInterface
     }
 
     /**
+     * 判断字段规则是否存在
+     * @param string $field
+     * @param string|array $rules
+     * @return bool
+     */
+    public function hasRule(string $field, string|array $rules): bool
+    {
+        return isset($this->rules[$field]) && $this->rules[$field]->has($rules);
+    }
+
+    /**
      * 设置是否批量验证
      *
      * @param bool $batch
@@ -533,19 +563,5 @@ class Validator implements ValidatorInterface
     protected function getDataValue(string $field): mixed
     {
         return Arr::get($this->data, $field);
-    }
-
-    /**
-     * @param mixed $value
-     * @param string $field
-     * @param string|null $rule
-     * @return bool
-     */
-    protected function validateConfirm(mixed $value, string $field, ?string $rule = null): bool
-    {
-        if ($rule === null) {
-            $rule = $field . '_confirm';
-        }
-        return $value === $this->getDataValue($rule);
     }
 }

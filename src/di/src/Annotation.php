@@ -15,6 +15,7 @@ use ReflectionClass;
 use ReflectionMethod;
 use ReflectionParameter;
 use ReflectionProperty;
+use function Larmias\Support\println;
 use function array_merge;
 use function class_exists;
 use function is_string;
@@ -29,6 +30,7 @@ class Annotation implements AnnotationInterface
         'include_path' => [],
         'exclude_path' => [],
         'handlers' => [],
+        'check_syntax' => true,
     ];
 
     /**
@@ -75,14 +77,19 @@ class Annotation implements AnnotationInterface
     {
         $files = Finder::create()->include($this->config['include_path'])->exclude($this->config['exclude_path'])->includeExt('php')->files();
         foreach ($files as $file) {
-            $realPath = $file->getPath() . DIRECTORY_SEPARATOR . $file->getFilename();
-            $classes = ReflectUtil::getAllClassesInFile($realPath);
+            $filePath = $file->getPath() . DIRECTORY_SEPARATOR . $file->getFilename();
+            $error = $this->config['check_syntax'] ? ReflectUtil::checkFileSyntaxError($filePath) : null;
+            if ($error !== null) {
+                println($error);
+                continue;
+            }
+            $classes = ReflectUtil::getAllClassesInFile($filePath);
             if (empty($classes)) {
                 continue;
             }
 
             if (isset($classes[1])) {
-                require_once $realPath;
+                require_once $filePath;
             }
 
             foreach ($classes as $class) {

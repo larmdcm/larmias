@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Larmias\Engine\Swoole;
 
+use Larmias\Contracts\Client\Http\ClientFactoryInterface as HttpClientFactoryInterface;
 use Larmias\Engine\Constants;
+use Larmias\Engine\Swoole\Client\Http\ClientFactory as HttpClientFactory;
 use Larmias\Engine\Swoole\Concerns\WithWaiter;
 use Larmias\Engine\Swoole\Contracts\WorkerInterface;
 use Larmias\Engine\Worker as BaseWorker;
@@ -52,6 +54,9 @@ abstract class Worker extends BaseWorker implements WorkerInterface
         }
         static::$data['initBind'] = true;
         parent::bind();
+        $this->container->bindIf([
+            HttpClientFactoryInterface::class => HttpClientFactory::class,
+        ]);
     }
 
     /**
@@ -79,7 +84,7 @@ abstract class Worker extends BaseWorker implements WorkerInterface
      */
     public function getWorkerNum(): int
     {
-        return (int)$this->getSettings('worker_num', 1);
+        return max(1, (int)$this->getSettings('worker_num', 1));
     }
 
     /**
@@ -117,6 +122,7 @@ abstract class Worker extends BaseWorker implements WorkerInterface
     public function timespan(): void
     {
         $time = (int)$this->getSettings(Constants::OPTION_PROCESS_TICK_INTERVAL, 1);
+        $time = max(1, $time);
         usleep($time * 1000);
     }
 

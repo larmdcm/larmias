@@ -67,13 +67,14 @@ abstract class ServiceProvider implements ServiceProviderInterface
 
     /**
      * @param string $process
-     * @param string $name
-     * @param int $count
+     * @param string|null $name
+     * @param int|null $num
+     * @param array $options
      * @return void
      */
-    public function addProcess(string $process, string $name, int $count = 1): void
+    public function addProcess(string $process, ?string $name = null, ?int $num = 1, array $options = []): void
     {
-        $this->serviceDiscover?->addProcess($process, $name, $count);
+        $this->serviceDiscover?->addProcess($process, $name, $num, $options);
     }
 
     /**

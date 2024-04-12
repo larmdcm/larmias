@@ -40,7 +40,7 @@ class HasMany extends Relation
      */
     public function eagerlyResultSet(CollectionInterface $resultSet, string $relation, mixed $option): void
     {
-        $model = $this->newModel();
+        $query = $this->newModel()->newQuery();
 
         $localKeyValues = $resultSet->filter(fn(Model $item) => isset($item->{$this->localKey}))
             ->map(fn(Model $item) => $item->{$this->localKey})
@@ -52,12 +52,12 @@ class HasMany extends Relation
         }
 
         if ($option instanceof Closure) {
-            $option($model);
+            $option($query);
         } else if (is_array($option) && !empty($option)) {
-            $model->with($option);
+            $query->with($option);
         }
 
-        $data = $model->whereIn($this->foreignKey, $localKeyValues)->get();
+        $data = $query->whereIn($this->foreignKey, $localKeyValues)->get();
 
         if ($data->isNotEmpty()) {
             /** @var Model $result */

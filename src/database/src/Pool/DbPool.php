@@ -7,6 +7,7 @@ namespace Larmias\Database\Pool;
 use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\Pool\ConnectionInterface;
 use Larmias\Database\Connections\MysqlConnection;
+use Larmias\Database\Connections\SqliteConnection;
 use Larmias\Pool\Pool;
 use RuntimeException;
 use function str_contains;
@@ -34,6 +35,7 @@ class DbPool extends Pool
 
         $class = str_contains($type, '\\') ? $type : match ($type) {
             'mysql' => MysqlConnection::class,
+            'sqlite' => SqliteConnection::class,
             default => '',
         };
 

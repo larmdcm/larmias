@@ -124,4 +124,23 @@ class ReflectUtil
 
         return $classes;
     }
+
+    /**
+     * 检查文件是否存在语法错误
+     * @param string $file
+     * @param array $options
+     * @return string|null
+     */
+    public static function checkFileSyntaxError(string $file, array $options = []): ?string
+    {
+        $bin = $options['bin'] ?? PHP_BINARY;
+        if (!$bin || !is_file($bin) || !is_executable($bin)) {
+            return 'The executable bin does not exist:' . $bin;
+        }
+        exec(sprintf('%s -l %s 2>&1', $bin, $file), $outputs, $status);
+        if ($status != 0) {
+            return array_filter($outputs)[0] ?? 'Parse error: syntax error';
+        }
+        return null;
+    }
 }

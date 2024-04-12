@@ -151,6 +151,18 @@ class Constants
     public const OPTION_PROCESS_TICK_INTERVAL = 'process_tick_interval';
 
     /**
+     * 进程名称
+     * @var string
+     */
+    public const OPTION_PROCESS_NAME = 'name';
+
+    /**
+     * 是否启用
+     * @var string
+     */
+    public const OPTION_ENABLED = 'enabled';
+
+    /**
      * ssl
      * @var string
      */

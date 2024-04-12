@@ -509,9 +509,21 @@ interface QueryInterface
 
     /**
      * 开启事务
-     * @return TransactionInterface
+     * @return void
      */
-    public function beginTransaction(): TransactionInterface;
+    public function beginTransaction(): void;
+
+    /**
+     * 事务提交
+     * @return void
+     */
+    public function commit(): void;
+
+    /**
+     * 事务回滚
+     * @return void
+     */
+    public function rollback(): void;
 
     /**
      * 事务闭包

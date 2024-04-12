@@ -11,7 +11,7 @@ class ClientFactory implements ClientFactoryInterface
 {
     public function dialTcp(string $host, int $port, float $timeout = 0): ClientInterface
     {
-        $client = new Client();
+        $client = new TcpClient();
 
         $client->connect($host, $port, $timeout);
 

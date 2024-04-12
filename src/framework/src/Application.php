@@ -13,9 +13,10 @@ use Larmias\Contracts\DotEnvInterface;
 use Larmias\Contracts\ServiceProviderInterface;
 use Larmias\Contracts\StdoutLoggerInterface;
 use Larmias\Contracts\VendorPublishInterface;
-use Larmias\Contracts\Worker\OnWorkerHandleInterface;
 use Larmias\Contracts\Worker\OnWorkerStartInterface;
+use Larmias\Contracts\Worker\OnWorkerHandleInterface;
 use Larmias\Contracts\Worker\OnWorkerStopInterface;
+use Larmias\Engine\Constants;
 use Larmias\Engine\Contracts\KernelInterface;
 use Larmias\Engine\Event;
 use Larmias\Engine\Kernel;
@@ -32,6 +33,7 @@ use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\EventDispatcher\ListenerProviderInterface;
 use Closure;
 use Throwable;
+use function Larmias\Support\class_basename;
 use function Larmias\Support\class_has_implement;
 use function rtrim;
 use function dirname;
@@ -314,9 +316,22 @@ class Application implements ApplicationInterface
     public function getEngineConfig(string $name = 'engine'): array
     {
         $config = $this->getServiceConfig($name, true);
-        $processConfig = $this->getDiscoverConfig(ServiceDiscoverInterface::SERVICE_PROCESS, []);
-        foreach ($processConfig as $item) {
-            $class = $item['class'];
+        $processList = $this->getDiscoverConfig(ServiceDiscoverInterface::SERVICE_PROCESS, []);
+        $processConfig = $this->getServiceConfig(ServiceDiscoverInterface::SERVICE_PROCESS, true);
+        foreach ($processConfig as $key => $item) {
+            if (is_string($item)) {
+                [$class, $args] = [$item, []];
+            } else if (is_array($item)) {
+                [$class, $args] = [$key, $item];
+            }
+
+            if (isset($class) && isset($args)) {
+                $processList[] = ['class' => $class, 'args' => $args];
+            }
+        }
+
+        foreach ($processList as $item) {
+            ['class' => $class, 'args' => $args] = $item;
             $workerCallbacks = [];
             if (class_has_implement($class, OnWorkerStartInterface::class)) {
                 $workerCallbacks[Event::ON_WORKER_START] = [$class, 'onWorkerStart'];
@@ -328,9 +343,14 @@ class Application implements ApplicationInterface
                 $workerCallbacks[Event::ON_WORKER_STOP] = [$class, 'onWorkerStop'];
             }
             $config['workers'][] = [
-                'name' => $item['args']['name'],
+                'name' => $args['name'] ?: class_basename($class),
                 'type' => WorkerType::WORKER_PROCESS,
-                'settings' => ['worker_num' => $item['args']['count']],
+                'settings' => [
+                    Constants::OPTION_WORKER_NUM => $args['num'],
+                    Constants::OPTION_ENABLED => $item['args']['enable'],
+                    Constants::OPTION_PROCESS_TICK_INTERVAL => $item['timespan'],
+                    Constants::OPTION_ENABLE_COROUTINE => $item['enableCoroutine'],
+                ],
                 'callbacks' => $workerCallbacks,
             ];
         }

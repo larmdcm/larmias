@@ -7,7 +7,7 @@ namespace Larmias\Engine\Swoole\Client;
 use Larmias\Contracts\Client\ClientInterface;
 use Swoole\Coroutine\Client as CoClient;
 
-class Client implements ClientInterface
+class TcpClient implements ClientInterface
 {
     protected CoClient $client;
 

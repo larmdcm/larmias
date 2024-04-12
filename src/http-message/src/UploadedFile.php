@@ -165,7 +165,7 @@ class UploadedFile extends SplFileInfo implements UploadedFileInterface, Stringa
      * @throws RuntimeException on any error during the move operation, or on
      *     the second or subsequent call to the method.
      */
-    public function moveTo($targetPath): void
+    public function moveTo(string $targetPath): void
     {
         $this->validateActive();
 
@@ -349,7 +349,7 @@ class UploadedFile extends SplFileInfo implements UploadedFileInterface, Stringa
 
     /**
      * @param null|int $size
-     * @throws InvalidArgumentException
+     * @return UploadedFile
      */
     protected function setSize(?int $size): self
     {

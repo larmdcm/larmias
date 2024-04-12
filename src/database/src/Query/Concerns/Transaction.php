@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Larmias\Database\Query\Concerns;
 
-use Larmias\Database\Contracts\TransactionInterface;
 use Larmias\Database\Query\BaseQuery;
 use Closure;
 
@@ -15,11 +14,29 @@ trait Transaction
 {
     /**
      * 开启事务
-     * @return TransactionInterface
+     * @return void
      */
-    public function beginTransaction(): TransactionInterface
+    public function beginTransaction(): void
     {
-        return $this->getConnection()->beginTransaction();
+        $this->getConnection()->beginTransaction();
+    }
+
+    /**
+     * 事务提交
+     * @return void
+     */
+    public function commit(): void
+    {
+        $this->getConnection()->commit();
+    }
+
+    /**
+     * 事务回滚
+     * @return void
+     */
+    public function rollback(): void
+    {
+        $this->getConnection()->rollback();
     }
 
     /**

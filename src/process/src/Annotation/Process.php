@@ -10,10 +10,19 @@ use Attribute;
 class Process
 {
     /**
-     * @param string $name
-     * @param int $count
+     * @param string|null $name
+     * @param int|null $num
+     * @param int|null $timespan
+     * @param bool|null $enableCoroutine
+     * @param bool $enabled
      */
-    public function __construct(public string $name, public int $count = 1)
+    public function __construct(
+        public ?string $name = null,
+        public ?int    $num = 1,
+        public ?int    $timespan = null,
+        public ?bool   $enableCoroutine = null,
+        public bool    $enabled = true,
+    )
     {
     }
 }

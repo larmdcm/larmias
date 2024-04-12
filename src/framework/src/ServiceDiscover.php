@@ -24,7 +24,6 @@ use function class_exists;
 use function date;
 use function extension_loaded;
 use function json_decode;
-use function method_exists;
 use function var_export;
 use const PHP_EOL;
 
@@ -156,13 +155,16 @@ class ServiceDiscover implements ServiceDiscoverInterface
     /**
      * 添加进程服务
      * @param string $process
-     * @param string $name
-     * @param int $count
+     * @param string|null $name
+     * @param int|null $num
+     * @param array $options
      * @return void
      */
-    public function addProcess(string $process, string $name, int $count = 1): void
+    public function addProcess(string $process, ?string $name = null, ?int $num = 1, array $options = []): void
     {
-        $this->register(self::SERVICE_PROCESS, $process, ['name' => $name, 'count' => $count]);
+        $options['name'] = $name;
+        $options['num'] = $num;
+        $this->register(self::SERVICE_PROCESS, $process, $options);
     }
 
     /**
@@ -306,7 +308,10 @@ class ServiceDiscover implements ServiceDiscoverInterface
             'class' => $item['class'],
             'args' => [
                 'name' => $item['value'][0]->name,
-                'count' => $item['value'][0]->count,
+                'num' => $item['value'][0]->num,
+                'timespan' => $item['value'][0]->timespan,
+                'enabled' => $item['value'][0]->enabled,
+                'enableCoroutine' => $item['value'][0]->enableCoroutine,
             ]
         ];
     }

@@ -19,12 +19,7 @@ class Connection implements ConnectionInterface
      * @var ProtocolInterface|null
      */
     protected ?ProtocolInterface $protocol = null;
-
-    /**
-     * @var StringBuffer
-     */
-    protected StringBuffer $buffer;
-
+    
     /**
      * @var Channel
      */
@@ -46,7 +41,6 @@ class Connection implements ConnectionInterface
      */
     public function __construct(protected int $id, protected TcpConnection $connection)
     {
-        $this->buffer = new StringBuffer();
         $this->channel = new Channel();
     }
 

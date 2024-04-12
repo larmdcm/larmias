@@ -36,7 +36,7 @@ class EngineWorker extends BaseWorker
         try {
             $this->start($worker->id);
             if ($this->hasListen(Event::ON_WORKER)) {
-                $processTickInterval = $this->getSettings(Constants::OPTION_PROCESS_TICK_INTERVAL, 1);
+                $processTickInterval = max(1, (int)$this->getSettings(Constants::OPTION_PROCESS_TICK_INTERVAL, 1));
                 Timer::tick($processTickInterval, function () {
                     $this->trigger(Event::ON_WORKER, [$this]);
                 });

@@ -21,14 +21,15 @@ class Rules implements IteratorAggregate
     protected array $rules = [];
 
     /**
-     * @param string|array $rule
+     * @param string|array $items
      */
-    public function __construct(protected string|array $rule)
+    public function __construct(protected string|array $items)
     {
         $this->parseRule();
     }
 
     /**
+     * 合并规则
      * @param Rules|array $rules
      * @return self
      */
@@ -42,7 +43,28 @@ class Rules implements IteratorAggregate
     }
 
     /**
-     * @return array
+     * 判断规则是否存在
+     * @param string|array $name
+     * @return bool
+     */
+    public function has(string|array $name): bool
+    {
+        if (!is_array($name)) {
+            $name = [$name];
+        }
+
+        foreach ($name as $item) {
+            if (isset($this->rules[$item])) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * 获取规则列表
+     * @return Rule[]
      */
     public function getRules(): array
     {
@@ -50,26 +72,26 @@ class Rules implements IteratorAggregate
     }
 
     /**
-     * 'required|between:1,2' | ['required','length:6',['between' => [1,2]]
-     *
+     * 解析规则
+     * 'required|between:1,2' | ['required','length:6','between' => [1,2]]
      * @return void
      */
     protected function parseRule(): void
     {
-        $rules = is_string($this->rule) ? explode('|', $this->rule) : $this->rule;
-        foreach ($rules as $key => $item) {
-            if (is_string($item)) {
-                $item = explode(':', $item, 2);
-                $key = $item[0];
-                $item = isset($item[1]) ? explode(',', $item[1]) : [];
+        $items = is_string($this->items) ? explode('|', $this->items) : $this->items;
+        foreach ($items as $key => $value) {
+            if (is_string($value)) {
+                $value = explode(':', $value, 2);
+                $key = $value[0];
+                $value = isset($value[1]) ? explode(',', $value[1]) : [];
             }
 
-            if (is_array($item) || $item instanceof Closure) {
-                $item = new Rule($key, $item);
+            if (is_array($value) || $value instanceof Closure) {
+                $value = new Rule($key, $value);
             }
 
-            if ($item instanceof Rule) {
-                $this->rules[$item->getName()] = $item;
+            if ($value instanceof Rule) {
+                $this->rules[$value->getName()] = $value;
             }
         }
     }

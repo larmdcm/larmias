@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\Database;
 
+use Larmias\Database\Query\Builder\SqliteBuilder;
 use Larmias\Database\Query\Contracts\QueryInterface;
 use Larmias\Database\Query\Query;
 use Larmias\Database\Contracts\QueryInterface as BaseQueryInterface;
@@ -127,6 +128,7 @@ class Manager implements ManagerInterface
         if (!$builderClass) {
             $builderClass = match ($connection->getConfig('type')) {
                 'mysql' => MysqlBuilder::class,
+                'sqlite' => SqliteBuilder::class,
                 default => '',
             };
         }

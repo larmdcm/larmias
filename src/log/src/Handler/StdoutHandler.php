@@ -63,7 +63,6 @@ class StdoutHandler implements LoggerHandlerInterface
     {
     }
 
-
     /**
      * @param array $logs
      * @return bool

@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Larmias\HttpServer;
 
+use FastRoute\Dispatcher;
 use Larmias\Contracts\Arrayable;
 use Larmias\Contracts\ConfigInterface;
 use Larmias\Contracts\ContextInterface;
+use Larmias\Contracts\Dispatcher\DispatcherFactoryInterface;
 use Larmias\Contracts\Http\OnRequestInterface;
 use Larmias\Contracts\Http\RequestInterface;
 use Larmias\Contracts\Http\ResponseInterface;
@@ -26,6 +28,8 @@ use Larmias\HttpServer\Routing\Router;
 use Larmias\Routing\Dispatched;
 use Larmias\Collection\Arr;
 use Larmias\Codec\Json;
+use Larmias\Routing\Exceptions\RouteMethodNotAllowedException;
+use Larmias\Routing\Exceptions\RouteNotFoundException;
 use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -45,12 +49,13 @@ class Server implements OnRequestInterface
      * @param ConfigInterface $config
      */
     public function __construct(
-        protected ContainerInterface       $container,
-        protected EventDispatcherInterface $eventDispatcher,
-        protected ResponseEmitterInterface $responseEmitter,
-        protected HttpCoreMiddleware       $httpCoreMiddleware,
-        protected ContextInterface         $context,
-        protected ConfigInterface          $config
+        protected ContainerInterface         $container,
+        protected EventDispatcherInterface   $eventDispatcher,
+        protected ResponseEmitterInterface   $responseEmitter,
+        protected HttpCoreMiddleware         $httpCoreMiddleware,
+        protected ContextInterface           $context,
+        protected ConfigInterface            $config,
+        protected DispatcherFactoryInterface $dispatcherFactory,
     )
     {
     }
@@ -89,6 +94,8 @@ class Server implements OnRequestInterface
      */
     protected function runWithRequest(ServerRequestInterface $request): PsrResponseInterface
     {
+        $dispatched = Router::dispatch($request->getMethod(), $request->getUri()->getPath());
+        $this->context->set(ServerRequestInterface::class, $request = $request->withAttribute(Dispatched::class, $dispatched));
         return $this->httpCoreMiddleware->dispatch($request, function (ServerRequestInterface $request) {
             return $this->dispatchRouter($request);
         });
@@ -102,13 +109,17 @@ class Server implements OnRequestInterface
      */
     protected function dispatchRouter(ServerRequestInterface $request): PsrResponseInterface
     {
-        $dispatched = Router::dispatch($request->getMethod(), $request->getUri()->getPath());
-        $this->context->set(ServerRequestInterface::class, $request = $request->withAttribute(Dispatched::class, $dispatched));
+        /** @var Dispatched $dispatched */
+        $dispatched = $request->getAttribute(Dispatched::class);
+        if ($dispatched->status !== Dispatcher::FOUND) {
+            throw new ($dispatched->status === Dispatcher::NOT_FOUND ? RouteNotFoundException::class : RouteMethodNotAllowedException::class);
+        }
         $option = $dispatched->rule->getOption();
         /** @var HttpRouteCoreMiddleware $httpRouteCoreMiddleware */
         $httpRouteCoreMiddleware = $this->container->get(HttpRouteCoreMiddleware::class);
         return $httpRouteCoreMiddleware->set($option['middleware'])->dispatch($request, function () use ($dispatched) {
-            return $this->wrapResultAsResponse($dispatched->dispatcher->dispatch($dispatched->params));
+            $dispatcher = $this->dispatcherFactory->make($dispatched->rule);
+            return $this->wrapResultAsResponse($dispatcher->dispatch($dispatched->params));
         });
     }
 

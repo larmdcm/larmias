@@ -2,8 +2,10 @@
 
 declare(strict_types=1);
 
+use function Larmias\Support\env;
+
 return [
-    'default' => 'default',
+    'default' => env('REDIS_CONNECTION', 'default'),
     'connections' => [
         'default' => [
             'host' => '127.0.0.1',

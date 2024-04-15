@@ -196,7 +196,6 @@ class Router implements RouterInterface
 
     /**
      * 路由调度.
-     *
      * @param string $method
      * @param string $route
      * @return Dispatched
@@ -206,7 +205,7 @@ class Router implements RouterInterface
         $this->collectGroup();
         $this->collectRoute();
         $routeInfo = $this->dispatcher->dispatch($method, $route);
-        return new Dispatched($routeInfo[0], $routeInfo[1], $routeInfo[2]);
+        return new Dispatched($routeInfo[0], $routeInfo[1] ?? null, $routeInfo[2] ?? []);
     }
 
     /**

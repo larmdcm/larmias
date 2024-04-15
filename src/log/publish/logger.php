@@ -5,7 +5,7 @@ declare(strict_types=1);
 use function Larmias\Support\env;
 
 return [
-    'default' => env('LOG_DEFAULT', 'stdout'),
+    'default' => env('LOG_CHANNEL', 'stdout'),
     'realtime_write' => true,
     'level_channels' => [],
     'level' => [],

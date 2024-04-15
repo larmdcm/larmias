@@ -2,8 +2,10 @@
 
 declare(strict_types=1);
 
+use function Larmias\Support\env;
+
 return [
-    'default' => 'file',
+    'default' => env('SESSION_HANDLER', 'file'),
     'name' => 'PHPSESSID',
     'cookie_lifetime' => 0,
     'packer' => \Larmias\Codec\Packer\PhpSerializerPacker::class,

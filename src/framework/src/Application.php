@@ -342,14 +342,15 @@ class Application implements ApplicationInterface
             if (class_has_implement($class, OnWorkerStopInterface::class)) {
                 $workerCallbacks[Event::ON_WORKER_STOP] = [$class, 'onWorkerStop'];
             }
+            $name = $args['name'] ?? null;
             $config['workers'][] = [
-                'name' => $args['name'] ?: class_basename($class),
+                'name' => $name ?: class_basename($class),
                 'type' => WorkerType::WORKER_PROCESS,
                 'settings' => [
-                    Constants::OPTION_WORKER_NUM => $args['num'],
-                    Constants::OPTION_ENABLED => $item['args']['enable'],
-                    Constants::OPTION_PROCESS_TICK_INTERVAL => $item['timespan'],
-                    Constants::OPTION_ENABLE_COROUTINE => $item['enableCoroutine'],
+                    Constants::OPTION_WORKER_NUM => $args['num'] ?? 1,
+                    Constants::OPTION_ENABLED => $args['enabled'] ?? true,
+                    Constants::OPTION_PROCESS_TICK_INTERVAL => $args['timespan'] ?? null,
+                    Constants::OPTION_ENABLE_COROUTINE => $args['enableCoroutine'] ?? null,
                 ],
                 'callbacks' => $workerCallbacks,
             ];

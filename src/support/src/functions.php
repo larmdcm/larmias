@@ -103,7 +103,7 @@ function format_exception(Throwable $e, bool $trace = true): string
 {
     $message = $e->getMessage() . sprintf(' %s(code:%d) in %s:%d', get_class($e), $e->getCode(), $e->getFile(), $e->getLine());
     if ($trace) {
-        $message = $message . PHP_EOL . '[stacktrace]' . PHP_EOL . $e->getTraceAsString();
+        $message = $message . PHP_EOL . 'StackTrace' . PHP_EOL . $e->getTraceAsString();
     }
     return $message;
 }

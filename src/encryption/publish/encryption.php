@@ -2,8 +2,10 @@
 
 declare(strict_types=1);
 
+use function Larmias\Support\env;
+
 return [
-    'default' => 'aes',
+    'default' => env('ENCRYPT_DEFAULT', 'aes'),
     'handlers' => [
         'aes' => [
             'driver' => \Larmias\Encryption\Driver\OpenSSL::class,

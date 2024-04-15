@@ -16,12 +16,13 @@ $container = require '../../di/container.php';
 $run = new Run($container);
 
 $run->set(['driver' => Driver::class, 'settings' => [
-    'mode' => Constants::MODE_BASE
+    'mode' => Constants::MODE_WORKER,
 ]]);
 
 $run(function (WorkerInterface $worker, KernelInterface $kernel) {
     Timer::tick(1000, function () {
         echo "tick..." . PHP_EOL;
+        Timer::clear();
     });
 
 //    Timer::after(30000, function () use ($kernel) {

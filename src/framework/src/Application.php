@@ -187,7 +187,6 @@ class Application implements ApplicationInterface
     protected function boot(): void
     {
         $bootProviders = array_merge($this->getServiceConfig(ServiceDiscoverInterface::SERVICE_PROVIDER), $this->config->get('app.providers', []));
-
         foreach ($bootProviders as $provider) {
             $this->register($provider);
         }

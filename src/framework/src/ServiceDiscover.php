@@ -24,6 +24,7 @@ use function class_exists;
 use function date;
 use function extension_loaded;
 use function json_decode;
+use function Larmias\Support\env;
 use function var_export;
 use const PHP_EOL;
 
@@ -83,23 +84,47 @@ class ServiceDiscover implements ServiceDiscoverInterface
             if ($pid === -1) {
                 throw new RuntimeException('fork process error.');
             } else if ($pid === 0) {
-                $this->app->setIsInitialize(true);
-                run(function () {
-                    try {
-                        $this->handle();
-                    } finally {
-                        Timer::clear();
-                    }
-                }, [
-                    'settings' => ['logger' => false]
-                ]);
-                exit(0);
+                $this->runHandle();
             }
             \pcntl_wait($status, \WUNTRACED);
         } else {
-            $this->handle();
+            $SCAN_PROC_WORKER = 'SCAN_PROC_WORKER';
+            if (env($SCAN_PROC_WORKER)) {
+                $this->runHandle();
+            }
+            $proc = proc_open(
+                [PHP_BINARY, BASE_PATH . '/bin/larmias.php'],
+                [0 => STDIN, 1 => ['pipe', 'w'], 2 => ['redirect', 1]],
+                $pipes,
+                null,
+                [$SCAN_PROC_WORKER => '(true)']
+            );
+            $output = '';
+            do {
+                $output .= fread($pipes[1], 8192);
+            } while (!feof($pipes[1]));
+            proc_close($proc);
         }
         $callback();
+    }
+
+    /**
+     * @return void
+     * @throws \Throwable
+     */
+    protected function runHandle(): void
+    {
+        $this->app->setIsInitialize(true);
+        run(function () {
+            try {
+                $this->handle();
+            } finally {
+                Timer::clear();
+            }
+        }, [
+            'settings' => ['logger' => false]
+        ]);
+        exit(0);
     }
 
     /**

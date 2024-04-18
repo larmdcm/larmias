@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\Support\ScanHandler;
 
+use function Larmias\Collection\last;
 use function Larmias\Support\env;
 
 class ProcScanHandler implements ScanHandlerInterface
@@ -22,7 +23,8 @@ class ProcScanHandler implements ScanHandlerInterface
 
         if ($stub === null) {
             $path = defined('BASE_PATH') ? BASE_PATH . '/bin' : getcwd();
-            $stub = $path . '/' . ($_SERVER['argv'][0] ?? 'larmias.php');
+            $file = ($_SERVER['argv'][0] ?? 'larmias.php');
+            $stub = $path . '/' . last(explode('/', $file));
         }
 
         $this->bin = $bin;

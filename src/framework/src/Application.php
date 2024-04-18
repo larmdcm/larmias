@@ -323,6 +323,25 @@ class Application implements ApplicationInterface
     public function getEngineConfig(string $name = 'engine'): array
     {
         $config = $this->getServiceConfig($name, true);
+        $servers = $this->getDiscoverConfig(ServiceDiscoverInterface::SERVICE_SERVER, []);
+        foreach ($servers as $item) {
+            ['class' => $class, 'args' => $args] = $item;
+            $name = $args['name'] ?? null;
+            $settings = array_merge([
+                Constants::OPTION_WORKER_NUM => $args['num'] ?? get_cpu_num(),
+                Constants::OPTION_ENABLED => $args['enabled'] ?? true,
+                Constants::OPTION_ENABLE_COROUTINE => $args['enableCoroutine'] ?? null,
+            ], $args['settings']);
+            $config['workers'][] = [
+                'name' => $name ?: class_basename($class),
+                'type' => $args['type'],
+                'host' => $args['host'] ?? '0.0.0.0',
+                'port' => $args['port'] ?? 9501,
+                'settings' => $settings,
+                'callbacks' => $this->bindWorkerCallback($class),
+            ];
+        }
+
         $processList = $this->getDiscoverConfig(ServiceDiscoverInterface::SERVICE_PROCESS, []);
         $processConfig = $this->getServiceConfig(ServiceDiscoverInterface::SERVICE_PROCESS, true);
         foreach ($processConfig as $key => $item) {
@@ -352,26 +371,6 @@ class Application implements ApplicationInterface
                 'callbacks' => $this->bindWorkerCallback($class),
             ];
         }
-
-        $servers = $this->getDiscoverConfig(ServiceDiscoverInterface::SERVICE_SERVER, []);
-        foreach ($servers as $item) {
-            ['class' => $class, 'args' => $args] = $item;
-            $name = $args['name'] ?? null;
-            $settings = array_merge([
-                Constants::OPTION_WORKER_NUM => $args['num'] ?? get_cpu_num(),
-                Constants::OPTION_ENABLED => $args['enabled'] ?? true,
-                Constants::OPTION_ENABLE_COROUTINE => $args['enableCoroutine'] ?? null,
-            ], $args['settings']);
-            $config['workers'][] = [
-                'name' => $name ?: class_basename($class),
-                'type' => $item['type'],
-                'host' => $item['host'],
-                'port' => $item['port'],
-                'settings' => $settings,
-                'callbacks' => $this->bindWorkerCallback($class),
-            ];
-        }
-
 
         return $config;
     }
@@ -431,7 +430,7 @@ class Application implements ApplicationInterface
             $impls = (array)$item['impl'];
             foreach ($impls as $impl) {
                 if (class_has_implement($class, $impl)) {
-                    $workerCallbacks[$event] = $item['method'];
+                    $workerCallbacks[$event] = [$class, $item['method']];
                     break;
                 }
             }

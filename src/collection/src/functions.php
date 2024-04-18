@@ -146,3 +146,25 @@ function value(mixed $value): mixed
 {
     return $value instanceof Closure ? $value() : $value;
 }
+
+/**
+ * Get the first element of an array. Useful for method chaining.
+ *
+ * @param array $array
+ * @return mixed
+ */
+function head(array $array): mixed
+{
+    return reset($array);
+}
+
+/**
+ * Get the last element from an array.
+ *
+ * @param array $array
+ * @return mixed
+ */
+function last(array $array): mixed
+{
+    return end($array);
+}

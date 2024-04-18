@@ -6,8 +6,9 @@ namespace Larmias\Engine\Swoole\Process;
 
 use Larmias\Engine\Swoole\Process\Signal\PcntlSignalHandler;
 use Larmias\Engine\Swoole\Process\Worker\WorkerKeeper;
-use Larmias\Engine\Swoole\Process\Worker\Worker as BaseWorker;
+use Larmias\Engine\Swoole\Constants;
 use Swoole\Process as SwooleProcess;
+use Closure;
 use function array_merge;
 use function max;
 
@@ -37,6 +38,12 @@ class WorkerPool
      * @var int
      */
     protected int $masterPid = 0;
+
+    /**
+     * @var int
+     */
+    protected int $status = Constants::STATUS_NORMAL;
+
 
     /**
      * @param int $workerNum
@@ -131,7 +138,8 @@ class WorkerPool
      */
     protected function forkOneWorker(int $workerId): self
     {
-        $process = new SwooleProcess(fn(SwooleProcess $p) => $this->handle($p, $workerId), false, 0, true);
+        $workerConfig = $this->getWorkerConfig($workerId);
+        $process = new SwooleProcess(fn(SwooleProcess $p) => $this->handle($p, $workerId), false, 0, $workerConfig['enable_coroutine']);
         $pid = $process->start();
         $this->workers[$pid] = new WorkerKeeper($this, $process, $workerId);
         return $this;
@@ -150,9 +158,9 @@ class WorkerPool
             $waitResult = SwooleProcess::wait(true);
             if ($waitResult) {
                 $worker = $this->workers[$waitResult['pid']];
+                unset($this->workers[$waitResult['pid']]);
                 $worker->setFromWaitResult($waitResult);
                 $this->workerExitHandler($worker);
-                unset($this->workers[$waitResult['pid']]);
             }
             if (empty($this->workers)) {
                 $this->exit();
@@ -181,8 +189,12 @@ class WorkerPool
         $exitCode = $worker->getExitCode();
         $this->log('Worker exit,code = %d,signal = %d', $exitCode, $worker->getSignal());
         $workerRecover = $this->config['worker_auto_recover'];
-        if ($exitCode == BaseWorker::EXIT_RELOAD || ($workerRecover && $exitCode != BaseWorker::EXIT_STOP)) {
+        if (($this->status == Constants::STATUS_NORMAL && $workerRecover) || $this->status == Constants::STATUS_RELOAD) {
             $this->forkOneWorker($worker->getId());
+        }
+
+        if ($this->status == Constants::STATUS_RELOAD && count($this->workers) == $this->workerNum) {
+            $this->status = Constants::STATUS_NORMAL;
         }
     }
 
@@ -194,11 +206,18 @@ class WorkerPool
     protected function handleSignal(int $signalNo): void
     {
         $this->log('Master receiving signal,signal = %d', $signalNo);
-        if ($signalNo == SIGUSR1) {
-            $this->command(BaseWorker::EXIT_RELOAD);
-        } else {
-            $this->command(BaseWorker::EXIT_STOP);
+        if ($this->status != Constants::STATUS_NORMAL) {
+            $this->log('Master signal processing..., receive signal = %d', $signalNo);
+            return;
         }
+
+        if ($signalNo == SIGUSR1) {
+            $this->status = Constants::STATUS_RELOAD;
+        } else {
+            $this->status = Constants::STATUS_STOP;
+        }
+
+        $this->stopAllWorker();
     }
 
     /**
@@ -241,16 +260,13 @@ class WorkerPool
     }
 
     /**
-     * @param int $code
+     * 停止全部的worker
      * @return bool
      */
-    public function command(int $code): bool
+    protected function stopAllWorker(): bool
     {
         foreach ($this->workers as $worker) {
-            match ($code) {
-                BaseWorker::EXIT_RELOAD => $worker->reload(),
-                default => $worker->stop(),
-            };
+            $worker->stop();
         }
 
         return true;
@@ -348,6 +364,22 @@ class WorkerPool
     }
 
     /**
+     * 获取worker配置
+     * @param int $workerId
+     * @return array
+     */
+    public function getWorkerConfig(int $workerId): array
+    {
+        $workerConfig = $this->config['worker_config'] ?? [];
+
+        if ($workerConfig instanceof Closure) {
+            $workerConfig = $workerConfig($workerId);
+        }
+
+        return array_merge($this->config, $workerConfig);
+    }
+
+    /**
      * 获取默认配置
      * @return array
      */
@@ -362,6 +394,7 @@ class WorkerPool
             'stop_wait_time' => 3,
             'worker_auto_recover' => true,
             'pid_file' => null,
+            'worker_config' => null,
         ];
     }
 }

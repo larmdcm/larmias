@@ -8,6 +8,7 @@ use Larmias\Contracts\Protocol\ProtocolException;
 use Larmias\Contracts\ProtocolInterface;
 use Larmias\Stringable\StringBuffer;
 use Closure;
+use Throwable;
 
 class ProtocolHandler
 {
@@ -22,6 +23,11 @@ class ProtocolHandler
     protected StringBuffer $buffer;
 
     /**
+     * @var mixed
+     */
+    protected mixed $exceptionHandler = null;
+
+    /**
      * @param ProtocolInterface|null $protocol
      * @param int $maxPackageSize
      */
@@ -34,34 +40,52 @@ class ProtocolHandler
      * @param mixed $data
      * @param Closure $callback
      * @return void
+     * @throws Throwable
      */
     public function handle(mixed $data, Closure $callback): void
     {
-        if (!$this->protocol) {
-            $callback($data);
-            return;
+        try {
+            if (!$this->protocol) {
+                $callback($data);
+                return;
+            }
+
+            $this->buffer->append($data);
+
+            while (!$this->buffer->isEmpty()) {
+                if ($this->currPackageLen <= 0) {
+                    $this->currPackageLen = $this->protocol->input($this->buffer->toString());
+                }
+
+                if ($this->currPackageLen <= 0 || $this->currPackageLen > $this->buffer->size()) {
+                    break;
+                }
+
+                if ($this->maxPackageSize > 0 && $this->currPackageLen > $this->maxPackageSize) {
+                    throw new ProtocolException('Error package length = ' . $this->currPackageLen);
+                }
+
+                $packageData = $this->buffer->peek(0, $this->currPackageLen);
+                $this->buffer->take($this->currPackageLen);
+                $this->currPackageLen = 0;
+                $callback($this->protocol->unpack($packageData));
+            }
+        } catch (Throwable $e) {
+            if ($this->exceptionHandler) {
+                call_user_func($this->exceptionHandler, $e, $data);
+                return;
+            }
+            throw $e;
         }
+    }
 
-        $this->buffer->append($data);
-
-        while (!$this->buffer->isEmpty()) {
-            if ($this->currPackageLen <= 0) {
-                $this->currPackageLen = $this->protocol->input($this->buffer->toString());
-            }
-
-            if ($this->currPackageLen <= 0 || $this->currPackageLen > $this->buffer->size()) {
-                break;
-            }
-
-            if ($this->maxPackageSize > 0 && $this->currPackageLen > $this->maxPackageSize) {
-                throw new ProtocolException('Error package length = ' . $this->currPackageLen);
-            }
-
-            $packageData = $this->buffer->peek(0, $this->currPackageLen);
-            $this->buffer->take($this->currPackageLen);
-            $this->currPackageLen = 0;
-            $callback($this->protocol->unpack($packageData));
-        }
+    /**
+     * @param callable $exceptionHandler
+     * @return void
+     */
+    public function whenException(callable $exceptionHandler): void
+    {
+        $this->exceptionHandler = $exceptionHandler;
     }
 
     /**

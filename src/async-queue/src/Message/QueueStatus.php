@@ -28,6 +28,10 @@ class QueueStatus implements QueueStatusInterface
      */
     public int $timeout = 0;
 
+    /**
+     * @param array $data
+     * @return QueueStatusInterface
+     */
     public static function formArray(array $data): QueueStatusInterface
     {
         $object = new static();

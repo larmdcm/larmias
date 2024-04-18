@@ -26,7 +26,6 @@ class WorkerScheduler implements SchedulerInterface
 
     /**
      * @return void
-     * @throws \Exception
      */
     public function start(): void
     {

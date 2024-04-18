@@ -5,13 +5,12 @@ declare(strict_types=1);
 namespace Larmias\Engine\WorkerMan;
 
 use Larmias\Engine\Constants;
-use Workerman\Events\Select;
+use Larmias\Engine\WorkerMan\EventDriver\Select;
 use Workerman\Worker as BaseWorkerManWorker;
 use Workerman\Connection\TcpConnection;
 use Workerman\Lib\Timer as WorkerManTimer;
 use function file_get_contents;
 use function extension_loaded;
-use function Larmias\Support\is_unix;
 use function posix_kill;
 use function is_file;
 use function time;
@@ -46,10 +45,9 @@ class Worker extends BaseWorkerManWorker
      */
     public static function initWorker(): void
     {
-        $isUnix = is_unix();
         WorkerManTimer::delAll();
         if (!static::$globalEvent) {
-            $eventLoopClass = $isUnix ? static::getEventLoopName() : Select::class;
+            $eventLoopClass = static::getEventLoopName();
             static::$globalEvent = new $eventLoopClass;
         }
         WorkerManTimer::init(static::$globalEvent);
@@ -191,5 +189,35 @@ class Worker extends BaseWorkerManWorker
             return;
         }
         parent::log($msg);
+    }
+
+    /**
+     * @return string
+     */
+    protected static function getEventLoopName(): string
+    {
+        if (static::$eventLoopClass) {
+            return static::$eventLoopClass;
+        }
+
+        if (!\class_exists('\Swoole\Event', false)) {
+            unset(static::$_availableEventLoops['swoole']);
+        }
+
+        $loop_name = '';
+        foreach (static::$_availableEventLoops as $name => $class) {
+            if (\extension_loaded($name)) {
+                $loop_name = $name;
+                break;
+            }
+        }
+
+        if ($loop_name) {
+            static::$eventLoopClass = static::$_availableEventLoops[$loop_name];
+        } else {
+            static::$eventLoopClass = Select::class;
+        }
+        
+        return static::$eventLoopClass;
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\Engine\Swoole\Process\Worker;
 
+use Larmias\Engine\Swoole\Constants;
 use Larmias\Engine\Swoole\Process\WorkerPool;
 use Swoole\Process;
 
@@ -13,31 +14,13 @@ class Worker
      * 退出代码
      * @var int
      */
-    protected int $exitCode = 0;
+    protected int $exitCode = Constants::EXIT_CODE_NORMAL;
 
     /**
      * 接收到的信号
      * @var int
      */
     protected int $signal = 0;
-
-    /**
-     * 退出代码
-     * @var int
-     */
-    public const EXIT_NORMAL = 0;
-
-    /**
-     * 重启代码
-     * @var int
-     */
-    public const EXIT_RELOAD = 100;
-
-    /**
-     * 停止代码
-     * @var int
-     */
-    public const EXIT_STOP = 101;
 
     /**
      * @param WorkerPool $workerPool

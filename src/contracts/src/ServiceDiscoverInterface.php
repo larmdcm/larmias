@@ -26,6 +26,11 @@ interface ServiceDiscoverInterface
     /**
      * @var string
      */
+    public const SERVICE_SERVER = 'server';
+
+    /**
+     * @var string
+     */
     public const SERVICE_LISTENER = 'listeners';
 
     /**

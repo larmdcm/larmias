@@ -10,9 +10,16 @@ use Larmias\Contracts\ConfigInterface;
 use Larmias\Contracts\ConsoleInterface;
 use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\DotEnvInterface;
+use Larmias\Contracts\Http\OnRequestInterface;
 use Larmias\Contracts\ServiceProviderInterface;
 use Larmias\Contracts\StdoutLoggerInterface;
+use Larmias\Contracts\Tcp\OnCloseInterface;
+use Larmias\Contracts\Tcp\OnConnectInterface;
+use Larmias\Contracts\Tcp\OnReceiveInterface;
+use Larmias\Contracts\Udp\OnPacketInterface;
 use Larmias\Contracts\VendorPublishInterface;
+use Larmias\Contracts\WebSocket\OnMessageInterface;
+use Larmias\Contracts\WebSocket\OnOpenInterface;
 use Larmias\Contracts\Worker\OnWorkerStartInterface;
 use Larmias\Contracts\Worker\OnWorkerHandleInterface;
 use Larmias\Contracts\Worker\OnWorkerStopInterface;
@@ -35,6 +42,7 @@ use Closure;
 use Throwable;
 use function Larmias\Support\class_basename;
 use function Larmias\Support\class_has_implement;
+use function Larmias\Support\get_cpu_num;
 use function rtrim;
 use function dirname;
 use function date_default_timezone_set;
@@ -331,16 +339,6 @@ class Application implements ApplicationInterface
 
         foreach ($processList as $item) {
             ['class' => $class, 'args' => $args] = $item;
-            $workerCallbacks = [];
-            if (class_has_implement($class, OnWorkerStartInterface::class)) {
-                $workerCallbacks[Event::ON_WORKER_START] = [$class, 'onWorkerStart'];
-            }
-            if (class_has_implement($class, OnWorkerHandleInterface::class)) {
-                $workerCallbacks[Event::ON_WORKER] = [$class, 'onWorkerHandle'];
-            }
-            if (class_has_implement($class, OnWorkerStopInterface::class)) {
-                $workerCallbacks[Event::ON_WORKER_STOP] = [$class, 'onWorkerStop'];
-            }
             $name = $args['name'] ?? null;
             $config['workers'][] = [
                 'name' => $name ?: class_basename($class),
@@ -351,11 +349,95 @@ class Application implements ApplicationInterface
                     Constants::OPTION_PROCESS_TICK_INTERVAL => $args['timespan'] ?? null,
                     Constants::OPTION_ENABLE_COROUTINE => $args['enableCoroutine'] ?? null,
                 ],
-                'callbacks' => $workerCallbacks,
+                'callbacks' => $this->bindWorkerCallback($class),
             ];
         }
 
+        $servers = $this->getDiscoverConfig(ServiceDiscoverInterface::SERVICE_SERVER, []);
+        foreach ($servers as $item) {
+            ['class' => $class, 'args' => $args] = $item;
+            $name = $args['name'] ?? null;
+            $settings = array_merge([
+                Constants::OPTION_WORKER_NUM => $args['num'] ?? get_cpu_num(),
+                Constants::OPTION_ENABLED => $args['enabled'] ?? true,
+                Constants::OPTION_ENABLE_COROUTINE => $args['enableCoroutine'] ?? null,
+            ], $args['settings']);
+            $config['workers'][] = [
+                'name' => $name ?: class_basename($class),
+                'type' => $item['type'],
+                'host' => $item['host'],
+                'port' => $item['port'],
+                'settings' => $settings,
+                'callbacks' => $this->bindWorkerCallback($class),
+            ];
+        }
+
+
         return $config;
+    }
+
+    /**
+     * @param mixed $class
+     * @return array
+     */
+    protected function bindWorkerCallback(mixed $class): array
+    {
+        $workerCallbacks = [];
+
+        $events = [
+            Event::ON_WORKER_START => [
+                'impl' => OnWorkerStartInterface::class,
+                'method' => 'onWorkerStart',
+            ],
+            Event::ON_WORKER => [
+                'impl' => OnWorkerHandleInterface::class,
+                'method' => 'onWorkerHandle',
+            ],
+            Event::ON_WORKER_STOP => [
+                'impl' => OnWorkerStopInterface::class,
+                'method' => 'onWorkerStop',
+            ],
+            Event::ON_CONNECT => [
+                'impl' => OnConnectInterface::class,
+                'method' => 'onConnect',
+            ],
+            Event::ON_RECEIVE => [
+                'impl' => OnReceiveInterface::class,
+                'method' => 'onReceive',
+            ],
+            Event::ON_PACKET => [
+                'impl' => OnPacketInterface::class,
+                'method' => 'onPacket',
+            ],
+            Event::ON_REQUEST => [
+                'impl' => OnRequestInterface::class,
+                'method' => 'onRequest',
+            ],
+            Event::ON_OPEN => [
+                'impl' => OnOpenInterface::class,
+                'method' => 'onOpen',
+            ],
+            Event::ON_MESSAGE => [
+                'impl' => OnMessageInterface::class,
+                'method' => 'onMessage',
+            ],
+            Event::ON_CLOSE => [
+                'impl' => [OnCloseInterface::class, \Larmias\Contracts\WebSocket\OnCloseInterface::class],
+                'method' => 'onClose',
+            ],
+        ];
+
+        foreach ($events as $event => $item) {
+            $impls = (array)$item['impl'];
+            foreach ($impls as $impl) {
+                if (class_has_implement($class, $impl)) {
+                    $workerCallbacks[$event] = $item['method'];
+                    break;
+                }
+            }
+        }
+
+        return $workerCallbacks;
     }
 
 

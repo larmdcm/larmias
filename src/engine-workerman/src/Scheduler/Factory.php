@@ -18,7 +18,7 @@ class Factory
     {
         $class = match ($type) {
             Constants::SCHEDULER_WORKER => WorkerScheduler::class,
-            default => throw new RuntimeException('type error.')
+            default => throw new RuntimeException('type error:' . $type)
         };
 
         return new $class();

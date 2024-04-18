@@ -66,4 +66,12 @@ class EventLoop implements EventLoopInterface
     {
         Worker::getEventLoop()->destroy();
     }
+
+    /**
+     * @return EventInterface
+     */
+    public function getDriver(): EventInterface
+    {
+        return Worker::getEventLoop();
+    }
 }

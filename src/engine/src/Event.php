@@ -13,9 +13,6 @@ class Event
     public const ON_WORKER = 'worker';
 
     /** @var string */
-    public const ON_WORKER_SIGNAL = 'workerSignal';
-
-    /** @var string */
     public const ON_WORKER_STOP = 'workerStop';
 
     /** @var string */
@@ -29,10 +26,7 @@ class Event
 
     /** @var string */
     public const ON_REQUEST = 'request';
-
-    /** @var string */
-    public const ON_HAND_SHAKE = 'handShake';
-
+    
     /** @var string */
     public const ON_OPEN = 'open';
 

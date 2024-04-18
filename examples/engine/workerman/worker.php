@@ -17,6 +17,7 @@ $run = new Run($container);
 
 $run->set(['driver' => Driver::class, 'settings' => [
     'mode' => Constants::MODE_WORKER,
+    Constants::OPTION_EVENT_LOOP_CLASS => \Larmias\Engine\WorkerMan\EventDriver\Select::class,
 ]]);
 
 $run(function (WorkerInterface $worker, KernelInterface $kernel) {

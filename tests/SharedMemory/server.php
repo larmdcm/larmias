@@ -13,7 +13,7 @@ $app = require __DIR__ . '/../app.php';
 $kernel = new Kernel($app->getContainer());
 
 $kernel->setConfig(EngineConfig::build([
-    'driver' => \Larmias\Engine\Swoole\Driver::class,
+    'driver' => \Larmias\Engine\WorkerMan\Driver::class,
     'workers' => [
         [
             'name' => 'tcp',
@@ -36,7 +36,7 @@ $kernel->setConfig(EngineConfig::build([
         ]
     ],
     'settings' => [
-
+        \Larmias\Engine\Constants::OPTION_EVENT_LOOP_CLASS => \Larmias\Engine\WorkerMan\EventDriver\Select::class,
     ],
     'callbacks' => [
         Event::ON_WORKER_START => function () {

@@ -202,6 +202,7 @@ abstract class PDOConnection extends Connection
     }
 
     /**
+     * 解析连接信息
      * @param array $config
      * @return string
      */

@@ -6,11 +6,12 @@ namespace Larmias\Http\CSRF;
 
 use Larmias\Context\ApplicationContext;
 use Larmias\Http\CSRF\Contracts\CsrfManagerInterface;
+use Throwable;
 use function sprintf;
 
 /**
  * @return string
- * @throws \Throwable
+ * @throws Throwable
  */
 function csrf_token(): string
 {
@@ -21,7 +22,7 @@ function csrf_token(): string
 
 /**
  * @return string
- * @throws \Throwable
+ * @throws Throwable
  */
 function csrf_token_name(): string
 {
@@ -32,7 +33,7 @@ function csrf_token_name(): string
 
 /**
  * @return string
- * @throws \Throwable
+ * @throws Throwable
  */
 function csrf_field(): string
 {

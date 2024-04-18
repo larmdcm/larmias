@@ -12,9 +12,10 @@ use Larmias\Di\AnnotationCollector;
 use Larmias\Engine\Timer;
 use Larmias\Event\Annotation\Listener;
 use Larmias\Framework\Annotation\Provider;
+use Larmias\Framework\Annotation\Server;
 use Larmias\Process\Annotation\Process;
 use Larmias\Support\FileSystem;
-use RuntimeException;
+use Larmias\Support\ScanHandler\ScanHandlerFactory;
 use Throwable;
 use function array_column;
 use function array_merge;
@@ -22,9 +23,7 @@ use function array_values;
 use function call_user_func;
 use function class_exists;
 use function date;
-use function extension_loaded;
 use function json_decode;
-use function Larmias\Support\env;
 use function var_export;
 use const PHP_EOL;
 
@@ -45,6 +44,10 @@ class ServiceDiscover implements ServiceDiscoverInterface
         Process::class => [
             'name' => self::SERVICE_PROCESS,
             'method' => 'collectProcess',
+        ],
+        Server::class => [
+            'name' => self::SERVICE_SERVER,
+            'method' => 'collectServer',
         ],
         Listener::class => [
             'name' => self::SERVICE_LISTENER,
@@ -79,38 +82,19 @@ class ServiceDiscover implements ServiceDiscoverInterface
      */
     public function discover(Closure $callback): void
     {
-        if (extension_loaded('pcntl')) {
-            $pid = \pcntl_fork();
-            if ($pid === -1) {
-                throw new RuntimeException('fork process error.');
-            } else if ($pid === 0) {
-                $this->runHandle();
-            }
-            \pcntl_wait($status, \WUNTRACED);
+        $scanHandlerFactory = new ScanHandlerFactory();
+        $scanHandler = $scanHandlerFactory->make();
+        $scanned = $scanHandler->scan();
+        if ($scanned->isScanned()) {
+            $callback();
         } else {
-            $SCAN_PROC_WORKER = 'SCAN_PROC_WORKER';
-            if (env($SCAN_PROC_WORKER)) {
-                $this->runHandle();
-            }
-            $proc = proc_open(
-                [PHP_BINARY, BASE_PATH . '/bin/larmias.php'],
-                [0 => STDIN, 1 => ['pipe', 'w'], 2 => ['redirect', 1]],
-                $pipes,
-                null,
-                [$SCAN_PROC_WORKER => '(true)']
-            );
-            $output = '';
-            do {
-                $output .= fread($pipes[1], 8192);
-            } while (!feof($pipes[1]));
-            proc_close($proc);
+            $this->runHandle();
         }
-        $callback();
     }
 
     /**
      * @return void
-     * @throws \Throwable
+     * @throws Throwable
      */
     protected function runHandle(): void
     {
@@ -335,6 +319,27 @@ class ServiceDiscover implements ServiceDiscoverInterface
                 'name' => $item['value'][0]->name,
                 'num' => $item['value'][0]->num,
                 'timespan' => $item['value'][0]->timespan,
+                'enabled' => $item['value'][0]->enabled,
+                'enableCoroutine' => $item['value'][0]->enableCoroutine,
+            ]
+        ];
+    }
+
+    /**
+     * @param array $item
+     * @return array
+     */
+    protected function collectServer(array $item): array
+    {
+        return [
+            'class' => $item['class'],
+            'args' => [
+                'type' => $item['value'][0]->type,
+                'host' => $item['value'][0]->host,
+                'port' => $item['value'][0]->port,
+                'name' => $item['value'][0]->name,
+                'num' => $item['value'][0]->num,
+                'settings' => $item['value'][0]->settings,
                 'enabled' => $item['value'][0]->enabled,
                 'enableCoroutine' => $item['value'][0]->enableCoroutine,
             ]

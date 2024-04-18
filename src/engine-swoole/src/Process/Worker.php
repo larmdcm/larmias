@@ -4,19 +4,39 @@ declare(strict_types=1);
 
 namespace Larmias\Engine\Swoole\Process;
 
+use Larmias\Contracts\SignalHandlerInterface;
+use Larmias\Engine\Swoole\Process\Timer\AlarmTimer;
+use Larmias\Engine\Swoole\Process\Worker\Worker as BaseWorker;
+use Larmias\Engine\Swoole\Process\Signal\PcntlSignalHandler;
+use Larmias\Contracts\TimerInterface;
 use Larmias\Engine\Swoole\ProcessManager;
 use Larmias\Engine\Swoole\SignalHandler;
+use Larmias\Engine\Swoole\Constants;
+use Larmias\Engine\Swoole\Timer;
 use Swoole\Constant;
 use Swoole\Runtime;
-use Larmias\Engine\Swoole\Process\Worker\Worker as BaseWorker;
-use Swoole\Timer;
 
 class Worker extends BaseWorker
 {
     /**
+     * @var array
+     */
+    protected array $workerConfig = [];
+
+    /**
      * @var int
      */
     protected int $maxWaitTime = 0;
+
+    /**
+     * @var bool
+     */
+    protected bool $enableCoroutine;
+
+    /**
+     * @var TimerInterface
+     */
+    protected TimerInterface $timer;
 
     /**
      * 启动进程
@@ -24,20 +44,25 @@ class Worker extends BaseWorker
      */
     public function process(): void
     {
-        Runtime::enableCoroutine($this->workerPool->getConfig('enable_coroutine'));
-        $this->maxWaitTime = $this->workerPool->getConfig('max_wait_time');
-        $this->registerSignalHandler();
+        $this->workerConfig = $this->workerPool->getWorkerConfig($this->id);
+        $this->enableCoroutine = $this->workerConfig['enable_coroutine'];
+        $this->maxWaitTime = $this->workerConfig['max_wait_time'];
+        Runtime::enableCoroutine($this->enableCoroutine);
+        $signalHandler = $this->enableCoroutine ? new SignalHandler() : new PcntlSignalHandler();
+        $this->timer = $this->enableCoroutine ? new Timer() : new AlarmTimer($signalHandler);
+        $this->registerSignalHandler($signalHandler);
         $this->workerPool->trigger(Constant::EVENT_WORKER_START, $this);
-        $this->exit();
+        $this->timer->clear();
     }
 
 
     /**
+     * @param SignalHandlerInterface $signalHandler
      * @return self
      */
-    protected function registerSignalHandler(): self
+    protected function registerSignalHandler(SignalHandlerInterface $signalHandler): self
     {
-        SignalManager::setSignalHandler(new SignalHandler());
+        SignalManager::setSignalHandler($signalHandler);
         SignalManager::offAll();
         SignalManager::on([SIGUSR1, SIGTERM, SIGQUIT, SIGHUP, SIGTSTP], function (int $signalNo) {
             $this->handleSignal($signalNo);
@@ -55,22 +80,14 @@ class Worker extends BaseWorker
     {
         $this->workerPool->log('Worker#%d receiving signal,signal = %d', $this->id, $signalNo);
 
-        if ($signalNo == SIGUSR1) {
-            $this->exitCode = self::EXIT_RELOAD;
-        } else if ($signalNo == SIGTERM) {
-            $this->exitCode = self::EXIT_STOP;
-        } else {
-            $this->exitCode = self::EXIT_NORMAL;
-        }
+        ProcessManager::setRunning(false);
 
         if ($this->maxWaitTime > 0) {
-            ProcessManager::setRunning(false);
-            Timer::after($this->maxWaitTime * 1000, function () {
+            $callback = function () {
                 $this->workerPool->log('Worker#%d exit timeout, forced exit', $this->id);
-                $this->exit();
-            });
-        } else {
-            $this->exit();
+                $this->exit(Constants::EXIT_CODE_FAIL);
+            };
+            $this->timer->after($this->maxWaitTime * 1000, $callback);
         }
     }
 }

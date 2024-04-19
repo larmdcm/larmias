@@ -42,7 +42,7 @@ class ProcScanHandler implements ScanHandlerInterface
             [0 => STDIN, 1 => ['pipe', 'w'], 2 => ['redirect', 1]],
             $pipes,
             null,
-            [static::SCAN_PROC_WORKER => '(true)']
+            [static::SCAN_PROC_WORKER => 'true']
         );
 
         $output = '';

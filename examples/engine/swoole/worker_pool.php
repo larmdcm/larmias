@@ -10,7 +10,7 @@ $workerPool = new WorkerPool();
 $workerPool->set([
     'log_debug' => true,
     'worker_auto_recover' => true,
-    'enable_coroutine' => false,
+    'enable_coroutine' => true,
     'max_wait_time' => 3,
 ]);
 

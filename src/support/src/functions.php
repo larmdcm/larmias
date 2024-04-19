@@ -216,3 +216,11 @@ function is_unix(): bool
 {
     return System::isUnix();
 }
+
+/**
+ * Sleep milliseconds.
+ */
+function msleep(int $milliSeconds): void
+{
+    usleep($milliSeconds * 1000);
+}

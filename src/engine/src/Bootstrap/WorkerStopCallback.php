@@ -8,6 +8,7 @@ use Larmias\Engine\Contracts\WorkerInterface;
 use Larmias\Engine\Event;
 use Larmias\Contracts\ContainerInterface;
 use Larmias\Engine\Events\WorkerStop;
+use Larmias\Engine\Timer;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Larmias\Contracts\StdoutLoggerInterface;
 
@@ -51,6 +52,7 @@ class WorkerStopCallback
         $workerId = $worker->getWorkerId();
         $logger && $this->logger?->info("{$worker->getWorkerConfig()->getName()} Worker#{$workerId} stop.");
         $this->eventDispatcher && $this->eventDispatcher->dispatch(new WorkerStop($workerId));
+        Timer::clear();
         $worker->trigger(Event::ON_WORKER_STOP, [$worker]);
     }
 }

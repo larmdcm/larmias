@@ -45,6 +45,7 @@ class WorkerPoolScheduler extends AbstractScheduler
             $worker = $this->workers[$workerId];
             $worker->workerStart($workerId);
             $worker->process();
+            $worker->workerStop();
         });
         $pool->start();
     }

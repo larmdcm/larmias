@@ -82,12 +82,17 @@ class Worker extends BaseWorker
 
         ProcessManager::setRunning(false);
 
-        if ($this->maxWaitTime > 0) {
-            $callback = function () {
-                $this->workerPool->log('Worker#%d exit timeout, forced exit', $this->id);
-                $this->exit(Constants::EXIT_CODE_FAIL);
-            };
-            $this->timer->after($this->maxWaitTime * 1000, $callback);
+        $waitTime = $this->maxWaitTime * 1000;
+
+        $callback = function () {
+            $this->workerPool->log('Worker#%d exit timeout, forced exit', $this->id);
+            $this->exit(Constants::EXIT_CODE_FAIL);
+        };
+
+        if ($waitTime > 0) {
+            $this->timer->after($waitTime, $callback);
+        } else {
+            $callback();
         }
     }
 }

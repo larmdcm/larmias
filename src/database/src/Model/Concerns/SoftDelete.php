@@ -100,7 +100,7 @@ trait SoftDelete
      */
     public function delete(): bool
     {
-        if ($this->trashed() || !$this->isExists()) {
+        if (($this->trashed() && !$this->isForceDelete()) || !$this->isExists()) {
             return false;
         }
 
@@ -218,7 +218,7 @@ trait SoftDelete
      * @param bool $forceDelete
      * @return Model|SoftDelete
      */
-    public function forceDelete(bool $forceDelete): self
+    public function forceDelete(bool $forceDelete = true): self
     {
         $this->forceDelete = $forceDelete;
         return $this;

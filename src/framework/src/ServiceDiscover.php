@@ -100,11 +100,7 @@ class ServiceDiscover implements ServiceDiscoverInterface
     {
         $this->app->setIsInitialize(true);
         run(function () {
-            try {
-                $this->handle();
-            } finally {
-                Timer::clear();
-            }
+            $this->handle();
         }, [
             'settings' => ['logger' => false]
         ]);

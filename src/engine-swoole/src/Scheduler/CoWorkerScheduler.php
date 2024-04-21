@@ -38,6 +38,7 @@ class CoWorkerScheduler extends AbstractScheduler
                 Coroutine::create(function () use ($workerId, $worker) {
                     $worker->workerStart($workerId);
                     $worker->process();
+                    $worker->workerStop();
                 });
             }
         });

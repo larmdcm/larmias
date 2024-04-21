@@ -11,13 +11,13 @@ interface ChannelInterface
      * @param float $timeout
      * @return bool
      */
-    public function push(mixed $data, $timeout = -1);
+    public function push(mixed $data, float $timeout = -1): bool;
 
     /**
      * @param float $timeout
      * @return mixed
      */
-    public function pop($timeout = -1);
+    public function pop(float $timeout = -1): mixed;
 
     /**
      * @return int

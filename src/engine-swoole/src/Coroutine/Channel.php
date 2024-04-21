@@ -10,7 +10,7 @@ use RuntimeException;
 use const SWOOLE_CHANNEL_CLOSED;
 use const SWOOLE_CHANNEL_TIMEOUT;
 
-class Channel extends SwooleChannel implements ChannelInterface
+class Channel implements ChannelInterface
 {
     /**
      * @var bool
@@ -18,22 +18,36 @@ class Channel extends SwooleChannel implements ChannelInterface
     protected bool $closed = false;
 
     /**
+     * @var SwooleChannel
+     */
+    protected SwooleChannel $channel;
+
+    /**
+     * @param int $size
+     */
+    public function __construct(protected int $size = 1)
+    {
+        $this->channel = new SwooleChannel(max(1, $this->size));
+    }
+
+    /**
      * @param mixed $data
      * @param float $timeout
      * @return bool
      */
-    public function push(mixed $data, $timeout = -1)
+    public function push(mixed $data, float $timeout = -1): bool
     {
-        return parent::push($data, $timeout);
+        $this->channel->push($data, $timeout);
+        return true;
     }
 
     /**
      * @param float $timeout
      * @return mixed
      */
-    public function pop($timeout = -1)
+    public function pop(float $timeout = -1): mixed
     {
-        return parent::pop($timeout);
+        return $this->channel->pop($timeout);
     }
 
     /**
@@ -41,7 +55,7 @@ class Channel extends SwooleChannel implements ChannelInterface
      */
     public function capacity(): int
     {
-        return $this->capacity;
+        return $this->channel->capacity;
     }
 
     /**
@@ -49,7 +63,7 @@ class Channel extends SwooleChannel implements ChannelInterface
      */
     public function length(): int
     {
-        return parent::length();
+        return $this->channel->length();
     }
 
     /**
@@ -66,7 +80,8 @@ class Channel extends SwooleChannel implements ChannelInterface
     public function close(): bool
     {
         $this->closed = true;
-        return parent::close();
+        $this->channel->close();
+        return true;
     }
 
     /**
@@ -106,7 +121,7 @@ class Channel extends SwooleChannel implements ChannelInterface
      */
     public function isClosing(): bool
     {
-        return $this->closed || $this->errCode === SWOOLE_CHANNEL_CLOSED;
+        return $this->closed || $this->channel->errCode === SWOOLE_CHANNEL_CLOSED;
     }
 
     /**
@@ -114,7 +129,7 @@ class Channel extends SwooleChannel implements ChannelInterface
      */
     public function isTimeout(): bool
     {
-        return !$this->closed && $this->errCode === SWOOLE_CHANNEL_TIMEOUT;
+        return !$this->closed && $this->channel->errCode === SWOOLE_CHANNEL_TIMEOUT;
     }
 
     /**
@@ -122,7 +137,7 @@ class Channel extends SwooleChannel implements ChannelInterface
      */
     public function isEmpty(): bool
     {
-        return parent::isEmpty();
+        return $this->channel->isEmpty();
     }
 
     /**
@@ -130,6 +145,6 @@ class Channel extends SwooleChannel implements ChannelInterface
      */
     public function isFull(): bool
     {
-        return parent::isFull();
+        return $this->channel->isFull();
     }
 }

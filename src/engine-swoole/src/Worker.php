@@ -45,6 +45,18 @@ abstract class Worker extends BaseWorker implements WorkerInterface
 
     /**
      * @return void
+     */
+    public function workerStop(): void
+    {
+        try {
+            $this->stop();
+        } catch (Throwable $e) {
+            $this->handleException($e);
+        }
+    }
+
+    /**
+     * @return void
      * @throws Throwable
      */
     protected function bind(): void

@@ -10,6 +10,11 @@ use Swoole\Timer as SwooleTimer;
 class Timer implements TimerInterface
 {
     /**
+     * @var int[]
+     */
+    protected array $timeIds = [];
+
+    /**
      * 毫秒定时器间隔触发
      * @param int $duration
      * @param callable $func
@@ -18,7 +23,9 @@ class Timer implements TimerInterface
      */
     public function tick(int $duration, callable $func, array $args = []): int
     {
-        return SwooleTimer::tick($duration, $func, $args);
+        $timerId = SwooleTimer::tick($duration, $func, $args);
+        $this->timeIds[] = $timerId;
+        return $timerId;
     }
 
     /**
@@ -30,7 +37,9 @@ class Timer implements TimerInterface
      */
     public function after(int $duration, callable $func, array $args = []): int
     {
-        return SwooleTimer::after($duration, $func, $args);
+        $timerId = SwooleTimer::after($duration, $func, $args);
+        $this->timeIds[] = $timerId;
+        return $timerId;
     }
 
     /**
@@ -49,7 +58,9 @@ class Timer implements TimerInterface
      */
     public function clear(): bool
     {
-        SwooleTimer::clearAll();
+        foreach ($this->timeIds as $timeId) {
+            $this->del($timeId);
+        }
         return true;
     }
 }

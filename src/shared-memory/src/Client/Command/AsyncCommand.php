@@ -67,4 +67,14 @@ abstract class AsyncCommand
     protected function onMessage(array $data): void
     {
     }
+
+    /**
+     * @return bool
+     */
+    public function close(): bool
+    {
+        $this->asyncSocket->close();
+        $this->conn->destroy();
+        return true;
+    }
 }

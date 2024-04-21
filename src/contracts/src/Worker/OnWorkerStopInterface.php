@@ -7,7 +7,7 @@ namespace Larmias\Contracts\Worker;
 interface OnWorkerStopInterface
 {
     /**
-     * Worker停止退出事件
+     * Worker停止事件
      * @param WorkerInterface $worker
      * @return void
      */

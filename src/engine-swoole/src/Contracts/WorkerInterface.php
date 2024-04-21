@@ -18,6 +18,11 @@ interface WorkerInterface
     public function process(): void;
 
     /**
+     * @return void
+     */
+    public function workerStop(): void;
+
+    /**
      * @return string
      */
     public function getName(): string;

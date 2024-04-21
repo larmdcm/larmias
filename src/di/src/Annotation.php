@@ -80,7 +80,6 @@ class Annotation implements AnnotationInterface
             $filePath = $file->getPath() . DIRECTORY_SEPARATOR . $file->getFilename();
             $error = $this->config['check_syntax'] ? ReflectUtil::checkFileSyntaxError($filePath) : null;
             if ($error !== null) {
-                println($error);
                 continue;
             }
             $classes = ReflectUtil::getAllClassesInFile($filePath);

@@ -69,6 +69,12 @@ trait Attribute
     protected array $get = [];
 
     /**
+     * 数据表字段信息
+     * @var array
+     */
+    protected array $schema = [];
+
+    /**
      * 获取属性数据
      * @param string $name
      * @param bool $strict
@@ -102,8 +108,9 @@ trait Attribute
             $value = $this->{$method}($value, $name);
         }
 
-        if (isset($this->cast[$name])) {
-            $value = $this->transformValue($this->cast[$name], $value, true);
+        $castType = $this->cast[$name] ?? ($this->schema[$name] ?? null);
+        if (isset($castType)) {
+            $value = $this->transformValue($castType, $value, true);
         }
 
         $this->get[$name] = $value;
@@ -125,8 +132,9 @@ trait Attribute
             $value = $this->{$method}($value, $name);
         }
 
-        if (isset($this->cast[$name])) {
-            $value = $this->transformValue($this->cast[$name], $value);
+        $castType = $this->cast[$name] ?? ($this->schema[$name] ?? null);
+        if ($castType) {
+            $value = $this->transformValue($castType, $value);
         }
 
         $this->data[$name] = $value;
@@ -215,6 +223,22 @@ trait Attribute
         }
 
         return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getSchema(): array
+    {
+        return $this->schema;
+    }
+
+    /**
+     * @param array $schema
+     */
+    public function setSchema(array $schema): void
+    {
+        $this->schema = $schema;
     }
 
     /**
@@ -318,15 +342,20 @@ trait Attribute
      */
     public function isFillable(string $key): bool
     {
+        $check = true;
+        if (!empty($this->schema)) {
+            $check = in_array($key, array_keys($this->schema));
+        }
+
         if (in_array($key, $this->getFillable())) {
-            return true;
+            return $check;
         }
 
         if ($this->isGuarded($key)) {
             return false;
         }
 
-        return empty($this->getFillable());
+        return empty($this->getFillable()) && $check;
     }
 
     /**

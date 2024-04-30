@@ -8,6 +8,7 @@ use Closure;
 use JsonSerializable;
 use Larmias\Contracts\Arrayable;
 use Larmias\Contracts\Jsonable;
+use Larmias\Database\Contracts\ConnectionInterface;
 use Larmias\Database\Contracts\ManagerInterface;
 use Larmias\Database\Model\Concerns\Attribute;
 use Larmias\Database\Model\Concerns\Conversion;
@@ -95,11 +96,11 @@ abstract class Model implements ModelInterface, Arrayable, Jsonable, Stringable,
             $this->name = class_basename(static::class);
         }
 
-        $this->fill($data);
-
         foreach (static::$maker as $maker) {
             $maker($this);
         }
+
+        $this->fill($data);
     }
 
     /**
@@ -337,8 +338,7 @@ abstract class Model implements ModelInterface, Arrayable, Jsonable, Stringable,
      */
     public function newQuery(array|string|null $scope = []): QueryInterface
     {
-        $connection = $this->manager->connection($this->connection);
-        $query = $this->manager->newModelQuery($connection);
+        $query = $this->manager->newModelQuery($this->getConnection());
         $query->name($this->name)->setPrimaryKey($this->getPrimaryKey())
             ->setModel($this);
 
@@ -354,6 +354,14 @@ abstract class Model implements ModelInterface, Arrayable, Jsonable, Stringable,
         $this->setQueryWhere($query);
 
         return $query;
+    }
+
+    /**
+     * @return ConnectionInterface
+     */
+    public function getConnection(): ConnectionInterface
+    {
+        return $this->manager->connection($this->connection);
     }
 
     /**

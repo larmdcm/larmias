@@ -68,6 +68,14 @@ interface ConnectionInterface extends TransactionInterface
     public function getConfig(?string $name = null, mixed $default = null): mixed;
 
     /**
+     * 获取数据表信息
+     * @param string $table
+     * @param bool $force
+     * @return array
+     */
+    public function getSchemaInfo(string $table, bool $force = false): array;
+
+    /**
      * @return EventDispatcherInterface
      */
     public function getEventDispatcher(): EventDispatcherInterface;

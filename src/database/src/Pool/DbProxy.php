@@ -173,6 +173,17 @@ class DbProxy implements ConnectionInterface
     }
 
     /**
+     * 获取数据表信息
+     * @param string $table
+     * @param bool $force
+     * @return array
+     */
+    public function getSchemaInfo(string $table, bool $force = false): array
+    {
+        return $this->call(__FUNCTION__, func_get_args());
+    }
+
+    /**
      * @param string $method
      * @param array $arguments
      * @return mixed

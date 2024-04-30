@@ -67,6 +67,11 @@ abstract class PDOConnection extends Connection
     ];
 
     /**
+     * @var array
+     */
+    protected array $schemaInfo = [];
+
+    /**
      * 执行语句
      * @param string $sql
      * @param array $bindings
@@ -207,6 +212,68 @@ abstract class PDOConnection extends Connection
      * @return string
      */
     abstract public function parseDsn(array $config): string;
+
+    /**
+     * 获取表列信息
+     * @param string $table
+     * @return array
+     */
+    abstract public function getTableColumnInfo(string $table): array;
+
+    /**
+     * 获取数据表信息
+     * @param string $table
+     * @param bool $force
+     * @return array
+     */
+    public function getSchemaInfo(string $table, bool $force = false): array
+    {
+        if (str_contains($table, '.')) {
+            $schema = $table;
+        } else {
+            $schema = $this->getConfig('database') . '.' . $table;
+        }
+
+        if (!isset($this->schemaInfo[$schema]) || $force) {
+            $cacheKey = $this->getSchemaCacheKey($schema);
+            if (!isset(Schema::$cache[$cacheKey])) {
+                Schema::$cache[$cacheKey] = $this->getTableColumnInfo($table);
+            }
+            $columnInfo = Schema::$cache[$cacheKey];
+            $type = [];
+            $primaryKey = [];
+            $autoIncr = [];
+            foreach ($columnInfo as $field => $info) {
+                $type[$field] = Schema::getFieldType($info['type']);
+                if ($info['primary_key']) {
+                    $primaryKey[] = $field;
+                }
+                if ($info['auto_incr']) {
+                    $autoIncr[] = $field;
+                }
+            }
+
+            $this->schemaInfo[$schema] = [
+                'fields' => array_keys($columnInfo),
+                'type' => $type,
+                'primaryKey' => $primaryKey,
+                'autoIncr' => $autoIncr,
+                'raw' => $columnInfo,
+            ];
+        }
+
+        return $this->schemaInfo[$schema];
+    }
+
+    /**
+     * 获取缓存key
+     * @param string $schema
+     * @return string
+     */
+    protected function getSchemaCacheKey(string $schema): string
+    {
+        return $this->getConfig('host') . ':' . $this->getConfig('port') . '@' . $schema;
+    }
 
     /**
      * @param string|null $name

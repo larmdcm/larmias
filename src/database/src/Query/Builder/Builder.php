@@ -7,7 +7,6 @@ namespace Larmias\Database\Query\Builder;
 use Closure;
 use Larmias\Contracts\Arrayable;
 use Larmias\Database\Contracts\BuilderInterface;
-use Larmias\Database\Contracts\ConnectionInterface;
 use Larmias\Database\Contracts\ExpressionInterface;
 use Larmias\Database\Contracts\SqlPrepareInterface;
 use Larmias\Database\Entity\SqlPrepare;
@@ -66,13 +65,6 @@ abstract class Builder implements BuilderInterface
      * @var array
      */
     protected array $bindings = [];
-
-    /**
-     * @param ConnectionInterface $connection
-     */
-    public function __construct(protected ConnectionInterface $connection)
-    {
-    }
 
     /**
      * 绑定参数

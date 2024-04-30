@@ -2,10 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Database\Facade;
+namespace Larmias\Database;
 
 use Larmias\Database\Contracts\ManagerInterface;
-use Larmias\Database\DbIDE;
 use Larmias\Facade\AbstractFacade;
 
 /**

@@ -26,7 +26,7 @@ class Once
 
         return static::$instance;
     }
-
+    
     public function do(callable $callable, ?string $key = null): bool
     {
         if (!$key) {

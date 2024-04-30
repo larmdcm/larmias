@@ -602,8 +602,17 @@ abstract class BaseQuery implements QueryInterface
     {
         $query = new static();
         $query->setConnection($this->connection);
-        $query->setBuilder(clone $this->builder);
+        $query->setBuilder($this->newBuilder());
         return $query;
+    }
+
+    /**
+     * @return BuilderInterface
+     */
+    public function newBuilder(): BuilderInterface
+    {
+        $builderClass = get_class($this->builder);
+        return new $builderClass();
     }
 
     /**

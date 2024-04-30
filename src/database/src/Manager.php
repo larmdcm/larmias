@@ -137,7 +137,7 @@ class Manager implements ManagerInterface
             throw new RuntimeException('builder class not exists:' . $builderClass);
         }
 
-        return new $builderClass($connection);
+        return new $builderClass();
     }
 
     /**

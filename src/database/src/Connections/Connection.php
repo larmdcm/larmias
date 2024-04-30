@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace Larmias\Database\Connections;
 
-use Larmias\Contracts\Pool\ConnectionInterface as PoolConnectionInterface;
 use Larmias\Database\Contracts\ConnectionInterface;
 use Larmias\Pool\Connection as PoolConnection;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use function array_merge;
 use function Larmias\Collection\data_get;
 
-abstract class Connection extends PoolConnection implements ConnectionInterface, PoolConnectionInterface
+abstract class Connection extends PoolConnection implements ConnectionInterface
 {
     /**
      * @var array

@@ -32,4 +32,30 @@ class MysqlConnection extends PDOConnection
 
         return $dsn;
     }
+
+    /**
+     * 获取表列信息
+     * @param string $table
+     * @return array
+     * @throws \Throwable
+     */
+    public function getTableColumnInfo(string $table): array
+    {
+        $sql = 'SHOW FULL COLUMNS FROM ' . $table;
+        $result = $this->execute($sql)->getResultSet();
+        $info = [];
+        foreach ($result as $item) {
+            $info[$item['field']] = [
+                'name' => $item['field'],
+                'type' => $item['type'],
+                'notnull' => 'NO' == $item['null'],
+                'default' => $item['default'],
+                'primary_key' => strtolower($item['key']) == 'pri',
+                'auto_incr' => strtolower($item['extra']) == 'auto_increment',
+                'comment' => $item['comment'],
+            ];
+        }
+
+        return $info;
+    }
 }

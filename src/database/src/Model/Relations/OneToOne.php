@@ -19,7 +19,7 @@ abstract class OneToOne extends Relation
         $this->query = $this->newModel()->newQuery();
     }
 
-    /**z
+    /**
      * 保存关联数据
      * @param array $data
      * @return Model|null

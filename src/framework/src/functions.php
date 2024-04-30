@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Larmias\Framework;
 
+use Larmias\Engine\Contracts\KernelInterface;
 use Larmias\Contracts\StdoutLoggerInterface;
 use Larmias\Contracts\ApplicationInterface;
 use Larmias\Contracts\ConfigInterface;
 use Larmias\Engine\Constants;
-use Larmias\Engine\Contracts\KernelInterface;
 use Larmias\Engine\EngineConfig;
 use Larmias\Engine\Event;
 use Larmias\Engine\WorkerConfig;

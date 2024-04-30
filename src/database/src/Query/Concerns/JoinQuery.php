@@ -76,7 +76,7 @@ trait JoinQuery
         return function () use ($callback): JoinClauseInterface {
             $joinClause = new JoinClause();
             $joinClause->setConnection($this->connection);
-            $joinClause->setBuilder($this->builder);
+            $joinClause->setBuilder($this->newBuilder());
             $result = $callback($joinClause);
 
             if ($result instanceof JoinClauseInterface) {

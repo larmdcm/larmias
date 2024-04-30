@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Larmias\Engine\Swoole\Client\Http;
 
-use Larmias\Contracts\Client\Http\ClientException;
 use Larmias\Contracts\Client\Http\ClientFactoryInterface;
+use Larmias\Contracts\Client\Http\ClientException;
 use Larmias\Contracts\Client\Http\ClientInterface;
 
 class ClientFactory implements ClientFactoryInterface

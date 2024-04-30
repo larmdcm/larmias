@@ -39,6 +39,10 @@ class DatabaseServiceProvider extends ServiceProvider
 
         Model::maker(function (Model $model) use ($manager) {
             $model->setManager($manager);
+            if (empty($model->getSchema())) {
+                $schemaInfo = $model->getConnection()->getSchemaInfo($model->getTable());
+                $model->setSchema($schemaInfo['type']);
+            }
         });
     }
 }

@@ -232,7 +232,6 @@ abstract class Model implements ModelInterface, Arrayable, Jsonable, Stringable,
     protected function insertData(): bool
     {
         return $this->whenFireEvent(['creating', 'created'], function (Closure $before, Closure $after) {
-
             if (!$before()) {
                 return false;
             }

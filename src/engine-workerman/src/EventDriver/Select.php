@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Larmias\Engine\WorkerMan\EventDriver;
 
-use Throwable;
 use Workerman\Events\Select as BaseSelect;
+use Throwable;
 
 class Select extends BaseSelect
 {

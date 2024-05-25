@@ -47,6 +47,7 @@ class Server implements OnRequestInterface
      * @param HttpCoreMiddleware $httpCoreMiddleware
      * @param ContextInterface $context
      * @param ConfigInterface $config
+     * @param DispatcherFactoryInterface $dispatcherFactory
      */
     public function __construct(
         protected ContainerInterface         $container,

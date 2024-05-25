@@ -20,7 +20,8 @@ class ClientTest extends TestCase
         /** @var ClientFactory $factory */
         $factory = make(ClientFactory::class);
         $httpClient = $factory->create([
-            'base_uri' => 'http://www.baidu.com',
+            'base_uri' => 'https://www.baidu.com',
+            'verify' => false,
         ]);
         $response = $httpClient->request('GET', '/');
         $this->assertSame($response->getStatusCode(), 200);

@@ -55,14 +55,15 @@ class Kernel implements KernelInterface
     }
 
     /**
-     * @return void
+     * @return int
      * @throws Throwable
      */
-    public function run(): void
+    public function run(): int
     {
         $this->initWorkers();
         $this->container->invoke([BeforeStartCallback::class, 'onBeforeStart'], [$this]);
         $this->driver->run($this);
+        return 0;
     }
 
     /**

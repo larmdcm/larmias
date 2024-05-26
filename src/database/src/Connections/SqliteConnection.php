@@ -24,7 +24,7 @@ class SqliteConnection extends PDOConnection
     public function getTableColumnInfo(string $table): array
     {
         $sql = 'PRAGMA table_info( \'' . $table . '\' )';
-        $result = $this->execute($sql)->getResultSet();
+        $result = $this->query($sql)->getResultSet();
         $info = [];
 
         foreach ($result as $item) {

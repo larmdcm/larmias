@@ -3,8 +3,7 @@
 declare(strict_types=1);
 
 return [
-    'include_path' => [
-    ],
+    'include_path' => [],
     'exclude_path' => [],
     'handlers' => [],
 ];

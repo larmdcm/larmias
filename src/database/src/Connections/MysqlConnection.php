@@ -42,17 +42,17 @@ class MysqlConnection extends PDOConnection
     public function getTableColumnInfo(string $table): array
     {
         $sql = 'SHOW FULL COLUMNS FROM ' . $table;
-        $result = $this->execute($sql)->getResultSet();
+        $result = $this->query($sql)->getResultSet();
         $info = [];
         foreach ($result as $item) {
-            $info[$item['field']] = [
-                'name' => $item['field'],
-                'type' => $item['type'],
-                'notnull' => 'NO' == $item['null'],
-                'default' => $item['default'],
-                'primary_key' => strtolower($item['key']) == 'pri',
-                'auto_incr' => strtolower($item['extra']) == 'auto_increment',
-                'comment' => $item['comment'],
+            $info[$item['Field']] = [
+                'name' => $item['Field'],
+                'type' => $item['Type'],
+                'notnull' => 'NO' == $item['Null'],
+                'default' => $item['Default'],
+                'primary_key' => strtolower($item['Key']) == 'pri',
+                'auto_incr' => strtolower($item['Extra']) == 'auto_increment',
+                'comment' => $item['Comment'],
             ];
         }
 

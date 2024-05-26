@@ -186,7 +186,7 @@ trait Attribute
     public function refreshOrigin(?array $data = null): void
     {
         if ($data !== null) {
-            $this->origin = array_merge($this->data, $data);
+            $this->origin = $data;
         } else {
             $this->origin = $this->data;
         }
@@ -405,6 +405,11 @@ trait Attribute
             return null;
         }
 
+        $args = [];
+        if (str_contains($type, ':')) {
+            [$type, $args] = explode(':', $type);
+        }
+
         switch ($type) {
             case 'int':
             case 'integer':
@@ -428,7 +433,7 @@ trait Attribute
                 break;
             case 'datetime':
                 $value = is_numeric($value) ? $value : strtotime($value);
-                $value = date('Y-m-d H:i:s.u', $value);
+                $value = date($args[0] ?? 'Y-m-d H:i:s', $value);
                 break;
             case 'object':
                 if ($isGet) {

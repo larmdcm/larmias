@@ -119,7 +119,7 @@ trait ModelRelationQuery
             if ($item instanceof $this->model) {
                 return $item;
             }
-            return $this->model::new()->data($item);
+            return $this->model::new($item);
         });
 
         if ($this->isModelWithSet()) {

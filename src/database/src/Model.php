@@ -100,7 +100,7 @@ abstract class Model implements ModelInterface, Arrayable, Jsonable, Stringable,
             $maker($this);
         }
 
-        $this->fill($data);
+        $this->data($data);
     }
 
     /**
@@ -137,8 +137,8 @@ abstract class Model implements ModelInterface, Arrayable, Jsonable, Stringable,
      */
     public static function create(array $data): static
     {
-        $model = static::new($data);
-        $model->save();
+        $model = new static();
+        $model->save($data);
         return $model;
     }
 

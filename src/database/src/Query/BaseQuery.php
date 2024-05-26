@@ -810,10 +810,10 @@ abstract class BaseQuery implements QueryInterface
             'query' => [], //url额外参数
             'fragment' => '', //url锚点
             'page_name' => $pageName, //分页变量
-            'page' => $page,// 页码
+            'page' => $page,//页码
             'per_page' => $perPage, //每页数量
-            'total' => null, // 总页数
-            'simple' => false, // 分页简单模式
+            'total' => null, //总页数
+            'simple' => false, //分页简单模式
         ];
 
         $config = array_merge($defaultConfig, $config);

@@ -30,8 +30,6 @@ class ModelTest extends TestCase
             'password' => '123456'
         ]);
 
-        var_dump($result);
-
         $this->assertNotEmpty($result);
 
         $result = UserModel::insertAll([
@@ -65,7 +63,7 @@ class ModelTest extends TestCase
         $username = 'test' . mt_rand(100, 999);
         $model = UserModel::create([
             'username' => $username,
-            'password' => '123456'
+            'password' => '123456',
         ]);
 
         $this->assertSame($model->username, $username);

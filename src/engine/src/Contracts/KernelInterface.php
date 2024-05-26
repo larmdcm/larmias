@@ -34,9 +34,9 @@ interface KernelInterface
     public function getDriver(): DriverInterface;
 
     /**
-     * @return void
+     * @return int
      */
-    public function run(): void;
+    public function run(): int;
 
     /**
      * @param bool $force

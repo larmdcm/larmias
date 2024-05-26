@@ -67,8 +67,7 @@ class Engine
                 }
             ]
         ]));
-        $kernel->run();
-        return 0;
+        return $kernel->run();
     }
 
     /**

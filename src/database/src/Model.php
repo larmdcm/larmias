@@ -251,6 +251,7 @@ abstract class Model implements ModelInterface, Arrayable, Jsonable, Stringable,
                 $primaryKey = $this->getPrimaryKey();
                 if (!isset($this->data[$primaryKey]) || $this->data[$primaryKey] === '') {
                     $this->data[$primaryKey] = $id;
+                    unset($this->get[$primaryKey]);
                 }
                 $after();
             }

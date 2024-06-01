@@ -37,6 +37,7 @@ class Server implements OnWorkerStartInterface, OnConnectInterface, OnReceiveInt
      * @param AuthInterface $auth
      * @param TimerInterface $timer
      * @param ContextInterface $context
+     * @param LockerInterface $locker
      */
     public function __construct(
         protected ContainerInterface       $container,

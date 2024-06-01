@@ -38,15 +38,16 @@ $kernel->setConfig(EngineConfig::build([
             'name' => 'taskProcess',
             'type' => WorkerType::WORKER_PROCESS,
             'settings' => [
-                'worker_num' => 2,
+                'worker_num' => 1,
             ],
             'callbacks' => [
-                Event::ON_WORKER_START => [\Larmias\Task\Process\TaskProcess::class, 'handle'],
+                Event::ON_WORKER_START => [\Larmias\Task\Process\TaskProcess::class, 'onWorkerStart'],
             ]
         ],
     ],
     'settings' => [
-
+        \Larmias\Engine\Constants::OPTION_MAX_WAIT_TIME => 0,
+        \Larmias\Engine\Constants::OPTION_STOP_WAIT_TIME => 0,
     ],
     'callbacks' => [
         Event::ON_WORKER_START => function () {

@@ -6,10 +6,11 @@ namespace Larmias\Task\Process;
 
 use Larmias\Contracts\ConfigInterface;
 use Larmias\Contracts\ContainerInterface;
+use Larmias\Contracts\Worker\OnWorkerStartInterface;
 use Larmias\Contracts\Worker\WorkerInterface;
 use Larmias\Task\TaskWorker;
 
-class TaskProcess
+class TaskProcess implements OnWorkerStartInterface
 {
     /**
      * @var TaskWorker
@@ -28,10 +29,12 @@ class TaskProcess
         $this->taskWorker->setName('task_worker.' . $this->worker->getWorkerId());
     }
 
+
     /**
+     * @param WorkerInterface $worker
      * @return void
      */
-    public function handle(): void
+    public function onWorkerStart(WorkerInterface $worker): void
     {
         $this->taskWorker->run();
     }

@@ -43,7 +43,7 @@ function run(callable $callback, array $config = []): void
         'settings' => $settings,
     ]));
     $kernel->addWorker(WorkerConfig::build([
-        'name' => 'MainProcess',
+        'name' => $config['main_process_name'] ?? 'MainProcess',
         'type' => WorkerType::WORKER_PROCESS,
         'callbacks' => [
             Event::ON_WORKER_START => function ($worker) use ($callback, $kernel) {

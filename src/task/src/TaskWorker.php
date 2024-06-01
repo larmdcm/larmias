@@ -159,6 +159,6 @@ class TaskWorker
 
     public function __destruct()
     {
-        $this->client->close(true);
+        $this->client->close();
     }
 }

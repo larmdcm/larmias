@@ -8,14 +8,14 @@ use Larmias\Client\AsyncSocket;
 use Larmias\Client\Constants;
 use Larmias\Contracts\Client\AsyncSocketInterface;
 use Larmias\Contracts\ContainerInterface;
-use Larmias\SharedMemory\Client\Connection as BaseClient;
+use Larmias\SharedMemory\Client\Connection as SmConnection;
 use Larmias\SharedMemory\Message\Result;
 use Larmias\Task\Task;
 use function is_array;
 use function implode;
 use function call_user_func_array;
 
-class Connection extends BaseClient
+class Connection
 {
     /**
      * @var SyncWait
@@ -28,6 +28,11 @@ class Connection extends BaseClient
     protected AsyncSocketInterface $asyncSocket;
 
     /**
+     * @var SmConnection
+     */
+    protected SmConnection $smConn;
+
+    /**
      * @param ContainerInterface $container
      * @param array $options
      * @throws \Throwable
@@ -35,10 +40,10 @@ class Connection extends BaseClient
     public function __construct(ContainerInterface $container, array $options = [])
     {
         $options['async'] = true;
-        $options['event'][Constants::EVENT_CONNECT] = fn(Connection $client) => $this->onConnect($client);
+        $options['event'][Constants::EVENT_CONNECT] = fn(SmConnection $conn) => $this->onConnect($conn);
         $options['timeout'] = $options['timeout'] ?? 3;
         $this->syncWait = $container->get(SyncWait::class);
-        parent::__construct($options);
+        $this->smConn = new SmConnection($options);
     }
 
     /**
@@ -47,15 +52,15 @@ class Connection extends BaseClient
     protected array $callbacks = [];
 
     /**
-     * @param Connection $client
+     * @param SmConnection $conn
      * @return void
      */
-    protected function onConnect(Connection $client): void
+    protected function onConnect(SmConnection $conn): void
     {
-        $this->asyncSocket = new AsyncSocket(Connection::getEventLoop(), $client->getSocket());
+        $this->asyncSocket = new AsyncSocket(SmConnection::getEventLoop(), $conn->getSocket());
         $this->asyncSocket->setOptions([
-            'protocol' => $this->options['protocol'],
-            'max_package_size' => $this->options['max_package_size'] ?? 0,
+            'protocol' => $conn->getOptions()['protocol'],
+            'max_package_size' => $conn->getOptions()['max_package_size'] ?? 0,
         ]);
         $this->asyncSocket->on(AsyncSocketInterface::ON_MESSAGE, function (mixed $data) {
             $result = Result::parse($data);
@@ -95,7 +100,7 @@ class Connection extends BaseClient
     public function publish(Task $task, ?callable $callback = null): bool
     {
         $taskId = $task->getId();
-        $result = $this->sendCommand('task:publish', [$task]);
+        $result = $this->smConn->sendCommand('task:publish', [$task]);
         if ($result) {
             $this->syncWait->add($taskId);
             $this->listen([__FUNCTION__, $taskId], $callback, true);
@@ -112,7 +117,7 @@ class Connection extends BaseClient
     {
         $this->listen([__FUNCTION__, $name], $callbacks[0], true);
         $this->listen(['message', $name], $callbacks[1]);
-        return $this->sendCommand('task:subscribe', [$name]);
+        return $this->smConn->sendCommand('task:subscribe', [$name]);
     }
 
     /**
@@ -122,7 +127,7 @@ class Connection extends BaseClient
      */
     public function finish(string $taskId, mixed $result): bool
     {
-        return $this->sendCommand('task:finish', [$taskId, $result]);
+        return $this->smConn->sendCommand('task:finish', [$taskId, $result]);
     }
 
     /**
@@ -133,7 +138,7 @@ class Connection extends BaseClient
     public function getInfo(?string $key, callable $callback): bool
     {
         $this->listen([__FUNCTION__, $key], $callback, true);
-        return $this->sendCommand('task:getInfo', [$key]);
+        return $this->smConn->sendCommand('task:getInfo', [$key]);
     }
 
     /**
@@ -145,7 +150,7 @@ class Connection extends BaseClient
     public function setInfo(string $key, mixed $value, ?callable $callback = null): bool
     {
         $this->listen([__FUNCTION__, $key], $callback, true);
-        return $this->sendCommand('task:setInfo', [$key, $value]);
+        return $this->smConn->sendCommand('task:setInfo', [$key, $value]);
     }
 
     /**
@@ -192,5 +197,13 @@ class Connection extends BaseClient
             return $result;
         }
         return false;
+    }
+
+    /**
+     * @return bool
+     */
+    public function close(): bool
+    {
+        return $this->smConn->close();
     }
 }

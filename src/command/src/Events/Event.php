@@ -8,10 +8,13 @@ use Larmias\Command\Command;
 
 abstract class Event
 {
+	public Command $command;
+
     /**
      * @param Command $command
      */
-    public function __construct(public Command $command)
+    public function __construct(Command $command)
     {
+    	$this->command = $command;
     }
 }

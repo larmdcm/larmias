@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Larmias\AsyncQueue\Driver;
 
-use Larmias\AsyncQueue\Contracts\MessageInterface;
 use Larmias\AsyncQueue\Contracts\QueueStatusInterface;
+use Larmias\AsyncQueue\Contracts\MessageInterface;
 use Larmias\AsyncQueue\Exceptions\QueueException;
 use Larmias\AsyncQueue\Message\QueueStatus;
 use Larmias\Contracts\Redis\ConnectionInterface;

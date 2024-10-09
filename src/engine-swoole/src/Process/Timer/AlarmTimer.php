@@ -83,7 +83,7 @@ class AlarmTimer implements TimerInterface
     public function clear(): bool
     {
         $this->tasks = $this->taskStatus = [];
-        \pcntl_alarm(0);
+        pcntl_alarm(0);
         return true;
     }
 
@@ -93,7 +93,7 @@ class AlarmTimer implements TimerInterface
      */
     public function signalHandle(): void
     {
-        \pcntl_alarm(1);
+        pcntl_alarm(1);
         $this->interval();
     }
 
@@ -113,7 +113,7 @@ class AlarmTimer implements TimerInterface
             throw new InvalidArgumentException("timer interval time must be greater than 0");
         }
         if (empty($this->tasks)) {
-            \pcntl_alarm(1);
+            pcntl_alarm(1);
         }
         $this->timerId = $this->timerId === PHP_INT_MAX ? 1 : ++$this->timerId;
         $runTime = time() + $time;
@@ -132,7 +132,7 @@ class AlarmTimer implements TimerInterface
     protected function interval(): void
     {
         if (empty($this->tasks)) {
-            \pcntl_alarm(0);
+            pcntl_alarm(0);
             return;
         }
 

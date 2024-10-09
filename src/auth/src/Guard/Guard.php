@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Larmias\Auth\Guard;
 
-use Larmias\Contracts\Auth\AuthenticationInterface;
-use Larmias\Contracts\Auth\GuardInterface;
-use Larmias\Contracts\Auth\IdentityInterface;
 use Larmias\Contracts\Auth\IdentityRepositoryInterface;
+use Larmias\Contracts\Auth\AuthenticationInterface;
+use Larmias\Contracts\Auth\IdentityInterface;
+use Larmias\Contracts\Auth\GuardInterface;
 use Larmias\Contracts\ContainerInterface;
 use function method_exists;
 

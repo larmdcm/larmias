@@ -142,11 +142,11 @@ class Socket implements SocketInterface
 
             stream_set_timeout($conn, $this->options['rw_timeout']);
             stream_set_blocking($conn, $this->options['blocking']);
-            if (!is_null($this->options['write_buffer_size'])) {
-                stream_set_write_buffer($conn, $this->options['write_buffer_size']);
-            }
             if (!is_null($this->options['read_buffer_size'])) {
                 stream_set_read_buffer($conn, $this->options['read_buffer_size']);
+            }
+            if (!is_null($this->options['write_buffer_size'])) {
+                stream_set_write_buffer($conn, $this->options['write_buffer_size']);
             }
 
             return $conn;

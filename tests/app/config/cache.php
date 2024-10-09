@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Larmias\Codec\Packer\PhpSerializerPacker;
 use function Larmias\Support\env;
 
 return [
@@ -9,7 +10,7 @@ return [
     'stores' => [
         'file' => [
             'driver' => \Larmias\Cache\Driver\File::class,
-            'packer' => \Larmias\Support\Packer\PhpSerializerPacker::class,
+            'packer' => PhpSerializerPacker::class,
             'expire' => 0,
             'path' => \Larmias\Framework\app()->getRuntimePath() . '/cache',
             'prefix' => '',
@@ -18,7 +19,7 @@ return [
         ],
         'redis' => [
             'driver' => \Larmias\Cache\Driver\Redis::class,
-            'packer' => \Larmias\Support\Packer\PhpSerializerPacker::class,
+            'packer' => PhpSerializerPacker::class,
             'expire' => 0,
             'prefix' => '',
             'handler' => null

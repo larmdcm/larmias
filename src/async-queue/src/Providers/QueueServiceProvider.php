@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Larmias\AsyncQueue\Providers;
 
 use Larmias\AsyncQueue\Contracts\QueueInterface;
-use Larmias\AsyncQueue\Queue;
 use Larmias\Framework\ServiceProvider;
+use Larmias\AsyncQueue\Queue;
 
 class QueueServiceProvider extends ServiceProvider
 {

@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>SSE</title>
+</head>
+<body>
+
+<script>
+    var source = new EventSource('http://192.168.33.99:9601/sse');
+    source.addEventListener('message', function (event) {
+        var data = event.data;
+        console.log(data); // 输出 hello
+    }, false);
+</script>
+</body>
+</html>

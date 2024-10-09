@@ -76,5 +76,4 @@ interface QueueDriverInterface
      * @return int
      */
     public function reloadTimeoutMessage(?string $queue = null): int;
-
 }

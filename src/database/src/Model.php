@@ -212,7 +212,6 @@ abstract class Model implements ModelInterface, Arrayable, Jsonable, Stringable,
         }
 
         return $this->whenFireEvent(['deleting', 'deleted'], function (Closure $before, Closure $after) {
-
             if (!$before()) {
                 return false;
             }

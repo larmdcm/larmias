@@ -20,7 +20,7 @@ use function preg_quote;
 use function str_contains;
 
 /**
- * @method Finder include (array|string $path)
+ * @method Finder include(array|string $path)
  * @method Finder exclude(array|string $path)
  * @method Finder includeFile(array|string $file)
  * @method Finder excludeFile(array|string $file)

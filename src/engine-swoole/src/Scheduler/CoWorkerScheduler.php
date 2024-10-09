@@ -6,8 +6,8 @@ namespace Larmias\Engine\Swoole\Scheduler;
 
 use Larmias\Engine\Swoole\Contracts\SchedulerInterface;
 use Larmias\Engine\Swoole\Contracts\WorkerInterface;
-use Swoole\Coroutine;
 use Swoole\Coroutine\Scheduler;
+use Swoole\Coroutine;
 use const SWOOLE_HOOK_ALL;
 
 class CoWorkerScheduler extends AbstractScheduler

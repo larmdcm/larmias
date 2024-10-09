@@ -6,10 +6,10 @@ namespace Larmias\Coroutine;
 
 use Larmias\Contracts\Coroutine\ChannelInterface;
 use Larmias\Coroutine\Concurrent\Parallel;
-use Closure;
 use Larmias\Coroutine\Sync\Locker;
 use Larmias\Coroutine\Sync\Once;
 use Larmias\Coroutine\Sync\Waiter;
+use Closure;
 
 /**
  * @param array $callables

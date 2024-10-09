@@ -4,26 +4,26 @@ declare(strict_types=1);
 
 namespace Larmias\JsonRpc;
 
-use Larmias\Contracts\PackerInterface;
+use Larmias\Codec\Protocol\TextProtocol;
+use Larmias\Contracts\ProtocolInterface;
 use Larmias\Contracts\Tcp\ConnectionInterface;
 use Larmias\Contracts\Tcp\OnReceiveInterface;
 use Larmias\JsonRpc\Contracts\ParserInterface;
 use Larmias\JsonRpc\Contracts\ServiceCollectorInterface;
-use Larmias\JsonRpc\Packer\EofPacker;
 use Throwable;
 use function Larmias\Support\println;
 use function Larmias\Support\format_exception;
 
 class TcpServer implements OnReceiveInterface
 {
-    protected PackerInterface $packer;
+    protected ProtocolInterface $protocol;
 
     public function __construct(
         protected ParserInterface           $parser,
         protected ServiceCollectorInterface $collector,
     )
     {
-        $this->packer = new EofPacker();
+        $this->protocol = new TextProtocol();
     }
 
     /**
@@ -41,7 +41,7 @@ class TcpServer implements OnReceiveInterface
             println(format_exception($e));
         } finally {
             if (isset($response)) {
-                $connection->send($this->packer->pack($this->parser->encodeResponse($response)));
+                $connection->send($this->protocol->pack($this->parser->encodeResponse($response)));
             }
         }
     }

@@ -8,7 +8,6 @@ interface ResponseInterface
 {
     /**
      * set Header.
-     *
      * @param string $name
      * @param mixed $value
      * @return ResponseInterface
@@ -38,7 +37,7 @@ interface ResponseInterface
      * @param mixed $default
      * @return string|array
      */
-    public function getHeader(string $name, $default = null): string|array;
+    public function getHeader(string $name, mixed $default = null): string|array;
 
     /**
      * @return array
@@ -47,7 +46,6 @@ interface ResponseInterface
 
     /**
      * 设置响应状态码
-     *
      * @param integer $statusCode
      * @param string|null $reason
      * @return ResponseInterface
@@ -56,7 +54,6 @@ interface ResponseInterface
 
     /**
      * 获取响应状态码
-     *
      * @return integer
      */
     public function getStatusCode(): int;
@@ -68,7 +65,6 @@ interface ResponseInterface
 
     /**
      * 设置cookie
-     *
      * @param string $name
      * @param string $value
      * @param int $expire
@@ -83,7 +79,6 @@ interface ResponseInterface
 
     /**
      * 分块传输数据
-     *
      * @param string $data
      * @return bool
      */
@@ -91,7 +86,6 @@ interface ResponseInterface
 
     /**
      * 发送文件.
-     *
      * @param string $file
      * @param int $offset
      * @param int $length
@@ -100,7 +94,6 @@ interface ResponseInterface
 
     /**
      * 结束请求.
-     *
      * @param string $data
      * @return void
      */

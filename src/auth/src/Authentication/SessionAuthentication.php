@@ -16,7 +16,7 @@ class SessionAuthentication extends Authentication
     /**
      * @param SessionInterface $session
      */
-    public function initialize(SessionInterface $session)
+    public function initialize(SessionInterface $session): void
     {
         $this->session = $session;
     }

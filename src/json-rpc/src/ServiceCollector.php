@@ -11,9 +11,6 @@ use Larmias\JsonRpc\Contracts\ResponseInterface;
 use Larmias\JsonRpc\Contracts\ServiceCollectorInterface;
 use Larmias\JsonRpc\Message\Error;
 use Larmias\JsonRpc\Message\Response;
-use Larmias\Support\Reflection\ReflectionManager;
-use ReflectionMethod;
-use ReflectionNamedType;
 use Throwable;
 
 class ServiceCollector implements ServiceCollectorInterface
@@ -43,61 +40,11 @@ class ServiceCollector implements ServiceCollectorInterface
         return $this;
     }
 
-    protected function getMethods(string $class): array
-    {
-        $methods = [];
-        $refClass = ReflectionManager::reflectClass($class);
-        foreach ($refClass->getMethods(ReflectionMethod::IS_PUBLIC) as $method) {
-            if ($method->isConstructor() || $method->isDestructor()) {
-                continue;
-            }
-            $returnType = $method->getReturnType();
-            if ($returnType instanceof ReflectionNamedType) {
-                $returnType = $returnType->getName();
-            }
-            $methods[$method->getName()] = [
-                'parameters' => $this->getParameters($method),
-                'returnType' => $returnType,
-                'comment' => $method->getDocComment(),
-            ];
-        }
-
-        return $methods;
-    }
-
     /**
-     * 获取方法参数列表
-     * @param ReflectionMethod $method
-     * @return array
-     * @throws \ReflectionException
+     * 调度服务
+     * @param RequestInterface $request
+     * @return ResponseInterface
      */
-    protected function getParameters(ReflectionMethod $method): array
-    {
-        $parameters = [];
-        foreach ($method->getParameters() as $parameter) {
-            $type = $parameter->getType();
-            if ($type instanceof ReflectionNamedType) {
-                $type = $type->getName();
-            }
-            $param = [
-                'name' => $parameter->getName(),
-                'type' => $type,
-            ];
-
-            if ($parameter->isOptional()) {
-                $param['default'] = $parameter->getDefaultValue();
-            }
-
-            if ($parameter->allowsNull()) {
-                $param['nullable'] = true;
-            }
-
-            $parameters[] = $param;
-        }
-        return $parameters;
-    }
-
-
     public function dispatch(RequestInterface $request): ResponseInterface
     {
         $response = new Response();

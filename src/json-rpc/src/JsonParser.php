@@ -12,15 +12,25 @@ use Larmias\JsonRpc\Message\Request;
 
 class JsonParser implements ParserInterface
 {
+    public const VERSION = '2.0';
+
     /**
      * @param ResponseInterface $response
      * @return string
      */
     public function encodeResponse(ResponseInterface $response): string
     {
-        return Json::encode([
-
-        ]);
+        $error = $response->getError();
+        $data = [
+            'id' => $response->getId(),
+            'jsonrpc' => self::VERSION,
+        ];
+        if ($error) {
+            $data['error'] = $error;
+        } else {
+            $data['result'] = $response->getResult();
+        }
+        return Json::encode($data);
     }
 
     /**

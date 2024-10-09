@@ -204,7 +204,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
     /**
      * 不存在则绑定类、闭包、实例、接口实现到容器
      * @param array|string $abstract
-     * @param mixed|null $concrete
+     * @param mixed $concrete
      * @return ContainerInterface
      */
     public function bindIf(array|string $abstract, mixed $concrete = null): ContainerInterface

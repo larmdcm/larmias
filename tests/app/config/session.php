@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Larmias\Session\Handler\FileHandler;
 use Larmias\Session\Handler\RedisHandler;
-use Larmias\Support\Packer\PhpSerializerPacker;
+use Larmias\Codec\Packer\PhpSerializerPacker;
 
 return [
     'default' => 'file',

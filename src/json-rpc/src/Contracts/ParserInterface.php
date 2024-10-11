@@ -14,6 +14,18 @@ interface ParserInterface
 
     /**
      * @param string $contents
+     * @return ResponseInterface
+     */
+    public function decodeResponse(string $contents): ResponseInterface;
+
+    /**
+     * @param RequestInterface $request
+     * @return string
+     */
+    public function encodeRequest(RequestInterface $request): string;
+
+    /**
+     * @param string $contents
      * @return RequestInterface
      */
     public function decodeRequest(string $contents): RequestInterface;

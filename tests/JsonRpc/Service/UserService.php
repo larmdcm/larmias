@@ -2,13 +2,20 @@
 
 declare(strict_types=1);
 
-
 namespace LarmiasTest\JsonRpc\Service;
 
 use LarmiasTest\JsonRpc\Contracts\UserServiceInterface;
 
 class UserService implements UserServiceInterface
 {
+    public function __construct()
+    {
+    }
+
+    protected function getUserInfo1()
+    {
+    }
+
     /**
      * 获取用户信息
      * @param int|string $id

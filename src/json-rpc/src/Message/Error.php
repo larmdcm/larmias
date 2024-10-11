@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Larmias\JsonRpc\Message;
 
+use JsonSerializable;
 use Larmias\JsonRpc\Contracts\ErrorInterface;
 
-class Error implements ErrorInterface
+class Error implements ErrorInterface, JsonSerializable
 {
     public function __construct(protected int $code, protected $message = '', protected mixed $data = null)
     {
@@ -62,6 +63,10 @@ class Error implements ErrorInterface
 
     public function jsonSerialize()
     {
-        return get_object_vars($this);
+        return [
+            'message' => $this->message,
+            'code' => $this->code,
+            'data' => $this->data,
+        ];
     }
 }

@@ -11,6 +11,7 @@ use Larmias\Contracts\TimerInterface;
 use Larmias\Support\Traits\HasEvents;
 use Closure;
 use SplQueue;
+use Throwable;
 use const PHP_SAPI;
 
 class TcpClient
@@ -113,6 +114,7 @@ class TcpClient
     /**
      * @param int $length
      * @return mixed
+     * @throws Throwable
      */
     public function recv(int $length = 65535): mixed
     {
@@ -135,6 +137,18 @@ class TcpClient
         }
 
         return $this->dataDequeue();
+    }
+
+    /**
+     * @param string $data
+     * @param array $options
+     * @return mixed
+     * @throws Throwable
+     */
+    public function sendAndRecv(string $data, array $options = []): mixed
+    {
+        $this->send($data);
+        return $this->recv($options['length'] ?? 65535);
     }
 
     /**

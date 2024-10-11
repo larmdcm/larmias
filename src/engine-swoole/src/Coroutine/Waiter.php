@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Larmias\Engine\Swoole\Coroutine;
 
-use Swoole\Coroutine;
 use Swoole\Timer;
+use Swoole\Coroutine;
 use Swoole\Coroutine\Channel;
 use Swoole\Coroutine\WaitGroup;
 

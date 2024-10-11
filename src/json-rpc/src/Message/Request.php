@@ -11,7 +11,6 @@ class Request implements RequestInterface
     public function __construct(
         protected string  $method,
         protected array   $params = [],
-        protected array   $context = [],
         protected string  $jsonrpc = '2.0',
         protected ?string $id = null,
     )

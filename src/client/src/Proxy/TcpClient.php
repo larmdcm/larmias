@@ -10,6 +10,17 @@ use Larmias\Contracts\Coroutine\CoroutineInterface;
 use Larmias\Client\Pool\TcpClientConnection;
 use Larmias\Client\Pool\TcpClientPool;
 
+/**
+ * @method bool connect()
+ * @method int|false send(string $data)
+ * @method mixed recv(int $length = 65535)
+ * @method mixed sendAndRecv(string $data, array $options = [])
+ * @method bool close()
+ * @method bool destroy(bool $destroy = true)
+ * @method bool reconnect()
+ * @method bool ping()
+ * @method bool isConnected()
+ */
 class TcpClient
 {
     /**
@@ -45,7 +56,7 @@ class TcpClient
      * @param bool $hasContextConnection
      * @return TcpClientConnection
      */
-    public function getConnection(bool $hasContextConnection = false): TcpClientConnection
+    protected function getConnection(bool $hasContextConnection = false): TcpClientConnection
     {
         if ($hasContextConnection) {
             return $this->context->get($this->getContextKey());

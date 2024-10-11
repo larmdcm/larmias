@@ -31,7 +31,6 @@ abstract class AbstractScheduler implements SchedulerInterface
      */
     public function stop(bool $force = true): void
     {
-
     }
 
     /**

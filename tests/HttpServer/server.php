@@ -9,6 +9,7 @@ use Larmias\Engine\EngineConfig;
 use Larmias\Engine\WorkerType;
 use Larmias\HttpServer\Contracts\RequestInterface;
 use Larmias\HttpServer\Contracts\ResponseInterface;
+use Larmias\HttpServer\Handler\SseHandler;
 use Larmias\HttpServer\Routing\Router;
 use Larmias\HttpServer\Server as HttpServer;
 use Larmias\Contracts\Http\OnRequestInterface;
@@ -34,17 +35,29 @@ $kernel->setConfig(EngineConfig::build([
         ],
     ],
     'settings' => [
-        \Larmias\Engine\Constants::OPTION_EVENT_LOOP_CLASS => \Larmias\Engine\WorkerMan\EventDriver\Select::class,
+        // \Larmias\Engine\Constants::OPTION_EVENT_LOOP_CLASS => \Larmias\Engine\WorkerMan\EventDriver\Select::class,
     ],
     'callbacks' => [
         Event::ON_WORKER_START => function () {
-            Router::get('/', function (RequestInterface $request, ResponseInterface $resp) {
+            Router::get('/chunk', function (ResponseInterface $resp) {
+                $resp->write('hello1<br/>');
+                $resp->write('hello2<br/>');
+                $resp->write('hello3<br/>');
+                return $resp;
+            });
+
+            Router::get('/sseView', function (RequestInterface $request, ResponseInterface $resp) {
                 return $resp->html(file_get_contents(__DIR__ . '/sse.html'));
             });
+
             Router::get('/sse', function (RequestInterface $request, ResponseInterface $resp) {
-                $resp = $resp->withHeader('content-type', 'text/event-stream');
-                $resp->write('data:' . json_encode(['message' => 'hello', 'time' => time()]));
-                return $resp;
+                return $resp->sse(function (SseHandler $sseHandler) {
+                    for ($i = 1; $i <= 3; $i++) {
+                        $sseHandler->write(\Larmias\HttpServer\Message\ServerSentEvents::make(['data' => 'hello' . $i]));
+                        sleep(1);
+                    }
+                    $sseHandler->end();
+                });
             });
         }
     ],

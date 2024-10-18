@@ -6,6 +6,7 @@ namespace Larmias\HttpServer\Contracts;
 
 use Larmias\Http\Message\Cookie;
 use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
+use Closure;
 
 interface ResponseInterface
 {
@@ -58,6 +59,12 @@ interface ResponseInterface
      * @return bool
      */
     public function write(string $data): bool;
+
+    /**
+     * @param  Closure $handler 
+     * @return PsrResponseInterface
+     */
+    public function sse(Closure $handler): PsrResponseInterface;
 
     /**
      * @param Cookie $cookie

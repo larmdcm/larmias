@@ -189,6 +189,7 @@ class TcpClient
 
     /**
      * @return bool
+     * @throws Throwable
      */
     public function ping(): bool
     {

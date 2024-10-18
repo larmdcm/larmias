@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Larmias\HttpServer\Message;
 
 use BadMethodCallException;
+use Closure;
 use Larmias\Contracts\ContextInterface;
 use Larmias\Http\Message\Contracts\Chunkable;
 use Larmias\Http\Message\Cookie;
@@ -13,6 +14,9 @@ use Larmias\Http\Message\Stream;
 use Larmias\Http\Message\Stream\FileStream;
 use Larmias\HttpServer\Contracts\ResponseInterface;
 use Larmias\Codec\Json;
+use Larmias\HttpServer\Contracts\SseEmitterInterface;
+use Larmias\HttpServer\Contracts\SseResponseInterface;
+use Larmias\HttpServer\Emitter\SseEmitter;
 use Larmias\Support\MimeType;
 use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
 use Psr\Http\Message\StreamInterface;
@@ -26,8 +30,13 @@ use function method_exists;
 use function rawurlencode;
 use function sprintf;
 
-class Response implements PsrResponseInterface, ResponseInterface
+class Response implements PsrResponseInterface, ResponseInterface, SseResponseInterface
 {
+    /**
+     * @var SseEmitterInterface|null
+     */
+    protected ?SseEmitterInterface $sseEmitter = null;
+
     /**
      * @param ContextInterface $context
      * @param PsrResponseInterface|null $response
@@ -141,6 +150,25 @@ class Response implements PsrResponseInterface, ResponseInterface
             return $response->write($data);
         }
         return false;
+    }
+
+    /**
+     * @param Closure $handler
+     * @return PsrResponseInterface
+     */
+    public function sse(Closure $handler): PsrResponseInterface
+    {
+        $response = new static($this->context, $this->getResponse());
+        $response->sseEmitter = new SseEmitter($handler);
+        return $response;
+    }
+
+    /**
+     * @return SseEmitterInterface|null
+     */
+    public function getSseEmitter(): ?SseEmitterInterface
+    {
+        return $this->sseEmitter;
     }
 
     protected function getResponse(): PsrResponseInterface

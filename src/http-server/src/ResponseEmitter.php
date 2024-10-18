@@ -7,6 +7,7 @@ namespace Larmias\HttpServer;
 use Larmias\Contracts\FileInterface;
 use Larmias\Contracts\Http\ResponseEmitterInterface;
 use Larmias\Contracts\Http\ResponseInterface;
+use Larmias\HttpServer\Contracts\SseResponseInterface;
 use Larmias\Support\Helper;
 use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
 use function method_exists;
@@ -23,6 +24,14 @@ class ResponseEmitter implements ResponseEmitterInterface
      */
     public function emit(PsrResponseInterface $psrResponse, ResponseInterface $response, bool $withContent = true): void
     {
+        if ($psrResponse instanceof SseResponseInterface) {
+            $sseEmitter = $psrResponse->getSseEmitter();
+            if ($sseEmitter) {
+                $sseEmitter->emit($response);
+                return;
+            }
+        }
+
         $content = $psrResponse->getBody();
 
         $response = $response->withHeaders($psrResponse->getHeaders())

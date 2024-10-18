@@ -53,7 +53,7 @@ class Response implements ResponseInterface
 
     public function getHeader(string $name, $default = null): string|array
     {
-        return $this->response->getHeader($name) ?? $default;
+        return strval($this->response->getHeader($name) ?? $default);
     }
 
     public function getHeaders(): array
@@ -91,6 +91,9 @@ class Response implements ResponseInterface
         } else {
             $this->response->withHeader('Transfer-Encoding', 'chunked');
             $this->connection->send($this->response->withBody($data));
+            if ($this->hasEventStream()) {
+                $this->connection->send(new Chunk($data));
+            }
         }
         $this->isSendChunk = true;
         return true;
@@ -110,5 +113,13 @@ class Response implements ResponseInterface
         }
 
         $this->connection->send($this->response->withBody($data));
+    }
+
+    /**
+     * @return bool
+     */
+    protected function hasEventStream(): bool
+    {
+        return $this->getHeader('Content-Type') === 'text/event-stream';
     }
 }

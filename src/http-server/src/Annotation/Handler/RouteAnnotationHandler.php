@@ -69,8 +69,7 @@ class RouteAnnotationHandler implements RouteAnnotationHandlerInterface
     {
         return $prefix;
     }
-
-
+    
     /**
      * @param array $param
      * @return void

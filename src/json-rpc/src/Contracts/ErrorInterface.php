@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Larmias\JsonRpc\Contracts;
 
-interface ErrorInterface
+use JsonSerializable;
+
+interface ErrorInterface extends JsonSerializable
 {
     /**
      * @return int

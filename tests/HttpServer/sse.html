@@ -10,9 +10,9 @@
 <body>
 
 <script>
-    var source = new EventSource('http://192.168.33.99:9601/sse');
+    const source = new EventSource('http://192.168.33.99:9601/sse');
     source.addEventListener('message', function (event) {
-        var data = event.data;
+        const data = event.data;
         console.log(data); // 输出 hello
     }, false);
 </script>

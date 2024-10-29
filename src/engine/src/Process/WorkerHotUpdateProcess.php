@@ -6,9 +6,10 @@ namespace Larmias\Engine\Process;
 
 use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\FileWatcherInterface;
-use Larmias\Engine\Contracts\WorkerInterface;
+use Larmias\Contracts\Worker\OnWorkerStartInterface;
+use Larmias\Contracts\Worker\WorkerInterface;
 
-class WorkerHotUpdateProcess
+class WorkerHotUpdateProcess implements OnWorkerStartInterface
 {
     /**
      * @var FileWatcherInterface
@@ -40,7 +41,7 @@ class WorkerHotUpdateProcess
      * @param WorkerInterface $worker
      * @return void
      */
-    public function handle(WorkerInterface $worker): void
+    public function onWorkerStart(WorkerInterface $worker): void
     {
         if (!$this->enabled) {
             return;

@@ -6,6 +6,7 @@ namespace Larmias\HttpServer\Message;
 
 use BadMethodCallException;
 use Closure;
+use Larmias\Codec\Xml;
 use Larmias\Contracts\ContextInterface;
 use Larmias\Http\Message\Contracts\Chunkable;
 use Larmias\Http\Message\Cookie;
@@ -47,52 +48,50 @@ class Response implements PsrResponseInterface, ResponseInterface, SseResponseIn
 
     /**
      * @param array|object|string $data
-     * @param int $code
-     * @param array $headers
+     * @param string $charset
      * @return PsrResponseInterface
      */
-    public function json(array|object|string $data, int $code = 200, array $headers = []): PsrResponseInterface
+    public function json(array|object|string $data, string $charset = 'utf-8'): PsrResponseInterface
     {
         $json = is_string($data) || $data instanceof Stringable ? (string)$data : Json::encode($data);
-        $response = $this->withAddedHeader('Content-Type', 'application/json; charset=utf-8')
-            ->withStatus($code)
+        return $this->withAddedHeader('Content-Type', 'application/json; charset=' . $charset)
             ->withBody(Stream::create($json));
-        if (!empty($headers) && method_exists($response, 'withHeaders')) {
-            $response = $response->withHeaders($headers);
-        }
-        return $response;
+    }
+
+    /**
+     * @param array|object|string $data
+     * @param string $root
+     * @param string $charset
+     * @return PsrResponseInterface
+     * @throws \Exception
+     */
+    public function xml(array|object|string $data, string $root = 'root', string $charset = 'utf-8'): PsrResponseInterface
+    {
+        $json = is_string($data) || $data instanceof Stringable ? (string)$data : Xml::toXml($data, root: $root);
+        return $this->withAddedHeader('Content-Type', 'application/xml; charset=' . $charset)
+            ->withBody(Stream::create($json));
     }
 
     /**
      * @param string|Stringable $data
-     * @param int $code
-     * @param array $headers
+     * @param string $charset
      * @return PsrResponseInterface
      */
-    public function raw(string|Stringable $data, int $code = 200, array $headers = []): PsrResponseInterface
+    public function raw(string|Stringable $data, string $charset = 'utf-8'): PsrResponseInterface
     {
-        $response = $this->withAddedHeader('Content-Type', 'text/plain; charset=utf-8')->withStatus($code)
+        return $this->withAddedHeader('Content-Type', 'text/plain; charset=' . $charset)
             ->withBody(Stream::create((string)$data));
-        if (!empty($headers) && method_exists($response, 'withHeaders')) {
-            $response = $response->withHeaders($headers);
-        }
-        return $response;
     }
 
     /**
      * @param Stringable|string $data
-     * @param int $code
-     * @param array $headers
+     * @param string $charset
      * @return PsrResponseInterface
      */
-    public function html(Stringable|string $data, int $code = 200, array $headers = []): PsrResponseInterface
+    public function html(Stringable|string $data, string $charset = 'utf-8'): PsrResponseInterface
     {
-        $response = $this->withAddedHeader('Content-Type', 'text/html; charset=utf-8')->withStatus($code)
+        return $this->withAddedHeader('Content-Type', 'text/html; charset=' . $charset)
             ->withBody(Stream::create((string)$data));
-        if (!empty($headers) && method_exists($response, 'withHeaders')) {
-            $response = $response->withHeaders($headers);
-        }
-        return $response;
     }
 
     /**

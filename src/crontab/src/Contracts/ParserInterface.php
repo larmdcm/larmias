@@ -8,7 +8,7 @@ interface ParserInterface
 {
     /**
      * @param string $rule
-     * @param mixed|null $startTime
+     * @param mixed $startTime
      * @return int[]
      */
     public function parse(string $rule, mixed $startTime = null): array;

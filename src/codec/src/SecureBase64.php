@@ -2,22 +2,21 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Codec\Packer;
+namespace Larmias\Codec;
 
-use Larmias\Contracts\PackerInterface;
 use function base64_encode;
 use function base64_decode;
 use function str_replace;
 use function strlen;
 use function substr;
 
-class Base64Packer implements PackerInterface
+class SecureBase64
 {
     /**
      * @param mixed $data
      * @return string
      */
-    public function pack(mixed $data): string
+    public static function encode(mixed $data): string
     {
         return str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($data));
     }
@@ -26,7 +25,7 @@ class Base64Packer implements PackerInterface
      * @param string $data
      * @return string|bool
      */
-    public function unpack(string $data): string|bool
+    public static function decode(string $data): string|false
     {
         $data = str_replace(['-', '_'], ['+', '/'], $data);
         $mod4 = strlen($data) % 4;

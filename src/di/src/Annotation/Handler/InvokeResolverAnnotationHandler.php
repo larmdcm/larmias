@@ -2,20 +2,18 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Di\AnnotationHandler;
+namespace Larmias\Di\Annotation\Handler;
 
 use Larmias\Contracts\Annotation\AnnotationHandlerInterface;
-use Larmias\Contracts\ContainerInterface;
+use Larmias\Di\Annotation\Invoke;
 use Larmias\Di\Invoker\InvokeResolver;
 
 class InvokeResolverAnnotationHandler implements AnnotationHandlerInterface
 {
     /**
-     * @param ContainerInterface $container
+     * @var array
      */
-    public function __construct(protected ContainerInterface $container)
-    {
-    }
+    protected static array $list = [];
 
     /**
      * @param array $param
@@ -23,7 +21,11 @@ class InvokeResolverAnnotationHandler implements AnnotationHandlerInterface
      */
     public function collect(array $param): void
     {
-        InvokeResolver::add($this->container->make($param['class']));
+        if ($param['annotation'] !== Invoke::class) {
+            return;
+        }
+
+        static::$list[] = $param;
     }
 
     /**
@@ -31,5 +33,8 @@ class InvokeResolverAnnotationHandler implements AnnotationHandlerInterface
      */
     public function handle(): void
     {
+        foreach (static::$list as $item) {
+            InvokeResolver::collect($item);
+        }
     }
 }

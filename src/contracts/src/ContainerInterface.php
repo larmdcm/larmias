@@ -14,9 +14,9 @@ interface ContainerInterface extends PsrContainerInterface
      * @param string $abstract
      * @param array $params
      * @param boolean $newInstance
-     * @return object
+     * @return mixed
      */
-    public function make(string $abstract, array $params = [], bool $newInstance = false): object;
+    public function make(string $abstract, array $params = [], bool $newInstance = false): mixed;
 
     /**
      * 绑定类、闭包、实例、接口实现到容器
@@ -60,7 +60,7 @@ interface ContainerInterface extends PsrContainerInterface
 
     /**
      * 判断容器中是否存在对象实例
-     * @param string $abstract 类名或者标识
+     * @param string $abstract
      * @return bool
      */
     public function exists(string $abstract): bool;

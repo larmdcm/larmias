@@ -15,22 +15,15 @@ interface AnnotationInterface
     public function addHandler(string|array $annotations, string $handler): AnnotationInterface;
 
     /**
-     * 添加扫描路径
-     * @param string|array $path
-     * @return AnnotationInterface
-     */
-    public function addIncludePath(string|array $path): AnnotationInterface;
-
-    /**
-     * 添加扫描排除路径
-     * @param string|array $path
-     * @return AnnotationInterface
-     */
-    public function addExcludePath(string|array $path): AnnotationInterface;
-
-    /**
-     * 执行扫描
+     * 解析类注解
+     * @param string|object $class
      * @return void
      */
-    public function scan(): void;
+    public function parse(string|object $class): void;
+
+    /**
+     * 执行类注解处理
+     * @return void
+     */
+    public function handle(): void;
 }

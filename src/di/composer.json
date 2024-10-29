@@ -28,7 +28,7 @@
     "extra": {
         "larmias": {
             "providers": [
-                "Larmias\\Di\\Providers\\AnnotationServiceProvider"
+                "Larmias\\Di\\Providers\\DiServiceProvider"
             ]
         }
     }

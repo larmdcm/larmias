@@ -52,6 +52,7 @@ class TcpClientConnection extends BaseConnection
 
     /**
      * @return bool
+     * @throws Throwable
      */
     public function ping(): bool
     {

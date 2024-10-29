@@ -5,13 +5,11 @@ declare(strict_types=1);
 namespace Larmias\Di\Invoker;
 
 use Closure;
-use Larmias\Di\AnnotationCollector;
+use Larmias\Context\ApplicationContext;
+use Larmias\Di\Annotation\Invoke;
+use Larmias\Di\Aop\AspectCollector;
+use Larmias\Di\Aop\JoinPoint;
 use Larmias\Pipeline\Pipeline;
-use function is_string;
-use function get_class;
-use function property_exists;
-use function str_contains;
-use function explode;
 use function array_map;
 use function call_user_func;
 
@@ -20,16 +18,25 @@ class InvokeResolver
     /**
      * @var array
      */
-    protected static array $collect = [];
+    protected static array $container = [];
 
     /**
-     * @param string|object $handler
+     * @param array $param
      * @return void
      */
-    public static function add(string|object $handler): void
+    public static function collect(array $param): void
     {
-        $object = is_string($handler) ? new $handler : $handler;
-        static::$collect[get_class($object)] = $object;
+        if ($param['annotation'] !== Invoke::class) {
+            return;
+        }
+
+        AspectCollector::parse($param, function (array $params) {
+            ['class' => $class, 'method' => $method, 'aspectHandler' => $aspectHandler] = $params;
+            if (isset(static::$container[$class]['*'])) {
+                $method = '*';
+            }
+            static::$container[$class][$method][] = $aspectHandler;
+        });
     }
 
     /**
@@ -37,7 +44,23 @@ class InvokeResolver
      */
     public static function isEmpty(): bool
     {
-        return empty(static::$collect);
+        return empty(static::$container);
+    }
+
+    /**
+     * @param string $class
+     * @param string $method
+     * @return array
+     * @throws \Throwable
+     */
+    public static function getMethodAspects(string $class, string $method): array
+    {
+        $aspects = static::$container[$class][$method] ?? [];
+        if (!empty(static::$container[$class]['*'])) {
+            $aspects = array_merge($aspects, static::$container[$class]['*']);
+        }
+
+        return array_values(array_unique($aspects));
     }
 
     /**
@@ -48,66 +71,20 @@ class InvokeResolver
      */
     public static function process(Closure $process, array $args): mixed
     {
-        $pipes = [];
-        foreach (static::$collect as $handlerClass => $handler) {
-            $classes = property_exists($handler, 'classes') ? $handler->classes : [];
-            $annotations = property_exists($handler, 'annotations') ? $handler->annotations : [];
-            if (isset($pipes[$handlerClass])) {
-                continue;
-            }
-            foreach ($classes as $classItem) {
-                if (str_contains($classItem, '::')) {
-                    [$class, $method] = explode('::', $classItem);
-                } else {
-                    [$class, $method] = [$classItem, '*'];
-                }
-                if ($class !== $args['class'] || $method !== '*' && $method === $args['method']) {
-                    continue;
-                }
-                $pipes[$handlerClass] = $handler;
-                break;
-            }
-            if (isset($pipes[$handlerClass])) {
-                continue;
-            }
-
-            foreach ($annotations as $annotation) {
-                if (str_contains($annotation, '::')) {
-                    [$annotClass, $method] = explode('::', $annotation);
-                } else {
-                    [$annotClass, $method] = [$annotation, '*'];
-                }
-
-                if ($method == '*') {
-                    $check = AnnotationCollector::has(implode('.', [
-                        $args['class'], 'class', $annotClass
-                    ]));
-                } else {
-                    $check = AnnotationCollector::has(implode('.', [
-                        $args['class'], 'method', $method, $annotClass
-                    ]));
-                }
-
-                if ($check) {
-                    $pipes[$handlerClass] = $handler;
-                    break;
-                }
-            }
-        }
-
+        $pipes = static::getMethodAspects($args['class'], $args['method']);
         if (empty($pipes)) {
             return $process();
         }
-
         $pipeline = new Pipeline();
         $pipeline->through(
             array_map(function ($handler) {
-                return function ($args, $next) use ($handler) {
-                    return call_user_func([$handler, 'process'], $args, $next);
+                return function ($param, $next) use ($handler) {
+                    $handler = ApplicationContext::hasContainer() ? ApplicationContext::getContainer()->get($handler) : new $handler;
+                    return call_user_func([$handler, 'process'], new JoinPoint($next, $param));
                 };
             }, $pipes)
         );
-        return $pipeline->send($args)->then(function () use ($process) {
+        return $pipeline->then(function () use ($process) {
             return $process();
         });
     }

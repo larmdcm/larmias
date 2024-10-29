@@ -91,8 +91,9 @@ class Scan extends AbstractDriver
      * @param array $files
      * @param array $newFiles
      * @param callable $callback
+     * @return void
      */
-    protected function checkFiles(array $files, array $newFiles, callable $callback)
+    protected function checkFiles(array $files, array $newFiles, callable $callback): void
     {
         foreach ($newFiles as $path => $hash) {
             if (!isset($files[$path])) {

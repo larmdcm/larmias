@@ -26,7 +26,12 @@ class Once
 
         return static::$instance;
     }
-    
+
+    /**
+     * @param callable $callable
+     * @param string|null $key
+     * @return bool
+     */
     public function do(callable $callable, ?string $key = null): bool
     {
         if (!$key) {

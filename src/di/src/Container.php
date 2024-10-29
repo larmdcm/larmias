@@ -127,10 +127,10 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
      * @param string $abstract
      * @param array $params
      * @param boolean $newInstance
-     * @return object
+     * @return mixed
      * @throws Throwable
      */
-    public function make(string $abstract, array $params = [], bool $newInstance = false): object
+    public function make(string $abstract, array $params = [], bool $newInstance = false): mixed
     {
         $abstract = $this->getAlias($abstract);
 

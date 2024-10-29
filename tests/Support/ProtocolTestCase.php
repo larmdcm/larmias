@@ -9,6 +9,10 @@ use Larmias\Support\ProtocolHandler;
 
 class ProtocolTestCase extends TestCase
 {
+    /**
+     * @return void
+     * @throws \Throwable
+     */
     public function testEmptyProtocolHandler(): void
     {
         $handler = new ProtocolHandler();
@@ -23,6 +27,10 @@ class ProtocolTestCase extends TestCase
         });
     }
 
+    /**
+     * @return void
+     * @throws \Throwable
+     */
     public function testFrameProtocolHandler(): void
     {
         $protocol = new FrameProtocol();

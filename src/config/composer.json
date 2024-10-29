@@ -23,5 +23,12 @@
         "psr-4": {
             "Larmias\\Config\\": "src/"
         }
+    },
+    "extra": {
+        "larmias": {
+            "providers": [
+                "Larmias\\Config\\Providers\\ConfigServiceProvider"
+            ]
+        }
     }
 }

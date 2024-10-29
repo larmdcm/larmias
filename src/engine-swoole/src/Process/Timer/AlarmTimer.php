@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Larmias\Engine\Swoole\Process\Timer;
 
-use InvalidArgumentException;
 use Larmias\Contracts\SignalHandlerInterface;
 use Larmias\Contracts\TimerInterface;
+use InvalidArgumentException;
 use Throwable;
 
 class AlarmTimer implements TimerInterface

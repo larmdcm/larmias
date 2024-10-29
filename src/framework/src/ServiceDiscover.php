@@ -7,9 +7,9 @@ namespace Larmias\Framework;
 use Closure;
 use Larmias\Command\Annotation\Command;
 use Larmias\Contracts\ApplicationInterface;
+use Larmias\Contracts\Di\ClassScannerInterface;
 use Larmias\Contracts\ServiceDiscoverInterface;
 use Larmias\Di\AnnotationCollector;
-use Larmias\Engine\Timer;
 use Larmias\Event\Annotation\Listener;
 use Larmias\Framework\Annotation\Provider;
 use Larmias\Framework\Annotation\Server;
@@ -85,11 +85,11 @@ class ServiceDiscover implements ServiceDiscoverInterface
         $scanHandlerFactory = new ScanHandlerFactory();
         $scanHandler = $scanHandlerFactory->make();
         $scanned = $scanHandler->scan();
-        if ($scanned->isScanned()) {
-            $callback();
-        } else {
+        if (!$scanned->isScanned()) {
             $this->runHandle();
+            return;
         }
+        $callback();
     }
 
     /**
@@ -206,6 +206,7 @@ class ServiceDiscover implements ServiceDiscoverInterface
         $this->app->initialize();
         $this->annotation();
         $this->generate();
+        $this->generateProxyClassMap();
     }
 
     /**
@@ -280,15 +281,30 @@ class ServiceDiscover implements ServiceDiscoverInterface
      */
     protected function annotation(): void
     {
-        if (class_exists('\Larmias\Di\AnnotationCollector')) {
-            foreach (AnnotationCollector::all() as $item) {
-                if (!isset($this->annotationCollect[$item['annotation']])) {
-                    continue;
-                }
-                $result = call_user_func([$this, $this->annotationCollect[$item['annotation']]['method']], $item);
-                $this->register($this->annotationCollect[$item['annotation']]['name'], $result['class'], $result['args']);
-            }
+        if (!class_exists(AnnotationCollector::class)) {
+            return;
         }
+        foreach (AnnotationCollector::all() as $item) {
+            if (!isset($this->annotationCollect[$item['annotation']])) {
+                continue;
+            }
+            $result = call_user_func([$this, $this->annotationCollect[$item['annotation']]['method']], $item);
+            $this->register($this->annotationCollect[$item['annotation']]['name'], $result['class'], $result['args']);
+        }
+    }
+
+    /**
+     * @return void
+     * @throws Throwable
+     */
+    protected function generateProxyClassMap(): void
+    {
+        if (!$this->app->getContainer()->has(ClassScannerInterface::class)) {
+            return;
+        }
+        /** @var ClassScannerInterface $classScan */
+        $classScan = $this->app->getContainer()->get(ClassScannerInterface::class);
+        $classScan->scanGenerateProxyClassMap();
     }
 
     /**

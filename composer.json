@@ -33,6 +33,8 @@
         "ext-openssl": "*",
         "ext-pdo": "*",
         "ext-gd": "*",
+        "ext-simplexml": "*",
+        "ext-libxml": "*",
         "psr/container": "^2.0",
         "psr/log": "^3.0",
         "psr/event-dispatcher": "^1.0",
@@ -50,7 +52,8 @@
         "symfony/finder": "^4.3.2|^5.1",
         "lcobucci/jwt": "~4.1.0",
         "league/flysystem": "^2.0|^3.0",
-        "guzzlehttp/guzzle": "^6.3|^7.0"
+        "guzzlehttp/guzzle": "^6.3|^7.0",
+        "nikic/php-parser": "^4.13"
     },
     "require-dev": {
         "phpstan/phpstan": "^1.10",
@@ -215,7 +218,7 @@
                 "Larmias\\Constants\\Providers\\ConstantsServiceProvider",
                 "Larmias\\Crontab\\Providers\\CrontabServiceProvider",
                 "Larmias\\Database\\Providers\\DatabaseServiceProvider",
-                "Larmias\\Di\\Providers\\AnnotationServiceProvider",
+                "Larmias\\Di\\Providers\\DiServiceProvider",
                 "Larmias\\Encryption\\Providers\\EncryptionServiceProvider",
                 "Larmias\\Engine\\Providers\\EngineServiceProvider",
                 "Larmias\\Engine\\WorkerMan\\Providers\\WorkerManServiceProvider",
@@ -246,7 +249,9 @@
                 "Larmias\\JWTAuth\\Providers\\JWTAuthServiceProvider",
                 "Larmias\\Trace\\Providers\\TraceServiceProvider",
                 "Larmias\\JsonRpc\\Providers\\JsonRpcServiceProvider",
-                "Larmias\\Phar\\Providers\\PharServiceProvider"
+                "Larmias\\Phar\\Providers\\PharServiceProvider",
+                "Larmias\\FileSystem\\Providers\\FileSystemServiceProvider",
+                "Larmias\\Config\\Providers\\ConfigServiceProvider"
             ]
         }
     },

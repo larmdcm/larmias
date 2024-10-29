@@ -16,7 +16,7 @@ class Pipeline implements PipelineInterface
     /**
      * @var mixed
      */
-    protected mixed $passable;
+    protected mixed $passable = null;
 
     /**
      * @var array

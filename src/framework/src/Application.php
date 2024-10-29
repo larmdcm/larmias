@@ -464,9 +464,9 @@ class Application implements ApplicationInterface
      * Set the value of rootPath
      *
      * @param string $rootPath
-     * @return self
+     * @return ApplicationInterface
      */
-    public function setRootPath(string $rootPath): self
+    public function setRootPath(string $rootPath): ApplicationInterface
     {
         $this->rootPath = rtrim($rootPath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
         return $this;
@@ -486,9 +486,9 @@ class Application implements ApplicationInterface
      * Set the value of configPath
      *
      * @param string $configPath
-     * @return self
+     * @return ApplicationInterface
      */
-    public function setConfigPath(string $configPath): self
+    public function setConfigPath(string $configPath): ApplicationInterface
     {
         $this->configPath = rtrim($configPath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
         return $this;
@@ -508,9 +508,9 @@ class Application implements ApplicationInterface
      * Set the value of runtimePath
      *
      * @param string $runtimePath
-     * @return self
+     * @return ApplicationInterface
      */
-    public function setRuntimePath(string $runtimePath): self
+    public function setRuntimePath(string $runtimePath): ApplicationInterface
     {
         $this->runtimePath = rtrim($runtimePath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
         return $this;

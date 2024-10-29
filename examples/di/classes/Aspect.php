@@ -3,11 +3,11 @@
 namespace Di;
 
 use Larmias\Di\Invoker\AbstractInvokeResolver;
-use Larmias\Di\Annotation\InvokeResolver;
+use Larmias\Di\Annotation\Invoke;
 
 use Closure;
 
-#[InvokeResolver]
+#[Invoke]
 class Aspect extends AbstractInvokeResolver
 {
     public array $classes = [

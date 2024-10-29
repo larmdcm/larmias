@@ -53,9 +53,9 @@ interface ApplicationInterface
      * Set the value of rootPath
      *
      * @param string $rootPath
-     * @return self
+     * @return ApplicationInterface
      */
-    public function setRootPath(string $rootPath): self;
+    public function setRootPath(string $rootPath): ApplicationInterface;
 
     /**
      * Get the value of configPath
@@ -68,9 +68,9 @@ interface ApplicationInterface
      * Set the value of configPath
      *
      * @param string $configPath
-     * @return self
+     * @return ApplicationInterface
      */
-    public function setConfigPath(string $configPath): self;
+    public function setConfigPath(string $configPath): ApplicationInterface;
 
     /**
      * Get the value of runtimePath
@@ -83,7 +83,7 @@ interface ApplicationInterface
      * Set the value of runtimePath
      *
      * @param string $runtimePath
-     * @return self
+     * @return ApplicationInterface
      */
     public function setRuntimePath(string $runtimePath): ApplicationInterface;
 
@@ -94,7 +94,7 @@ interface ApplicationInterface
 
     /**
      * @param string $configExt
-     * @return self
+     * @return ApplicationInterface
      */
     public function setConfigExt(string $configExt): ApplicationInterface;
 

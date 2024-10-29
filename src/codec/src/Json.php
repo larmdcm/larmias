@@ -26,7 +26,7 @@ class Json
     public static function encode(mixed $data, int $flags = JSON_UNESCAPED_UNICODE, int $depth = 512): string
     {
         if ($data instanceof Jsonable) {
-            return (string)$data;
+            return $data->toJson($flags);
         }
 
         if ($data instanceof Arrayable) {

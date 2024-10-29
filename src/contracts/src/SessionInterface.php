@@ -18,14 +18,12 @@ interface SessionInterface
 
     /**
      * 获取全部session数据
-     *
      * @return array
      */
     public function all(): array;
 
     /**
      * 设置session数据
-     *
      * @param string $name
      * @param mixed $value
      * @return bool
@@ -34,7 +32,6 @@ interface SessionInterface
 
     /**
      * 获取session数据
-     *
      * @param string $name
      * @param mixed $default
      * @return mixed
@@ -43,7 +40,6 @@ interface SessionInterface
 
     /**
      * 获取session并删除
-     *
      * @param string $name
      * @return mixed
      */
@@ -51,7 +47,6 @@ interface SessionInterface
 
     /**
      * 添加数据到一个session数组
-     *
      * @param string $name
      * @param mixed $value
      * @return bool
@@ -60,7 +55,6 @@ interface SessionInterface
 
     /**
      * 判断session数据是否存在
-     *
      * @param string $name
      * @return bool
      */
@@ -68,7 +62,6 @@ interface SessionInterface
 
     /**
      * 删除session数据
-     *
      * @param string $name
      * @return bool
      */
@@ -76,14 +69,12 @@ interface SessionInterface
 
     /**
      * 清空session数据
-     *
      * @return bool
      */
     public function clear(): bool;
 
     /**
      * 销毁session
-     *
      * @return void
      */
     public function destroy(): void;
@@ -101,7 +92,6 @@ interface SessionInterface
 
     /**
      * 重新生成session id
-     *
      * @param bool $destroy
      * @return void
      */
@@ -119,7 +109,6 @@ interface SessionInterface
 
     /**
      * 设置sessionId
-     *
      * @param string $id
      * @return void
      */
@@ -140,7 +129,6 @@ interface SessionInterface
 
     /**
      * 获取sessionId
-     *
      * @return string
      */
     public function getId(): string;

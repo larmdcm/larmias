@@ -7,15 +7,13 @@ namespace Larmias\Di;
 use Larmias\Contracts\Annotation\AnnotationHandlerInterface;
 use Larmias\Contracts\Annotation\AnnotationInterface;
 use Larmias\Contracts\ContainerInterface;
-use Larmias\Support\FileSystem\Finder;
 use Larmias\Support\Reflection\ReflectionManager;
-use Larmias\Support\Reflection\ReflectUtil;
 use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionMethod;
 use ReflectionParameter;
 use ReflectionProperty;
-use function Larmias\Support\println;
+use Throwable;
 use function array_merge;
 use function class_exists;
 use function is_string;
@@ -23,97 +21,30 @@ use function is_string;
 class Annotation implements AnnotationInterface
 {
     /**
-     * 配置
-     * @var array|array[]
-     */
-    protected array $config = [
-        'include_path' => [],
-        'exclude_path' => [],
-        'handlers' => [],
-        'check_syntax' => true,
-    ];
-
-    /**
      * @var array
      */
     protected array $handler = [];
 
     /**
      * @param ContainerInterface $container
-     * @param array $config
      */
-    public function __construct(protected ContainerInterface $container, array $config = [])
+    public function __construct(protected ContainerInterface $container)
     {
-        $this->config = array_merge($this->config, $config);
-    }
-
-    /**
-     * 添加扫描路径
-     * @param string|array $path
-     * @return AnnotationInterface
-     */
-    public function addIncludePath(string|array $path): AnnotationInterface
-    {
-        $this->config['include_path'] = array_merge($this->config['include_path'], (array)$path);
-        return $this;
-    }
-
-    /**
-     * 添加扫描排除路径
-     * @param string|array $path
-     * @return AnnotationInterface
-     */
-    public function addExcludePath(string|array $path): AnnotationInterface
-    {
-        $this->config['exclude_path'] = array_merge($this->config['exclude_path'], (array)$path);
-        return $this;
-    }
-
-    /**
-     * 注解扫描
-     * @throws \ReflectionException
-     */
-    public function scan(): void
-    {
-        $files = Finder::create()->include($this->config['include_path'])->exclude($this->config['exclude_path'])->includeExt('php')->files();
-        foreach ($files as $file) {
-            $filePath = $file->getPath() . DIRECTORY_SEPARATOR . $file->getFilename();
-            $error = $this->config['check_syntax'] ? ReflectUtil::checkFileSyntaxError($filePath) : null;
-            if ($error !== null) {
-                continue;
-            }
-            $classes = ReflectUtil::getAllClassesInFile($filePath);
-            if (empty($classes)) {
-                continue;
-            }
-
-            if (isset($classes[1])) {
-                require_once $filePath;
-            }
-
-            foreach ($classes as $class) {
-                $this->parse($class);
-            }
-        }
-        $this->handle();
     }
 
     /**
      * @return void
+     * @throws Throwable
      */
-    protected function handle(): void
+    public function handle(): void
     {
-        foreach ((array)$this->config['handlers'] as $handlerItem) {
-            $this->addHandler($handlerItem['annotation'], $handlerItem['handle']);
-        }
-
         $items = AnnotationCollector::all();
         $handlers = [];
         foreach ($items as $item) {
             $handlerClass = $this->handler[$item['annotation']] ?? null;
             if ($handlerClass) {
                 /** @var AnnotationHandlerInterface $handler */
-                $handler = $this->container->make($handlerClass);
+                $handler = $this->container->get($handlerClass);
                 $handler->collect($item);
                 $handlers[$handlerClass] = $handler;
             }
@@ -127,7 +58,7 @@ class Annotation implements AnnotationInterface
     /**
      * @throws \ReflectionException
      */
-    protected function parse(string|object $class): void
+    public function parse(string|object $class): void
     {
         if (is_string($class) && !class_exists($class)) {
             return;

@@ -12,27 +12,32 @@ interface ResponseInterface
 {
     /**
      * @param array|object|string $data
-     * @param int $code
-     * @param array $headers
+     * @param string $charset
      * @return PsrResponseInterface
      */
-    public function json(array|object|string $data, int $code = 200, array $headers = []): PsrResponseInterface;
+    public function json(array|object|string $data, string $charset = 'utf-8'): PsrResponseInterface;
+
+    /**
+     * @param array|object|string $data
+     * @param string $root
+     * @param string $charset
+     * @return PsrResponseInterface
+     */
+    public function xml(array|object|string $data, string $root = 'root', string $charset = 'utf-8'): PsrResponseInterface;
 
     /**
      * @param string|\Stringable $data
-     * @param int $code
-     * @param array $headers
+     * @param string $charset
      * @return PsrResponseInterface
      */
-    public function raw(string|\Stringable $data, int $code = 200, array $headers = []): PsrResponseInterface;
+    public function raw(string|\Stringable $data, string $charset = 'utf-8'): PsrResponseInterface;
 
     /**
      * @param string|\Stringable $data
-     * @param int $code
-     * @param array $headers
+     * @param string $charset
      * @return PsrResponseInterface
      */
-    public function html(string|\Stringable $data, int $code = 200, array $headers = []): PsrResponseInterface;
+    public function html(string|\Stringable $data, string $charset = 'utf-8'): PsrResponseInterface;
 
     /**
      * @param string|\SplFileInfo $file
@@ -61,7 +66,7 @@ interface ResponseInterface
     public function write(string $data): bool;
 
     /**
-     * @param  Closure $handler 
+     * @param Closure $handler
      * @return PsrResponseInterface
      */
     public function sse(Closure $handler): PsrResponseInterface;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Larmias\Engine\WorkerMan\WebSocket;
 
 use Larmias\Contracts\Http\RequestInterface;

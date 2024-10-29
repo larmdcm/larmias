@@ -10,6 +10,7 @@ use Larmias\Contracts\Client\SocketInterface;
 use Larmias\Contracts\EventLoopInterface;
 use Larmias\Support\Traits\HasEvents;
 use Larmias\Stringable\StringBuffer;
+use Throwable;
 
 class AsyncSocket implements AsyncSocketInterface
 {
@@ -54,6 +55,7 @@ class AsyncSocket implements AsyncSocketInterface
 
     /**
      * @return void
+     * @throws Throwable
      */
     public function onRead(): void
     {

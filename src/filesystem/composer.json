@@ -22,7 +22,14 @@
     },
     "autoload": {
         "psr-4": {
-            "Larmias\\Phar\\": "src/"
+            "Larmias\\FileSystem\\": "src/"
+        }
+    },
+    "extra": {
+        "larmias": {
+            "providers": [
+                "Larmias\\FileSystem\\Providers\\FileSystemServiceProvider"
+            ]
         }
     }
 }

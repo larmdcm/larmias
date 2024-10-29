@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Larmias\Di\AnnotationHandler;
+namespace Larmias\Di\Annotation\Handler;
 
 use Larmias\Contracts\Annotation\AnnotationHandlerInterface;
 use Larmias\Contracts\ContainerInterface;
@@ -88,7 +88,6 @@ class InjectAnnotationHandler implements AnnotationHandlerInterface
             'name' => $name,
             'required' => $value->required,
             'scope' => $value->scope,
-            'params' => $value->toArray(),
         ];
     }
 

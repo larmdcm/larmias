@@ -8,6 +8,7 @@ use Larmias\Contracts\Annotation\AnnotationInterface;
 use Larmias\Contracts\ApplicationInterface;
 use Larmias\Contracts\ConfigInterface;
 use Larmias\Contracts\ContainerInterface;
+use Larmias\Contracts\Di\ClassScannerInterface;
 use Larmias\Contracts\ServiceProviderInterface;
 use Larmias\Contracts\ServiceDiscoverInterface;
 use Larmias\Contracts\VendorPublishInterface;
@@ -125,19 +126,19 @@ abstract class ServiceProvider implements ServiceProviderInterface
     }
 
     /**
-     * 注册注解扫描路径
+     * 注册类扫描路径
      * @param string|array $path
      * @return void
      * @throws \Throwable
      */
-    public function registerAnnotationScanPath(string|array $path): void
+    public function registerClassScanPath(string|array $path): void
     {
-        if (!$this->container->has(AnnotationInterface::class)) {
+        if (!$this->container->has(ClassScannerInterface::class)) {
             return;
         }
-        /** @var AnnotationInterface $annotation */
-        $annotation = $this->container->get(AnnotationInterface::class);
-        $annotation->addIncludePath($path);
+        /** @var ClassScannerInterface $classScanner */
+        $classScanner = $this->container->get(ClassScannerInterface::class);
+        $classScanner->addIncludePath($path);
     }
 
     /**

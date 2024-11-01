@@ -21,7 +21,7 @@ class AuthServiceProvider extends ServiceProvider
         }
 
         $this->publishes(static::class, [
-            __DIR__ . '/../../publish/auth.php' => $this->app->getConfigPath() . 'auth.php',
+            __DIR__ . '/../../publish/auth.php' => $this->app->getConfigPath() . DIRECTORY_SEPARATOR . 'auth.php',
         ]);
     }
 }

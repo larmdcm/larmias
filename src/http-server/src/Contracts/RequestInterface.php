@@ -50,7 +50,7 @@ interface RequestInterface extends ServerRequestInterface
      * @param null|mixed $default
      * @return null|UploadedFile|UploadedFile[]
      */
-    public function file(string $key, $default = null);
+    public function file(string $key, mixed $default = null): mixed;
 
     /**
      * Determine if the uploaded data contains a file.
@@ -67,6 +67,7 @@ interface RequestInterface extends ServerRequestInterface
     /**
      * Retrieve the data from request headers.
      *
+     * @param string $key
      * @param mixed $default
      * @return mixed
      */
@@ -74,6 +75,7 @@ interface RequestInterface extends ServerRequestInterface
 
     /**
      * Retrieve a cookie from the request.
+     * @param string $key
      * @param null|mixed $default
      * @return mixed
      */

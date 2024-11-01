@@ -15,7 +15,7 @@ class EventServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->publishes(static::class, [
-            __DIR__ . '/../../publish/listeners.php' => $this->app->getConfigPath() . 'listeners.php',
+            __DIR__ . '/../../publish/listeners.php' => $this->app->getConfigPath() . DIRECTORY_SEPARATOR . 'listeners.php',
         ]);
     }
 }

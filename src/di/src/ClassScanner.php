@@ -114,12 +114,12 @@ class ClassScanner implements ClassScannerInterface
      */
     public function scan(): void
     {
-        $this->scanFilesGenerateClassMap();
-        $this->collectAnnotation();
         $proxyClassMap = $this->config['proxy_class_generate'] ? $this->getProxyClassMap() : [];
         if (!empty($proxyClassMap)) {
             Composer::getClassLoader()->addClassMap($proxyClassMap);
         }
+        $this->scanFilesGenerateClassMap();
+        $this->collectAnnotation();
     }
 
     /**

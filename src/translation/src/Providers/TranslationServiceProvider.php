@@ -25,7 +25,7 @@ class TranslationServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->publishes(static::class, [
-            __DIR__ . '/../../publish/translation.php' => $this->app->getConfigPath() . 'translation.php',
+            __DIR__ . '/../../publish/translation.php' => $this->app->getConfigPath() . DIRECTORY_SEPARATOR . 'translation.php',
         ]);
     }
 }

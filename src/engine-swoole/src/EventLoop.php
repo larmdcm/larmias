@@ -6,6 +6,7 @@ namespace Larmias\Engine\Swoole;
 
 use Larmias\Contracts\EventLoopInterface;
 use Swoole\Event;
+use Swoole\Coroutine;
 use const SWOOLE_EVENT_READ;
 use const SWOOLE_EVENT_WRITE;
 
@@ -29,12 +30,10 @@ class EventLoop implements EventLoopInterface
         $fd = (int)$stream;
         if (!isset($this->readEvents[$fd]) && !isset($this->writeEvents[$fd])) {
             Event::add($stream, $func, null, SWOOLE_EVENT_READ);
+        } else if (isset($this->writeEvents[$fd])) {
+            Event::set($stream, $func, null, SWOOLE_EVENT_READ | SWOOLE_EVENT_WRITE);
         } else {
-            if (isset($this->writeEvents[$fd])) {
-                Event::set($stream, $func, null, SWOOLE_EVENT_READ | SWOOLE_EVENT_WRITE);
-            } else {
-                Event::set($stream, $func, null, SWOOLE_EVENT_READ);
-            }
+            Event::set($stream, $func, null, SWOOLE_EVENT_READ);
         }
         $this->readEvents[$fd] = $stream;
         return true;
@@ -66,12 +65,10 @@ class EventLoop implements EventLoopInterface
         $fd = (int)$stream;
         if (!isset($this->readEvents[$fd]) && !isset($this->writeEvents[$fd])) {
             Event::add($stream, null, $func, SWOOLE_EVENT_WRITE);
+        } else if (isset($this->readEvents[$fd])) {
+            Event::set($stream, null, $func, SWOOLE_EVENT_WRITE | SWOOLE_EVENT_READ);
         } else {
-            if (isset($this->readEvents[$fd])) {
-                Event::set($stream, null, $func, SWOOLE_EVENT_WRITE | SWOOLE_EVENT_READ);
-            } else {
-                Event::set($stream, null, $func, SWOOLE_EVENT_WRITE);
-            }
+            Event::set($stream, null, $func, SWOOLE_EVENT_WRITE);
         }
         $this->writeEvents[$fd] = $stream;
         return true;
@@ -108,6 +105,9 @@ class EventLoop implements EventLoopInterface
      */
     public function stop(): void
     {
+        foreach (Coroutine::listCoroutines() as $coroutine) {
+            Coroutine::cancel($coroutine);
+        }
         Event::exit();
     }
 }

@@ -28,7 +28,7 @@ class DatabaseServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->publishes(static::class, [
-            __DIR__ . '/../../publish/database.php' => $this->app->getConfigPath() . 'database.php',
+            __DIR__ . '/../../publish/database.php' => $this->app->getConfigPath() . DIRECTORY_SEPARATOR . 'database.php',
         ]);
 
         $config = $this->container->get(ConfigInterface::class);

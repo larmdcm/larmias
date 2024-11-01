@@ -30,7 +30,7 @@ class LockerServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->publishes(static::class, [
-            __DIR__ . '/../../publish/lock.php' => $this->app->getConfigPath() . 'lock.php',
+            __DIR__ . '/../../publish/lock.php' => $this->app->getConfigPath() . DIRECTORY_SEPARATOR . 'lock.php',
         ]);
     }
 }

@@ -12,7 +12,6 @@ class HttpResponseException extends RuntimeException
 {
     /**
      * HttpResponseException constructor.
-     *
      * @param ResponseInterface $response
      * @param string $message
      * @param int $code

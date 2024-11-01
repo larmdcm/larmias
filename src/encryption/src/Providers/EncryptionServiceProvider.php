@@ -15,7 +15,7 @@ class EncryptionServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->publishes(static::class, [
-            __DIR__ . '/../../publish/encryption.php' => $this->app->getConfigPath() . 'encryption.php',
+            __DIR__ . '/../../publish/encryption.php' => $this->app->getConfigPath() . DIRECTORY_SEPARATOR . 'encryption.php',
         ]);
     }
 }

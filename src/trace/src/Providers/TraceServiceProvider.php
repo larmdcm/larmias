@@ -37,7 +37,7 @@ class TraceServiceProvider extends ServiceProvider
 
         $this->setListener();
         $this->publishes(static::class, [
-            __DIR__ . '/../../publish/trace.php' => $this->app->getConfigPath() . 'trace.php',
+            __DIR__ . '/../../publish/trace.php' => $this->app->getConfigPath() . DIRECTORY_SEPARATOR . 'trace.php',
         ]);
     }
 

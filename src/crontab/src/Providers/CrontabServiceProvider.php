@@ -33,7 +33,7 @@ class CrontabServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->publishes(static::class, [
-            __DIR__ . '/../../publish/crontab.php' => $this->app->getConfigPath() . 'crontab.php',
+            __DIR__ . '/../../publish/crontab.php' => $this->app->getConfigPath() . DIRECTORY_SEPARATOR . 'crontab.php',
         ]);
     }
 }

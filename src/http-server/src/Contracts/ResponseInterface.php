@@ -7,6 +7,8 @@ namespace Larmias\HttpServer\Contracts;
 use Larmias\Http\Message\Cookie;
 use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
 use Closure;
+use Stringable;
+use SplFileInfo;
 
 interface ResponseInterface
 {
@@ -26,31 +28,31 @@ interface ResponseInterface
     public function xml(array|object|string $data, string $root = 'root', string $charset = 'utf-8'): PsrResponseInterface;
 
     /**
-     * @param string|\Stringable $data
+     * @param string|Stringable $data
      * @param string $charset
      * @return PsrResponseInterface
      */
-    public function raw(string|\Stringable $data, string $charset = 'utf-8'): PsrResponseInterface;
+    public function raw(string|Stringable $data, string $charset = 'utf-8'): PsrResponseInterface;
 
     /**
-     * @param string|\Stringable $data
+     * @param string|Stringable $data
      * @param string $charset
      * @return PsrResponseInterface
      */
-    public function html(string|\Stringable $data, string $charset = 'utf-8'): PsrResponseInterface;
+    public function html(string|Stringable $data, string $charset = 'utf-8'): PsrResponseInterface;
 
     /**
-     * @param string|\SplFileInfo $file
+     * @param string|SplFileInfo $file
      * @return PsrResponseInterface
      */
-    public function file(string|\SplFileInfo $file): PsrResponseInterface;
+    public function file(string|SplFileInfo $file): PsrResponseInterface;
 
     /**
-     * @param string $file
+     * @param string|SplFileInfo $file
      * @param string $name
      * @return PsrResponseInterface
      */
-    public function download(string $file, string $name = ''): PsrResponseInterface;
+    public function download(string|SplFileInfo $file, string $name = ''): PsrResponseInterface;
 
     /**
      * @param string $url

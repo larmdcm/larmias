@@ -15,7 +15,7 @@ class EngineServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->publishes(static::class, [
-            __DIR__ . '/../../publish/engine.php' => $this->app->getConfigPath() . 'engine.php',
+            __DIR__ . '/../../publish/engine.php' => $this->app->getConfigPath() . DIRECTORY_SEPARATOR . 'engine.php',
         ]);
     }
 }

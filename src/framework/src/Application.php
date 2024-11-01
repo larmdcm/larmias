@@ -113,9 +113,9 @@ class Application implements ApplicationInterface
     {
         $realPath = $rootPath ?: realpath($rootPath);
         if ($rootPath || $realPath) {
-            $this->rootPath = rtrim($rootPath ?: dirname($realPath)) . DIRECTORY_SEPARATOR;
-            $this->configPath = $this->rootPath . 'config' . DIRECTORY_SEPARATOR;
-            $this->runtimePath = $this->rootPath . 'runtime' . DIRECTORY_SEPARATOR;
+            $this->rootPath = rtrim($rootPath ?: dirname($realPath), DIRECTORY_SEPARATOR);
+            $this->configPath = $this->rootPath . DIRECTORY_SEPARATOR . 'config';
+            $this->runtimePath = $this->rootPath . DIRECTORY_SEPARATOR . 'runtime';
         }
         $this->container->bindIf([
             ConsoleInterface::class => ConsoleApplication::class,
@@ -174,7 +174,7 @@ class Application implements ApplicationInterface
      */
     protected function loadConfig(): void
     {
-        $configPath = $this->getConfigPath();
+        $configPath = $this->getConfigPath() . DIRECTORY_SEPARATOR;
         if (!is_dir($configPath)) {
             return;
         }
@@ -295,7 +295,7 @@ class Application implements ApplicationInterface
         $getConfig = function () use ($name, $loadConfigPath) {
             $files = [__DIR__ . '/../config/' . $name . '.php'];
             if ($loadConfigPath && $this->configExt === 'php') {
-                $files[] = $this->getConfigPath() . $name . '.' . $this->configExt;
+                $files[] = $this->getConfigPath() . DIRECTORY_SEPARATOR . $name . '.' . $this->configExt;
             }
             $config = [];
             foreach ($files as $file) {
@@ -468,7 +468,7 @@ class Application implements ApplicationInterface
      */
     public function setRootPath(string $rootPath): ApplicationInterface
     {
-        $this->rootPath = rtrim($rootPath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+        $this->rootPath = rtrim($rootPath, DIRECTORY_SEPARATOR);
         return $this;
     }
 
@@ -490,7 +490,7 @@ class Application implements ApplicationInterface
      */
     public function setConfigPath(string $configPath): ApplicationInterface
     {
-        $this->configPath = rtrim($configPath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+        $this->configPath = rtrim($configPath, DIRECTORY_SEPARATOR);
         return $this;
     }
 
@@ -512,7 +512,7 @@ class Application implements ApplicationInterface
      */
     public function setRuntimePath(string $runtimePath): ApplicationInterface
     {
-        $this->runtimePath = rtrim($runtimePath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+        $this->runtimePath = rtrim($runtimePath, DIRECTORY_SEPARATOR);
         return $this;
     }
 

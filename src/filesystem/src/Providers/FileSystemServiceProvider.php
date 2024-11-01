@@ -16,7 +16,7 @@ class FileSystemServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->publishes(static::class, [
-            __DIR__ . '/../../publish/filesystem.php' => $this->app->getConfigPath() . 'filesystem.php',
+            __DIR__ . '/../../publish/filesystem.php' => $this->app->getConfigPath() . DIRECTORY_SEPARATOR . 'filesystem.php',
         ]);
     }
 }

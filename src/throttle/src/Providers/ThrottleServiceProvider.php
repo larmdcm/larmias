@@ -26,7 +26,7 @@ class ThrottleServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->publishes(static::class, [
-            __DIR__ . '/../../publish/throttle.php' => $this->app->getConfigPath() . 'throttle.php',
+            __DIR__ . '/../../publish/throttle.php' => $this->app->getConfigPath() . DIRECTORY_SEPARATOR . 'throttle.php',
         ]);
     }
 }

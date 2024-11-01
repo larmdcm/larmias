@@ -15,7 +15,7 @@ class CommandServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->publishes(static::class, [
-            __DIR__ . '/../../publish/commands.php' => $this->app->getConfigPath() . 'commands.php',
+            __DIR__ . '/../../publish/commands.php' => $this->app->getConfigPath() . DIRECTORY_SEPARATOR . 'commands.php',
         ]);
     }
 }

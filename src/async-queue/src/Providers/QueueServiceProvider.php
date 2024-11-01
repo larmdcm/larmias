@@ -27,7 +27,7 @@ class QueueServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->publishes(static::class, [
-            __DIR__ . '/../../publish/async_queue.php' => $this->app->getConfigPath() . 'async_queue.php',
+            __DIR__ . '/../../publish/async_queue.php' => $this->app->getConfigPath() . DIRECTORY_SEPARATOR . 'async_queue.php',
         ]);
     }
 }

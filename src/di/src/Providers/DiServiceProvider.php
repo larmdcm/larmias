@@ -37,7 +37,7 @@ class DiServiceProvider extends ServiceProvider
         $annotation = $this->container->make(AnnotationInterface::class);
         $annotation->addHandler(Inject::class, InjectAnnotationHandler::class);
         $annotation->addHandler(Invoke::class, InvokeResolverAnnotationHandler::class);
-        // $annotation->addHandler(Aspect::class, AspectAnnotationHandler::class);
+        $annotation->addHandler(Aspect::class, AspectAnnotationHandler::class);
     }
 
     /**
@@ -47,7 +47,7 @@ class DiServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->publishes(static::class, [
-            __DIR__ . '/../../publish/aop.php' => $this->app->getConfigPath() . 'aop.php',
+            __DIR__ . '/../../publish/aop.php' => $this->app->getConfigPath() . DIRECTORY_SEPARATOR . 'aop.php',
         ]);
 
         /** @var ConfigInterface $config */

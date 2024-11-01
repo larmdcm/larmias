@@ -25,7 +25,7 @@ class SessionServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->publishes(static::class, [
-            __DIR__ . '/../../publish/session.php' => $this->app->getConfigPath() . 'session.php',
+            __DIR__ . '/../../publish/session.php' => $this->app->getConfigPath() . DIRECTORY_SEPARATOR . 'session.php',
         ]);
     }
 }

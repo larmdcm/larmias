@@ -8,7 +8,6 @@ class AfterWorkerStart
 {
     /**
      * AfterWorkerStart constructor.
-     *
      * @param int $workerId
      */
     public function __construct(public int $workerId = 1)

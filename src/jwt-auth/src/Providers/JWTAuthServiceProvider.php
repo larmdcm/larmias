@@ -33,7 +33,7 @@ class JWTAuthServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->publishes(static::class, [
-            __DIR__ . '/../../publish/jwt.php' => $this->app->getConfigPath() . 'jwt.php',
+            __DIR__ . '/../../publish/jwt.php' => $this->app->getConfigPath() . DIRECTORY_SEPARATOR . 'jwt.php',
         ]);
     }
 }

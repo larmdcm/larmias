@@ -104,13 +104,15 @@ class Response implements PsrResponseInterface, ResponseInterface, SseResponseIn
     }
 
     /**
-     * @param string $file
+     * @param string|SplFileInfo $file
      * @param string $name
      * @return PsrResponseInterface
      */
-    public function download(string $file, string $name = ''): PsrResponseInterface
+    public function download(string|SplFileInfo $file, string $name = ''): PsrResponseInterface
     {
-        $file = new SplFileInfo($file);
+        if (is_string($file)) {
+            $file = new SplFileInfo($file);
+        }
 
         if (!$file->isReadable()) {
             throw new FileException('File must be readable.');
@@ -122,7 +124,7 @@ class Response implements PsrResponseInterface, ResponseInterface, SseResponseIn
         });
         return $this->withHeader('content-description', 'File Transfer')
             ->withHeader('content-type', $contentType)
-            ->withHeader('content-disposition', "attachment; filename={$filename}; filename*=UTF-8''" . rawurlencode($filename))
+            ->withHeader('content-disposition', "attachment; filename=" . $filename . "; filename*=UTF-8''" . rawurlencode($filename))
             ->withHeader('content-transfer-encoding', 'binary')
             ->withHeader('pragma', 'public')
             ->withBody(new FileStream($file));

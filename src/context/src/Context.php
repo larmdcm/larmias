@@ -8,11 +8,12 @@ use Larmias\Contracts\ContextInterface;
 use RuntimeException;
 
 /**
- * @method static mixed get(string $id, mixed $default = null)
- * @method static mixed set(string $id, mixed $value)
- * @method static mixed remember(string $id, \Closure $closure)
- * @method static bool has(string $id)
- * @method static void destroy(string $id)
+ * @method static mixed get(string $id, mixed $default = null, ?int $cid = null)
+ * @method static mixed set(string $id, mixed $value, ?int $cid = null)
+ * @method static mixed remember(string $id, \Closure $closure, ?int $cid = null)
+ * @method static bool has(string $id, ?int $cid = null)
+ * @method static void destroy(string $id, ?int $cid = null)
+ * @method static bool inCoroutine()
  */
 class Context
 {

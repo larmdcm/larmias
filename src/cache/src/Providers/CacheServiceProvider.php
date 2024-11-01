@@ -29,7 +29,7 @@ class CacheServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->publishes(static::class, [
-            __DIR__ . '/../../publish/cache.php' => $this->app->getConfigPath() . 'cache.php',
+            __DIR__ . '/../../publish/cache.php' => $this->app->getConfigPath() . DIRECTORY_SEPARATOR . 'cache.php',
         ]);
     }
 }

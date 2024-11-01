@@ -25,7 +25,7 @@ class ViewServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->publishes(static::class, [
-            __DIR__ . '/../../publish/view.php' => $this->app->getConfigPath() . 'view.php',
+            __DIR__ . '/../../publish/view.php' => $this->app->getConfigPath() . DIRECTORY_SEPARATOR . 'view.php',
         ]);
     }
 }

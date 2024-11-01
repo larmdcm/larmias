@@ -8,7 +8,6 @@ interface IdGeneratorInterface
 {
     /**
      * 生成id.
-     *
      * @return string
      */
     public function id(): string;

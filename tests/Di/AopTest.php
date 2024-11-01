@@ -93,9 +93,7 @@ class AopTest extends TestCase
         $classScanner->scan();
         /** @var User $user */
         $user = Container::getInstance()->get(User::class);
-        var_dump(ReflectionManager::reflectClass($user)->getFileName());
-        var_dump($user->getId());
-        $this->assertTrue(true);
+        $this->assertTrue(str_ends_with(ReflectionManager::reflectClass($user)->getFileName(), 'Proxy.php'));
     }
 
     /**

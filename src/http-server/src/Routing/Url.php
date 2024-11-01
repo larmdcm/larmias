@@ -52,7 +52,6 @@ class Url implements Stringable
 
     /**
      * 设置全局配置
-     *
      * @param array $config
      */
     public static function setConfig(array $config): void
@@ -62,7 +61,6 @@ class Url implements Stringable
 
     /**
      * 设置URL
-     *
      * @param string $url
      * @return self
      */
@@ -74,7 +72,6 @@ class Url implements Stringable
 
     /**
      * 设置URL参数
-     *
      * @param array $vars
      * @return self
      */
@@ -86,7 +83,6 @@ class Url implements Stringable
 
     /**
      * 设置URL后缀
-     *
      * @param string $suffix
      * @return self
      */
@@ -98,7 +94,6 @@ class Url implements Stringable
 
     /**
      * 设置URL域名
-     *
      * @param string $domain
      * @return self
      */
@@ -151,7 +146,6 @@ class Url implements Stringable
 
     /**
      * 解析路径.
-     *
      * @param string $path
      * @param array $vars
      * @return array

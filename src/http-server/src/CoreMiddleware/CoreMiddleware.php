@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Larmias\HttpServer\CoreMiddleware;
 
-use Closure;
 use Larmias\Middleware\CoreMiddleware as BaseCoreMiddleware;
+use Closure;
 
 class CoreMiddleware extends BaseCoreMiddleware
 {

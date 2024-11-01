@@ -86,7 +86,7 @@ class Engine
             return array_merge($app->getEngineConfig(), $config);
         }
 
-        $file = static::$container->get(ApplicationInterface::class)->getConfigPath() . 'engine.php';
+        $file = static::$container->get(ApplicationInterface::class)->getConfigPath() . DIRECTORY_SEPARATOR . 'engine.php';
         if (is_file($file)) {
             $config = array_merge(require $file, $config);
         }

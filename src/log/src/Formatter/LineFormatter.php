@@ -38,6 +38,7 @@ class LineFormatter implements FormatterInterface
      * @param string $level
      * @param array $context
      * @return string
+     * @throws \Exception
      */
     public function format(string|Stringable $message, string $channel, string $level, array $context = []): string
     {

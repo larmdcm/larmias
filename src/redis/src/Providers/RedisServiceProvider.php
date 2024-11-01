@@ -25,7 +25,7 @@ class RedisServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->publishes(static::class, [
-            __DIR__ . '/../../publish/redis.php' => $this->app->getConfigPath() . 'redis.php',
+            __DIR__ . '/../../publish/redis.php' => $this->app->getConfigPath() . DIRECTORY_SEPARATOR . 'redis.php',
         ]);
     }
 }

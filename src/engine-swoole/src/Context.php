@@ -56,7 +56,7 @@ class Context implements ContextInterface
 
     /**
      * @param string $id
-     * @param \Closure $closure
+     * @param Closure $closure
      * @param int|null $cid
      * @return mixed
      */

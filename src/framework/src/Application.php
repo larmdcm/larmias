@@ -159,7 +159,7 @@ class Application implements ApplicationInterface
      */
     protected function loadEnv(): void
     {
-        $file = $this->envFile ?: $this->getRootPath() . '.env';
+        $file = $this->envFile ?: $this->getRootPath() . '/.env';
         if (is_file($file)) {
             /** @var DotEnvInterface $dotenv */
             $dotenv = $this->container->make(DotEnvInterface::class);

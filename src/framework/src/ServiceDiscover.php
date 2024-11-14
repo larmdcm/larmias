@@ -129,7 +129,7 @@ class ServiceDiscover implements ServiceDiscoverInterface
      */
     public function services(): array
     {
-        $file = $this->app->getRuntimePath() . 'services.php';
+        $file = $this->app->getRuntimePath() . '/services.php';
         $services = $this->services;
         if ($this->fileSystem->isFile($file)) {
             $services = array_merge(require $file, $services);
@@ -237,7 +237,7 @@ class ServiceDiscover implements ServiceDiscoverInterface
         $content = '<?php ' . PHP_EOL . $header . "return " . var_export($this->optimize($this->services), true) . ';';
         $runtimePath = $this->app->getRuntimePath();
         $this->fileSystem->ensureDirectoryExists($runtimePath);
-        $this->fileSystem->put($runtimePath . 'services.php', $content);
+        $this->fileSystem->put($runtimePath . '/services.php', $content);
     }
 
     /**
@@ -246,7 +246,7 @@ class ServiceDiscover implements ServiceDiscoverInterface
      */
     protected function serviceProvider(): void
     {
-        if ($this->fileSystem->isFile($path = $this->app->getRootPath() . 'vendor/composer/installed.json')) {
+        if ($this->fileSystem->isFile($path = $this->app->getRootPath() . '/vendor/composer/installed.json')) {
             $installed = json_decode($this->fileSystem->get($path), true);
             $packages = $installed['packages'] ?? $installed;
             foreach ($packages as $package) {

@@ -6,11 +6,13 @@ namespace Larmias\Database;
 
 use Larmias\Contracts\CollectionInterface;
 use Larmias\Contracts\PaginatorInterface;
+use Larmias\Database\Contracts\ConnectionInterface;
 use Larmias\Database\Contracts\QueryInterface;
 use Larmias\Database\Contracts\TransactionInterface;
 use Larmias\Database\Contracts\ExpressionInterface;
 
 /**
+ * @method static ConnectionInterface connection(string|null $name = null)
  * @method static QueryInterface table(string|array $name)
  * @method static string|array getTable()
  * @method static string getName()

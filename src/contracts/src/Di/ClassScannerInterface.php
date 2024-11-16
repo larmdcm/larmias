@@ -32,7 +32,7 @@ interface ClassScannerInterface
      * 生成代理类
      * @return void
      */
-    public function scanGenerateProxyClassMap(): void;
+    public function generateProxyClassMap(): void;
 
     /**
      * 执行扫描

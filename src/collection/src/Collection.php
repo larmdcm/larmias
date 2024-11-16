@@ -57,7 +57,7 @@ class Collection implements CollectionInterface, ArrayAccess, Arrayable, Countab
     }
 
     /**
-     * @param null|iterable<TKey,TValue>|Jsonable|JsonSerializable $items
+     * @param null|iterable<TKey,TValue>|Jsonable|JsonSerializable|CollectionInterface $items
      * @return static<TKey, TValue>
      */
     public function fill(mixed $items = []): self
@@ -302,7 +302,7 @@ class Collection implements CollectionInterface, ArrayAccess, Arrayable, Countab
     /**
      * Get the items in the collection that are not present in the given items.
      *
-     * @param Arrayable<array-key, TValue>|iterable<array-key, TValue> $items
+     * @param Arrayable<array-key, TValue>|iterable<array-key, TValue>|CollectionInterface $items
      * @return static<TKey, TValue>
      */
     public function diff($items): self
@@ -313,7 +313,7 @@ class Collection implements CollectionInterface, ArrayAccess, Arrayable, Countab
     /**
      * Get the items in the collection that are not present in the given items.
      *
-     * @param Arrayable<array-key, TValue>|iterable<array-key, TValue> $items
+     * @param Arrayable<array-key, TValue>|iterable<array-key, TValue>|CollectionInterface $items
      * @param callable(TValue): int $callback
      * @return static<TKey, TValue>
      */
@@ -921,7 +921,7 @@ class Collection implements CollectionInterface, ArrayAccess, Arrayable, Countab
 
     /**
      * Merge the collection with the given items.
-     * @param Arrayable<TKey, TValue>|iterable<TKey, TValue> $items
+     * @param Arrayable<TKey, TValue>|iterable<TKey, TValue>|CollectionInterface $items
      * @return static<TKey, TValue>
      */
     public function merge($items): self

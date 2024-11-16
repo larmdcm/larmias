@@ -22,15 +22,15 @@ abstract class Server extends Worker
             'backlog' => Constants::OPTION_BACKLOG,
         ];
 
-        foreach ($settings as $key => $value) {
-            if (str_starts_with($key, 'swoole_')) {
-                $serverSettings[substr($key, 7)] = $value;
-            }
-        }
-
         foreach ($settingMap as $key => $opt) {
             if (isset($settings[$opt])) {
                 $serverSettings[$key] = $settings[$opt];
+            }
+        }
+
+        foreach ($settings as $key => $value) {
+            if (str_starts_with($key, 'swoole_')) {
+                $serverSettings[substr($key, 7)] = $value;
             }
         }
 

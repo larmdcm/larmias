@@ -28,7 +28,7 @@ class ClassScanner implements ClassScannerInterface
         'proxy_class_generate' => true,
         'proxy_class_cache' => false,
         'annotation_handlers' => [],
-        'check_syntax' => true,
+        'check_syntax' => false,
     ];
 
     /**
@@ -126,7 +126,7 @@ class ClassScanner implements ClassScannerInterface
      * 生成代理类
      * @return void
      */
-    public function scanGenerateProxyClassMap(): void
+    public function generateProxyClassMap(): void
     {
         if ($this->config['proxy_class_cache'] && $this->fileSystem->isFile($this->proxyClassFile)) {
             return;

@@ -17,7 +17,8 @@ $run = new Run($container);
 $run->set(['driver' => Driver::class, 'settings' => [
     Constants::OPTION_MODE => Constants::MODE_BASE,
     Constants::OPTION_ENABLE_COROUTINE => true,
-    'swoole_max_wait_time' => 30,
+    Constants::OPTION_MAX_WAIT_TIME => 3,
+    Constants::OPTION_LOG_DEBUG => true,
 ]]);
 
 $run(function (WorkerInterface $worker, KernelInterface $kernel) {
@@ -31,7 +32,7 @@ $run(function (WorkerInterface $worker, KernelInterface $kernel) {
     });
 
     echo '任务执行中...' . PHP_EOL;
-    sleep(10);
+    sleep(5);
     echo '任务执行完成...' . PHP_EOL;
 });
 

@@ -72,7 +72,7 @@ class AopTest extends TestCase
         ];
         /** @var ClassScannerInterface $classScanner */
         $classScanner = Container::getInstance()->make(ClassScannerInterface::class, ['config' => $config], true);
-        $classScanner->scanGenerateProxyClassMap();
+        $classScanner->generateProxyClassMap();
         $this->assertTrue(true);
     }
 

@@ -304,7 +304,7 @@ class ServiceDiscover implements ServiceDiscoverInterface
         }
         /** @var ClassScannerInterface $classScan */
         $classScan = $this->app->getContainer()->get(ClassScannerInterface::class);
-        $classScan->scanGenerateProxyClassMap();
+        $classScan->generateProxyClassMap();
     }
 
     /**

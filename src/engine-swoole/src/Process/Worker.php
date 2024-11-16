@@ -14,6 +14,8 @@ use Larmias\Engine\Swoole\SignalHandler;
 use Larmias\Engine\Swoole\Constants;
 use Larmias\Engine\Swoole\Timer;
 use Swoole\Constant;
+use Swoole\Coroutine;
+use Swoole\Event;
 use Swoole\Runtime;
 
 class Worker extends BaseWorker
@@ -91,8 +93,11 @@ class Worker extends BaseWorker
 
         if ($waitTime > 0) {
             $this->timer->after($waitTime, $callback);
-        } else {
-            $callback();
+        }
+
+        $this->timer->clear();
+        foreach (Coroutine::listCoroutines() as $coroutine) {
+            Coroutine::cancel($coroutine);
         }
     }
 }

@@ -27,7 +27,7 @@ class WorkerHotUpdateProcess implements OnWorkerStartInterface
      */
     public function __construct(protected ContainerInterface $container, protected WorkerInterface $worker)
     {
-        $config = $this->worker->getSettings('watcher', []);
+        $config = $this->worker->getSettings('hotUpdate', []);
         $this->enabled = $config['enabled'] ?? false;
         if (!$this->enabled) {
             return;

@@ -205,7 +205,11 @@ class Router implements RouterInterface
         $this->collectGroup();
         $this->collectRoute();
         $routeInfo = $this->dispatcher->dispatch($method, $route);
-        return new Dispatched($routeInfo[0], $routeInfo[1] ?? null, $routeInfo[2] ?? []);
+        $rule = $routeInfo[1] ?? null;
+        if ($rule && !($rule instanceof Rule)) {
+            $rule = null;
+        }
+        return new Dispatched($routeInfo[0], $rule, $routeInfo[2] ?? []);
     }
 
     /**

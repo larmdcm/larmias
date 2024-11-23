@@ -15,7 +15,6 @@ use Larmias\Engine\Swoole\Constants;
 use Larmias\Engine\Swoole\Timer;
 use Swoole\Constant;
 use Swoole\Coroutine;
-use Swoole\Event;
 use Swoole\Runtime;
 
 class Worker extends BaseWorker
@@ -88,6 +87,9 @@ class Worker extends BaseWorker
 
         $callback = function () {
             $this->workerPool->log('Worker#%d exit timeout, forced exit', $this->id);
+            foreach (Coroutine::listCoroutines() as $coroutine) {
+                Coroutine::cancel($coroutine);
+            }
             $this->exit(Constants::EXIT_CODE_FAIL);
         };
 
@@ -96,8 +98,5 @@ class Worker extends BaseWorker
         }
 
         $this->timer->clear();
-        foreach (Coroutine::listCoroutines() as $coroutine) {
-            Coroutine::cancel($coroutine);
-        }
     }
 }

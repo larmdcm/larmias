@@ -21,12 +21,12 @@ interface ClassScannerInterface
     public function addExcludePath(string|array $path): ClassScannerInterface;
 
     /**
-     * 添加类路径
+     * 添加类映射路径
      * @param string $class
      * @param string $realpath
      * @return ClassScannerInterface
      */
-    public function addClass(string $class, string $realpath): ClassScannerInterface;
+    public function addClassMap(string $class, string $realpath): ClassScannerInterface;
 
     /**
      * 生成代理类

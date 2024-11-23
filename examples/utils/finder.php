@@ -10,4 +10,4 @@ $files1 = Finder::create()
         ->excludeFile('MenuController.php')
         ->includeExt('php')
         ->files();
-dump($files1);
+var_dump($files1);

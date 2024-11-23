@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Larmias\Engine\WorkerMan\Tcp;
 
 use Larmias\Engine\Event;
+use Larmias\Engine\WorkerMan\Server as BaseServer;
 use Workerman\Connection\TcpConnection;
 use Throwable;
-use Larmias\Engine\WorkerMan\Server as BaseServer;
 
 class Server extends BaseServer
 {

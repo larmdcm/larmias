@@ -10,6 +10,7 @@ use function count;
 use function in_array;
 use function is_file;
 use function is_readable;
+use function Larmias\Support\class_basename;
 use function token_get_all;
 use const T_CLASS;
 use const T_NAME_QUALIFIED;
@@ -23,6 +24,16 @@ class ReflectUtil
      * @var array
      */
     protected static array $cache = [];
+
+    /**
+     * 获取对象类名
+     * @param object|string $object
+     * @return string
+     */
+    public static function getClassName(object|string $object): string
+    {
+        return is_object($object) ? get_class($object) : $object;
+    }
 
     /**
      * 判断类是否实现了某个接口
@@ -67,7 +78,130 @@ class ReflectUtil
         if (!$refProperty->isPublic()) {
             $refProperty->setAccessible(true);
         }
+
+        if (!$refProperty->isInitialized($object)) {
+            return null;
+        }
+
         return $refProperty->getValue($object);
+    }
+
+    /**
+     * 获取属性名称和类型map
+     * @param object|string $object
+     * @param array $ignore
+     * @param bool $propertyObj
+     * @return array
+     * @throws \ReflectionException
+     */
+    public static function getPropertyAttrs(object|string $object, array $ignore = [], bool $propertyObj = false): array
+    {
+        $vars = [];
+        $key = 'class.propertyAttrs.' . static::getClassName($object);
+        if (isset(static::$cache[$key])) {
+            return static::$cache[$key];
+        }
+
+        $refClass = ReflectionManager::reflectClass($object);
+        foreach ($refClass->getProperties() as $property) {
+            $name = $property->getName();
+            if (in_array($name, $ignore)) {
+                continue;
+            }
+            $vars[$name] = 'mixed';
+            $propertyType = $property->getType();
+            if ($propertyType) {
+                $vars[$name] = $propertyObj ? $propertyType : $propertyType->getName();
+            }
+        }
+
+        return static::$cache[$key] = $vars;
+    }
+
+    /**
+     * 获取属性变量map
+     * @param object|string $object
+     * @param array $ignore
+     * @param bool $filterNull
+     * @param bool $force
+     * @return array
+     * @throws \ReflectionException
+     */
+    public static function getPropertyVars(object|string $object, array $ignore = [], bool $filterNull = false, bool $force = false): array
+    {
+        $attrs = static::getPropertyAttrs($object, $ignore, $force);
+        $data = [];
+        foreach ($attrs as $name => $type) {
+            if ($type instanceof ReflectionProperty) {
+                $value = static::getProperty($type, $object);
+            } else {
+                $value = $object->{$name} ?? null;
+            }
+
+            if (is_null($value) && $filterNull) {
+                continue;
+            }
+            $data[$name] = static::typeOf($value, $type);
+        }
+
+        return $data;
+    }
+
+    /**
+     * 设置对象属性
+     * @param object $object
+     * @param array $data
+     * @param array $ignore
+     * @param bool $force
+     * @return void
+     * @throws \ReflectionException
+     */
+    public static function setPropertyVars(object $object, array $data, array $ignore = [], bool $force = false): void
+    {
+        $attrs = static::getPropertyAttrs($object, $ignore, $force);
+        foreach ($attrs as $name => $type) {
+            $value = $data[$name] ?? null;
+            if ($type instanceof ReflectionProperty) {
+                static::setProperty($type, $object, static::typeOf($value, $type->getType()->getName()));
+            } else {
+                $object->{$name} = static::typeOf($value, $type);
+            }
+        }
+    }
+
+    /**
+     * 类型转换
+     * @param mixed $value
+     * @param mixed $type
+     * @return mixed
+     */
+    public static function typeOf(mixed $value, ?string $type = null): mixed
+    {
+        switch ($type) {
+            case 'int':
+            case 'integer':
+                $value = (int)$value;
+                break;
+            case 'string':
+                $value = (string)$value;
+                break;
+            case 'double':
+            case 'float':
+                $value = (float)$value;
+                break;
+            case 'bool':
+            case 'boolean':
+                $value = (bool)$value;
+                break;
+            case 'object':
+                $value = (object)$value;
+                break;
+            case 'array':
+                $value = (array)$value;
+                break;
+        }
+
+        return $value;
     }
 
     /**

@@ -6,4 +6,4 @@ use Larmias\Support\Reflection\ReflectUtil;
 
 $classes = ReflectUtil::getAllClassesInFile('./test_class.php');
 
-dump($classes);
+var_dump($classes);

@@ -7,7 +7,6 @@ require BASE_PATH . '/vendor/autoload.php';
 if (!function_exists('println')) {
     /**
      * 换行打印输出
-     *
      * @param string|Stringable|null $format
      * @param ...$args
      * @return void

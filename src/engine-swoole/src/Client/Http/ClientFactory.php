@@ -21,6 +21,8 @@ class ClientFactory implements ClientFactoryInterface
             throw new ClientException('url parse error:' . $url);
         }
         $scheme = $result['scheme'] ?? 'http';
-        return new Client($result['host'], $result['port'] ?? 80, $scheme === 'https');
+        $ssl = $scheme === 'https';
+        $port = $result['port'] ?? ($ssl ? 443 : 80);
+        return new Client($result['host'], $port, $ssl);
     }
 }

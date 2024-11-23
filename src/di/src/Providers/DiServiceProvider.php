@@ -10,7 +10,9 @@ use Larmias\Contracts\ConfigInterface;
 use Larmias\Contracts\Di\ClassScannerInterface;
 use Larmias\Di\Annotation;
 use Larmias\Di\Annotation\Aspect;
+use Larmias\Di\Annotation\Dependence;
 use Larmias\Di\Annotation\Handler\AspectAnnotationHandler;
+use Larmias\Di\Annotation\Handler\DependenceAnnotationHandler;
 use Larmias\Di\Annotation\Handler\InjectAnnotationHandler;
 use Larmias\Di\Annotation\Handler\InvokeResolverAnnotationHandler;
 use Larmias\Di\Annotation\Inject;
@@ -38,6 +40,7 @@ class DiServiceProvider extends ServiceProvider
         $annotation->addHandler(Inject::class, InjectAnnotationHandler::class);
         $annotation->addHandler(Invoke::class, InvokeResolverAnnotationHandler::class);
         $annotation->addHandler(Aspect::class, AspectAnnotationHandler::class);
+        $annotation->addHandler(Dependence::class, DependenceAnnotationHandler::class);
     }
 
     /**

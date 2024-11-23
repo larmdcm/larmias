@@ -101,7 +101,7 @@ class ClassScanner implements ClassScannerInterface
      * @param string $realpath
      * @return ClassScannerInterface
      */
-    public function addClass(string $class, string $realpath): ClassScannerInterface
+    public function addClassMap(string $class, string $realpath): ClassScannerInterface
     {
         $this->classMap[$class] = $realpath;
         return $this;
@@ -171,7 +171,7 @@ class ClassScanner implements ClassScannerInterface
                 continue;
             }
             foreach ($classes as $class) {
-                $this->addClass($class, $filePath);
+                $this->addClassMap($class, $filePath);
             }
         }
     }

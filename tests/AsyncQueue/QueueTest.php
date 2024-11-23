@@ -50,12 +50,12 @@ class QueueTest extends TestCase
         $queue = $this->getQueue();
         $driver = $queue->driver();
         $this->assertNotEmpty($queue->push(ExampleJobHandler::class, ['id' => $id]));
-        var_dump($driver->info());
+        var_dump($driver->status());
         $message = $driver->pop();
         $this->assertSame($id, $message->getData()['id']);
-        var_dump($driver->info());
+        var_dump($driver->status());
         $this->assertTrue($driver->ack($message));
-        var_dump($driver->info());
+        var_dump($driver->status());
     }
 
     public function testStatus(): void
@@ -74,9 +74,9 @@ class QueueTest extends TestCase
     public function testFlush(): void
     {
         $driver = $this->getQueue()->driver();
-        var_dump($driver->info());
+        var_dump($driver->status());
         $this->assertTrue($driver->flush());
-        var_dump($driver->info());
+        var_dump($driver->status());
     }
 
     public function testConsumer(): void

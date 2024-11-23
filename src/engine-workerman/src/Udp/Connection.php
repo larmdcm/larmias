@@ -6,6 +6,7 @@ namespace Larmias\Engine\WorkerMan\Udp;
 
 use Larmias\Contracts\Udp\ConnectionInterface;
 use Workerman\Connection\UdpConnection;
+use BadMethodCallException;
 
 class Connection implements ConnectionInterface
 {
@@ -39,5 +40,13 @@ class Connection implements ConnectionInterface
     public function getRawConnection(): object
     {
         return $this->connection;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function recv(): mixed
+    {
+        throw new BadMethodCallException(__FUNCTION__ . ' not implement.');
     }
 }

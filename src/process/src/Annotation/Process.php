@@ -11,17 +11,17 @@ class Process
 {
     /**
      * @param string|null $name
-     * @param int|null $num
-     * @param int|null $timespan
-     * @param bool|null $enableCoroutine
-     * @param bool $enabled
+     * @param int|string|null $num
+     * @param int|string|null $timespan
+     * @param bool|string|null $enableCoroutine
+     * @param bool|string|null $enabled
      */
     public function __construct(
-        public ?string $name = null,
-        public ?int    $num = 1,
-        public ?int    $timespan = null,
-        public ?bool   $enableCoroutine = null,
-        public bool    $enabled = true,
+        public ?string          $name = null,
+        public int|string|null  $num = 1,
+        public int|string|null  $timespan = null,
+        public bool|string|null $enableCoroutine = null,
+        public bool|string|null $enabled = true,
     )
     {
     }

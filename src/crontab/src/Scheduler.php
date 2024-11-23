@@ -61,7 +61,6 @@ class Scheduler implements SchedulerInterface
     public function run(): void
     {
         $queue = $this->schedule();
-
         while (!$queue->isEmpty()) {
             $crontab = $queue->dequeue();
             $this->executor->execute($crontab);

@@ -6,6 +6,7 @@ namespace Larmias\Engine\WorkerMan\Tcp;
 
 use Larmias\Contracts\Tcp\ConnectionInterface;
 use Workerman\Connection\TcpConnection;
+use BadMethodCallException;
 
 class Connection implements ConnectionInterface
 {
@@ -60,6 +61,6 @@ class Connection implements ConnectionInterface
 
     public function recv(): mixed
     {
-        return null;
+        throw new BadMethodCallException(__FUNCTION__ . ' not implement.');
     }
 }

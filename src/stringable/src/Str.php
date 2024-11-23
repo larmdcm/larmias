@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\Stringable;
 
+use Closure;
 use Larmias\Macroable\Macroable;
 
 class Str
@@ -263,15 +264,18 @@ class Str
      * 模板字符串解析
      *
      * @param string $content
-     * @param array $vars
+     * @param array|Closure $vars
      * @param array|string[] $options
      * @return string
      */
-    public static function template(string $content, array $vars = [], array $options = ['open' => '${', 'close' => '}']): string
+    public static function template(string $content, array|Closure $vars = [], array $options = ['open' => '${', 'close' => '}']): string
     {
         return \preg_replace_callback(\sprintf(
             '/%s([\w]+)%s/', \preg_quote($options['open']), \preg_quote($options['close'])
         ), function ($match) use ($vars) {
+            if ($vars instanceof Closure) {
+                return $vars($match[1]);
+            }
             return $vars[$match[1]] ?? '';
         }, $content);
     }

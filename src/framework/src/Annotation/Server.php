@@ -10,24 +10,24 @@ use Attribute;
 class Server
 {
     /**
-     * @param int $type
+     * @param int|string $type
      * @param string|null $host
-     * @param int|null $port
+     * @param int|string|null $port
      * @param string|null $name
-     * @param int|null $num
+     * @param int|string|null $num
      * @param array $settings
      * @param bool|null $enableCoroutine
      * @param bool $enabled
      */
     public function __construct(
-        public int     $type,
-        public ?string $host = null,
-        public ?int    $port = null,
-        public ?string $name = null,
-        public ?int    $num = null,
-        public array   $settings = [],
-        public ?bool   $enableCoroutine = null,
-        public bool    $enabled = true,
+        public int|string       $type,
+        public ?string          $host = null,
+        public int|string|null  $port = null,
+        public ?string          $name = null,
+        public int|string|null  $num = null,
+        public array            $settings = [],
+        public bool|string|null $enableCoroutine = null,
+        public bool|string      $enabled = true,
     )
     {
     }

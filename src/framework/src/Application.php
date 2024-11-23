@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\Framework;
 
+use Larmias\Collection\Arr;
 use Larmias\Config\Config;
 use Larmias\Contracts\ApplicationInterface;
 use Larmias\Contracts\ConfigInterface;
@@ -35,6 +36,7 @@ use Larmias\Command\Application as ConsoleApplication;
 use Larmias\Contracts\ServiceDiscoverInterface;
 use Larmias\Framework\Listeners\WorkerStartListener;
 use Larmias\Framework\Logger\StdoutLogger;
+use Larmias\Stringable\Str;
 use Larmias\Support\FileSystem\Finder;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\EventDispatcher\ListenerProviderInterface;
@@ -89,6 +91,11 @@ class Application implements ApplicationInterface
      * @var ServiceDiscoverInterface
      */
     protected ServiceDiscoverInterface $serviceDiscover;
+
+    /**
+     * @var DotEnvInterface
+     */
+    protected DotEnvInterface $dotEnv;
 
     /**
      * @var array
@@ -160,10 +167,10 @@ class Application implements ApplicationInterface
     protected function loadEnv(): void
     {
         $file = $this->envFile ?: $this->getRootPath() . '/.env';
+        $this->dotEnv = $this->container->make(DotEnvInterface::class);
         if (is_file($file)) {
-            /** @var DotEnvInterface $dotenv */
-            $dotenv = $this->container->make(DotEnvInterface::class);
-            $dotenv->load($file);
+            $this->envFile = $file;
+            $this->dotEnv->load($file);
         }
     }
 
@@ -323,6 +330,7 @@ class Application implements ApplicationInterface
     public function getEngineConfig(string $name = 'engine'): array
     {
         $config = $this->getServiceConfig($name, true);
+        $engineSettings = $config['settings'] ?? [];
         $servers = $this->getDiscoverConfig(ServiceDiscoverInterface::SERVICE_SERVER, []);
         foreach ($servers as $item) {
             ['class' => $class, 'args' => $args] = $item;
@@ -332,14 +340,15 @@ class Application implements ApplicationInterface
                 Constants::OPTION_ENABLED => $args['enabled'] ?? true,
                 Constants::OPTION_ENABLE_COROUTINE => $args['enableCoroutine'] ?? null,
             ], $args['settings']);
-            $config['workers'][] = [
+            $cfgItem = $this->parseDataEnvVar([
                 'name' => $name ?: class_basename($class),
                 'type' => $args['type'],
                 'host' => $args['host'] ?? '0.0.0.0',
                 'port' => $args['port'] ?? 9501,
                 'settings' => $settings,
-                'callbacks' => $this->bindWorkerCallback($class),
-            ];
+            ], $engineSettings);
+            $cfgItem['callbacks'] = $this->bindWorkerCallback($class);
+            $config['workers'][] = $cfgItem;
         }
 
         $processList = $this->getDiscoverConfig(ServiceDiscoverInterface::SERVICE_PROCESS, []);
@@ -359,7 +368,7 @@ class Application implements ApplicationInterface
         foreach ($processList as $item) {
             ['class' => $class, 'args' => $args] = $item;
             $name = $args['name'] ?? null;
-            $config['workers'][] = [
+            $cfgItem = $this->parseDataEnvVar([
                 'name' => $name ?: class_basename($class),
                 'type' => WorkerType::WORKER_PROCESS,
                 'settings' => [
@@ -368,8 +377,9 @@ class Application implements ApplicationInterface
                     Constants::OPTION_PROCESS_TICK_INTERVAL => $args['timespan'] ?? null,
                     Constants::OPTION_ENABLE_COROUTINE => $args['enableCoroutine'] ?? null,
                 ],
-                'callbacks' => $this->bindWorkerCallback($class),
-            ];
+            ], $engineSettings);
+            $cfgItem['callbacks'] = $this->bindWorkerCallback($class);
+            $config['workers'][] = $cfgItem;
         }
 
         return $config;
@@ -439,6 +449,25 @@ class Application implements ApplicationInterface
         return $workerCallbacks;
     }
 
+    /**
+     * @param array $config
+     * @param array $defaultConfig
+     * @return array
+     */
+    protected function parseDataEnvVar(array $config, array $defaultConfig = []): array
+    {
+        foreach ($config as $key => $value) {
+            if (is_string($value) && !empty($value) && str_starts_with($value, '${')) {
+                $config[$key] = Str::template($value, function ($var) use ($defaultConfig) {
+                    return Arr::get($defaultConfig, $var, fn() => $this->dotEnv->get($var));
+                });
+            } else if (is_array($value)) {
+                $config[$key] = $this->parseDataEnvVar($value);
+            }
+        }
+
+        return $config;
+    }
 
     /**
      * @param string|null $name

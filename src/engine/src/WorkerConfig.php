@@ -8,37 +8,37 @@ use Larmias\Engine\Contracts\WorkerConfigInterface;
 
 class WorkerConfig implements WorkerConfigInterface
 {
-    /** @var string  */
+    /** @var string */
     protected string $name;
 
-    /** @var string|null  */
+    /** @var string|null */
     protected ?string $host;
 
-    /** @var int|null  */
+    /** @var int|null */
     protected ?int $port;
 
-    /** @var int  */
+    /** @var int */
     protected int $type;
 
     /** @var array */
     protected array $settings = [];
 
-    /** @var array  */
+    /** @var array */
     protected array $callbacks = [];
 
     /**
      * ServerItemConfig constructor.
-     *
      * @param array $config
      */
     public function __construct(protected array $config = [])
     {
+        $port = $this->config['port'] ?? null;
         $this->setName($this->config['name'] ?? '')
-             ->setHost($this->config['host'] ?? null)
-             ->setPort($this->config['port'] ?? null)
-             ->setType($this->config['type'] ?? WorkerType::TCP_SERVER)
-             ->setSettings($this->config['settings'] ?? [])
-             ->setCallbacks($this->config['callbacks'] ?? []);
+            ->setHost($this->config['host'] ?? null)
+            ->setPort(is_null($port) ? $port : intval($port))
+            ->setType(intval($this->config['type'] ?? WorkerType::TCP_SERVER))
+            ->setSettings($this->config['settings'] ?? [])
+            ->setCallbacks($this->config['callbacks'] ?? []);
     }
 
     /**

@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace Larmias\Trace\Providers;
 
+use Larmias\Engine\Timer;
 use Larmias\Trace\Contracts\TraceContextInterface;
 use Larmias\Trace\Contracts\TraceInterface;
 use Larmias\Trace\Listeners\DatabaseQueryExecutedListener;
 use Larmias\Trace\Trace;
 use Larmias\Trace\TraceContext;
 use Larmias\Framework\ServiceProvider;
+use Swoole\Coroutine;
 
 class TraceServiceProvider extends ServiceProvider
 {

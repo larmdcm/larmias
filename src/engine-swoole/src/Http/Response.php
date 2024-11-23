@@ -6,6 +6,7 @@ namespace Larmias\Engine\Swoole\Http;
 
 use Larmias\Contracts\Http\ResponseInterface;
 use Swoole\Http\Response as SwooleResponse;
+use BadMethodCallException;
 use function is_array;
 
 class Response implements ResponseInterface
@@ -48,7 +49,7 @@ class Response implements ResponseInterface
      */
     public function withoutHeader(string $name): ResponseInterface
     {
-        throw new \RuntimeException(__FUNCTION__ . ' not implement.');
+        throw new BadMethodCallException(__FUNCTION__ . ' not implement.');
     }
 
     /**
@@ -56,7 +57,7 @@ class Response implements ResponseInterface
      */
     public function hasHeader(string $name): bool
     {
-        throw new \RuntimeException(__FUNCTION__ . ' not implement.');
+        throw new BadMethodCallException(__FUNCTION__ . ' not implement.');
     }
 
     /**
@@ -64,7 +65,7 @@ class Response implements ResponseInterface
      */
     public function getHeader(string $name, $default = null): string|array
     {
-        throw new \RuntimeException(__FUNCTION__ . ' not implement.');
+        throw new BadMethodCallException(__FUNCTION__ . ' not implement.');
     }
 
     /**
@@ -72,7 +73,7 @@ class Response implements ResponseInterface
      */
     public function getHeaders(): array
     {
-        throw new \RuntimeException(__FUNCTION__ . ' not implement.');
+        throw new BadMethodCallException(__FUNCTION__ . ' not implement.');
     }
 
     /**
@@ -89,7 +90,7 @@ class Response implements ResponseInterface
      */
     public function getStatusCode(): int
     {
-        throw new \RuntimeException(__FUNCTION__ . ' not implement.');
+        throw new BadMethodCallException(__FUNCTION__ . ' not implement.');
     }
 
     /**
@@ -97,7 +98,7 @@ class Response implements ResponseInterface
      */
     public function getReason(): ?string
     {
-        throw new \RuntimeException(__FUNCTION__ . ' not implement.');
+        throw new BadMethodCallException(__FUNCTION__ . ' not implement.');
     }
 
     /**

@@ -490,7 +490,7 @@ abstract class Model implements ModelInterface, Arrayable, Jsonable, Stringable,
 
     // ArrayAccess
     #[\ReturnTypeWillChange]
-    public function offsetSet($offset, $value)
+    public function offsetSet($offset, $value): void
     {
         $this->setAttribute($offset, $value);
     }
@@ -502,7 +502,7 @@ abstract class Model implements ModelInterface, Arrayable, Jsonable, Stringable,
     }
 
     #[\ReturnTypeWillChange]
-    public function offsetUnset($offset)
+    public function offsetUnset($offset): void
     {
         $this->__unset($offset);
     }

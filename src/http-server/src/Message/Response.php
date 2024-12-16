@@ -18,6 +18,7 @@ use Larmias\Codec\Json;
 use Larmias\HttpServer\Contracts\SseEmitterInterface;
 use Larmias\HttpServer\Contracts\SseResponseInterface;
 use Larmias\HttpServer\Emitter\SseEmitter;
+use Larmias\Macroable\Macroable;
 use Larmias\Support\MimeType;
 use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
 use Psr\Http\Message\StreamInterface;
@@ -33,6 +34,8 @@ use function sprintf;
 
 class Response implements PsrResponseInterface, ResponseInterface, SseResponseInterface
 {
+    use Macroable;
+
     /**
      * @var SseEmitterInterface|null
      */

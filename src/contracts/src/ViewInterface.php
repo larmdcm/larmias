@@ -28,8 +28,7 @@ interface ViewInterface
      * @return ViewInterface
      */
     public function with(string|array $name, mixed $value = null): ViewInterface;
-
-
+    
     /**
      * 渲染视图
      * @param string $path

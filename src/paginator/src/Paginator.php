@@ -207,7 +207,7 @@ abstract class Paginator implements PaginatorInterface, ArrayAccess, Countable, 
      * 设置获取当前页码闭包
      * @param Closure $resolver
      */
-    public static function currentPageResolver(Closure $resolver)
+    public static function currentPageResolver(Closure $resolver): void
     {
         static::$currentPageResolver = $resolver;
     }
@@ -230,7 +230,7 @@ abstract class Paginator implements PaginatorInterface, ArrayAccess, Countable, 
      * 设置获取当前路径闭包
      * @param Closure $resolver
      */
-    public static function currentPathResolver(Closure $resolver)
+    public static function currentPathResolver(Closure $resolver): void
     {
         static::$currentPathResolver = $resolver;
     }

@@ -6,7 +6,6 @@ namespace Larmias\Engine\Swoole\Tcp;
 
 use Larmias\Contracts\Tcp\ConnectionInterface;
 use Larmias\Contracts\ProtocolInterface;
-use Larmias\Stringable\StringBuffer;
 use Larmias\Support\ProtocolHandler;
 use Swoole\Coroutine;
 use Swoole\Coroutine\Channel;

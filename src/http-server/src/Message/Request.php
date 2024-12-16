@@ -7,6 +7,7 @@ namespace Larmias\HttpServer\Message;
 use Larmias\Contracts\ContextInterface;
 use Larmias\HttpServer\Contracts\RequestInterface;
 use Larmias\Http\Message\UploadedFile;
+use Larmias\Macroable\Macroable;
 use Larmias\Routing\Dispatched;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
@@ -32,6 +33,8 @@ use const PHP_QUERY_RFC3986;
 
 class Request implements RequestInterface
 {
+    use Macroable;
+
     /**
      * @param ContextInterface $context
      */

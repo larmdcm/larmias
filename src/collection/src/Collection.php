@@ -75,7 +75,7 @@ class Collection implements CollectionInterface, ArrayAccess, Arrayable, Countab
      * @param null|Arrayable<TMakeKey, TMakeValue>|iterable<TMakeKey, TMakeValue>|Jsonable|JsonSerializable $items
      * @return static<TMakeKey, TMakeValue>
      */
-    public static function make($items = []): self
+    public static function make(mixed $items = []): self
     {
         return new static($items);
     }
@@ -1625,7 +1625,7 @@ class Collection implements CollectionInterface, ArrayAccess, Arrayable, Countab
      *
      * @return static
      */
-    protected function sortByMany(array $comparisons = [])
+    protected function sortByMany(array $comparisons = []): static
     {
         $items = $this->items;
 
@@ -1668,7 +1668,7 @@ class Collection implements CollectionInterface, ArrayAccess, Arrayable, Countab
      * @param mixed|string $operator
      * @param null|TValue $value
      */
-    protected function operatorForWhere(string $key, $operator = null, $value = null): \Closure
+    protected function operatorForWhere(string $key, mixed $operator = null, mixed $value = null): \Closure
     {
         if (func_num_args() === 1) {
             $value = true;
@@ -1713,8 +1713,9 @@ class Collection implements CollectionInterface, ArrayAccess, Arrayable, Countab
     /**
      * Determine if the given value is callable, but not a string.
      * @param mixed $value
+     * @return bool
      */
-    protected function useAsCallable($value): bool
+    protected function useAsCallable(mixed $value): bool
     {
         return !is_string($value) && is_callable($value);
     }
@@ -1722,8 +1723,9 @@ class Collection implements CollectionInterface, ArrayAccess, Arrayable, Countab
     /**
      * Get a value retrieving callback.
      * @param mixed $value
+     * @return callable
      */
-    protected function valueRetriever($value): callable
+    protected function valueRetriever(mixed $value): callable
     {
         if ($this->useAsCallable($value)) {
             return $value;

@@ -300,7 +300,7 @@ class Application implements ApplicationInterface
     public function getServiceConfig(string $name, bool $loadConfigPath = false): array
     {
         $getConfig = function () use ($name, $loadConfigPath) {
-            $files = [__DIR__ . '/../config/' . $name . '.php'];
+            $files = [];
             if ($loadConfigPath && $this->configExt === 'php') {
                 $files[] = $this->getConfigPath() . DIRECTORY_SEPARATOR . $name . '.' . $this->configExt;
             }
@@ -340,7 +340,7 @@ class Application implements ApplicationInterface
                 Constants::OPTION_ENABLED => $args['enabled'] ?? true,
                 Constants::OPTION_ENABLE_COROUTINE => $args['enableCoroutine'] ?? null,
             ], $args['settings']);
-            $cfgItem = $this->parseDataEnvVar([
+            $cfgItem = $this->parseSetConfigVar([
                 'name' => $name ?: class_basename($class),
                 'type' => $args['type'],
                 'host' => $args['host'] ?? '0.0.0.0',
@@ -368,7 +368,7 @@ class Application implements ApplicationInterface
         foreach ($processList as $item) {
             ['class' => $class, 'args' => $args] = $item;
             $name = $args['name'] ?? null;
-            $cfgItem = $this->parseDataEnvVar([
+            $cfgItem = $this->parseSetConfigVar([
                 'name' => $name ?: class_basename($class),
                 'type' => WorkerType::WORKER_PROCESS,
                 'settings' => [
@@ -454,15 +454,15 @@ class Application implements ApplicationInterface
      * @param array $defaultConfig
      * @return array
      */
-    protected function parseDataEnvVar(array $config, array $defaultConfig = []): array
+    protected function parseSetConfigVar(array $config, array $defaultConfig = []): array
     {
         foreach ($config as $key => $value) {
-            if (is_string($value) && !empty($value) && str_starts_with($value, '${')) {
+            if (is_string($value) && str_starts_with($value, '${')) {
                 $config[$key] = Str::template($value, function ($var) use ($defaultConfig) {
                     return Arr::get($defaultConfig, $var, fn() => $this->dotEnv->get($var));
                 });
             } else if (is_array($value)) {
-                $config[$key] = $this->parseDataEnvVar($value);
+                $config[$key] = $this->parseSetConfigVar($value,$defaultConfig[$key] ?? []);
             }
         }
 

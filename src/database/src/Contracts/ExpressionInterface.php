@@ -15,6 +15,7 @@ interface ExpressionInterface
      * @param string $value
      */
     public function setValue(string $value): ExpressionInterface;
+
     /**
      * @return array
      */

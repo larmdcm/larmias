@@ -18,10 +18,10 @@ use Larmias\Contracts\PackerInterface;
 use Larmias\Contracts\TimerInterface;
 use Larmias\Codec\Packer\PhpSerializerPacker;
 use Throwable;
-use function array_merge;
 use function Larmias\Support\format_exception;
 use function Larmias\Support\throw_unless;
 use function method_exists;
+use function array_merge;
 use function sleep;
 
 abstract class QueueDriver implements QueueDriverInterface

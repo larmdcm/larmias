@@ -101,7 +101,6 @@ abstract class PDOConnection extends Connection
     public function query(string $sql, array $bindings = []): ExecuteResultInterface
     {
         $statement = $this->executeStatement($sql, $bindings);
-
         return new ExecuteResult(
             executeSql: $this->executeSql,
             executeBindings: $this->executeBindings,

@@ -181,7 +181,7 @@ class Application implements ApplicationInterface
      */
     protected function loadConfig(): void
     {
-        $configPath = $this->getConfigPath() . DIRECTORY_SEPARATOR;
+        $configPath = $this->getConfigPath();
         if (!is_dir($configPath)) {
             return;
         }

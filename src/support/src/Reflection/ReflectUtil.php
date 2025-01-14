@@ -10,7 +10,6 @@ use function count;
 use function in_array;
 use function is_file;
 use function is_readable;
-use function Larmias\Support\class_basename;
 use function token_get_all;
 use const T_CLASS;
 use const T_NAME_QUALIFIED;

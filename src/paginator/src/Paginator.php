@@ -182,7 +182,7 @@ abstract class Paginator implements PaginatorInterface, ArrayAccess, Countable, 
 
         $url = $path;
         if (!empty($parameters)) {
-            $url .= '?' . http_build_query($parameters, '', '&');
+            $url .= '?' . http_build_query($parameters, '', '&', PHP_QUERY_RFC3986);
         }
 
         return $url . $this->buildFragment();

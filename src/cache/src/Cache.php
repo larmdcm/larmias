@@ -26,7 +26,6 @@ class Cache implements CacheInterface
 
     /**
      * 获取存储驱动
-     *
      * @param string|null $name
      * @return CacheInterface
      */
@@ -44,7 +43,6 @@ class Cache implements CacheInterface
 
     /**
      * 获取配置.
-     *
      * @param string|null $name
      * @param mixed $default
      * @return mixed

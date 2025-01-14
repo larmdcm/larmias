@@ -136,7 +136,7 @@ class Url implements Stringable
             $vars = array_merge($params, $vars);
         }
         if (!empty($vars)) {
-            $result .= '?' . http_build_query($vars);
+            $result .= '?' . http_build_query($vars, '', '&', PHP_QUERY_RFC3986);
         }
         if (isset($parseUrl['fragment'])) {
             $result .= '#' . $parseUrl['fragment'];

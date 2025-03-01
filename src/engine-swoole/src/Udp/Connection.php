@@ -27,4 +27,9 @@ class Connection implements ConnectionInterface
     {
         return $this->socket;
     }
+
+    public function recv(): mixed
+    {
+        return null;
+    }
 }

@@ -9,5 +9,5 @@ return [
     'proxy_class_generate' => true,
     'proxy_class_cache' => false,
     'annotation_handlers' => [],
-    'check_syntax' => true,
+    'check_syntax' => false,
 ];

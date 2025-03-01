@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace LarmiasTest\Coroutine;
 
 use Larmias\Coroutine\Coroutine;
+use Larmias\Engine\Timer;
 use function Larmias\Support\println;
 
 class SyncTest extends TestCase
@@ -14,7 +15,7 @@ class SyncTest extends TestCase
         $locker = $this->newLocker();
         Coroutine::create(function () use ($locker) {
             $locker->lock();
-            sleep(2);
+            Timer::sleep(2);
             println('1');
             $locker->unlock();
         });
@@ -28,7 +29,7 @@ class SyncTest extends TestCase
 
         Coroutine::create(function () use ($locker) {
             $locker->lock();
-            sleep(2);
+            Timer::sleep(2);
             println('3');
             $locker->unlock();
         });

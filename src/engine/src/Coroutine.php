@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Larmias\Engine;
 
-use ArrayObject;
 use Larmias\Contracts\Coroutine\CoroutineInterface;
 use Larmias\Contracts\Coroutine\CoroutineCallableInterface;
 use Larmias\Facade\AbstractFacade;
+use ArrayObject;
 
 /**
  * @method static CoroutineCallableInterface create(callable $callable, ...$params)

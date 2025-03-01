@@ -27,7 +27,7 @@ class FileStream implements StreamInterface, Stringable, FileInterface
         if (!$file instanceof SplFileInfo) {
             $file = new SplFileInfo($file);
         }
-        
+
         if (!$file->isReadable()) {
             throw new FileException('File must be readable.');
         }
@@ -97,7 +97,7 @@ class FileStream implements StreamInterface, Stringable, FileInterface
         throw new BadMethodCallException('Not implemented');
     }
 
-    public function isReadable()
+    public function isReadable(): bool
     {
         return true;
     }

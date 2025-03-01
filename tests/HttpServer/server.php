@@ -6,6 +6,7 @@ use Larmias\Contracts\ApplicationInterface;
 use Larmias\Engine\Event;
 use Larmias\Engine\Kernel;
 use Larmias\Engine\EngineConfig;
+use Larmias\Engine\Timer;
 use Larmias\Engine\WorkerType;
 use Larmias\HttpServer\Contracts\RequestInterface;
 use Larmias\HttpServer\Contracts\ResponseInterface;
@@ -18,8 +19,8 @@ $app = require __DIR__ . '/../app.php';
 
 $kernel = new Kernel($app->getContainer());
 
-$kernel->setConfig(EngineConfig::build([
-    'driver' => \Larmias\Engine\Swoole\Driver::class,
+$kernel->setConfig(EngineConfig::build(config: [
+    'driver' => \Larmias\Engine\WorkerMan\Driver::class,
     'workers' => [
         [
             'name' => 'http',
@@ -39,6 +40,11 @@ $kernel->setConfig(EngineConfig::build([
     ],
     'callbacks' => [
         Event::ON_WORKER_START => function () {
+
+            Router::get('/', function (ResponseInterface $resp) {
+                return $resp->raw('hello,world!');
+            });
+
             Router::get('/chunk', function (ResponseInterface $resp) {
                 $resp->write('hello1<br/>');
                 $resp->write('hello2<br/>');
@@ -54,7 +60,7 @@ $kernel->setConfig(EngineConfig::build([
                 return $resp->sse(function (SseHandler $sseHandler) {
                     for ($i = 1; $i <= 3; $i++) {
                         $sseHandler->write(\Larmias\HttpServer\Message\ServerSentEvents::make(['data' => 'hello' . $i]));
-                        sleep(1);
+                        Timer::sleep(1);
                     }
                     $sseHandler->end();
                 });

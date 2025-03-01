@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Larmias\Engine\Swoole\Udp;
 
 use Larmias\Engine\Event;
-use Larmias\Engine\Swoole\ProcessManager;
 use Larmias\Engine\Swoole\Server as BaseServer;
 use Swoole\Coroutine\Socket;
 use RuntimeException;
@@ -30,7 +29,7 @@ class Server extends BaseServer
         }
 
         $this->waiter->add(function () {
-            while (ProcessManager::isRunning()) {
+            while ($this->running) {
                 $peer = null;
                 $data = $this->socket->recvfrom($peer);
                 $connection = new Connection($this->socket, $peer);
@@ -44,6 +43,14 @@ class Server extends BaseServer
             }
         });
 
-        $this->wait(fn() => $this->socket->cancel());
+        $this->wait(fn() => $this->shutdown());
+    }
+
+    /**
+     * @return void
+     */
+    public function serverShutdown(): void
+    {
+        $this->socket->cancel();
     }
 }

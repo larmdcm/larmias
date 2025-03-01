@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Larmias\Lock;
 
-use Closure;
 use Larmias\Context\ApplicationContext;
 use Larmias\Contracts\ConfigInterface;
 use Larmias\Contracts\LockerFactoryInterface;
 use Larmias\Contracts\LockerInterface;
 use Throwable;
+use Closure;
 use function call_user_func;
 use function is_bool;
 use function is_string;
@@ -19,6 +19,7 @@ class LockUtils
     /**
      * @param Key|string $key
      * @return LockerInterface
+     * @throws Throwable
      */
     public static function create(Key|string $key): LockerInterface
     {
@@ -76,6 +77,7 @@ class LockUtils
     /**
      * @param LockerInterface|Key|string $key
      * @return LockerInterface
+     * @throws Throwable
      */
     protected static function getLocker(LockerInterface|Key|string $key): LockerInterface
     {

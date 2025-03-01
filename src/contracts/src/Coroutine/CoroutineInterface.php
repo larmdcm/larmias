@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Larmias\Contracts\Coroutine;
 
-use ArrayObject;
-
 interface CoroutineInterface
 {
     /**
@@ -44,22 +42,17 @@ interface CoroutineInterface
     public function defer(callable $callable): void;
 
     /**
-     * 获取协程上下文对象
-     * @param int|null $id
-     * @return ArrayObject|null
-     */
-    public function getContextFor(?int $id = null): ?ArrayObject;
-
-    /**
      * 让出当前协程的执行权
+     * @param mixed $value
      * @return void
      */
-    public function yield(): void;
+    public function yield(mixed $value = null): void;
 
     /**
      * 恢复协程执行权
      * @param int $id
+     * @param mixed ...$params
      * @return void
      */
-    public function resume(int $id): void;
+    public function resume(int $id, mixed ...$params): void;
 }

@@ -34,6 +34,13 @@ interface TimerInterface
     public function after(int $duration, callable $func, array $args = []): int;
 
     /**
+     * 进入等待状态
+     * @param float $seconds
+     * @return void
+     */
+    public function sleep(float $seconds): void;
+
+    /**
      * 删除定时器
      * @param int $timerId
      * @return boolean

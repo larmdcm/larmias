@@ -15,6 +15,7 @@ use Larmias\Engine\WorkerConfig;
 use Larmias\Engine\WorkerType;
 use PHPUnit\TextUI\Command;
 use RuntimeException;
+use Throwable;
 use function Larmias\Support\make;
 use function Larmias\Support\throw_unless;
 use function is_file;
@@ -41,14 +42,10 @@ class Engine
         static::$container = $container;
         $config = static::getEngineConfig();
         throw_unless(isset($config['driver']), RuntimeException::class, 'config not set driver.');
+        $config['settings']['mode'] = Constants::MODE_WORKER;
         /** @var KernelInterface $kernel */
         $kernel = make(KernelInterface::class);
-        $kernel->setConfig(EngineConfig::build([
-            'driver' => $config['driver'],
-            'settings' => [
-                'mode' => Constants::MODE_WORKER,
-            ]
-        ]));
+        $kernel->setConfig(EngineConfig::build($config));
         $kernel->addWorker(WorkerConfig::build([
             'name' => 'MainProcess',
             'type' => WorkerType::WORKER_PROCESS,
@@ -56,7 +53,7 @@ class Engine
                 Event::ON_WORKER_START => function ($worker) {
                     try {
                         Command::main(false);
-                    } catch (\Throwable $e) {
+                    } catch (Throwable $e) {
                         if ($e->getMessage() === 'swoole exit') {
                             return;
                         }

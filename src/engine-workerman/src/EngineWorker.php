@@ -93,6 +93,9 @@ class EngineWorker extends BaseWorker
 
         foreach ($propertyMap as $property => $key) {
             if (isset($config[$key])) {
+                if ($key == Constants::OPTION_WORKER_NUM) {
+                    $config[$key] = intval($config[$key]);
+                }
                 $worker->{$property} = $config[$key];
             }
         }
@@ -143,6 +146,6 @@ class EngineWorker extends BaseWorker
      */
     public function handleException(Throwable $e): void
     {
-        Worker::stopAll(log: format_exception($e));
+        Worker::stopAll(0, format_exception($e));
     }
 }

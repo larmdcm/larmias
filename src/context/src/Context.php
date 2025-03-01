@@ -14,6 +14,7 @@ use RuntimeException;
  * @method static bool has(string $id, ?int $cid = null)
  * @method static void destroy(string $id, ?int $cid = null)
  * @method static bool inCoroutine()
+ * @method static bool inFiber()
  */
 class Context
 {

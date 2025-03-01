@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Larmias\Engine\WorkerMan;
 
 use Larmias\Contracts\SignalHandlerInterface;
-use Workerman\Events\EventInterface;
 
 class SignalHandler implements SignalHandlerInterface
 {
@@ -16,7 +15,7 @@ class SignalHandler implements SignalHandlerInterface
      */
     public function onSignal(int $signal, callable $func): bool
     {
-        Worker::getEventLoop()->add($signal, EventInterface::EV_SIGNAL, $func);
+        Worker::getEventLoop()->onSignal($signal, $func);
         return true;
     }
 
@@ -26,7 +25,7 @@ class SignalHandler implements SignalHandlerInterface
      */
     public function offSignal(int $signal): bool
     {
-        Worker::getEventLoop()->del($signal, EventInterface::EV_SIGNAL);
+        Worker::getEventLoop()->offSignal($signal);
         return true;
     }
 }

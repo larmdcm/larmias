@@ -159,12 +159,11 @@ abstract class Model implements ModelInterface, Arrayable, Jsonable, Stringable,
         if ($id instanceof Closure) {
             $query->where($id);
         } else {
-            if (is_string($id)) {
-                $id = str_contains($id, ',') ? explode(',', $id) : [$id];
-            } else if (is_int($id)) {
+            if (is_numeric($id)) {
                 $id = [$id];
+            } else if (is_string($id)) {
+                $id = str_contains($id, ',') ? explode(',', $id) : [$id];
             }
-
             $query->whereIn($query->getPrimaryKey(), $id);
         }
 

@@ -104,4 +104,12 @@ class Context implements ContextInterface
     {
         return $this->coroutine->id() > 0;
     }
+
+    /**
+     * @return bool
+     */
+    public function inFiber(): bool
+    {
+        return false;
+    }
 }

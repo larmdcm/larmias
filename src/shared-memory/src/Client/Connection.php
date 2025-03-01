@@ -11,6 +11,7 @@ use Larmias\SharedMemory\Client\Command\Str;
 use Larmias\SharedMemory\Client\Command\Channel;
 use Larmias\SharedMemory\Message\Command;
 use Larmias\SharedMemory\Message\Result;
+use Throwable;
 
 class Connection extends TcpClient
 {
@@ -94,6 +95,7 @@ class Connection extends TcpClient
 
     /**
      * @return Result|null
+     * @throws Throwable
      */
     public function read(): ?Result
     {

@@ -5,14 +5,12 @@ declare(strict_types=1);
 namespace Larmias\Engine\WorkerMan;
 
 use Larmias\Contracts\ContextInterface;
+use RuntimeException;
+use Workerman\Coroutine\Context as WorkermanContext;
+use Workerman\Events\Fiber;
 
 class Context implements ContextInterface
 {
-    /**
-     * @var array
-     */
-    protected array $context = [];
-
     /**
      * @param string $id
      * @param mixed|null $default
@@ -21,7 +19,11 @@ class Context implements ContextInterface
      */
     public function get(string $id, mixed $default = null, ?int $cid = null): mixed
     {
-        return $this->context[$id] ?? $default;
+        if ($cid !== null) {
+            throw new RuntimeException('not support cid:' . $cid);
+        }
+
+        return WorkermanContext::get($id, $default);
     }
 
     /**
@@ -32,7 +34,11 @@ class Context implements ContextInterface
      */
     public function set(string $id, mixed $value, ?int $cid = null): mixed
     {
-        $this->context[$id] = $value;
+        if ($cid !== null) {
+            throw new RuntimeException('not support cid:' . $cid);
+        }
+
+        WorkermanContext::set($id, $value);
         return $value;
     }
 
@@ -44,6 +50,10 @@ class Context implements ContextInterface
      */
     public function remember(string $id, \Closure $closure, ?int $cid = null): mixed
     {
+        if ($cid !== null) {
+            throw new RuntimeException('not support cid:' . $cid);
+        }
+
         if (!$this->has($id)) {
             return $this->set($id, $closure());
         }
@@ -58,7 +68,11 @@ class Context implements ContextInterface
      */
     public function has(string $id, ?int $cid = null): bool
     {
-        return isset($this->context[$id]);
+        if ($cid !== null) {
+            throw new RuntimeException('not support cid:' . $cid);
+        }
+
+        return WorkermanContext::has($id);
     }
 
     /**
@@ -68,7 +82,11 @@ class Context implements ContextInterface
      */
     public function destroy(string $id, ?int $cid = null): void
     {
-        unset($this->context[$id]);
+        if ($cid !== null) {
+            throw new RuntimeException('not support cid:' . $cid);
+        }
+
+        $this->set($id, null);
     }
 
     /**
@@ -76,7 +94,7 @@ class Context implements ContextInterface
      */
     public function clear(): void
     {
-        $this->context = [];
+        WorkermanContext::destroy();
     }
 
     /**
@@ -84,6 +102,14 @@ class Context implements ContextInterface
      */
     public function inCoroutine(): bool
     {
-        return false;
+        return \Workerman\Coroutine::isCoroutine();
+    }
+
+    /**
+     * @return bool
+     */
+    public function inFiber(): bool
+    {
+        return get_class(Worker::getEventLoop()) === Fiber::class;
     }
 }

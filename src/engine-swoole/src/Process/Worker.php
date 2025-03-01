@@ -16,6 +16,7 @@ use Larmias\Engine\Swoole\Timer;
 use Swoole\Constant;
 use Swoole\Coroutine;
 use Swoole\Runtime;
+use ErrorException;
 
 class Worker extends BaseWorker
 {
@@ -42,6 +43,7 @@ class Worker extends BaseWorker
     /**
      * 启动进程
      * @return void
+     * @throws ErrorException
      */
     public function process(): void
     {

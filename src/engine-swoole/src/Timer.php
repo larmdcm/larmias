@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Larmias\Engine\Swoole;
 
 use Larmias\Contracts\TimerInterface;
+use Swoole\Coroutine\System;
 use Swoole\Timer as SwooleTimer;
 
 class Timer implements TimerInterface
@@ -40,6 +41,15 @@ class Timer implements TimerInterface
         $timerId = SwooleTimer::after($duration, $func, $args);
         $this->timeIds[] = $timerId;
         return $timerId;
+    }
+    
+    /**
+     * @param float $seconds
+     * @return void
+     */
+    public function sleep(float $seconds): void
+    {
+        System::sleep($seconds);
     }
 
     /**

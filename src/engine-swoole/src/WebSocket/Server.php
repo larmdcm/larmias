@@ -22,6 +22,7 @@ class Server extends BaseServer
      */
     public function process(): void
     {
+        $this->initServer();
         $this->initIdAtomic();
         $this->initHttpServer();
         $this->initWaiter();
@@ -33,10 +34,12 @@ class Server extends BaseServer
                 [$request, $response] = $this->makeRequestAndResponse($req, $resp);
 
                 $connection = new Connection($this->generateId(), $request, $response);
+                $this->join($connection);
+                $this->waiter->add(function () use ($connection) {
+                    $this->trigger(Event::ON_OPEN, [$connection]);
+                });
 
-                $this->waiter->add(fn() => $this->trigger(Event::ON_OPEN, [$connection]));
-
-                while (true) {
+                while ($this->running) {
                     $data = $connection->recv();
                     if ($data === '' || $data === false || $data instanceof CloseFrame) {
                         break;
@@ -49,7 +52,9 @@ class Server extends BaseServer
                 }
 
                 $connection->close();
-                $this->waiter->add(fn() => $this->trigger(Event::ON_CLOSE, [$connection]));
+                $this->waiter->add(function () use ($connection) {
+                    $this->trigger(Event::ON_CLOSE, [$connection]);
+                });
             } catch (Throwable $e) {
                 $this->handleException($e);
             }
@@ -57,6 +62,14 @@ class Server extends BaseServer
 
         $this->waiter->add(fn() => $this->httpServer->start());
 
-        $this->wait(fn() => $this->httpServer->shutdown());
+        $this->wait(fn() => $this->shutdown());
+    }
+
+    /**
+     * @return void
+     */
+    public function serverShutdown(): void
+    {
+        $this->httpServer->shutdown();
     }
 }

@@ -97,6 +97,6 @@ class Channel
      */
     protected function isCoroutine(): bool
     {
-        return $this->context->inCoroutine();
+        return $this->context->inCoroutine() && !$this->context->inFiber();
     }
 }

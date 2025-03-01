@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\Support;
 
+use Larmias\Context\Context;
 use RuntimeException;
 use function method_exists;
 
@@ -47,5 +48,13 @@ class Helper
         }
 
         throw new RuntimeException('Handler not exist.');
+    }
+
+    /**
+     * @return bool
+     */
+    public static function isCoroutine(): bool
+    {
+        return Context::inCoroutine() && !Context::inFiber();
     }
 }

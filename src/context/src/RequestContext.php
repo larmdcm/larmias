@@ -31,7 +31,7 @@ class RequestContext
      * @param int|null $cid
      * @return bool
      */
-    public function has(?int $cid = null): bool
+    public static function has(?int $cid = null): bool
     {
         return Context::has(ServerRequestInterface::class, $cid);
     }

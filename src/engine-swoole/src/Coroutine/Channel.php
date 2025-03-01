@@ -89,7 +89,7 @@ class Channel implements ChannelInterface
      */
     public function hasProducers(): bool
     {
-        throw new RuntimeException('Not supported.');
+        return $this->channel->stats()['producer_num'] > 0;
     }
 
     /**
@@ -97,7 +97,7 @@ class Channel implements ChannelInterface
      */
     public function hasConsumers(): bool
     {
-        throw new RuntimeException('Not supported.');
+        return $this->channel->stats()['consumer_num'] > 0;
     }
 
     /**

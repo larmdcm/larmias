@@ -5,13 +5,15 @@ declare(strict_types=1);
 namespace Larmias\Engine\WorkerMan;
 
 use Larmias\Engine\Constants;
-use Larmias\Engine\WorkerMan\EventDriver\Select;
+use RuntimeException;
+use Workerman\Events\Event;
+use Workerman\Events\EventInterface;
+use Workerman\Events\Select;
 use Workerman\Worker as BaseWorkerManWorker;
 use Workerman\Connection\TcpConnection;
-use Workerman\Lib\Timer as WorkerManTimer;
+use Workerman\Timer as WorkerManTimer;
 use function file_get_contents;
 use function extension_loaded;
-use function posix_kill;
 use function is_file;
 use function time;
 use function usleep;
@@ -24,30 +26,31 @@ use const SIGUSR2;
 class Worker extends BaseWorkerManWorker
 {
     /**
+     * @param EngineWorker $engineWorker
      * @return Worker
      * @throws \Exception
      */
-    public static function getProcessWorker(): Worker
+    public static function getProcessWorker(EngineWorker $engineWorker): Worker
     {
         /** @var Worker $worker */
-        $worker = current(static::$_workers);
+        $worker = current(static::$workers);
         static::checkSapiEnv();
         static::init();
         static::saveMasterPid();
         static::resetStd();
-        static::initWorker();
+        static::initWorker($engineWorker);
         return $worker;
     }
 
     /**
+     * @param EngineWorker $engineWorker
      * @return void
-     * @throws \Exception
      */
-    public static function initWorker(): void
+    public static function initWorker(EngineWorker $engineWorker): void
     {
         WorkerManTimer::delAll();
         if (!static::$globalEvent) {
-            $eventLoopClass = static::getEventLoopName();
+            $eventLoopClass = $engineWorker->getSettings(Constants::OPTION_EVENT_LOOP_CLASS, static::getEventLoopName());
             static::$globalEvent = new $eventLoopClass;
         }
         WorkerManTimer::init(static::$globalEvent);
@@ -136,11 +139,11 @@ class Worker extends BaseWorkerManWorker
             case 'stop':
             case 'restart':
                 if (!$force) {
-                    static::$_gracefulStop = true;
+                    static::$gracefulStop = true;
                     $sig = SIGQUIT;
                     static::log("Workerman[$startFile] is gracefully stopping ...");
                 } else {
-                    static::$_gracefulStop = false;
+                    static::$gracefulStop = false;
                     $sig = SIGINT;
                     static::log("Workerman[$startFile] is stopping ...");
                 }
@@ -154,11 +157,11 @@ class Worker extends BaseWorkerManWorker
                     $masterIsAlive = posix_kill($masterPid, 0);
                     if ($masterIsAlive) {
                         // Timeout?
-                        if (!static::$_gracefulStop && time() - $startTime >= $timeout) {
+                        if (!static::$gracefulStop && time() - $startTime >= $timeout) {
                             static::log("Workerman[$startFile] stop fail");
                             exit;
                         }
-                        // Waiting amoment.
+                        // Waiting
                         usleep(10000);
                         continue;
                     }
@@ -177,47 +180,27 @@ class Worker extends BaseWorkerManWorker
     }
 
     /**
-     * @param $msg
-     * @return void
-     */
-    public static function log($msg): void
-    {
-        if (!is_file(static::$statusFile)) {
-            if (!static::$daemonize) {
-                static::safeEcho($msg . PHP_EOL);
-            }
-            return;
-        }
-        parent::log($msg);
-    }
-
-    /**
      * @return string
      */
     protected static function getEventLoopName(): string
     {
         if (static::$eventLoopClass) {
+            if (!is_subclass_of(static::$eventLoopClass, EventInterface::class)) {
+                throw new RuntimeException(sprintf('%s::$eventLoopClass must implement %s', static::class, EventInterface::class));
+            }
             return static::$eventLoopClass;
         }
 
-        if (!\class_exists('\Swoole\Event', false)) {
-            unset(static::$_availableEventLoops['swoole']);
+        if (static::$globalEvent !== null) {
+            static::$eventLoopClass = get_class(static::$globalEvent);
+            static::$globalEvent = null;
         }
 
-        $loop_name = '';
-        foreach (static::$_availableEventLoops as $name => $class) {
-            if (\extension_loaded($name)) {
-                $loop_name = $name;
-                break;
-            }
-        }
+        static::$eventLoopClass = match (true) {
+            extension_loaded('event') => Event::class,
+            default => Select::class,
+        };
 
-        if ($loop_name) {
-            static::$eventLoopClass = static::$_availableEventLoops[$loop_name];
-        } else {
-            static::$eventLoopClass = Select::class;
-        }
-        
         return static::$eventLoopClass;
     }
 }

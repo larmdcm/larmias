@@ -44,7 +44,6 @@ class WorkerPool
      */
     protected int $status = Constants::STATUS_NORMAL;
 
-
     /**
      * @param int $workerNum
      */
@@ -155,7 +154,7 @@ class WorkerPool
         }
         $this->registerSignalHandler();
         while (true) {
-            $waitResult = SwooleProcess::wait(true);
+            $waitResult = SwooleProcess::wait();
             if ($waitResult) {
                 $worker = $this->workers[$waitResult['pid']];
                 unset($this->workers[$waitResult['pid']]);

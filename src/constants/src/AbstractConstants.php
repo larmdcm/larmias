@@ -31,7 +31,6 @@ abstract class AbstractConstants
      * @param string $name
      * @param array $args
      * @return mixed
-     * @throws \ReflectionException
      */
     public static function __callStatic(string $name, array $args): mixed
     {
@@ -57,7 +56,6 @@ abstract class AbstractConstants
 
     /**
      * @return array
-     * @throws \ReflectionException
      */
     public static function all(): array
     {

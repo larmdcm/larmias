@@ -14,8 +14,8 @@ class Process extends EngineWorker implements WorkerInterface
      */
     public function process(): void
     {
-        $worker = Worker::getProcessWorker();
+        $worker = Worker::getProcessWorker($this);
         $this->onWorkerStart($worker);
-        Worker::getEventLoop()->loop();
+        Worker::getEventLoop()->run();
     }
 }

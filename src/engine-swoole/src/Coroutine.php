@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Larmias\Engine\Swoole;
 
-use ArrayObject;
 use Larmias\Contracts\Coroutine\CoroutineCallableInterface;
 use Larmias\Contracts\Coroutine\CoroutineInterface;
 use Larmias\Engine\Swoole\Coroutine\CoroutineCallable;
-use RuntimeException;
 use Swoole\Coroutine as SwooleCoroutine;
+use RuntimeException;
+use ArrayObject;
 use function max;
 use function sprintf;
 
@@ -89,9 +89,10 @@ class Coroutine implements CoroutineInterface
 
     /**
      * 让出当前协程的执行权
+     * @param mixed $value
      * @return void
      */
-    public function yield(): void
+    public function yield(mixed $value = null): void
     {
         SwooleCoroutine::yield();
     }
@@ -99,9 +100,10 @@ class Coroutine implements CoroutineInterface
     /**
      * 恢复协程执行权
      * @param int $id
+     * @param mixed ...$params
      * @return void
      */
-    public function resume(int $id): void
+    public function resume(int $id, mixed ...$params): void
     {
         SwooleCoroutine::resume($id);
     }

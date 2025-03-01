@@ -16,7 +16,7 @@ class EventLoop implements EventLoopInterface
      */
     public function onReadable($stream, callable $func): bool
     {
-        Worker::getEventLoop()->add($stream, EventInterface::EV_READ, $func);
+        Worker::getEventLoop()->onReadable($stream, $func);
         return true;
     }
 
@@ -26,7 +26,7 @@ class EventLoop implements EventLoopInterface
      */
     public function offReadable($stream): bool
     {
-        Worker::getEventLoop()->del($stream, EventInterface::EV_READ);
+        Worker::getEventLoop()->offReadable($stream);
         return true;
     }
 
@@ -37,7 +37,7 @@ class EventLoop implements EventLoopInterface
      */
     public function onWritable($stream, callable $func): bool
     {
-        Worker::getEventLoop()->add($stream, EventInterface::EV_WRITE, $func);
+        Worker::getEventLoop()->onWritable($stream, $func);
         return true;
     }
 
@@ -47,7 +47,7 @@ class EventLoop implements EventLoopInterface
      */
     public function offWritable($stream): bool
     {
-        Worker::getEventLoop()->del($stream, EventInterface::EV_WRITE);
+        Worker::getEventLoop()->offWritable($stream);
         return true;
     }
 
@@ -56,7 +56,7 @@ class EventLoop implements EventLoopInterface
      */
     public function run(): void
     {
-        Worker::getEventLoop()->loop();
+        Worker::getEventLoop()->run();
     }
 
     /**
@@ -64,7 +64,7 @@ class EventLoop implements EventLoopInterface
      */
     public function stop(): void
     {
-        Worker::getEventLoop()->destroy();
+        Worker::getEventLoop()->stop();
     }
 
     /**

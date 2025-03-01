@@ -28,6 +28,7 @@ class Server extends BaseServer
      */
     public function process(): void
     {
+        $this->initServer();
         $this->initIdAtomic();
         $this->initWaiter();
 
@@ -50,9 +51,11 @@ class Server extends BaseServer
 
                 $connection->startCoRecv();
 
+                $this->join($connection);
+
                 $this->waiter->add(fn() => $this->trigger(Event::ON_CONNECT, [$connection]));
 
-                while (true) {
+                while ($this->running) {
                     $data = $connection->recv();
                     if ($data === '' || $data === false) {
                         break;
@@ -68,6 +71,14 @@ class Server extends BaseServer
 
         $this->waiter->add(fn() => $this->server->start());
 
-        $this->wait(fn() => $this->server->shutdown());
+        $this->wait(fn() => $this->shutdown());
+    }
+
+    /**
+     * @return void
+     */
+    public function serverShutdown(): void
+    {
+        $this->server->shutdown();
     }
 }

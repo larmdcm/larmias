@@ -4,11 +4,31 @@ declare(strict_types=1);
 
 namespace Larmias\Engine\Swoole;
 
+use Larmias\Contracts\Tcp\ConnectionInterface;
 use Larmias\Engine\Constants;
+use WeakMap;
 use function str_starts_with;
 
 abstract class Server extends Worker
 {
+    /**
+     * @var WeakMap
+     */
+    protected WeakMap $connectionMap;
+
+    /**
+     * @var bool
+     */
+    protected bool $running = true;
+
+    /**
+     * @return void
+     */
+    public function initServer(): void
+    {
+        $this->connectionMap = new WeakMap();
+    }
+
     /**
      * @return array
      */
@@ -35,5 +55,39 @@ abstract class Server extends Worker
         }
 
         return $serverSettings;
+    }
+
+    /**
+     * @param ConnectionInterface $connection
+     * @return void
+     */
+    public function join(ConnectionInterface $connection): void
+    {
+        if (!isset($this->connectionMap)) {
+            return;
+        }
+        $this->connectionMap[$connection] = $connection->getId();
+    }
+
+    /**
+     * @return void
+     */
+    public function serverShutdown(): void
+    {
+    }
+
+    /**
+     * @return void
+     */
+    public function shutdown(): void
+    {
+        $this->serverShutdown();
+        $this->running = false;
+        if (isset($this->connectionMap)) {
+            foreach ($this->connectionMap as $connection => $id) {
+                $connection->close();
+            }
+            unset($this->connectionMap);
+        }
     }
 }

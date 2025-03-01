@@ -8,6 +8,7 @@ use Larmias\Engine\Constants;
 use Larmias\Engine\Contracts\DriverInterface;
 use Larmias\Engine\Contracts\KernelInterface;
 use Larmias\Engine\WorkerMan\Contracts\WorkerInterface;
+use Larmias\Engine\WorkerMan\Coroutine\Channel;
 use Larmias\Engine\WorkerMan\Scheduler\Factory;
 use Larmias\Engine\WorkerMan\Tcp\Server as TcpServer;
 use Larmias\Engine\WorkerMan\Udp\Server as UdpServer;
@@ -167,7 +168,7 @@ class Driver implements DriverInterface
      */
     public function getCoroutineClass(): ?string
     {
-        return null;
+        return Coroutine::class;
     }
 
     /**
@@ -175,6 +176,6 @@ class Driver implements DriverInterface
      */
     public function getChannelClass(): ?string
     {
-        return null;
+        return Channel::class;
     }
 }

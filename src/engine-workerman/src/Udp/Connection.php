@@ -31,7 +31,8 @@ class Connection implements ConnectionInterface
      */
     public function close(): bool
     {
-        return $this->connection->close();
+        $this->connection->close();
+        return true;
     }
 
     /**

@@ -33,6 +33,15 @@ class Timer implements TimerInterface
     }
 
     /**
+     * @param float $seconds
+     * @return void
+     */
+    public function sleep(float $seconds): void
+    {
+        WorkerManTimer::sleep($seconds);
+    }
+
+    /**
      * @param int $timerId
      * @return bool
      */

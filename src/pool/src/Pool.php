@@ -81,7 +81,7 @@ abstract class Pool implements PoolInterface
     public function __construct(protected ContainerInterface $container, array $options = [])
     {
         $this->context = $this->container->get(ContextInterface::class);
-        if ($this->context->inCoroutine()) {
+        if ($this->isCoroutine()) {
             $this->coroutine = $this->container->get(CoroutineInterface::class);
         }
         $this->timer = $this->container->get(TimerInterface::class);
@@ -153,7 +153,7 @@ abstract class Pool implements PoolInterface
             $this->channel->close();
         };
 
-        $this->context->inCoroutine() ? $this->coroutine->create($handler) : $handler();
+        $this->isCoroutine() ? $this->coroutine->create($handler) : $handler();
         return true;
     }
 
@@ -208,7 +208,7 @@ abstract class Pool implements PoolInterface
             $this->options['wait_timeout'],
         );
 
-        if (!$this->context->inCoroutine()) {
+        if (!$this->isCoroutine()) {
             $this->poolOption->setMinActive(1);
             $this->poolOption->setMaxActive(1);
         }
@@ -314,7 +314,15 @@ abstract class Pool implements PoolInterface
             } catch (Throwable) {
             }
         };
-        $this->context->inCoroutine() ? $this->coroutine->create($handler) : $handler();
+        $this->isCoroutine() ? $this->coroutine->create($handler) : $handler();
+    }
+
+    /**
+     * @return bool
+     */
+    protected function isCoroutine(): bool
+    {
+        return $this->context->inCoroutine() && !$this->context->inFiber();
     }
 
     public function __destruct()

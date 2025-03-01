@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Larmias\Codec;
 
-use InvalidArgumentException;
 use Larmias\Contracts\Arrayable;
 use Larmias\Contracts\Jsonable;
+use InvalidArgumentException;
 use Throwable;
 use function json_decode;
 use function json_encode;

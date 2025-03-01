@@ -11,6 +11,7 @@ use function call_user_func_array;
 /**
  * @method static int tick(int $duration, callable $func, array $args = [])
  * @method static int after(int $duration, callable $func, array $args = [])
+ * @method static bool sleep(float $seconds)
  * @method static bool del(int $timerId)
  * @method static bool clear()
  */
@@ -20,28 +21,13 @@ class Timer
     protected static ?TimerInterface $timer = null;
 
     /**
-     * @var bool
-     */
-    protected static bool $isInit = false;
-
-    /**
      * 初始化
-     *
      * @param TimerInterface $timer
      * @return void
      */
     public static function init(TimerInterface $timer): void
     {
         static::$timer = $timer;
-        static::$isInit = true;
-    }
-
-    /**
-     * @return bool
-     */
-    public static function isInit(): bool
-    {
-        return static::$isInit;
     }
 
     /**

@@ -19,15 +19,15 @@ class Server extends BaseServer
 
     /**
      * @param TcpConnection $tcpConnection
-     * @param mixed $data
+     * @param WorkerRequest $request
      * @return void
      */
-    public function onWebSocketConnect(TcpConnection $tcpConnection, mixed $data): void
+    public function onWebSocketConnect(TcpConnection $tcpConnection, WorkerRequest $request): void
     {
         try {
-            $tcpConnection->request = $data instanceof WorkerRequest ? $data : new WorkerRequest($data);
+            $tcpConnection->request = $request;
             $connection = new Connection($tcpConnection);
-            $this->trigger(Event::ON_OPEN, [$connection, $data]);
+            $this->trigger(Event::ON_OPEN, [$connection]);
         } catch (Throwable $e) {
             $this->handleException($e);
         }

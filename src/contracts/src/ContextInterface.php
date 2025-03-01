@@ -50,4 +50,9 @@ interface ContextInterface
      * @return bool
      */
     public function inCoroutine(): bool;
+
+    /**
+     * @return bool
+     */
+    public function inFiber(): bool;
 }

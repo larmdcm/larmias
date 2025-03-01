@@ -58,7 +58,7 @@ class Connection implements ConnectionInterface
      */
     public function close(): bool
     {
-        return (bool)$this->response->getSwooleResponse()->close();
+        return $this->response->getSwooleResponse()->close();
     }
 
     /**

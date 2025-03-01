@@ -538,7 +538,6 @@ class Validator implements ValidatorInterface
 
     /**
      * 设置是否批量验证
-     *
      * @param bool $batch
      * @return self
      */

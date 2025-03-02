@@ -36,6 +36,14 @@ class Server extends BaseServer
 
         $this->waiter->add(fn() => $this->httpServer->start());
 
-        $this->wait(fn() => $this->httpServer->shutdown());
+        $this->wait(fn() => $this->shutdown());
+    }
+
+    /**
+     * @return void
+     */
+    public function serverShutdown(): void
+    {
+        $this->httpServer->shutdown();
     }
 }

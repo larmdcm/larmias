@@ -87,16 +87,15 @@ class ServiceDiscover implements ServiceDiscoverInterface
         $scanned = $scanHandler->scan();
         if (!$scanned->isScanned()) {
             $this->runHandle();
-            return;
         }
         $callback();
     }
 
     /**
-     * @return void
+     * @return never
      * @throws Throwable
      */
-    protected function runHandle(): void
+    protected function runHandle(): never
     {
         $this->app->setIsInitialize(true);
         run(function () {

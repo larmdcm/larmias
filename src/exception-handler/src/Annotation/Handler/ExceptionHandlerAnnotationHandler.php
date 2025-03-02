@@ -26,7 +26,11 @@ class ExceptionHandlerAnnotationHandler implements AnnotationHandlerInterface
         if ($annotation->name) {
             $name .= '.' . $annotation->name;
         }
-        $this->config->push($name, $param['class']);
+
+        $configData = $this->config->get($name);
+        if (!in_array($param['class'], $configData)) {
+            $this->config->push($name, $param['class']);
+        }
     }
 
     public function handle(): void

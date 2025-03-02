@@ -50,9 +50,9 @@ class Coroutine implements CoroutineInterface
             }
         } else {
             $cid = SwooleCoroutine::getPcid();
-        }
-        if ($cid === false) {
-            throw new RuntimeException('Non-Coroutine environment don\'t has parent coroutine id.');
+            if ($cid === false) {
+                throw new RuntimeException('Non-Coroutine environment don\'t has parent coroutine id.');
+            }
         }
         return max(0, $cid);
     }

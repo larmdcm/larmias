@@ -10,11 +10,13 @@ use Larmias\ExceptionHandler\Annotation\Handler\ExceptionHandlerAnnotationHandle
 use Larmias\ExceptionHandler\Contracts\ExceptionHandlerDispatcherInterface;
 use Larmias\ExceptionHandler\ExceptionHandlerDispatcher;
 use Larmias\Framework\ServiceProvider;
+use Throwable;
 
 class ExceptionHandlerServiceProvider extends ServiceProvider
 {
     /**
      * @return void
+     * @throws Throwable
      */
     public function register(): void
     {
@@ -28,7 +30,7 @@ class ExceptionHandlerServiceProvider extends ServiceProvider
 
     /**
      * @return void
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function boot(): void
     {

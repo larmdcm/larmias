@@ -55,8 +55,9 @@ class DiServiceProvider extends ServiceProvider
 
         /** @var ConfigInterface $config */
         $config = $this->container->get(ConfigInterface::class);
+        $aopConfig = $config->get('aop', []);
         /** @var ClassScannerInterface $classScanner */
-        $classScanner = $this->container->make(ClassScannerInterface::class, ['config' => $config->get('aop', [])]);
+        $classScanner = $this->container->make(ClassScannerInterface::class, ['config' => $aopConfig]);
         $classScanner->scan();
     }
 }

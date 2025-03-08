@@ -6,13 +6,14 @@ namespace Larmias\Engine\Swoole;
 
 use Larmias\Contracts\Tcp\ConnectionInterface;
 use Larmias\Engine\Constants;
+use Swoole\Timer;
 use WeakMap;
 use function str_starts_with;
 
 abstract class Server extends Worker
 {
     /**
-     * @var WeakMap
+     * @var WeakMap<ConnectionInterface,int>
      */
     protected WeakMap $connectionMap;
 
@@ -22,11 +23,20 @@ abstract class Server extends Worker
     protected bool $running = true;
 
     /**
+     * @var int
+     */
+    protected int $heartbeatCheckTimerId = 0;
+
+    /**
      * @return void
      */
     public function initServer(): void
     {
         $this->connectionMap = new WeakMap();
+        $this->initWaiter();
+        if (method_exists($this, 'initIdAtomic')) {
+            $this->initIdAtomic();
+        }
     }
 
     /**
@@ -66,14 +76,89 @@ abstract class Server extends Worker
         if (!isset($this->connectionMap)) {
             return;
         }
+
+        if (isset($this->connectionMap[$connection])) {
+            return;
+        }
+
         $this->connectionMap[$connection] = $connection->getId();
     }
 
     /**
      * @return void
      */
-    public function serverShutdown(): void
+    public function startHeartbeatCheck(): void
     {
+        if (!$this->isOpenHeartbeatCheck() || !isset($this->connectionMap)) {
+            return;
+        }
+        $checkInterval = (int)$this->getSettings('heartbeat_check_interval', 60);
+        $idleTime = (int)$this->getSettings('heartbeat_idle_time', $checkInterval * 2);
+        $ignoreProcessing = (bool)$this->getSettings('heartbeat_ignore_processing', true);
+        $this->heartbeatCheckTimerId = Timer::tick($checkInterval * 1000, function () use ($ignoreProcessing, $idleTime) {
+            $nowTime = time();
+            foreach ($this->connectionMap as $connection => $id) {
+                if (!isset($connection->lastHeartbeatTime)) {
+                    continue;
+                }
+
+                if ($ignoreProcessing && isset($connection->processing) && $connection->processing) {
+                    continue;
+                }
+
+                if ($nowTime - $connection->lastHeartbeatTime > $idleTime) {
+                    $this->closeConnection($connection);
+                }
+            }
+        });
+    }
+
+    /**
+     * @param ConnectionInterface $connection
+     * @return void
+     */
+    public function connHeartbeatCheck(ConnectionInterface $connection): void
+    {
+        if (isset($connection->processing)) {
+            $connection->processing = true;
+        }
+
+        if (!$this->isOpenHeartbeatCheck() || !isset($connection->lastHeartbeatTime)) {
+            return;
+        }
+        $connection->lastHeartbeatTime = time();
+        $this->join($connection);
+    }
+
+    /**
+     * @return bool
+     */
+    public function isOpenHeartbeatCheck(): bool
+    {
+        return (bool)$this->getSettings('open_heartbeat_check', false);
+    }
+
+    /**
+     * @return void
+     */
+    public function onServerStart(): void
+    {
+    }
+
+    /**
+     * @return void
+     */
+    public function onServerShutdown(): void
+    {
+    }
+
+    /**
+     * @return void
+     */
+    public function start(): void
+    {
+        $this->startHeartbeatCheck();
+        $this->onServerStart();
     }
 
     /**
@@ -81,13 +166,26 @@ abstract class Server extends Worker
      */
     public function shutdown(): void
     {
-        $this->serverShutdown();
+        $this->onServerShutdown();
         $this->running = false;
+        $this->heartbeatCheckTimerId && Timer::clear($this->heartbeatCheckTimerId);
         if (isset($this->connectionMap)) {
             foreach ($this->connectionMap as $connection => $id) {
-                $connection->close();
+                $this->closeConnection($connection);
             }
             unset($this->connectionMap);
+        }
+    }
+
+    /**
+     * @param ConnectionInterface $connection
+     * @return void
+     */
+    public function closeConnection(ConnectionInterface $connection): void
+    {
+        $connection->close();
+        if (isset($this->connectionMap)) {
+            unset($this->connectionMap[$connection]);
         }
     }
 }

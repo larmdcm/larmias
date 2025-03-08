@@ -14,6 +14,7 @@ use Larmias\Database\Model\Relations\HasOne;
  * @property UserInfoModel $userInfo
  * @property string $username
  * @property int $integral
+ * @property array $info
  */
 class UserModel extends Model
 {
@@ -22,6 +23,7 @@ class UserModel extends Model
      */
     protected array $cast = [
         'integral' => 'int',
+        'info' => 'json',
     ];
 
     /**

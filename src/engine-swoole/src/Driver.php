@@ -17,6 +17,7 @@ use Larmias\Engine\Swoole\Contracts\WorkerInterface;
 use Larmias\Engine\Swoole\Coroutine\Channel;
 use Larmias\Engine\WorkerType;
 use RuntimeException;
+use Throwable;
 use function get_class;
 use function array_filter;
 
@@ -30,7 +31,7 @@ class Driver implements DriverInterface
     /**
      * @param KernelInterface $kernel
      * @return void
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function run(KernelInterface $kernel): void
     {

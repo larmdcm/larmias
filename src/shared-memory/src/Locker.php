@@ -25,7 +25,7 @@ class Locker implements LockerInterface
      */
     public function tryLock(Closure $handler): mixed
     {
-        if ($this->context->inCoroutine()) {
+        if ($this->context->inCoroutine() && !$this->context->inFiber()) {
             try {
                 $this->coLocker->lock();
                 $result = $handler();

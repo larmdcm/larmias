@@ -16,7 +16,6 @@ use function explode;
 use function is_string;
 use function in_array;
 use function gettype;
-use function is_int;
 use function dirname;
 use function is_dir;
 use function mkdir;
@@ -93,12 +92,12 @@ class UploadedFile extends SplFileInfo implements UploadedFileInterface, Stringa
      * UploadedFile constructor.
      *
      * @param string $file
-     * @param int|null $size
+     * @param int $size
      * @param int $error
      * @param string|null $clientFilename
      * @param string|null $clientMediaType
      */
-    public function __construct(string $file, ?int $size, int $error, ?string $clientFilename = null, ?string $clientMediaType = null)
+    public function __construct(string $file, int $size, int $error, ?string $clientFilename = null, ?string $clientMediaType = null)
     {
         parent::__construct($file);
         $this->setFile($file)
@@ -194,9 +193,9 @@ class UploadedFile extends SplFileInfo implements UploadedFileInterface, Stringa
      * the file in the $_FILES array if available, as PHP calculates this based
      * on the actual size transmitted.
      *
-     * @return int|null The file size in bytes or null if unknown.
+     * @return int The file size in bytes or null if unknown.
      */
-    public function getSize(): ?int
+    public function getSize(): int
     {
         return $this->size;
     }
@@ -279,13 +278,13 @@ class UploadedFile extends SplFileInfo implements UploadedFileInterface, Stringa
     }
 
     /**
-     * @return string|null
+     * @return string
      */
-    public function getExtension(): ?string
+    public function getExtension(): string
     {
         $clientName = $this->getClientFilename();
         $segments = explode('.', $clientName);
-        return end($segments) ?? null;
+        return (string)end($segments);
     }
 
     /**
@@ -348,15 +347,11 @@ class UploadedFile extends SplFileInfo implements UploadedFileInterface, Stringa
     }
 
     /**
-     * @param null|int $size
+     * @param int $size
      * @return UploadedFile
      */
-    protected function setSize(?int $size): self
+    protected function setSize(int $size): self
     {
-        if (is_int($size) === false) {
-            throw new InvalidArgumentException('Upload file size must be an integer');
-        }
-
         $this->size = $size;
         return $this;
     }
@@ -398,7 +393,7 @@ class UploadedFile extends SplFileInfo implements UploadedFileInterface, Stringa
     /**
      * @throws RuntimeException
      */
-    protected function validateActive()
+    protected function validateActive(): void
     {
         if ($this->isOk() === false) {
             throw new RuntimeException('Cannot retrieve stream due to upload error');

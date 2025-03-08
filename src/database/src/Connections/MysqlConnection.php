@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Larmias\Database\Connections;
 
+use Throwable;
+
 class MysqlConnection extends PDOConnection
 {
     /**
@@ -37,7 +39,7 @@ class MysqlConnection extends PDOConnection
      * 获取表列信息
      * @param string $table
      * @return array
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function getTableColumnInfo(string $table): array
     {

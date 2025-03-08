@@ -26,6 +26,7 @@ use Larmias\HttpServer\Message\Response;
 use Larmias\HttpServer\ResponseEmitter;
 use Larmias\Routing\Router as BaseRouter;
 use Larmias\HttpServer\Routing\Router;
+use Throwable;
 
 class HttpServiceProvider implements ServiceProviderInterface
 {
@@ -38,7 +39,7 @@ class HttpServiceProvider implements ServiceProviderInterface
 
     /**
      * @return void
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function register(): void
     {

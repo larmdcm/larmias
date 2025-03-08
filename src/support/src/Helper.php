@@ -11,6 +11,11 @@ use function method_exists;
 class Helper
 {
     /**
+     * @var array
+     */
+    protected static array $cache = [];
+
+    /**
      * 判断对象方法是否存在
      * @param object $object
      * @param string|array $methods
@@ -53,8 +58,21 @@ class Helper
     /**
      * @return bool
      */
-    public static function isCoroutine(): bool
+    public static function isTrueAsync(): bool
     {
         return Context::inCoroutine() && !Context::inFiber();
+    }
+
+    /**
+     * 获取启动文件路径
+     * @return string
+     */
+    public static function getStartFile(): string
+    {
+        if (!isset(static::$cache[__FUNCTION__])) {
+            $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+            static::$cache[__FUNCTION__] = end($backtrace)['file'];
+        }
+        return static::$cache[__FUNCTION__];
     }
 }

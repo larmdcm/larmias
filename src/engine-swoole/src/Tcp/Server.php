@@ -7,7 +7,7 @@ namespace Larmias\Engine\Swoole\Tcp;
 use Larmias\Engine\Constants;
 use Larmias\Engine\Swoole\Concerns\WithIdAtomic;
 use Larmias\Engine\Swoole\Server as BaseServer;
-use Swoole\Coroutine\Server as CoServer;
+use Swoole\Coroutine\Server as TcpServer;
 use Swoole\Coroutine\Server\Connection as TcpConnection;
 use Swoole\Exception as SwooleException;
 use Larmias\Engine\Event;
@@ -18,9 +18,9 @@ class Server extends BaseServer
     use WithIdAtomic;
 
     /**
-     * @var CoServer
+     * @var TcpServer
      */
-    protected CoServer $server;
+    protected TcpServer $server;
 
     /**
      * @return void
@@ -29,10 +29,8 @@ class Server extends BaseServer
     public function process(): void
     {
         $this->initServer();
-        $this->initIdAtomic();
-        $this->initWaiter();
 
-        $this->server = new CoServer($this->getWorkerConfig()->getHost(), $this->getWorkerConfig()->getPort(),
+        $this->server = new TcpServer($this->getWorkerConfig()->getHost(), $this->getWorkerConfig()->getPort(),
             $this->getSettings(Constants::OPTION_SSL, false),
             $this->getSettings(Constants::OPTION_REUSE_PORT, true)
         );
@@ -50,7 +48,6 @@ class Server extends BaseServer
                 ]);
 
                 $connection->startCoRecv();
-
                 $this->join($connection);
 
                 $this->waiter->add(fn() => $this->trigger(Event::ON_CONNECT, [$connection]));
@@ -60,7 +57,11 @@ class Server extends BaseServer
                     if ($data === '' || $data === false) {
                         break;
                     }
-                    $this->waiter->add(fn() => $this->trigger(Event::ON_RECEIVE, [$connection, $data]));
+                    $this->waiter->add(function () use ($connection, $data) {
+                        $this->connHeartbeatCheck($connection);
+                        $this->trigger(Event::ON_RECEIVE, [$connection, $data]);
+                        $connection->processing = false;
+                    });
                 }
                 $connection->close();
                 $this->waiter->add(fn() => $this->trigger(Event::ON_CLOSE, [$connection]));
@@ -69,7 +70,7 @@ class Server extends BaseServer
             }
         });
 
-        $this->waiter->add(fn() => $this->server->start());
+        $this->waiter->add(fn() => $this->start());
 
         $this->wait(fn() => $this->shutdown());
     }
@@ -77,7 +78,15 @@ class Server extends BaseServer
     /**
      * @return void
      */
-    public function serverShutdown(): void
+    public function onServerStart(): void
+    {
+        $this->server->start();
+    }
+
+    /**
+     * @return void
+     */
+    public function onServerShutdown(): void
     {
         $this->server->shutdown();
     }

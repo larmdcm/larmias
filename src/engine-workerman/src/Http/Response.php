@@ -80,7 +80,7 @@ class Response implements ResponseInterface
     public function cookie(string $name, string $value = '', int $expire = 0, string $path = '/', string $domain = '', bool $secure = false, bool $httpOnly = true, ?string $sameSite = null): self
     {
         $maxAge = $expire !== 0 ? $expire - time() : null;
-        $this->response->cookie($name, $value, $maxAge, $path, $domain, $secure, $httpOnly, $sameSite);
+        $this->response->cookie($name, $value, $maxAge, $path, $domain, $secure, $httpOnly, (string)$sameSite);
         return $this;
     }
 

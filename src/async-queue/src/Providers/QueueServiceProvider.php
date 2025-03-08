@@ -7,6 +7,7 @@ namespace Larmias\AsyncQueue\Providers;
 use Larmias\AsyncQueue\Contracts\QueueInterface;
 use Larmias\Framework\ServiceProvider;
 use Larmias\AsyncQueue\Queue;
+use Throwable;
 
 class QueueServiceProvider extends ServiceProvider
 {
@@ -22,7 +23,7 @@ class QueueServiceProvider extends ServiceProvider
 
     /**
      * @return void
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function boot(): void
     {

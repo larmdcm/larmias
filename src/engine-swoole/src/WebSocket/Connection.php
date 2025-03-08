@@ -6,11 +6,14 @@ namespace Larmias\Engine\Swoole\WebSocket;
 
 use Larmias\Contracts\Http\RequestInterface;
 use Larmias\Contracts\WebSocket\ConnectionInterface;
+use Larmias\Engine\Swoole\Concerns\WithTcpConnection;
 use Larmias\Engine\Swoole\Http\Request;
 use Larmias\Engine\Swoole\Http\Response;
 
 class Connection implements ConnectionInterface
 {
+    use WithTcpConnection;
+
     /**
      * @param int $id
      * @param Request $request

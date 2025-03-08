@@ -8,6 +8,7 @@ use Larmias\Contracts\Tcp\ConnectionInterface;
 use Larmias\Contracts\ContainerInterface;
 use Larmias\SharedMemory\Context;
 use Larmias\SharedMemory\Message\Command as MessageCommand;
+use Throwable;
 use function str_contains;
 use function explode;
 use function call_user_func_array;
@@ -44,7 +45,7 @@ class Command
 
     /**
      * @return ConnectionInterface
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function getConnection(): ConnectionInterface
     {

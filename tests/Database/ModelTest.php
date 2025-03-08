@@ -64,6 +64,7 @@ class ModelTest extends TestCase
         $model = UserModel::create([
             'username' => $username,
             'password' => '123456',
+            'info' => ['friend_id' => 100, 'address' => ['name' => 'test name', 'address' => 'test address']],
         ]);
 
         $this->assertSame($model->username, $username);
@@ -78,6 +79,31 @@ class ModelTest extends TestCase
         $this->assertNotEmpty($model);
         $this->assertSame($model->id, 1);
         $this->assertNotSame(0, $model->integral);
+    }
+
+    /**
+     * @return void
+     */
+    public function testGet(): void
+    {
+        $userList = UserModel::get();
+        $userList->where('id', 1)->each(function ($item) {
+            var_dump($item['info']);
+        });
+        $this->assertTrue($userList->isNotEmpty());
+    }
+
+    /**
+     * @return void
+     */
+    public function testChunk()
+    {
+        UserModel::where('id', 1)->chunk(1000, function ($userList) {
+            foreach ($userList as $item) {
+                var_dump($item['info']);
+            }
+        });
+        $this->assertTrue(true);
     }
 
     /**

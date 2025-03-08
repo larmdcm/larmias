@@ -99,7 +99,7 @@ abstract class QueueDriver implements QueueDriverInterface
         $this->queue = $queue;
         $this->waitTime = $waitTime;
 
-        if ($this->context->inCoroutine()) {
+        if ($this->context->inCoroutine() && !$this->context->inFiber()) {
             $this->coHandle();
         } else {
             $this->handle();
@@ -132,7 +132,7 @@ abstract class QueueDriver implements QueueDriverInterface
      */
     protected function getConcurrent(): ?ConcurrentInterface
     {
-        if (!$this->context->inCoroutine()) {
+        if (!$this->context->inCoroutine() || $this->context->inFiber()) {
             return null;
         }
 

@@ -297,7 +297,7 @@ class ValidateUtils
         if (is_string($ext)) {
             $ext = explode(',', $ext);
         }
-
+        
         if ($file instanceof SplFileInfo) {
             $fileExt = $file->getExtension();
         } else {

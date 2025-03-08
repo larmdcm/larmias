@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Larmias\SharedMemory\Client;
 
+use Throwable;
+
 class Client
 {
     protected ?Connection $connection = null;
@@ -14,7 +16,7 @@ class Client
 
     /**
      * @return Connection
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function getConnection(): Connection
     {
@@ -29,7 +31,7 @@ class Client
      * @param string $name
      * @param array $arguments
      * @return mixed
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function __call(string $name, array $arguments): mixed
     {

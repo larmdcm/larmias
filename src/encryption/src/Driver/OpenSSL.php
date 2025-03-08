@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Larmias\Encryption\Driver;
 
 use Larmias\Contracts\Encryption\EncryptException;
+use Throwable;
 
 class OpenSSL extends Driver
 {
@@ -106,7 +107,8 @@ class OpenSSL extends Driver
 
     /**
      * @param int $length
-     * @throws \Exception
+     * @return string
+     * @throws Throwable
      */
     public function generateKey(int $length = 32): string
     {

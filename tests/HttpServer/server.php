@@ -20,7 +20,7 @@ $app = require __DIR__ . '/../app.php';
 $kernel = new Kernel($app->getContainer());
 
 $kernel->setConfig(EngineConfig::build(config: [
-    'driver' => \Larmias\Engine\WorkerMan\Driver::class,
+    'driver' => \Larmias\Engine\Swoole\Driver::class,
     'workers' => [
         [
             'name' => 'http',
@@ -29,6 +29,10 @@ $kernel->setConfig(EngineConfig::build(config: [
             'port' => 9601,
             'settings' => [
                 'worker_num' => 1,
+                'open_heartbeat_check' => true,
+                'heartbeat_check_interval' => 1,
+                'heartbeat_idle_time' => 3,
+                'heartbeat_ignore_processing' => true,
             ],
             'callbacks' => [
                 Event::ON_REQUEST => [HttpServer::class, OnRequestInterface::ON_REQUEST],
@@ -50,6 +54,14 @@ $kernel->setConfig(EngineConfig::build(config: [
                 $resp->write('hello2<br/>');
                 $resp->write('hello3<br/>');
                 return $resp;
+            });
+
+            Router::get('/sleep', function (RequestInterface $request) {
+                $sleepTime = $request->input('time', 3);
+                if ($sleepTime > 0) {
+                    sleep($sleepTime);
+                }
+                return 'success';
             });
 
             Router::get('/sseView', function (RequestInterface $request, ResponseInterface $resp) {

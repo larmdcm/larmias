@@ -9,6 +9,7 @@ use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\Worker\OnWorkerStartInterface;
 use Larmias\Contracts\Worker\WorkerInterface;
 use Larmias\Task\TaskWorker;
+use Throwable;
 
 class TaskProcess implements OnWorkerStartInterface
 {
@@ -21,7 +22,7 @@ class TaskProcess implements OnWorkerStartInterface
      * @param ContainerInterface $container
      * @param WorkerInterface $worker
      * @param ConfigInterface $config
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function __construct(protected ContainerInterface $container, protected WorkerInterface $worker, protected ConfigInterface $config)
     {

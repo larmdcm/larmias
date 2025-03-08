@@ -6,6 +6,7 @@ namespace Larmias\Engine\Swoole\Tcp;
 
 use Larmias\Contracts\Tcp\ConnectionInterface;
 use Larmias\Contracts\ProtocolInterface;
+use Larmias\Engine\Swoole\Concerns\WithTcpConnection;
 use Larmias\Support\ProtocolHandler;
 use Swoole\Coroutine;
 use Swoole\Coroutine\Channel;
@@ -14,11 +15,13 @@ use Closure;
 
 class Connection implements ConnectionInterface
 {
+    use WithTcpConnection;
+
     /**
      * @var ProtocolInterface|null
      */
     protected ?ProtocolInterface $protocol = null;
-    
+
     /**
      * @var Channel
      */
@@ -45,9 +48,9 @@ class Connection implements ConnectionInterface
 
     /**
      * @param mixed $data
-     * @return mixed
+     * @return int|bool
      */
-    public function send(mixed $data): mixed
+    public function send(mixed $data): int|bool
     {
         return $this->connection->send($this->protocol ? $this->protocol->pack($data) : $data);
     }

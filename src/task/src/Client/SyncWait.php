@@ -30,7 +30,7 @@ class SyncWait
      */
     public function add(string $id): void
     {
-        if ($this->context->inCoroutine()) {
+        if ($this->context->inCoroutine() && !$this->context->inFiber()) {
             $this->channels[$id] = $this->factory->make();
         }
     }
@@ -42,7 +42,7 @@ class SyncWait
      */
     public function done(string $id, mixed $result = null): void
     {
-        if (!isset($this->channels[$id]) || !$this->context->inCoroutine()) {
+        if (!isset($this->channels[$id])) {
             return;
         }
 
@@ -55,7 +55,7 @@ class SyncWait
      */
     public function wait(string $id): mixed
     {
-        if (!$this->context->inCoroutine()) {
+        if (!$this->context->inCoroutine() || $this->context->inFiber()) {
             return true;
         }
 

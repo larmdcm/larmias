@@ -9,6 +9,7 @@ use Larmias\Contracts\ContextInterface;
 use Larmias\Contracts\Coroutine\CoroutineInterface;
 use Larmias\Client\Pool\TcpClientConnection;
 use Larmias\Client\Pool\TcpClientPool;
+use Throwable;
 
 /**
  * @method bool connect()
@@ -41,12 +42,12 @@ class TcpClient
     /**
      * @param ContainerInterface $container
      * @param array $config
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function __construct(protected ContainerInterface $container, protected array $config = [])
     {
         $this->context = $this->container->get(ContextInterface::class);
-        if ($this->context->inCoroutine()) {
+        if ($this->context->inCoroutine() && !$this->context->inFiber()) {
             $this->coroutine = $this->container->get(CoroutineInterface::class);
         }
         $this->clientPool = new TcpClientPool($this->container, $this->config['pool'] ?? [], $this->config);

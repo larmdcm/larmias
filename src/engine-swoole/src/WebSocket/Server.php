@@ -23,9 +23,7 @@ class Server extends BaseServer
     public function process(): void
     {
         $this->initServer();
-        $this->initIdAtomic();
         $this->initHttpServer();
-        $this->initWaiter();
 
         $this->httpServer->handle('/', function (SwooleRequest $req, SwooleResponse $resp) {
             try {
@@ -47,7 +45,9 @@ class Server extends BaseServer
 
                     $this->waiter->add(function () use ($connection, $data) {
                         $frame = Frame::from($data);
+                        $this->connHeartbeatCheck($connection);
                         $this->trigger(Event::ON_MESSAGE, [$connection, $frame]);
+                        $connection->processing = false;
                     });
                 }
 
@@ -60,7 +60,7 @@ class Server extends BaseServer
             }
         });
 
-        $this->waiter->add(fn() => $this->httpServer->start());
+        $this->waiter->add(fn() => $this->start());
 
         $this->wait(fn() => $this->shutdown());
     }
@@ -68,7 +68,15 @@ class Server extends BaseServer
     /**
      * @return void
      */
-    public function serverShutdown(): void
+    public function onServerStart(): void
+    {
+        $this->httpServer->start();
+    }
+
+    /**
+     * @return void
+     */
+    public function onServerShutdown(): void
     {
         $this->httpServer->shutdown();
     }

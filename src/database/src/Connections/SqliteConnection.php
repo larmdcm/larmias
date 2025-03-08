@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Larmias\Database\Connections;
 
+use Throwable;
+
 class SqliteConnection extends PDOConnection
 {
     /**
@@ -19,7 +21,7 @@ class SqliteConnection extends PDOConnection
      * 获取表列信息
      * @param string $table
      * @return array
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function getTableColumnInfo(string $table): array
     {

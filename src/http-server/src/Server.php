@@ -80,9 +80,13 @@ class Server implements OnRequestInterface
                 println(format_exception($exception));
             }
         } finally {
-            if (isset($psrResponse)) {
-                $this->eventDispatcher->dispatch(new HttpRequestEnd($serverReq, $psrResponse));
-                $this->responseEmitter->emit($psrResponse, $response, $serverReq->getMethod() !== 'HEAD');
+            try {
+                if (isset($psrResponse)) {
+                    $this->eventDispatcher->dispatch(new HttpRequestEnd($serverReq, $psrResponse));
+                    $this->responseEmitter->emit($psrResponse, $response, $serverReq->getMethod() !== 'HEAD');
+                }
+            } catch (Throwable $e) {
+                println(format_exception($e));
             }
         }
     }

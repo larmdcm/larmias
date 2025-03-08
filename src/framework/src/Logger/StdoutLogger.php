@@ -148,7 +148,7 @@ class StdoutLogger implements StdoutLoggerInterface
         }
         $search = array_map(fn($key) => sprintf('{%s}', $key), $keys);
         $message = str_replace($search, $context, $this->getMessage((string)$message, $level, $tags));
-        $this->writeln($message);
+        str_ends_with($message, "\n") ? $this->write($message) : $this->writeln($message);
     }
 
     /**

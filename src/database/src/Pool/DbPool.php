@@ -10,6 +10,7 @@ use Larmias\Database\Connections\MysqlConnection;
 use Larmias\Database\Connections\SqliteConnection;
 use Larmias\Pool\Pool;
 use RuntimeException;
+use Throwable;
 use function str_contains;
 use function class_exists;
 
@@ -19,7 +20,7 @@ class DbPool extends Pool
      * @param ContainerInterface $container
      * @param array $options
      * @param array $config
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function __construct(ContainerInterface $container, array $options = [], protected array $config = [])
     {

@@ -37,7 +37,7 @@ abstract class Worker extends BaseWorker implements WorkerInterface
     public function workerStart(int $workerId): void
     {
         try {
-            $this->start($workerId);
+            $this->run($workerId);
         } catch (Throwable $e) {
             $this->handleException($e);
         }

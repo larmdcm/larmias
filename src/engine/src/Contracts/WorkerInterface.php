@@ -13,7 +13,12 @@ interface WorkerInterface extends BaseWorkerInterface
      * @param int $workerId
      * @return void
      */
-    public function start(int $workerId): void;
+    public function run(int $workerId): void;
+
+    /**
+     * @return void
+     */
+    public function stop(): void;
 
     /**
      * @param string $event

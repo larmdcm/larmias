@@ -11,6 +11,7 @@ use Larmias\Contracts\ContainerInterface;
 use Larmias\SharedMemory\Client\Connection as SmConnection;
 use Larmias\SharedMemory\Message\Result;
 use Larmias\Task\Task;
+use Throwable;
 use function is_array;
 use function implode;
 use function call_user_func_array;
@@ -35,7 +36,7 @@ class Connection
     /**
      * @param ContainerInterface $container
      * @param array $options
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function __construct(ContainerInterface $container, array $options = [])
     {

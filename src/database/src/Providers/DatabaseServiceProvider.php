@@ -10,6 +10,7 @@ use Larmias\Database\Manager;
 use Larmias\Database\Model;
 use Larmias\Framework\ServiceProvider;
 use Psr\EventDispatcher\EventDispatcherInterface;
+use Throwable;
 
 class DatabaseServiceProvider extends ServiceProvider
 {
@@ -23,7 +24,7 @@ class DatabaseServiceProvider extends ServiceProvider
 
     /**
      * @return void
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function boot(): void
     {

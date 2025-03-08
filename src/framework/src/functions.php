@@ -13,6 +13,7 @@ use Larmias\Engine\EngineConfig;
 use Larmias\Engine\Event;
 use Larmias\Engine\WorkerConfig;
 use Larmias\Engine\WorkerType;
+use Larmias\Support\Helper;
 use RuntimeException;
 use function Larmias\Support\invoke;
 use function Larmias\Support\make;
@@ -31,11 +32,23 @@ function run(callable $callback, array $config = []): void
 {
     $app = app();
     if (method_exists($app, 'getEngineConfig')) {
-        $config = array_merge($app->getEngineConfig(), $config);
+        $engineConfig = $app->getEngineConfig();
+        $config = array_merge($engineConfig, $config);
     }
     throw_unless(isset($config['driver']), RuntimeException::class, 'config not set driver.');
     $settings = $config['settings'] ?? [];
     $settings['mode'] = Constants::MODE_WORKER;
+
+    $runtimePath = $app->getRuntimePath() ?: sys_get_temp_dir();
+    $startFile = str_replace(DIRECTORY_SEPARATOR, '_', Helper::getStartFile());
+    if (empty($settings[Constants::OPTION_PID_FILE])) {
+        $settings[Constants::OPTION_PID_FILE] = $runtimePath . DIRECTORY_SEPARATOR . $startFile . '.pid';
+    }
+
+    if (empty($settings[Constants::OPTION_LOG_FILE])) {
+        $settings[Constants::OPTION_LOG_FILE] = $runtimePath . DIRECTORY_SEPARATOR . $startFile . '.log';
+    }
+
     /** @var KernelInterface $kernel */
     $kernel = make(KernelInterface::class);
     $kernel->setConfig(EngineConfig::build([
@@ -48,7 +61,7 @@ function run(callable $callback, array $config = []): void
         'callbacks' => [
             Event::ON_WORKER_START => function ($worker) use ($callback, $kernel) {
                 invoke($callback, [$worker, $kernel]);
-            }
+            },
         ]
     ]));
     $kernel->run();

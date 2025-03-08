@@ -38,7 +38,7 @@ class RedisProxy implements ConnectionInterface
     public function __construct(protected ContainerInterface $container, protected array $config = [])
     {
         $this->context = $this->container->get(ContextInterface::class);
-        if ($this->context->inCoroutine()) {
+        if ($this->context->inCoroutine() && !$this->context->inFiber()) {
             $this->coroutine = $this->container->get(CoroutineInterface::class);
         }
         $this->redisPool = new RedisPool($this->container, $this->config['pool'] ?? [], $this->config);
@@ -81,7 +81,7 @@ class RedisProxy implements ConnectionInterface
                         $this->context->destroy($contextKey);
                         $connection->release();
                     };
-                    $this->context->inCoroutine() ? $this->coroutine->defer($handler) : $handler();
+                    $this->coroutine ? $this->coroutine->defer($handler) : $handler();
                 } else {
                     $connection->release();
                 }

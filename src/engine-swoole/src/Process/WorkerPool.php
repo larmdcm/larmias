@@ -8,6 +8,7 @@ use Larmias\Engine\Swoole\Process\Signal\PcntlSignalHandler;
 use Larmias\Engine\Swoole\Process\Worker\WorkerKeeper;
 use Larmias\Engine\Swoole\Constants;
 use Swoole\Process as SwooleProcess;
+use ErrorException;
 use Closure;
 use function array_merge;
 use function max;
@@ -172,6 +173,7 @@ class WorkerPool
      * @param SwooleProcess $process
      * @param int $workerId
      * @return void
+     * @throws ErrorException
      */
     protected function handle(SwooleProcess $process, int $workerId): void
     {
@@ -305,7 +307,17 @@ class WorkerPool
             return;
         }
 
-        printf($format . PHP_EOL, ...$args);
+        $message = sprintf(trim($format), ...$args);
+        $message = sprintf("%s pid:%d %s\n", date('Y-m-d H:i:s'), $this->getFileMasterPid(), $message);
+
+        if (!$this->config['daemonize']) {
+            fwrite(STDOUT, $message);
+            fflush(STDOUT);
+        }
+
+        if ($this->config['log_file']) {
+            file_put_contents($this->config['log_file'], $message, FILE_APPEND | LOCK_EX);
+        }
     }
 
     /**
@@ -386,6 +398,7 @@ class WorkerPool
     {
         return [
             'log_debug' => false,
+            'log_file' => null,
             'daemonize' => false,
             'worker_num' => 1,
             'enable_coroutine' => true,

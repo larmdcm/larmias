@@ -191,4 +191,28 @@ class Constants
      * @var string
      */
     public const OPTION_LOG_DEBUG = 'log_debug';
+
+    /**
+     * 是否开启心跳检测
+     * @var string
+     */
+    public const OPTION_OPEN_HEARTBEAT_CHECK = 'open_heartbeat_check';
+
+    /**
+     * 心跳检测间隔
+     * @var string
+     */
+    public const HEARTBEAT_CHECK_INTERVAL = 'heartbeat_check_interval';
+
+    /**
+     * 心跳检测空闲时间
+     * @var string
+     */
+    public const HEARTBEAT_IDLE_TIME = 'heartbeat_idle_time';
+
+    /**
+     * 心跳检测是否忽略处理中的连接
+     * @var string
+     */
+    public const HEARTBEAT_IGNORE_PROCESSING = 'heartbeat_ignore_processing';
 }

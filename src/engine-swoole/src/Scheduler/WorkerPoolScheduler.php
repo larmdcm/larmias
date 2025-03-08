@@ -83,6 +83,7 @@ class WorkerPoolScheduler extends AbstractScheduler
             'stop_wait_time' => $this->settings[Constants::OPTION_STOP_WAIT_TIME] ?? 3,
             'worker_auto_recover' => $this->settings[Constants::OPTION_WORKER_AUTO_RECOVER] ?? true,
             'pid_file' => $this->settings[Constants::OPTION_PID_FILE] ?? null,
+            'log_file' => $this->settings[Constants::OPTION_LOG_FILE] ?? null,
         ]);
         return $pool;
     }

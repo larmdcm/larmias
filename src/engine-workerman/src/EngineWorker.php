@@ -34,7 +34,7 @@ class EngineWorker extends BaseWorker
     public function onWorkerStart(Worker $worker): void
     {
         try {
-            $this->start($worker->id);
+            $this->run($worker->id);
             if ($this->hasListen(Event::ON_WORKER)) {
                 $processTickInterval = max(1, (int)$this->getSettings(Constants::OPTION_PROCESS_TICK_INTERVAL, 1));
                 Timer::tick($processTickInterval, function () {
@@ -74,7 +74,6 @@ class EngineWorker extends BaseWorker
     public function makeWorker(array $config = []): Worker
     {
         $context = $config[Constants::OPTION_RAW_CONTEXT] ?? [];
-
         if (!empty($config[Constants::OPTION_BACKLOG])) {
             $context['socket']['backlog'] = $config[Constants::OPTION_BACKLOG];
         }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Larmias\Guzzle;
 
+use Larmias\Contracts\Client\Http\ClientFactoryInterface;
 use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\ContextInterface;
 use GuzzleHttp\Client;
@@ -26,7 +27,7 @@ class ClientFactory
      */
     public function create(array $config = []): Client
     {
-        if ($this->context->inCoroutine()) {
+        if ($this->context->inCoroutine() && $this->container->has(ClientFactoryInterface::class)) {
             /** @var callable $coHandler */
             $coHandler = $this->container->make(CoroutineHandler::class);
             $stack = HandlerStack::create($coHandler);

@@ -75,7 +75,7 @@ abstract class Worker implements WorkerInterface
      * @param int $workerId
      * @throws Throwable
      */
-    public function start(int $workerId): void
+    public function run(int $workerId): void
     {
         $this->setWorkerId($workerId);
         $this->reset();

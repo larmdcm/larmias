@@ -16,7 +16,7 @@
     }
   ],
   "require": {
-    "php": ">=8.0",
+    "php": ">=8.1",
     "larmias/contracts": "^1.0",
     "larmias/support": "^1.0"
   },

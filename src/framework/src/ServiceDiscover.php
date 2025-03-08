@@ -10,11 +10,13 @@ use Larmias\Contracts\ApplicationInterface;
 use Larmias\Contracts\Di\ClassScannerInterface;
 use Larmias\Contracts\ServiceDiscoverInterface;
 use Larmias\Di\AnnotationCollector;
+use Larmias\Engine\Constants;
 use Larmias\Event\Annotation\Listener;
 use Larmias\Framework\Annotation\Provider;
 use Larmias\Framework\Annotation\Server;
 use Larmias\Process\Annotation\Process;
 use Larmias\Support\FileSystem;
+use Larmias\Support\Helper;
 use Larmias\Support\ScanHandler\ScanHandlerFactory;
 use Throwable;
 use function array_column;
@@ -97,11 +99,17 @@ class ServiceDiscover implements ServiceDiscoverInterface
      */
     protected function runHandle(): never
     {
+        $startFile = str_replace(DIRECTORY_SEPARATOR, '_', Helper::getStartFile());
+        $runtimePath = $this->app->getRuntimePath() ?: sys_get_temp_dir();
         $this->app->setIsInitialize(true);
         run(function () {
             $this->handle();
         }, [
-            'settings' => ['logger' => false]
+            'settings' => [
+                'logger' => false,
+                Constants::OPTION_PID_FILE => $runtimePath . DIRECTORY_SEPARATOR . $startFile . '_' . 'discover.pid',
+                Constants::OPTION_LOG_FILE => $runtimePath . DIRECTORY_SEPARATOR . $startFile . '_' . 'discover.log',
+            ]
         ]);
         exit(0);
     }

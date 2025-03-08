@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace Larmias\Task;
 
-use Closure;
 use Larmias\Contracts\ConfigInterface;
 use Larmias\Contracts\ContainerInterface;
 use Larmias\Task\Client\Connection;
 use Larmias\Task\Contracts\TaskExecutorInterface;
+use Closure;
+use Throwable;
 
 class TaskExecutor implements TaskExecutorInterface
 {
@@ -20,7 +21,7 @@ class TaskExecutor implements TaskExecutorInterface
     /**
      * @param ContainerInterface $container
      * @param ConfigInterface $config
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function __construct(protected ContainerInterface $container, protected ConfigInterface $config)
     {

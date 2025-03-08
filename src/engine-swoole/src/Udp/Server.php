@@ -21,7 +21,16 @@ class Server extends BaseServer
      */
     public function process(): void
     {
-        $this->initWaiter();
+        $this->initServer();
+        $this->start();
+        $this->wait(fn() => $this->shutdown());
+    }
+
+    /**
+     * @return void
+     */
+    public function onServerStart(): void
+    {
         $this->socket = new Socket(AF_INET, SOCK_DGRAM, 0);
         [$host, $port] = [$this->getWorkerConfig()->getHost(), $this->getWorkerConfig()->getPort()];
         if (!$this->socket->bind($host, $port)) {
@@ -42,14 +51,12 @@ class Server extends BaseServer
                 });
             }
         });
-
-        $this->wait(fn() => $this->shutdown());
     }
 
     /**
      * @return void
      */
-    public function serverShutdown(): void
+    public function onServerShutdown(): void
     {
         $this->socket->cancel();
     }

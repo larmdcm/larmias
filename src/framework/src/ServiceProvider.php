@@ -13,6 +13,7 @@ use Larmias\Contracts\ServiceProviderInterface;
 use Larmias\Contracts\ServiceDiscoverInterface;
 use Larmias\Contracts\VendorPublishInterface;
 use Larmias\Contracts\ViewInterface;
+use Throwable;
 
 abstract class ServiceProvider implements ServiceProviderInterface
 {
@@ -24,7 +25,7 @@ abstract class ServiceProvider implements ServiceProviderInterface
 
     /**
      * @param ContainerInterface $container
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function __construct(protected ContainerInterface $container)
     {
@@ -91,14 +92,10 @@ abstract class ServiceProvider implements ServiceProviderInterface
      * @param string $name
      * @param array $paths
      * @return void
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function publishes(string $name, array $paths): void
     {
-        if (!$this->container->has(VendorPublishInterface::class)) {
-            return;
-        }
-
         /** @var VendorPublishInterface $publish */
         $publish = $this->app->getContainer()->get(VendorPublishInterface::class);
         $publish->publishes($name, $paths);
@@ -108,14 +105,10 @@ abstract class ServiceProvider implements ServiceProviderInterface
      * @param string $path
      * @param string|null $namespace
      * @return void
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function loadViewsFrom(string $path, ?string $namespace = null): void
     {
-        if (!$this->container->has(ViewInterface::class)) {
-            return;
-        }
-
         /** @var ViewInterface $view */
         $view = $this->container->get(ViewInterface::class);
         if ($namespace) {
@@ -129,13 +122,10 @@ abstract class ServiceProvider implements ServiceProviderInterface
      * 注册类扫描路径
      * @param string|array $path
      * @return void
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function registerClassScanPath(string|array $path): void
     {
-        if (!$this->container->has(ClassScannerInterface::class)) {
-            return;
-        }
         /** @var ClassScannerInterface $classScanner */
         $classScanner = $this->container->get(ClassScannerInterface::class);
         $classScanner->addIncludePath($path);
@@ -146,13 +136,10 @@ abstract class ServiceProvider implements ServiceProviderInterface
      * @param string|array $annotations
      * @param string $handler
      * @return void
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function addAnnotationHandler(string|array $annotations, string $handler): void
     {
-        if (!$this->container->has(AnnotationInterface::class)) {
-            return;
-        }
         /** @var AnnotationInterface $annotation */
         $annotation = $this->container->get(AnnotationInterface::class);
         $annotation->addHandler($annotations, $handler);

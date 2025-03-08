@@ -10,6 +10,7 @@ use Larmias\Task\Command\TaskCommand;
 use Larmias\Task\Contracts\TaskExecutorInterface;
 use Larmias\Task\TaskExecutor;
 use Larmias\Framework\ServiceProvider;
+use Throwable;
 
 class TaskServiceProvider extends ServiceProvider
 {
@@ -26,7 +27,7 @@ class TaskServiceProvider extends ServiceProvider
 
     /**
      * @return void
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function boot(): void
     {

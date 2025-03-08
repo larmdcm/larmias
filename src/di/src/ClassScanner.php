@@ -6,6 +6,7 @@ namespace Larmias\Di;
 
 use Larmias\Contracts\Annotation\AnnotationInterface;
 use Larmias\Contracts\Aop\AopInterface;
+use Larmias\Contracts\ConfigInterface;
 use Larmias\Contracts\ContainerInterface;
 use Larmias\Contracts\Di\ClassScannerInterface;
 use Larmias\Di\Aop\AspectCollector;
@@ -50,16 +51,23 @@ class ClassScanner implements ClassScannerInterface
      * @param ContainerInterface $container
      * @param AnnotationInterface $annotation
      * @param AopInterface $aop
+     * @param ConfigInterface|null $configObj
      * @param array $config
      */
     public function __construct(
         protected ContainerInterface  $container,
         protected AnnotationInterface $annotation,
         protected AopInterface        $aop,
-        array                         $config = []
+        ?ConfigInterface              $configObj = null,
+        array                         $config = [],
     )
     {
-        $this->config = array_merge($this->config, $config);
+        if ($configObj) {
+            $this->config = array_merge($this->config, $configObj->get('aop', []));
+        }
+        if ($config) {
+            $this->config = array_merge($this->config, $config);
+        }
         $this->fileSystem = new FileSystem();
         foreach ((array)$this->config['annotation_handlers'] as $annot => $handler) {
             $this->annotation->addHandler($annot, $handler);

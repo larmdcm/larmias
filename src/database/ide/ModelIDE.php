@@ -65,7 +65,7 @@ use Closure;
  * @method static float min(string $field)
  * @method static float max(string $field)
  * @method static float avg(string $field)
- * @method static string buildSql(int $buildType = QueryInterface::BUILD_SQL_SELECT)
+ * @method static string buildSql(int $buildType = Contracts\QueryInterface::BUILD_SQL_SELECT)
  * @method static int insert(?array $data = null)
  * @method static string insertGetId(?array $data = null)
  * @method static int insertAll(?array $data = null)

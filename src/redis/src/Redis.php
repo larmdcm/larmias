@@ -8,7 +8,7 @@ use Larmias\Contracts\Redis\ConnectionInterface;
 use Larmias\Contracts\Redis\RedisFactoryInterface;
 
 /**
- * @mixin ConnectionInterface
+ * @mixin \Redis
  */
 class Redis
 {

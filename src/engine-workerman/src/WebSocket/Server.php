@@ -7,7 +7,7 @@ namespace Larmias\Engine\WorkerMan\WebSocket;
 use Larmias\Engine\Event;
 use Larmias\Engine\WorkerMan\Server as BaseServer;
 use Workerman\Connection\TcpConnection;
-use Workerman\Protocols\Http\Request as WorkerRequest;
+use Workerman\Protocols\Http\Request;
 use Throwable;
 
 class Server extends BaseServer
@@ -19,10 +19,10 @@ class Server extends BaseServer
 
     /**
      * @param TcpConnection $tcpConnection
-     * @param WorkerRequest $request
+     * @param Request $request
      * @return void
      */
-    public function onWebSocketConnect(TcpConnection $tcpConnection, WorkerRequest $request): void
+    public function onWebSocketConnect(TcpConnection $tcpConnection, Request $request): void
     {
         try {
             $tcpConnection->request = $request;

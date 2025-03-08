@@ -7,12 +7,13 @@ namespace Larmias\Task;
 use Larmias\SharedMemory\StoreManager as BaeStoreManager;
 use Larmias\Task\Contracts\TaskStoreInterface;
 use Larmias\Task\Store\TaskStore;
+use Throwable;
 
 class StoreManager extends BaeStoreManager
 {
     /**
      * @return TaskStoreInterface
-     * @throws \Throwable
+     * @throws Throwable
      */
     public static function task(): TaskStoreInterface
     {

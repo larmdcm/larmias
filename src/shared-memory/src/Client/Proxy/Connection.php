@@ -35,7 +35,7 @@ class Connection
     public function __construct(protected ContainerInterface $container, protected array $config = [])
     {
         $this->context = $this->container->get(ContextInterface::class);
-        if ($this->context->inCoroutine()) {
+        if ($this->context->inCoroutine() && !$this->context->inFiber()) {
             $this->coroutine = $this->container->get(CoroutineInterface::class);
         }
         $this->clientPool = new ClientPool($this->container, $this->config['pool'] ?? [], $this->config);

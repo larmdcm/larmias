@@ -13,6 +13,7 @@ use Larmias\Task\Contracts\TaskStoreInterface;
 use Larmias\Task\Enum\WorkerStatus;
 use Larmias\Task\StoreManager;
 use Larmias\Task\Task;
+use Throwable;
 
 class TaskCommand extends Command
 {
@@ -37,7 +38,7 @@ class TaskCommand extends Command
     /**
      * @param WorkerInterface $worker
      * @return void
-     * @throws \Throwable
+     * @throws Throwable
      */
     public static function onTick(WorkerInterface $worker): void
     {
@@ -77,7 +78,7 @@ class TaskCommand extends Command
     /**
      * @param ConnectionInterface $connection
      * @return void
-     * @throws \Throwable
+     * @throws Throwable
      */
     public static function onClose(ConnectionInterface $connection): void
     {
@@ -87,6 +88,7 @@ class TaskCommand extends Command
 
     /**
      * @return array
+     * @throws Throwable
      */
     public function publish(): array
     {
@@ -101,6 +103,7 @@ class TaskCommand extends Command
 
     /**
      * @return array
+     * @throws Throwable
      */
     public function subscribe(): array
     {
@@ -134,6 +137,7 @@ class TaskCommand extends Command
 
     /**
      * @return array
+     * @throws Throwable
      */
     public function getInfo(): array
     {
@@ -149,6 +153,7 @@ class TaskCommand extends Command
 
     /**
      * @return array
+     * @throws Throwable
      */
     public function setInfo(): array
     {
@@ -174,6 +179,7 @@ class TaskCommand extends Command
 
     /**
      * @return array
+     * @throws Throwable
      */
     public function leave(): array
     {

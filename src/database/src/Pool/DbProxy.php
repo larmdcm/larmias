@@ -123,7 +123,7 @@ class DbProxy implements ConnectionInterface
     /**
      * 提交事务
      * @return void
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function commit(): void
     {
@@ -136,7 +136,7 @@ class DbProxy implements ConnectionInterface
     /**
      * 回滚事务
      * @return void
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function rollback(): void
     {

@@ -155,4 +155,13 @@ class AlarmTimer implements TimerInterface
             unset($this->tasks[$runTime]);
         }
     }
+
+    /**
+     * @param float $seconds
+     * @return void
+     */
+    public function sleep(float $seconds): void
+    {
+        usleep((int)($seconds * 1000 * 1000));
+    }
 }

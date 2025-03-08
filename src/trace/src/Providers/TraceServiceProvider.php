@@ -4,20 +4,19 @@ declare(strict_types=1);
 
 namespace Larmias\Trace\Providers;
 
-use Larmias\Engine\Timer;
 use Larmias\Trace\Contracts\TraceContextInterface;
 use Larmias\Trace\Contracts\TraceInterface;
 use Larmias\Trace\Listeners\DatabaseQueryExecutedListener;
 use Larmias\Trace\Trace;
 use Larmias\Trace\TraceContext;
 use Larmias\Framework\ServiceProvider;
-use Swoole\Coroutine;
+use Throwable;
 
 class TraceServiceProvider extends ServiceProvider
 {
     /**
      * @return void
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function register(): void
     {
@@ -29,7 +28,7 @@ class TraceServiceProvider extends ServiceProvider
 
     /**
      * @return void
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function boot(): void
     {
@@ -45,7 +44,7 @@ class TraceServiceProvider extends ServiceProvider
 
     /**
      * @return void
-     * @throws \Throwable
+     * @throws Throwable
      */
     protected function setListener(): void
     {

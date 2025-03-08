@@ -11,11 +11,6 @@ use Closure;
 class Context implements ContextInterface
 {
     /**
-     * @var array
-     */
-    protected array $context = [];
-
-    /**
      * @param CoroutineInterface $coroutine
      */
     public function __construct(protected CoroutineInterface $coroutine)
@@ -30,11 +25,7 @@ class Context implements ContextInterface
      */
     public function get(string $id, mixed $default = null, ?int $cid = null): mixed
     {
-        if ($this->inCoroutine()) {
-            return $this->coroutine->getContextFor($cid)[$id] ?? $default;
-        }
-
-        return $this->context[$id] ?? $default;
+        return $this->coroutine->getContextFor($cid)[$id] ?? $default;
     }
 
     /**
@@ -45,12 +36,7 @@ class Context implements ContextInterface
      */
     public function set(string $id, mixed $value, ?int $cid = null): mixed
     {
-        if ($this->inCoroutine()) {
-            $this->coroutine->getContextFor($cid)[$id] = $value;
-        } else {
-            $this->context[$id] = $value;
-        }
-
+        $this->coroutine->getContextFor($cid)[$id] = $value;
         return $value;
     }
 
@@ -76,11 +62,7 @@ class Context implements ContextInterface
      */
     public function has(string $id, ?int $cid = null): bool
     {
-        if ($this->inCoroutine()) {
-            return isset($this->coroutine->getContextFor($cid)[$id]);
-        }
-
-        return isset($this->context[$id]);
+        return isset($this->coroutine->getContextFor($cid)[$id]);
     }
 
     /**
@@ -90,11 +72,7 @@ class Context implements ContextInterface
      */
     public function destroy(string $id, ?int $cid = null): void
     {
-        if ($this->inCoroutine()) {
-            $this->set($id, null, $cid);
-        } else {
-            unset($this->context[$id]);
-        }
+        $this->set($id, null, $cid);
     }
 
     /**

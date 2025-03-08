@@ -6,7 +6,6 @@ namespace Larmias\Di\Providers;
 
 use Larmias\Contracts\Annotation\AnnotationInterface;
 use Larmias\Contracts\Aop\AopInterface;
-use Larmias\Contracts\ConfigInterface;
 use Larmias\Contracts\Di\ClassScannerInterface;
 use Larmias\Di\Annotation;
 use Larmias\Di\Annotation\Aspect;
@@ -36,7 +35,7 @@ class DiServiceProvider extends ServiceProvider
             ClassScannerInterface::class => ClassScanner::class,
         ]);
         /** @var AnnotationInterface $annotation */
-        $annotation = $this->container->make(AnnotationInterface::class);
+        $annotation = $this->container->get(AnnotationInterface::class);
         $annotation->addHandler(Inject::class, InjectAnnotationHandler::class);
         $annotation->addHandler(Invoke::class, InvokeResolverAnnotationHandler::class);
         $annotation->addHandler(Aspect::class, AspectAnnotationHandler::class);
@@ -52,12 +51,8 @@ class DiServiceProvider extends ServiceProvider
         $this->publishes(static::class, [
             __DIR__ . '/../../publish/aop.php' => $this->app->getConfigPath() . DIRECTORY_SEPARATOR . 'aop.php',
         ]);
-
-        /** @var ConfigInterface $config */
-        $config = $this->container->get(ConfigInterface::class);
-        $aopConfig = $config->get('aop', []);
         /** @var ClassScannerInterface $classScanner */
-        $classScanner = $this->container->make(ClassScannerInterface::class, ['config' => $aopConfig]);
+        $classScanner = $this->container->get(ClassScannerInterface::class);
         $classScanner->scan();
     }
 }
